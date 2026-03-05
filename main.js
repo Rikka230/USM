@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadPlayers();
 });
 
-// --- C. CHARGEMENT DYNAMIQUE DES JOUEURS (PAR CATÉGORIE) ---
+// --- C. CHARGEMENT DYNAMIQUE DES JOUEURS & SLIDER ---
 async function loadPlayers() {
     const container = document.getElementById('roster-categories-container');
     if (!container) return;
@@ -119,7 +119,6 @@ async function loadPlayers() {
         const q = query(collection(db, "players"), orderBy("timestamp", "desc"));
         const querySnapshot = await getDocs(q);
         
-        // 1. On prépare nos "Tiroirs" par catégorie avec leurs titres traduisibles
         const categoriesData = {
             "gardien": { title: "Gardiens", players: [] },
             "defenseur": { title: "Défenseurs", players: [] },
@@ -129,7 +128,6 @@ async function loadPlayers() {
             "coach": { title: "Coachs & Staff", players: [] }
         };
 
-        // 2. On range chaque joueur téléchargé dans le bon tiroir
         querySnapshot.forEach((doc) => {
             const player = doc.data();
             if (categoriesData[player.category]) {
@@ -137,21 +135,25 @@ async function loadPlayers() {
             }
         });
 
-        container.innerHTML = ''; // On enlève le loader
+        container.innerHTML = ''; 
 
-        // 3. On génère le HTML bloc par bloc
         for (const [catKey, catData] of Object.entries(categoriesData)) {
-            // S'il n'y a pas de joueurs dans cette catégorie, on ne l'affiche pas
             if (catData.players.length === 0) continue;
 
-            // Création de l'en-tête de la catégorie
+            // Structure avec les boutons de slider
             let categoryHTML = `
                 <div class="category-block reveal visible">
-                    <h3 class="category-title">✦ ${catData.title} <span style="color:#666; font-size:0.8rem;">(${catData.players.length})</span></h3>
-                    <div class="horizontal-scroller">
+                    <div class="category-header">
+                        <h3 class="category-title">✦ ${catData.title} <span style="color:#666; font-size:0.8rem;">(${catData.players.length})</span></h3>
+                        <div class="slider-controls">
+                            <button class="slider-btn prev-btn" aria-label="Précédent">❮</button>
+                            <button class="slider-btn next-btn" aria-label="Suivant">❯</button>
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <div class="horizontal-scroller">
             `;
 
-            // Ajout des cartes dans le scroller horizontal
             catData.players.forEach(player => {
                 categoryHTML += `
                     <div class="player-card">
@@ -170,14 +172,34 @@ async function loadPlayers() {
                 `;
             });
 
-            // Fermeture des balises de la catégorie
             categoryHTML += `
+                        </div>
                     </div>
                 </div>
             `;
 
             container.innerHTML += categoryHTML;
         }
+
+        // --- ACTIVATION DES BOUTONS DU SLIDER ---
+        document.querySelectorAll('.category-block').forEach(block => {
+            const scroller = block.querySelector('.horizontal-scroller');
+            const prevBtn = block.querySelector('.prev-btn');
+            const nextBtn = block.querySelector('.next-btn');
+
+            if(prevBtn && nextBtn && scroller) {
+                // Largeur d'une carte (280px) + le gap (24px)
+                const scrollAmount = 304; 
+                
+                prevBtn.addEventListener('click', () => {
+                    scroller.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                });
+                
+                nextBtn.addEventListener('click', () => {
+                    scroller.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                });
+            }
+        });
 
     } catch (error) {
         console.error("Erreur de récupération :", error);
@@ -209,4 +231,5 @@ function initFilters() {
         });
     });
 }
+
 
