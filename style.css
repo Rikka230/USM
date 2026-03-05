@@ -129,3 +129,38 @@ body {
 .player-info { padding: 15px 5px 5px; display: flex; justify-content: space-between; align-items: center;}
 .player-info h3 { font-size: 1.2rem; text-transform: uppercase; margin-bottom: 5px;}
 .player-stat { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;}
+
+/* ================= 8. FOOTER & LIENS ================= */
+.site-footer {
+    background: rgba(5, 5, 7, 0.9);
+    border-top: 1px solid var(--surface-border);
+    padding: 30px var(--spacing-main);
+    margin-top: 80px;
+    text-align: center;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.footer-separator { color: #333; }
+.legal-link { color: #aaa; text-decoration: none; transition: 0.3s; }
+.legal-link:hover { color: var(--usm-pink); }
+.copyright { color: #aaa; }
+
+/* Le lien secret caché en plein texte */
+.admin-secret-link {
+    color: #888; 
+    text-decoration: none; 
+    cursor: default; /* Enlève la petite main au survol pour plus de discrétion */
+    transition: 0.3s;
+}
+.admin-secret-link:hover {
+    color: var(--usm-pink); /* Un petit effet rose si on le trouve ! */
+}
