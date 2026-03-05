@@ -105,9 +105,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const analytics = getAnalytics(app); // Activation des statistiques Firebase
 
-// PS : N'oublie pas de décommenter la ligne `loadPlayers();` tout à la fin de ton fichier main.js pour que l'appel se fasse au chargement !
-// Décommenter loadPlayers() une fois Firebase configuré
-// loadPlayers();
+loadPlayers();
+
 
 
 
