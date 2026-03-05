@@ -3,37 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USM Football | Prototype DA</title>
+    <title>USM Football | Fusion Premium DA</title>
     <style>
         /* ================= 1. VARIABLES & RESET ================= */
         :root {
-            --bg-dark: #0a0a0c;
+            --bg-dark: #050507; /* Noir abyssal pour faire ressortir le rose */
             --usm-pink: #d80056;
-            --usm-pink-glow: rgba(216, 0, 86, 0.15);
-            --text-light: #f5f5f5;
-            --surface: rgba(255, 255, 255, 0.03);
+            --usm-pink-glow: rgba(216, 0, 86, 0.3);
+            --text-light: #ffffff;
+            --surface: rgba(25, 25, 30, 0.4); /* Effet verre fumé */
             --surface-border: rgba(255, 255, 255, 0.08);
+            --card-radius: 32px; /* Pill-shape Tuyo style */
             
-            --font-h1: clamp(2rem, 5vw, 4rem);
-            --font-h2: clamp(1.5rem, 3vw, 2.5rem);
+            --font-h1: clamp(2.5rem, 6vw, 5rem);
+            --font-h2: clamp(1.8rem, 4vw, 3rem);
             --spacing-main: clamp(20px, 5vw, 60px);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; font-family: 'Helvetica Neue', Arial, sans-serif; }
 
-        /* Fond Sombre + Lumière Bordeaux façon DA luxe */
         body {
             background-color: var(--bg-dark);
+            /* Double fond : texture cuir ultra subtile + halo rose directionnel */
             background-image: 
-                radial-gradient(circle at 50% 0%, var(--usm-pink-glow) 0%, transparent 50%),
-                url('https://www.transparenttextures.com/patterns/black-leather.png'); /* Texture cuir subtile */
+                radial-gradient(circle at 80% 20%, var(--usm-pink-glow) 0%, transparent 40%),
+                radial-gradient(circle at 20% 80%, rgba(216, 0, 86, 0.1) 0%, transparent 50%),
+                url('https://www.transparenttextures.com/patterns/black-leather.png');
+            background-attachment: fixed;
             color: var(--text-light);
-            line-height: 1.6;
+            line-height: 1.4;
             overflow-x: hidden;
+            position: relative;
         }
 
-        /* ================= 2. ANIMATIONS ================= */
+        /* ================= 2. TYPOGRAPHIE GÉANTE (Esprit Tuyo) ================= */
+        .giant-bg-text {
+            position: absolute;
+            font-size: clamp(8rem, 15vw, 20rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.03);
+            z-index: -1;
+            line-height: 0.8;
+            letter-spacing: -2px;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .text-1 { top: 15%; left: -5%; }
+        .text-2 { top: 40%; right: -5%; text-align: right; }
+        .text-3 { top: 70%; left: -2%; color: rgba(216, 0, 86, 0.03); }
+
+        /* ================= 3. ANIMATIONS ================= */
         .reveal {
             opacity: 0;
             transform: translateY(40px);
@@ -43,141 +64,172 @@
         .delay-1 { transition-delay: 0.1s; }
         .delay-2 { transition-delay: 0.2s; }
 
-        /* ================= 3. NAVIGATION ================= */
+        /* ================= 4. NAVIGATION ================= */
         .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px var(--spacing-main);
-            background: rgba(10, 10, 12, 0.8);
-            backdrop-filter: blur(10px);
+            background: rgba(5, 5, 7, 0.7);
+            backdrop-filter: blur(20px);
             position: fixed;
             top: 0; width: 100%; z-index: 100;
             border-bottom: 1px solid var(--surface-border);
         }
-        .logo { font-size: 1.5rem; font-weight: bold; letter-spacing: 2px; display: flex; align-items: center; gap: 10px;}
+        .logo { font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; }
         .logo span { color: var(--usm-pink); }
         .nav-links a {
             color: white; text-decoration: none; margin-left: 30px; font-size: 0.9rem;
-            text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
+            text-transform: uppercase; font-weight: bold; transition: 0.3s;
         }
         .nav-links a:hover { color: var(--usm-pink); }
+        .btn-premium {
+            background: var(--usm-pink); color: white; padding: 10px 24px;
+            border-radius: 30px; border: none; font-weight: bold; cursor: pointer;
+        }
 
-        /* ================= 4. HERO & BENTO GRID ================= */
-        main { padding-top: 100px; }
+        /* ================= 5. HERO & BENTO GRID ================= */
+        main { padding-top: 120px; position: relative; z-index: 1;}
         
         .hero-bento {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            grid-auto-rows: minmax(200px, auto);
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-auto-rows: minmax(220px, auto);
+            gap: 24px;
             padding: var(--spacing-main);
-            max-width: 1400px;
-            margin: 0 auto;
+            max-width: 1400px; margin: 0 auto;
         }
 
         .bento-item {
             background: var(--surface);
             border: 1px solid var(--surface-border);
-            border-radius: 16px;
+            border-radius: var(--card-radius);
             padding: 40px;
-            backdrop-filter: blur(10px);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            backdrop-filter: blur(15px);
+            display: flex; flex-direction: column; justify-content: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .bento-item::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
         }
         .bento-item:hover {
-            transform: translateY(-5px);
-            border-color: rgba(216, 0, 86, 0.4);
+            transform: translateY(-5px) scale(1.02);
+            border-color: rgba(216, 0, 86, 0.5);
+            background: rgba(40, 30, 40, 0.6);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 0 40px rgba(216, 0, 86, 0.1);
         }
         
-        .hero-main { grid-column: 1 / -1; text-align: center; padding: 80px 20px; }
-        .hero-main h1 { font-size: var(--font-h1); text-transform: uppercase; margin-bottom: 20px; line-height: 1.1;}
-        .hero-main p { font-size: 1.2rem; color: #aaa; max-width: 600px; margin: 0 auto;}
+        .hero-main { grid-column: 1 / -1; text-align: left; padding: 60px; background: linear-gradient(135deg, rgba(25, 25, 30, 0.8), rgba(216, 0, 86, 0.1));}
+        .hero-main h1 { font-size: var(--font-h1); text-transform: uppercase; margin-bottom: 15px; line-height: 1;}
+        .hero-main p { font-size: 1.2rem; color: #aaa; max-width: 600px;}
 
-        .highlight { font-size: 3rem; font-weight: bold; color: var(--usm-pink); display: block; margin-bottom: 10px;}
+        .highlight-data {
+            font-size: clamp(3rem, 6vw, 5rem); font-weight: 900; 
+            background: linear-gradient(to right, #fff, var(--usm-pink));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            line-height: 1; margin-bottom: 10px; display: flex; align-items: baseline; gap: 10px;
+        }
+        .data-label { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: #888; }
 
-        /* ================= 5. LE FONDATEUR ================= */
+        /* ================= 6. LE FONDATEUR (Mise en avant VIP) ================= */
         .founder-section {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: var(--spacing-main);
-            padding: calc(var(--spacing-main) * 2) var(--spacing-main);
-            max-width: 1400px; margin: 0 auto;
+            display: flex; flex-wrap: wrap; align-items: stretch;
+            gap: 24px; padding: var(--spacing-main); max-width: 1400px; margin: 0 auto;
+        }
+        .founder-card {
+            flex: 1 1 400px;
+            background: var(--surface); border: 1px solid var(--surface-border);
+            border-radius: var(--card-radius); padding: 40px;
+            display: flex; flex-direction: column; justify-content: center;
         }
         .founder-image-wrapper {
             flex: 1 1 400px;
-            position: relative;
+            border-radius: var(--card-radius);
+            overflow: hidden; position: relative;
+            border: 1px solid var(--surface-border);
         }
         .founder-portrait {
-            width: 100%; height: 600px; object-fit: cover;
-            border-radius: 16px;
-            mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+            width: 100%; height: 100%; object-fit: cover; min-height: 500px;
+            filter: contrast(1.1) saturate(0.8);
+            transition: 0.5s;
         }
-        .founder-bio { flex: 1 1 400px; }
-        .founder-bio h2 { font-size: var(--font-h2); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;}
-        .pink-accent { color: var(--usm-pink); font-size: 1.2rem; margin-bottom: 20px; display: inline-block;}
-        .founder-bio p { color: #ccc; font-size: 1.1rem; margin-bottom: 20px;}
-
-        /* ================= 6. JOUEURS ================= */
-        .players-section { padding: var(--spacing-main); max-width: 1400px; margin: 0 auto; text-align: center;}
-        .players-section h2 { font-size: var(--font-h2); margin-bottom: 40px; text-transform: uppercase;}
+        .founder-image-wrapper:hover .founder-portrait { filter: contrast(1.2) saturate(1.1); transform: scale(1.05);}
+        .founder-image-wrapper::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 50%;
+            background: linear-gradient(to top, rgba(5,5,7,1), transparent);
+        }
         
-        .player-filters { margin-bottom: 40px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;}
-        .filter-btn {
-            background: transparent; color: white; border: 1px solid var(--surface-border);
-            padding: 10px 25px; border-radius: 30px; cursor: pointer; transition: 0.3s;
-            text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;
+        h2 { font-size: var(--font-h2); text-transform: uppercase; letter-spacing: -1px; margin-bottom: 10px;}
+        .pink-badge { 
+            display: inline-block; background: rgba(216, 0, 86, 0.15); color: var(--usm-pink);
+            padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;
+            border: 1px solid rgba(216, 0, 86, 0.3); margin-bottom: 20px;
         }
-        .filter-btn.active, .filter-btn:hover { background: var(--usm-pink); border-color: var(--usm-pink); }
+
+        /* ================= 7. JOUEURS (Trading Cards Premium) ================= */
+        .players-section { padding: var(--spacing-main); max-width: 1400px; margin: 0 auto; }
+        .players-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; flex-wrap: wrap; gap: 20px;}
+        
+        .player-filters { display: flex; gap: 10px; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 40px; border: 1px solid var(--surface-border);}
+        .filter-btn {
+            background: transparent; color: #aaa; border: none;
+            padding: 10px 24px; border-radius: 30px; cursor: pointer; transition: 0.3s;
+            text-transform: uppercase; font-size: 0.8rem; font-weight: bold;
+        }
+        .filter-btn.active, .filter-btn:hover { background: var(--usm-pink); color: white; }
 
         .players-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;
         }
         .player-card {
             background: var(--surface); border: 1px solid var(--surface-border);
-            border-radius: 12px; overflow: hidden; text-align: left;
-            transition: 0.3s;
+            border-radius: 24px; overflow: hidden; position: relative;
+            transition: 0.4s; padding: 15px;
         }
-        .player-card:hover { border-color: var(--usm-pink); }
-        .player-card img { width: 100%; height: 350px; object-fit: cover; }
-        .player-info { padding: 20px; }
-        .player-info h3 { font-size: 1.2rem; text-transform: uppercase; margin-bottom: 5px;}
-        .player-info p { color: #888; font-size: 0.9rem;}
+        .player-card:hover { border-color: var(--usm-pink); transform: translateY(-10px); background: rgba(25, 25, 30, 0.8);}
+        .player-img-container { width: 100%; height: 350px; border-radius: 16px; overflow: hidden; position: relative; background: #111;}
+        .player-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.4s;}
+        .player-card:hover img { opacity: 1; transform: scale(1.05);}
+        
+        .player-info { padding: 20px 10px 10px; display: flex; justify-content: space-between; align-items: center;}
+        .player-info h3 { font-size: 1.4rem; text-transform: uppercase; letter-spacing: -0.5px; margin-bottom: 5px;}
+        .player-stat { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;}
 
     </style>
 </head>
 <body>
 
+    <div class="giant-bg-text text-1">ELITE</div>
+    <div class="giant-bg-text text-2">TALENT</div>
+    <div class="giant-bg-text text-3">NETWORK</div>
+
     <header class="navbar">
-        <div class="logo">
-            🦅 USM <span>FOOTBALL</span>
-        </div>
+        <div class="logo">🦅 USM <span>FOOTBALL</span></div>
         <nav class="nav-links">
-            <a href="#fondateur">Le Fondateur</a>
-            <a href="#joueurs">Nos Talents</a>
-            <a href="#services">Services</a>
+            <a href="#fondateur">L'Agence</a>
+            <a href="#joueurs">Les Talents</a>
+            <button class="btn-premium">Contact</button>
         </nav>
     </header>
 
     <main>
         <section class="hero-bento">
             <div class="bento-item hero-main reveal">
-                <h1>L'Excellence au service<br>de votre Carrière</h1>
-                <p>Depuis 1998, USM Group redéfinit les standards du management sportif. Une vision moderne, un réseau mondial.</p>
+                <h1>L'Excellence<br>au service de<br>votre Carrière</h1>
+                <p>Depuis 1998, USM Group redéfinit les standards du management sportif. Une vision moderne, un réseau mondial pour l'élite du football.</p>
             </div>
-            <div class="bento-item stats reveal delay-1">
-                <span class="highlight">25K+</span> 
-                <p>Contacts dans le monde du football professionnel.</p>
+            <div class="bento-item reveal delay-1">
+                <div class="data-label">Réseau Mondial</div>
+                <div class="highlight-data">25K<span style="font-size: 2rem; color: #fff;">+</span></div>
+                <p style="color: #aaa; font-size: 0.9rem;">Contacts directs dans les plus grands clubs mondiaux.</p>
             </div>
-            <div class="bento-item stats reveal delay-2">
-                <span class="highlight">N°1</span> 
-                <p>Classée première agence française par le CIES en 2012.</p>
+            <div class="bento-item reveal delay-2">
+                <div class="data-label">Classement CIES</div>
+                <div class="highlight-data">N°1</div>
+                <p style="color: #aaa; font-size: 0.9rem;">Classée première agence française de management.</p>
             </div>
         </section>
 
@@ -185,43 +237,47 @@
             <div class="founder-image-wrapper">
                 <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=800" alt="Christophe Mongai" class="founder-portrait">
             </div>
-            <div class="founder-bio">
+            <div class="founder-card">
+                <span class="pink-badge">Agent FIFA & FFF</span>
                 <h2>Christophe Mongai</h2>
-                <span class="pink-accent">Agent FIFA & FFF - Fondateur</span>
-                <p>Visionnaire et stratège, Christophe a bâti l'une des plus importantes écuries de France et d'Europe. Il figure parmi les agents les plus reconnus dans le domaine du football.</p>
-                <p>Depuis plus de 25 ans, il gère la carrière de grands joueurs et s'assure que les informations capitales arrivent simplement et efficacement à ses talents.</p>
+                <p style="color: #ccc; font-size: 1.1rem; margin-bottom: 20px;">Visionnaire et stratège, Christophe a bâti l'une des plus importantes écuries de France et d'Europe.</p>
+                <p style="color: #888;">Avec une approche directe et sans concession, il gère la carrière de grands joueurs et s'assure que les informations capitales vous parviennent avec une efficacité chirurgicale.</p>
             </div>
         </section>
 
         <section id="joueurs" class="players-section reveal">
-            <h2>Les Talents d'Aujourd'hui</h2>
-            <div class="player-filters">
-                <button class="filter-btn active">Tous</button>
-                <button class="filter-btn">Gardiens</button>
-                <button class="filter-btn">Défenseurs</button>
-                <button class="filter-btn">Attaquants</button>
+            <div class="players-header">
+                <h2>Roster Premium</h2>
+                <div class="player-filters">
+                    <button class="filter-btn active">Tous</button>
+                    <button class="filter-btn">Gardiens</button>
+                    <button class="filter-btn">Défenseurs</button>
+                </div>
             </div>
             
             <div class="players-grid">
                 <div class="player-card">
-                    <img src="https://images.unsplash.com/photo-1518605368461-1ee7c5320d2e?auto=format&fit=crop&q=80&w=500" alt="Joueur 1">
+                    <div class="player-img-container">
+                        <img src="https://images.unsplash.com/photo-1518605368461-1ee7c5320d2e?auto=format&fit=crop&q=80&w=500" alt="Casillas">
+                    </div>
                     <div class="player-info">
-                        <h3>Iker Casillas</h3>
-                        <p>167 sélections avec la Roja</p>
+                        <div>
+                            <h3>Iker Casillas</h3>
+                            <p style="color: #888; font-size: 0.8rem; text-transform: uppercase;">Gardien</p>
+                        </div>
+                        <div class="player-stat">167 Sélections</div>
                     </div>
                 </div>
                 <div class="player-card">
-                    <img src="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&q=80&w=500" alt="Joueur 2">
-                    <div class="player-info">
-                        <h3>Petr Cech</h3>
-                        <p>124 sélections (Rép. Tchèque)</p>
+                    <div class="player-img-container">
+                        <img src="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&q=80&w=500" alt="Cech">
                     </div>
-                </div>
-                <div class="player-card">
-                    <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&q=80&w=500" alt="Joueur 3">
                     <div class="player-info">
-                        <h3>Guillermo Ochoa</h3>
-                        <p>148 sélections avec le Mexique</p>
+                        <div>
+                            <h3>Petr Cech</h3>
+                            <p style="color: #888; font-size: 0.8rem; text-transform: uppercase;">Gardien</p>
+                        </div>
+                        <div class="player-stat">124 Sélections</div>
                     </div>
                 </div>
             </div>
@@ -229,16 +285,12 @@
     </main>
 
     <script>
-        // JS très simple pour déclencher les animations d'apparition au scroll
         document.addEventListener("DOMContentLoaded", () => {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                    }
+                    if (entry.isIntersecting) entry.target.classList.add('visible');
                 });
             }, { threshold: 0.15 });
-
             document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         });
     </script>
