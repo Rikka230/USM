@@ -86,44 +86,28 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 });
 
-/* ================= 2. FIREBASE & LECTURE JOUEURS ================= */
-const firebaseConfig = { /* Insérer clés front-end ici */ };
+/* ================= 2. CONFIGURATION FIREBASE FRONT ================= */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDd7OvBbX35PaQPlm6saccOGTQyvI3UEoU",
+  authDomain: "usm-football-b56ba.firebaseapp.com",
+  projectId: "usm-football-b56ba",
+  storageBucket: "usm-football-b56ba.firebasestorage.app",
+  messagingSenderId: "1004955626049",
+  appId: "1:1004955626049:web:1982ac82e68599946f74c0",
+  measurementId: "G-5FCYP7CMQD"
+};
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const analytics = getAnalytics(app); // Activation des statistiques Firebase
 
-async function loadPlayers() {
-    const container = document.getElementById('players-container');
-    try {
-        const q = query(collection(db, "players"), orderBy("timestamp", "desc"));
-        const querySnapshot = await getDocs(q);
-        container.innerHTML = ''; 
-
-        querySnapshot.forEach((doc) => {
-            const player = doc.data();
-            // Utilise l'image web optimisée générée par l'admin
-            const imgSource = player.image_web || 'assets/placeholder.jpg'; 
-            
-            container.innerHTML += `
-                <div class="player-card reveal visible" data-category="${player.category}">
-                    <div class="player-img-container">
-                        <img src="${imgSource}" alt="${player.name}" loading="lazy">
-                    </div>
-                    <div class="player-info">
-                        <div>
-                            <h3>${player.name}</h3>
-                            <p style="color: #888; font-size: 0.8rem; text-transform: uppercase;">${player.category}</p>
-                        </div>
-                        <div class="player-stat">${player.stat || ''}</div>
-                    </div>
-                </div>
-            `;
-        });
-    } catch (error) {
-        console.error("Erreur chargement joueurs:", error);
-        container.innerHTML = '<p>Erreur de chargement du roster.</p>';
-    }
-}
+// PS : N'oublie pas de décommenter la ligne `loadPlayers();` tout à la fin de ton fichier main.js pour que l'appel se fasse au chargement !
 // Décommenter loadPlayers() une fois Firebase configuré
 // loadPlayers();
+
 
 
