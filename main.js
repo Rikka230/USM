@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 /* ================= 1. TRADUCTION i18n ================= */
-/* ================= 1. TRADUCTION i18n ================= */
 const translations = {
     fr: {
         nav_agency: "L'Agence", nav_services: "Services", nav_talents: "Les Talents", nav_button: "Espace Joueur",
@@ -126,4 +125,5 @@ async function loadPlayers() {
 }
 // Décommenter loadPlayers() une fois Firebase configuré
 // loadPlayers();
+
 
