@@ -1,103 +1,131 @@
 /* ================= 1. VARIABLES & RESET ================= */
 :root {
-    --bg-dark: #121212; /* Base noire */
-    --leather-overlay: url('assets/leather-texture.png'); /* Texture subtile à ajouter */
-    --usm-pink: #d80056; /* Rose/Bordeaux USM */
-    --text-light: #f5f5f5;
-    
-    /* Typographie Fluide (Mobile à 4K) */
-    --font-h1: clamp(2rem, 5vw, 4rem);
-    --font-h2: clamp(1.5rem, 3vw, 2.5rem);
-    --font-body: clamp(1rem, 1.2vw, 1.2rem);
-    
-    /* Espacements Fluides */
+    --bg-dark: #050507; 
+    --usm-pink: #d80056;
+    --usm-pink-glow: rgba(216, 0, 86, 0.4);
+    --text-light: #ffffff;
+    --surface: rgba(25, 25, 30, 0.4); 
+    --surface-border: rgba(255, 255, 255, 0.1);
+    --card-radius: 32px; 
     --spacing-main: clamp(20px, 5vw, 60px);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; font-family: 'Helvetica Neue', Arial, sans-serif; }
 
-body.dark-leather-theme {
+body {
     background-color: var(--bg-dark);
-    background-image: var(--leather-overlay);
-    background-blend-mode: multiply;
-    color: var(--text-light);
-    line-height: 1.6;
+    background-image: 
+        radial-gradient(circle at 50% 0%, var(--usm-pink-glow) 0%, transparent 60%),
+        url('assets/leather-texture.png'); /* Texture à lier localement */
+    background-attachment: fixed; color: var(--text-light); line-height: 1.4; overflow-x: hidden;
 }
 
-/* ================= 2. UTILITAIRES & ANIMATIONS ================= */
-.pink-accent { color: var(--usm-pink); }
+.pink-accent { color: var(--usm-pink); font-weight: bold;}
+.text-white { color: #fff; }
 
-.lazy-load {
-    opacity: 0;
-    transition: opacity 0.8s ease-in;
-    object-fit: cover;
+/* ================= 2. TYPO GÉANTE & ANIMATIONS ================= */
+.giant-bg-text {
+    position: absolute; font-size: clamp(6rem, 12vw, 15rem); font-weight: 900;
+    text-transform: uppercase; color: rgba(255, 255, 255, 0.02);
+    z-index: -1; line-height: 0.8; pointer-events: none; white-space: nowrap;
 }
-.lazy-load.loaded { opacity: 1; }
+.text-1 { top: 20%; left: -5%; } .text-2 { top: 60%; right: -5%; text-align: right; }
 
-.reveal {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
+.reveal { opacity: 0; transform: translateY(40px); transition: 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
 .reveal.visible { opacity: 1; transform: translateY(0); }
 
-/* ================= 3. BENTO GRID (Hero) ================= */
-.hero-bento {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    padding: var(--spacing-main);
-    margin-top: 80px; /* Offset Navbar */
+/* ================= 3. NAVBAR & i18n ================= */
+.navbar {
+    display: flex; justify-content: space-between; align-items: center; padding: 20px var(--spacing-main);
+    background: rgba(5, 5, 7, 0.8); backdrop-filter: blur(20px); position: fixed; top: 0; width: 100%; 
+    z-index: 100; border-bottom: 1px solid var(--surface-border);
 }
-.bento-item {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 30px;
-    backdrop-filter: blur(10px);
-}
-.bento-item h1 { font-size: var(--font-h1); margin-bottom: 10px; }
+.logo-nav { font-size: 1.2rem; font-weight: 900; letter-spacing: 2px; display: flex; align-items: center; gap: 10px;}
+.logo-nav img { height: 30px; } .logo-nav span { color: var(--usm-pink); }
+.nav-links { display: flex; align-items: center; gap: 30px; }
+.nav-links a { color: white; text-decoration: none; font-size: 0.9rem; text-transform: uppercase; font-weight: bold; transition: 0.3s; }
+.nav-links a:hover { color: var(--usm-pink); }
+.btn-premium { background: var(--usm-pink); color: white; padding: 10px 24px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; }
 
-/* ================= 4. FONDATEUR (Statutaire) ================= */
-.founder-section {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--spacing-main);
-    padding: var(--spacing-main);
-    background: linear-gradient(to right, rgba(0,0,0,0.8), rgba(216,0,86,0.1));
+/* Selecteur Langue */
+.lang-switcher select {
+    background: transparent; color: var(--text-light); border: 1px solid var(--surface-border);
+    padding: 5px 10px; border-radius: 20px; font-weight: bold; cursor: pointer; appearance: none;
+    text-align: center; transition: 0.3s;
 }
-.founder-image-wrapper {
-    flex: 1 1 400px;
-    /* Mask CSS pour une intégration élégante de la photo */
-    mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-}
-.founder-portrait {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-}
-.founder-bio { flex: 1 1 400px; }
-.founder-bio h2 { font-size: var(--font-h2); text-transform: uppercase; letter-spacing: 2px;}
+.lang-switcher select:hover { border-color: var(--usm-pink); color: var(--usm-pink); }
+.lang-switcher select option { background: var(--bg-dark); color: white; }
 
-/* ================= 5. GRILLE JOUEURS ================= */
-.players-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-    padding: var(--spacing-main);
+/* ================= 4. HERO ================= */
+.hero-massive {
+    min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 120px 20px 40px; position: relative;
 }
-/* Sur mobile, on force un carrousel horizontal pour simplifier */
-@media (max-width: 768px) {
-    .players-grid {
-        display: flex;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-    }
-    .players-grid > div {
-        flex: 0 0 80%;
-        scroll-snap-align: center;
-    }
+.massive-eagle-wrapper {
+    width: clamp(200px, 40vw, 400px); margin-bottom: 30px;
+    filter: drop-shadow(0 0 40px rgba(216,0,86,0.6)); animation: float 6s ease-in-out infinite;
 }
+.massive-eagle-wrapper img { width: 100%; height: auto; }
+.hero-massive h1 { font-size: clamp(1.5rem, 4vw, 3rem); text-transform: uppercase; letter-spacing: 4px; font-weight: 900; margin-bottom: 15px;}
+@keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+
+/* ================= 5. BENTO GRID ================= */
+.bento-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; padding: var(--spacing-main); max-width: 1400px; margin: 0 auto; }
+.bento-card {
+    background: var(--surface); border: 1px solid var(--surface-border); border-radius: var(--card-radius); padding: 40px;
+    backdrop-filter: blur(15px); display: flex; flex-direction: column; justify-content: space-between; transition: 0.4s;
+}
+.bento-card:hover { transform: translateY(-5px); border-color: var(--usm-pink); background: rgba(40, 30, 40, 0.6); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+.highlight-card { background: linear-gradient(145deg, rgba(25,25,30,0.8), rgba(216,0,86,0.15)); }
+.card-full { grid-column: 1 / -1; }
+
+.data-huge {
+    font-size: clamp(4rem, 8vw, 6rem); font-weight: 900; line-height: 1; margin-bottom: 10px;
+    background: linear-gradient(135deg, #fff, var(--usm-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.stat-medium { font-size: clamp(3rem, 6vw, 4.5rem); }
+.data-label { font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; color: #888; font-weight: bold;}
+.data-desc { color: #aaa; font-size: 0.95rem; margin-top: 15px;}
+
+.services-wrapper { display: flex; flex-wrap: wrap; gap: 40px; }
+.services-list { list-style: none; margin-top: 20px; flex: 1; min-width: 250px;}
+.services-list li { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; font-weight: bold; }
+.services-list li::before { content: '✦'; color: var(--usm-pink); }
+
+/* ================= 6. VIP SECTION ================= */
+.founder-vip-section {
+    display: flex; flex-wrap: wrap; margin: 20px auto 80px; max-width: 1360px;
+    background: var(--surface); border: 1px solid rgba(216, 0, 86, 0.3); border-radius: var(--card-radius); overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+}
+.vip-photo-wrapper { flex: 1 1 400px; position: relative; min-height: 500px; }
+.vip-photo-wrapper img { width: 100%; height: 100%; object-fit: cover; object-position: top center; filter: contrast(1.1) brightness(0.9); }
+.vip-photo-wrapper::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to right, transparent 60%, rgba(25, 25, 30, 0.8) 100%), linear-gradient(to top, rgba(5, 5, 7, 0.9) 0%, transparent 30%);
+}
+.vip-content { flex: 1 1 500px; padding: 60px; display: flex; flex-direction: column; justify-content: center; background: linear-gradient(135deg, rgba(25, 25, 30, 0.9), rgba(216, 0, 86, 0.05)); }
+.vip-badge { align-self: flex-start; background: var(--usm-pink); color: white; padding: 8px 16px; border-radius: 20px; font-weight: 900; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 20px; }
+.vip-name { font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 900; line-height: 1; text-transform: uppercase; margin-bottom: 10px; }
+.vip-name span { color: var(--usm-pink); }
+.vip-quote { font-size: 1.5rem; color: #fff; font-style: italic; margin-bottom: 30px; border-left: 4px solid var(--usm-pink); padding-left: 15px; }
+.vip-desc { color: #aaa; font-size: 1.1rem; margin-bottom: 30px; line-height: 1.6; }
+.licenses-wrapper { display: flex; gap: 15px; flex-wrap: wrap;}
+.license-badge { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 1rem; }
+
+/* ================= 7. JOUEURS ================= */
+.players-section { padding: var(--spacing-main); max-width: 1400px; margin: 0 auto; }
+.players-section h2 { font-size: 2.5rem; text-transform: uppercase; margin-bottom: 20px;}
+.player-filters { display: flex; gap: 10px; margin-bottom: 40px;}
+.filter-btn { background: transparent; color: #aaa; border: 1px solid var(--surface-border); padding: 10px 24px; border-radius: 30px; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-size: 0.8rem; font-weight: bold; }
+.filter-btn.active, .filter-btn:hover { background: var(--usm-pink); color: white; border-color: var(--usm-pink);}
+
+.players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+.player-card { background: var(--surface); border: 1px solid var(--surface-border); border-radius: 24px; overflow: hidden; padding: 15px; transition: 0.4s; }
+.player-card:hover { border-color: var(--usm-pink); transform: translateY(-10px); background: rgba(25, 25, 30, 0.8);}
+.player-img-container { width: 100%; height: 320px; border-radius: 16px; overflow: hidden; background: #111;}
+.player-img-container img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.4s;}
+.player-card:hover img { opacity: 1; transform: scale(1.05);}
+.player-info { padding: 15px 5px 5px; display: flex; justify-content: space-between; align-items: center;}
+.player-info h3 { font-size: 1.2rem; text-transform: uppercase; margin-bottom: 5px;}
+.player-stat { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;}
