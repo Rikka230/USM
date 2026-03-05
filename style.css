@@ -165,9 +165,19 @@ body {
     color: var(--usm-pink); /* Un petit effet rose si on le trouve ! */
 }
 
-/* ================= 9. LAYOUT ROSTER (NETFLIX STYLE) ================= */
+/* ================= 9. LAYOUT ROSTER & SLIDER (NETFLIX STYLE) ================= */
 .category-block {
-    margin-bottom: 50px;
+    margin-bottom: 60px;
+    position: relative;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(216, 0, 86, 0.2);
+    margin-bottom: 20px;
+    padding-bottom: 15px;
 }
 
 .category-title {
@@ -175,34 +185,61 @@ body {
     text-transform: uppercase;
     letter-spacing: 2px;
     color: var(--usm-pink);
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(216, 0, 86, 0.2);
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-/* Le conteneur qui scroll de gauche à droite */
+/* Boutons du Slider */
+.slider-controls {
+    display: flex;
+    gap: 12px;
+}
+
+.slider-btn {
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 1.2rem;
+}
+
+.slider-btn:hover {
+    background: var(--usm-pink);
+    border-color: var(--usm-pink);
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(216, 0, 86, 0.5);
+}
+
+.slider-container {
+    position: relative;
+    width: 100%;
+}
+
 .horizontal-scroller {
     display: flex;
     gap: 24px;
     overflow-x: auto;
-    padding-bottom: 20px; /* Espace pour le scroll */
-    scroll-snap-type: x mandatory; /* Force l'arrêt net sur une carte */
+    padding-bottom: 20px;
+    scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
-    -ms-overflow-style: none;  /* Cache la scrollbar IE/Edge */
-    scrollbar-width: none;  /* Cache la scrollbar Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
-/* Cache la scrollbar Chrome/Safari/Opera */
 .horizontal-scroller::-webkit-scrollbar {
     display: none;
 }
 
-/* On force la largeur des cartes pour qu'elles s'alignent bien dans le scroller */
 .horizontal-scroller .player-card {
-    flex: 0 0 280px; /* Taille fixe de la carte */
-    scroll-snap-align: start; /* Le scroll s'arrête parfaitement au début de la carte */
-    margin: 0; /* Évite les conflits avec le flex gap */
+    flex: 0 0 280px;
+    scroll-snap-align: start;
+    margin: 0;
 }
