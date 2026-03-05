@@ -164,3 +164,45 @@ body {
 .admin-secret-link:hover {
     color: var(--usm-pink); /* Un petit effet rose si on le trouve ! */
 }
+
+/* ================= 9. LAYOUT ROSTER (NETFLIX STYLE) ================= */
+.category-block {
+    margin-bottom: 50px;
+}
+
+.category-title {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--usm-pink);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(216, 0, 86, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Le conteneur qui scroll de gauche à droite */
+.horizontal-scroller {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    padding-bottom: 20px; /* Espace pour le scroll */
+    scroll-snap-type: x mandatory; /* Force l'arrêt net sur une carte */
+    scroll-behavior: smooth;
+    -ms-overflow-style: none;  /* Cache la scrollbar IE/Edge */
+    scrollbar-width: none;  /* Cache la scrollbar Firefox */
+}
+
+/* Cache la scrollbar Chrome/Safari/Opera */
+.horizontal-scroller::-webkit-scrollbar {
+    display: none;
+}
+
+/* On force la largeur des cartes pour qu'elles s'alignent bien dans le scroller */
+.horizontal-scroller .player-card {
+    flex: 0 0 280px; /* Taille fixe de la carte */
+    scroll-snap-align: start; /* Le scroll s'arrête parfaitement au début de la carte */
+    margin: 0; /* Évite les conflits avec le flex gap */
+}
