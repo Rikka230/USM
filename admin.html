@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USM Admin | Dashboard</title>
+    <title>USM Admin Dashboard</title>
     <link rel="stylesheet" href="admin.css">
 </head>
 <body class="admin-body">
+
     <div id="login-screen" class="active">
         <form id="login-form">
-            <img src="assets/Logo2025.jpg" alt="USM" width="100">
+            <h2>USM SYSTEM</h2>
             <input type="email" id="admin-email" placeholder="Email" required>
             <input type="password" id="admin-pwd" placeholder="Mot de passe" required>
             <button type="submit">Connexion</button>
@@ -18,36 +19,33 @@
 
     <div id="dashboard" class="hidden">
         <aside class="sidebar">
-            <h2>USM Admin</h2>
+            <h2 class="pink-accent">USM Admin</h2>
             <nav>
-                <button id="nav-players" class="active">Gérer les Joueurs</button>
-                <button id="nav-news">Actualités</button>
+                <button class="active">Nouveau Joueur</button>
                 <button id="logout-btn" class="danger">Déconnexion</button>
             </nav>
         </aside>
 
         <main class="admin-content">
-            <header class="admin-header">
-                <h1>Nouveau Profil / Article</h1>
-            </header>
+            <header><h1>Ajouter au Roster</h1></header>
             
             <form id="content-form" class="bento-form">
-                <input type="text" id="post-title" placeholder="Nom du joueur ou Titre" required>
-                <select id="post-category">
+                <input type="text" id="player-name" placeholder="Nom du Joueur" required>
+                <input type="text" id="player-stat" placeholder="Statistique (ex: 150 Sélections)">
+                
+                <select id="player-category">
                     <option value="gardien">Gardien</option>
                     <option value="defenseur">Défenseur</option>
-                    <option value="news">Actualité</option>
+                    <option value="milieu">Milieu</option>
+                    <option value="attaquant">Attaquant</option>
                 </select>
                 
                 <div id="drop-zone" class="drop-zone">
-                    <p>Glissez la photo ici ou cliquez</p>
+                    <p>Glissez la photo du joueur ici (Crop Auto 4:5 et WebP)</p>
                     <input type="file" id="media-upload" accept="image/*" hidden>
-                    <canvas id="image-preview" hidden></canvas>
                 </div>
-
-                <textarea id="post-content" placeholder="Description courte (Infos capitales)" rows="4"></textarea>
                 
-                <button type="submit" id="publish-btn" class="btn-publish">Publier & Diffuser</button>
+                <button type="submit" id="publish-btn" class="btn-publish">Publier & Envoyer Webhook</button>
             </form>
         </main>
     </div>
