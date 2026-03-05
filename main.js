@@ -110,40 +110,78 @@ document.addEventListener("DOMContentLoaded", () => {
     loadPlayers();
 });
 
-// --- C. CHARGEMENT DYNAMIQUE DES JOUEURS (FIREBASE) ---
+// --- C. CHARGEMENT DYNAMIQUE DES JOUEURS (PAR CATÉGORIE) ---
 async function loadPlayers() {
-    const container = document.getElementById('players-container');
-    if (!container) return; // Sécurité si l'élément n'existe pas
+    const container = document.getElementById('roster-categories-container');
+    if (!container) return;
 
     try {
         const q = query(collection(db, "players"), orderBy("timestamp", "desc"));
         const querySnapshot = await getDocs(q);
-        container.innerHTML = ''; // On vide le spinner
         
+        // 1. On prépare nos "Tiroirs" par catégorie avec leurs titres traduisibles
+        const categoriesData = {
+            "gardien": { title: "Gardiens", players: [] },
+            "defenseur": { title: "Défenseurs", players: [] },
+            "milieu": { title: "Milieux", players: [] },
+            "attaquant": { title: "Attaquants", players: [] },
+            "feminine": { title: "Féminines", players: [] },
+            "coach": { title: "Coachs & Staff", players: [] }
+        };
+
+        // 2. On range chaque joueur téléchargé dans le bon tiroir
         querySnapshot.forEach((doc) => {
             const player = doc.data();
-            const cardHTML = `
-                <div class="player-card reveal visible" data-category="${player.category}">
-                    <div class="player-img-container">
-                        <img src="${player.image_url}" alt="${player.name}" loading="lazy">
-                    </div>
-                    <div class="player-info">
-                        <div>
-                            <h3>${player.name}</h3>
-                            <p style="color: #888; font-size: 0.8rem; text-transform: uppercase;">${player.category}</p>
+            if (categoriesData[player.category]) {
+                categoriesData[player.category].players.push(player);
+            }
+        });
+
+        container.innerHTML = ''; // On enlève le loader
+
+        // 3. On génère le HTML bloc par bloc
+        for (const [catKey, catData] of Object.entries(categoriesData)) {
+            // S'il n'y a pas de joueurs dans cette catégorie, on ne l'affiche pas
+            if (catData.players.length === 0) continue;
+
+            // Création de l'en-tête de la catégorie
+            let categoryHTML = `
+                <div class="category-block reveal visible">
+                    <h3 class="category-title">✦ ${catData.title} <span style="color:#666; font-size:0.8rem;">(${catData.players.length})</span></h3>
+                    <div class="horizontal-scroller">
+            `;
+
+            // Ajout des cartes dans le scroller horizontal
+            catData.players.forEach(player => {
+                categoryHTML += `
+                    <div class="player-card">
+                        <div class="player-img-container">
+                            <img src="${player.image_url}" alt="${player.name}" loading="lazy">
                         </div>
-                        <div class="player-stat">${player.stat || ''}</div>
+                        <div class="player-info">
+                            <div>
+                                <h3>${player.name}</h3>
+                            </div>
+                        </div>
+                        <div style="padding: 0 15px 15px;">
+                             <div class="player-stat">${player.stat || ''}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Fermeture des balises de la catégorie
+            categoryHTML += `
                     </div>
                 </div>
             `;
-            container.innerHTML += cardHTML;
-        });
 
-        initFilters();
+            container.innerHTML += categoryHTML;
+        }
 
     } catch (error) {
         console.error("Erreur de récupération :", error);
-        container.innerHTML = '<p style="color:red; text-align:center;">Aucun joueur trouvé ou erreur de connexion à la base de données.</p>';
+        container.innerHTML = '<p style="color:red; text-align:center;">Erreur de connexion à la base de données.</p>';
     }
 }
 
@@ -171,3 +209,4 @@ function initFilters() {
         });
     });
 }
+
