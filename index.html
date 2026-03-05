@@ -3,176 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="USM Football - Agence de gestion de carrière de footballeurs professionnels.">
     <title>USM Football | Premium Agency</title>
-    <style>
-        /* ================= 1. VARIABLES & RESET ================= */
-        :root {
-            --bg-dark: #050507; 
-            --usm-pink: #d80056;
-            --usm-pink-glow: rgba(216, 0, 86, 0.4);
-            --text-light: #ffffff;
-            --surface: rgba(25, 25, 30, 0.4); 
-            --surface-border: rgba(255, 255, 255, 0.1);
-            --card-radius: 32px; 
-            
-            --font-h1: clamp(2.5rem, 6vw, 5rem);
-            --spacing-main: clamp(20px, 5vw, 60px);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; font-family: 'Helvetica Neue', Arial, sans-serif; }
-
-        body {
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 50% 0%, var(--usm-pink-glow) 0%, transparent 60%),
-                url('https://www.transparenttextures.com/patterns/black-leather.png');
-            background-attachment: fixed;
-            color: var(--text-light);
-            line-height: 1.4;
-            overflow-x: hidden;
-        }
-
-        /* ================= 2. TYPOGRAPHIE ARRIÈRE-PLAN ================= */
-        .giant-bg-text {
-            position: absolute; font-size: clamp(6rem, 12vw, 15rem); font-weight: 900;
-            text-transform: uppercase; color: rgba(255, 255, 255, 0.02);
-            z-index: -1; line-height: 0.8; pointer-events: none; white-space: nowrap;
-        }
-        .text-1 { top: 25%; left: -5%; }
-        .text-2 { top: 60%; right: -5%; text-align: right; }
-
-        /* ================= 3. NAVIGATION ================= */
-        .navbar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 20px var(--spacing-main); background: rgba(5, 5, 7, 0.8);
-            backdrop-filter: blur(20px); position: fixed; top: 0; width: 100%; 
-            z-index: 100; border-bottom: 1px solid var(--surface-border);
-        }
-        .logo-nav { font-size: 1.2rem; font-weight: 900; letter-spacing: 2px; display: flex; align-items: center; gap: 10px;}
-        .logo-nav img { height: 30px; }
-        .logo-nav span { color: var(--usm-pink); }
-        .nav-links a {
-            color: white; text-decoration: none; margin-left: 30px; font-size: 0.9rem;
-            text-transform: uppercase; font-weight: bold; transition: 0.3s;
-        }
-        .nav-links a:hover { color: var(--usm-pink); }
-        .btn-premium {
-            background: var(--usm-pink); color: white; padding: 10px 24px;
-            border-radius: 30px; border: none; font-weight: bold; cursor: pointer;
-        }
-
-        /* ================= 4. HERO MASSIVE LOGO ================= */
-        .hero-massive {
-            min-height: 80vh; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; text-align: center;
-            padding: 120px 20px 40px; position: relative;
-        }
-        .massive-eagle-wrapper {
-            width: clamp(200px, 40vw, 400px);
-            margin-bottom: 30px;
-            filter: drop-shadow(0 0 40px rgba(216,0,86,0.6));
-            animation: float 6s ease-in-out infinite;
-        }
-        .massive-eagle-wrapper img { width: 100%; height: auto; }
-        
-        .hero-massive h1 {
-            font-size: clamp(1.5rem, 4vw, 3rem); text-transform: uppercase; 
-            letter-spacing: 4px; font-weight: 900; margin-bottom: 15px;
-        }
-        .hero-massive p { color: #aaa; font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase;}
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0px); }
-        }
-
-        /* ================= 5. BENTO GRID ================= */
-        .bento-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px; padding: var(--spacing-main); max-width: 1400px; margin: 0 auto;
-        }
-        
-        .bento-card {
-            background: var(--surface); border: 1px solid var(--surface-border);
-            border-radius: var(--card-radius); padding: 40px;
-            backdrop-filter: blur(15px); display: flex; flex-direction: column;
-            justify-content: space-between; transition: all 0.4s ease; position: relative; overflow: hidden;
-        }
-        .bento-card:hover {
-            transform: translateY(-5px); border-color: var(--usm-pink);
-            background: rgba(40, 30, 40, 0.6); box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-
-        .data-huge {
-            font-size: clamp(4rem, 8vw, 6rem); font-weight: 900; line-height: 1;
-            background: linear-gradient(135deg, #fff, var(--usm-pink));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
-        .data-label { font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; color: #888; font-weight: bold;}
-        .data-desc { color: #aaa; font-size: 0.95rem; margin-top: 15px;}
-
-        .services-list { list-style: none; margin-top: 20px;}
-        .services-list li {
-            padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex; align-items: center; gap: 10px; font-weight: bold;
-        }
-        .services-list li::before { content: '✦'; color: var(--usm-pink); }
-
-        /* ================= 6. SECTION VIP FONDATEUR ================= */
-        .founder-vip-section {
-            display: flex; flex-wrap: wrap; margin: 20px auto 80px;
-            max-width: 1360px; /* Aligné avec la grille */
-            background: var(--surface); border: 1px solid rgba(216, 0, 86, 0.3);
-            border-radius: var(--card-radius); overflow: hidden;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-        }
-        .vip-photo-wrapper {
-            flex: 1 1 400px; position: relative; min-height: 500px;
-        }
-        .vip-photo-wrapper img {
-            width: 100%; height: 100%; object-fit: cover; object-position: top center;
-            filter: contrast(1.1) brightness(0.9);
-        }
-        .vip-photo-wrapper::after {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(to right, transparent 60%, rgba(25, 25, 30, 0.8) 100%),
-                        linear-gradient(to top, rgba(5, 5, 7, 0.9) 0%, transparent 30%);
-        }
-        .vip-content {
-            flex: 1 1 500px; padding: 60px; display: flex; flex-direction: column;
-            justify-content: center; background: linear-gradient(135deg, rgba(25, 25, 30, 0.9), rgba(216, 0, 86, 0.05));
-            position: relative;
-        }
-        .vip-badge {
-            align-self: flex-start; background: var(--usm-pink); color: white;
-            padding: 8px 16px; border-radius: 20px; font-weight: 900;
-            text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; margin-bottom: 20px;
-        }
-        .vip-name {
-            font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 900; line-height: 1;
-            text-transform: uppercase; margin-bottom: 10px;
-        }
-        .vip-name span { color: var(--usm-pink); }
-        .vip-quote {
-            font-size: 1.5rem; color: #fff; font-style: italic; margin-bottom: 30px;
-            border-left: 4px solid var(--usm-pink); padding-left: 15px;
-        }
-        .vip-desc { color: #aaa; font-size: 1.1rem; margin-bottom: 30px; line-height: 1.6; }
-        .licenses-wrapper { display: flex; gap: 15px; flex-wrap: wrap;}
-        .license-badge {
-            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2);
-            padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 1rem;
-        }
-
-        /* Animations d'apparition */
-        .reveal { opacity: 0; transform: translateY(40px); transition: 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
-        .reveal.visible { opacity: 1; transform: translateY(0); }
-
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -185,79 +18,79 @@
             USM <span>FOOTBALL</span>
         </div>
         <nav class="nav-links">
-            <a href="#agence">L'Agence</a>
-            <a href="#services">Services</a>
-            <button class="btn-premium">Espace Joueur</button>
+            <a href="#agence" data-i18n="nav_agency">L'Agence</a>
+            <a href="#services" data-i18n="nav_services">Services</a>
+            <a href="#joueurs" data-i18n="nav_talents">Les Talents</a>
+            
+            <div class="lang-switcher">
+                <select id="lang-select" aria-label="Changer de langue">
+                    <option value="fr">FR</option>
+                    <option value="en">EN</option>
+                    <option value="es">ES</option>
+                    <option value="pt">PT</option>
+                </select>
+            </div>
+
+            <button class="btn-premium" data-i18n="nav_button">Espace Joueur</button>
         </nav>
     </header>
 
     <section class="hero-massive">
-        <div class="massive-eagle-wrapper reveal visible">
+        <div class="massive-eagle-wrapper reveal">
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Eagle_white_icon.svg/1024px-Eagle_white_icon.svg.png" alt="Logo USM Géant">
         </div>
-        <h1 class="reveal visible">USM Football</h1>
-        <p class="reveal visible" style="color: var(--usm-pink); font-weight: bold;">Ensemble, développons vos talents.</p>
-        <p class="reveal visible" style="margin-top: 10px;">Since 1998</p>
+        <h1 class="reveal">USM Football</h1>
+        <p class="reveal pink-accent" data-i18n="hero_subtitle">Ensemble, développons vos talents.</p>
+        <p class="reveal" style="margin-top: 10px;">Since 1998</p>
     </section>
 
     <main>
         <div class="bento-grid">
-            
             <div class="bento-card reveal">
-                <div class="data-label">Activité & Transactions</div>
+                <div class="data-label" data-i18n="stat_1_label">Activité & Transactions</div>
                 <div class="data-huge">1,600+</div>
-                <div class="data-desc">Opérations et transactions réalisées. Plus de 25 000 contacts directs avec des clubs dans le monde entier.</div>
+                <div class="data-desc" data-i18n="stat_1_desc">Opérations réalisées et plus de 25 000 contacts directs avec des clubs.</div>
             </div>
 
-            <div class="bento-card reveal" style="background: linear-gradient(145deg, rgba(25,25,30,0.8), rgba(216,0,86,0.15));">
-                <div class="data-label">Confiance & Roster</div>
+            <div class="bento-card reveal highlight-card">
+                <div class="data-label" data-i18n="stat_2_label">Confiance & Roster</div>
                 <div class="data-huge">1,000+</div>
-                <div class="data-desc">Joueurs gérés depuis 1998. Actuellement plus de 100 joueurs professionnels représentés par USM.</div>
+                <div class="data-desc" data-i18n="stat_2_desc">Joueurs gérés depuis 1998. +100 joueurs professionnels actuellement représentés.</div>
             </div>
 
             <div class="bento-card reveal">
-                <div class="data-label">Impact Digital (N°3 Mondial Linkedin)</div>
-                <div class="data-huge" style="font-size: clamp(3rem, 6vw, 4.5rem);">68,260</div>
-                <div class="data-label" style="margin-top: -10px; color: #fff;">Abonnés cumulés</div>
-                <div class="data-desc">Une marque reconnue mondialement, fédérant la plus grande communauté B2B du secteur en France.</div>
+                <div class="data-label" data-i18n="stat_3_label">Impact Digital (N°3 Mondial Linkedin)</div>
+                <div class="data-huge stat-medium">68,260</div>
+                <div class="data-label text-white" data-i18n="stat_3_sub">Abonnés cumulés</div>
             </div>
 
-            <div class="bento-card reveal" style="grid-column: 1 / -1;">
-                <div class="data-label" style="color: var(--usm-pink);">Accompagnement Global</div>
-                <h2 style="font-size: 2.5rem; text-transform: uppercase; margin: 10px 0;">Services Exclusifs</h2>
-                <div style="display: flex; flex-wrap: wrap; gap: 40px;">
-                    <ul class="services-list" style="flex: 1; min-width: 250px;">
-                        <li>Conciergerie Service Dédié 5*</li>
-                        <li>Droit du Sport & Fiscalité</li>
-                        <li>Family Office (Réseau d'experts)</li>
+            <div class="bento-card reveal card-full" id="services">
+                <div class="data-label pink-accent" data-i18n="services_label">Accompagnement Global</div>
+                <h2 data-i18n="services_title">Services Exclusifs</h2>
+                <div class="services-wrapper">
+                    <ul class="services-list">
+                        <li data-i18n="srv_1">Conciergerie Service Dédié 5*</li>
+                        <li data-i18n="srv_2">Droit du Sport & Fiscalité</li>
+                        <li data-i18n="srv_3">Family Office (Réseau d'experts)</li>
                     </ul>
-                    <ul class="services-list" style="flex: 1; min-width: 250px;">
-                        <li>Gestion de Carrière & Transferts</li>
-                        <li>Sponsoring (Puma, etc.) & Image</li>
-                        <li>Valorisation Data & Performance</li>
+                    <ul class="services-list">
+                        <li data-i18n="srv_4">Gestion de Carrière & Transferts</li>
+                        <li data-i18n="srv_5">Sponsoring (Puma, etc.) & Image</li>
+                        <li data-i18n="srv_6">Valorisation Data & Performance</li>
                     </ul>
                 </div>
             </div>
-
         </div>
 
         <section class="founder-vip-section reveal" id="agence">
             <div class="vip-photo-wrapper">
-                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=800" alt="Christophe Mongai">
+                <img src="assets/christophe-mongai.jpg" alt="Christophe Mongai" class="lazy-load">
             </div>
-            
             <div class="vip-content">
-                <span class="vip-badge">Fondateur & CEO</span>
+                <span class="vip-badge" data-i18n="vip_badge">Fondateur & CEO</span>
                 <h2 class="vip-name">Christophe<br><span>Mongai</span></h2>
-                
-                <div class="vip-quote">
-                    "Le conseiller aux 3 000 numéros."
-                </div>
-                
-                <p class="vip-desc">
-                    Agent FIFA et FFF depuis 1998, Christophe Mongai a bâti l'une des plus importantes écuries de France et d'Europe. Avec plus de 27 ans d'expérience au sommet, il possède un réseau inégalé à l'échelle mondiale pour gérer la carrière des plus grands talents.
-                </p>
-                
+                <div class="vip-quote" data-i18n="vip_quote">"Le conseiller aux 3 000 numéros."</div>
+                <p class="vip-desc" data-i18n="vip_desc">Agent FIFA et FFF depuis 1998, Christophe Mongai a bâti l'une des plus importantes écuries d'Europe. Avec plus de 27 ans d'expérience au sommet, il possède un réseau mondial inégalé.</p>
                 <div class="licenses-wrapper">
                     <span class="license-badge">Licence FIFA</span>
                     <span class="license-badge">Licence FFF</span>
@@ -266,17 +99,20 @@
             </div>
         </section>
 
+        <section class="players-section reveal" id="joueurs">
+            <h2 data-i18n="roster_title">Roster Premium</h2>
+            <div class="player-filters">
+                <button class="filter-btn active" data-filter="all" data-i18n="filter_all">Tous</button>
+                <button class="filter-btn" data-filter="gardien" data-i18n="filter_gk">Gardiens</button>
+                <button class="filter-btn" data-filter="defenseur" data-i18n="filter_def">Défenseurs</button>
+            </div>
+            
+            <div class="players-grid" id="players-container">
+                <div class="loader-spinner"></div>
+            </div>
+        </section>
     </main>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) entry.target.classList.add('visible');
-                });
-            }, { threshold: 0.1 });
-            document.querySelectorAll('.reveal:not(.visible)').forEach(el => observer.observe(el));
-        });
-    </script>
+    <script type="module" src="main.js"></script>
 </body>
 </html>
