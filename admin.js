@@ -31,22 +31,10 @@ document.getElementById('login-form').addEventListener('submit', (e) => {
 
 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
 
-/* ================= 3. DRAG & DROP & COMPRESSION CANVAS ================= */
-const dropZone = document.getElementById('drop-zone');
-const fileInput = document.getElementById('media-upload');
-let optimizedImageData = null;
-
-dropZone.addEventListener('click', () => fileInput.click());
-dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.classList.remove('dragover');
-    if(e.dataTransfer.files.length) handleImageOptimization(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', (e) => {
-    if(e.target.files.length) handleImageOptimization(e.target.files[0]);
-});
+/* ================= 3. DRAG & DROP & GÉNÉRATION DES MÉDIAS ================= */
+// Variables globales pour stocker les deux versions de l'image
+let optimizedWebMedia = null;  // Format WebP pour le site
+let socialMediaMedia = null;   // Format JPG 4:5 pour Instagram/LinkedIn
 
 function handleImageOptimization(file) {
     if (!file.type.startsWith('image/')) return alert("Seules les images sont acceptées.");
@@ -55,25 +43,80 @@ function handleImageOptimization(file) {
     reader.onload = (event) => {
         const img = new Image();
         img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
             
-            // Calcul Redimensionnement (Max 1920px)
+            // --- A. GÉNÉRATION DE L'IMAGE WEB (WebP - Max 1920px) ---
+            const webCanvas = document.createElement('canvas');
+            const webCtx = webCanvas.getContext('2d');
+            
             const MAX_WIDTH = 1920;
-            let width = img.width;
-            let height = img.height;
-            if (width > MAX_WIDTH) {
-                height = Math.round((height * MAX_WIDTH) / width);
-                width = MAX_WIDTH;
+            let webWidth = img.width;
+            let webHeight = img.height;
+            
+            if (webWidth > MAX_WIDTH) {
+                webHeight = Math.round((webHeight * MAX_WIDTH) / webWidth);
+                webWidth = MAX_WIDTH;
             }
             
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(img, 0, 0, width, height);
+            webCanvas.width = webWidth;
+            webCanvas.height = webHeight;
+            webCtx.drawImage(img, 0, 0, webWidth, webHeight);
+            optimizedWebMedia = webCanvas.toDataURL('image/webp', 0.8);
+
+            // --- B. GÉNÉRATION DE L'IMAGE SOCIALE (JPG - Ratio 4:5) ---
+            const socialCanvas = document.createElement('canvas');
+            const socialCtx = socialCanvas.getContext('2d');
             
-            // Compression en WebP à 80% de qualité
-            optimizedImageData = canvas.toDataURL('image/webp', 0.8);
-            dropZone.innerHTML = `<img src="${optimizedImageData}" style="max-height: 200px; border-radius: 8px;">`;
+            const targetRatio = 4 / 5; // Format portrait Instagram/LinkedIn
+            const imgRatio = img.width / img.height;
+            
+            let cropWidth, cropHeight, offsetX, offsetY;
+
+            // Calcul du "Center Crop" (Recadrage centré)
+            if (imgRatio > targetRatio) {
+                // L'image est trop large -> on coupe les côtés
+                cropHeight = img.height;
+                cropWidth = img.height * targetRatio;
+                offsetX = (img.width - cropWidth) / 2;
+                offsetY = 0;
+            } else {
+                // L'image est trop haute -> on coupe en haut et en bas
+                cropWidth = img.width;
+                cropHeight = img.width / targetRatio;
+                offsetX = 0;
+                offsetY = (img.height - cropHeight) / 2;
+            }
+
+            // Dimensions de sortie pour les réseaux (ex: 1080x1350)
+            const finalSocialWidth = Math.min(cropWidth, 1080);
+            const finalSocialHeight = finalSocialWidth / targetRatio;
+
+            socialCanvas.width = finalSocialWidth;
+            socialCanvas.height = finalSocialHeight;
+            
+            // On dessine la portion découpée sur le nouveau canvas
+            socialCtx.drawImage(
+                img,
+                offsetX, offsetY, cropWidth, cropHeight, // Coordonnées Source (découpe)
+                0, 0, finalSocialWidth, finalSocialHeight // Coordonnées Destination (rendu)
+            );
+            
+            // Export en JPG qualitatif pour les réseaux sociaux
+            socialMediaMedia = socialCanvas.toDataURL('image/jpeg', 0.9);
+
+            // --- C. AFFICHAGE DE LA PRÉVISUALISATION ---
+            const dropZone = document.getElementById('drop-zone');
+            dropZone.innerHTML = `
+                <div style="display: flex; gap: 15px; justify-content: center; align-items: flex-end;">
+                    <div>
+                        <p style="font-size: 12px; color: #aaa; margin-bottom: 5px;">Format Web</p>
+                        <img src="${optimizedWebMedia}" style="max-height: 150px; border-radius: 8px; border: 1px solid #333;">
+                    </div>
+                    <div>
+                        <p style="font-size: 12px; color: #d80056; margin-bottom: 5px;">Format Réseaux (4:5)</p>
+                        <img src="${socialMediaMedia}" style="max-height: 150px; border-radius: 8px; border: 1px solid #d80056;">
+                    </div>
+                </div>
+            `;
         };
         img.src = event.target.result;
     };
@@ -105,11 +148,12 @@ document.getElementById('content-form').addEventListener('submit', async (e) => 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                id: docRef.id,
-                title: title,
-                category: category,
-                content: content,
-                image: optimizedImageData // Attention, si l'image est trop lourde pour le webhook, privilégier l'envoi du lien Storage
+            id: docRef.id,
+            title: title,
+            category: category,
+            content: content,
+            image_web: optimizedWebMedia,  // Pour mise à jour/stockage lié au site Web
+            image_social: socialMediaMedia // Que Make enverra directement à l'API Instagram/LinkedIn
             })
         });
 
@@ -125,4 +169,5 @@ document.getElementById('content-form').addEventListener('submit', async (e) => 
         btn.textContent = "Publier & Diffuser";
         btn.disabled = false;
     }
+
 });
