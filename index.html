@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="USM Football - Agence de gestion de carrière de footballeurs professionnels dirigée par Christophe Mongai.">
+    <meta property="og:title" content="USM Football | Agence Sportive Premium">
+    <meta property="og:image" content="assets/logo-share.jpg">
+    <title>USM Football | Excellence & Performance</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-leather-theme">
+    <header class="navbar">
+        <div class="logo-container">
+            <img src="assets/Logo2025.jpg" alt="Logo USM Football" class="eagle-logo lazy-load">
+        </div>
+        <button class="burger-menu" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+        <nav class="nav-links">
+            <a href="#fondateur">Le Fondateur</a>
+            <a href="#joueurs">Nos Joueurs</a>
+            <a href="#services">Services</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero-bento">
+            <div class="bento-item hero-main reveal">
+                <h1>L'Excellence au service de votre Carrière</h1>
+                <p>Depuis 1998, USM Group redéfinit les standards du management sportif.</p>
+            </div>
+            <div class="bento-item stats reveal delay-1">
+                <span class="highlight">25K+</span> Contacts Mondiaux
+            </div>
+            <div class="bento-item stats reveal delay-2">
+                <span class="highlight">N°1</span> Agence Française (CIES)
+            </div>
+        </section>
+
+        <section id="fondateur" class="founder-section reveal">
+            <div class="founder-image-wrapper">
+                <img src="assets/christophe-mongai.jpg" alt="Christophe Mongai" class="founder-portrait lazy-load">
+            </div>
+            <div class="founder-bio">
+                <h2>Christophe Mongai</h2>
+                <h3 class="pink-accent">Agent FIFA & FFF - Fondateur</h3>
+                <p>Visionnaire et stratège, Christophe Mongai a bâti l'une des plus importantes écuries d'Europe. Avec plus de 25 ans d'expérience, il gère la carrière des plus grands talents internationaux.</p>
+            </div>
+        </section>
+
+        <section id="joueurs" class="players-section reveal">
+            <h2>Nos Talents</h2>
+            <div class="player-filters">
+                <button class="filter-btn active" data-filter="all">Tous</button>
+                <button class="filter-btn" data-filter="gardien">Gardiens</button>
+                <button class="filter-btn" data-filter="defenseur">Défenseurs</button>
+            </div>
+            <div class="players-grid" id="players-container">
+                </div>
+        </section>
+    </main>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+/* ================= 1. VARIABLES & RESET ================= */
+:root {
+    --bg-dark: #121212; /* Base noire */
+    --leather-overlay: url('assets/leather-texture.png'); /* Texture subtile à ajouter */
+    --usm-pink: #d80056; /* Rose/Bordeaux USM */
+    --text-light: #f5f5f5;
+    
+    /* Typographie Fluide (Mobile à 4K) */
+    --font-h1: clamp(2rem, 5vw, 4rem);
+    --font-h2: clamp(1.5rem, 3vw, 2.5rem);
+    --font-body: clamp(1rem, 1.2vw, 1.2rem);
+    
+    /* Espacements Fluides */
+    --spacing-main: clamp(20px, 5vw, 60px);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-family: 'Helvetica Neue', Arial, sans-serif; }
+
+body.dark-leather-theme {
+    background-color: var(--bg-dark);
+    background-image: var(--leather-overlay);
+    background-blend-mode: multiply;
+    color: var(--text-light);
+    line-height: 1.6;
+}
+
+/* ================= 2. UTILITAIRES & ANIMATIONS ================= */
+.pink-accent { color: var(--usm-pink); }
+
+.lazy-load {
+    opacity: 0;
+    transition: opacity 0.8s ease-in;
+    object-fit: cover;
+}
+.lazy-load.loaded { opacity: 1; }
+
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ================= 3. BENTO GRID (Hero) ================= */
+.hero-bento {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: var(--spacing-main);
+    margin-top: 80px; /* Offset Navbar */
+}
+.bento-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+}
+.bento-item h1 { font-size: var(--font-h1); margin-bottom: 10px; }
+
+/* ================= 4. FONDATEUR (Statutaire) ================= */
+.founder-section {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-main);
+    padding: var(--spacing-main);
+    background: linear-gradient(to right, rgba(0,0,0,0.8), rgba(216,0,86,0.1));
+}
+.founder-image-wrapper {
+    flex: 1 1 400px;
+    /* Mask CSS pour une intégration élégante de la photo */
+    mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+}
+.founder-portrait {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+.founder-bio { flex: 1 1 400px; }
+.founder-bio h2 { font-size: var(--font-h2); text-transform: uppercase; letter-spacing: 2px;}
+
+/* ================= 5. GRILLE JOUEURS ================= */
+.players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: var(--spacing-main);
+}
+/* Sur mobile, on force un carrousel horizontal pour simplifier */
+@media (max-width: 768px) {
+    .players-grid {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+    }
+    .players-grid > div {
+        flex: 0 0 80%;
+        scroll-snap-align: center;
+    }
+}
