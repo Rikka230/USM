@@ -7,18 +7,26 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ================= 1. AUTHENTIFICATION ================= */
-onAuthStateChanged(auth, (user) => {
-    document.getElementById('login-screen').classList.toggle('hidden', !!user);
-    document.getElementById('dashboard').classList.toggle('hidden', !user);
-});
+/* ================= 1. IMPORTS & CONFIGURATION FIREBASE ADMIN ================= */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-document.getElementById('login-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    signInWithEmailAndPassword(auth, document.getElementById('admin-email').value, document.getElementById('admin-pwd').value)
-        .catch(err => alert("Erreur : " + err.message));
-});
-document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+const firebaseConfig = {
+  apiKey: "AIzaSyDd7OvBbX35PaQPlm6saccOGTQyvI3UEoU",
+  authDomain: "usm-football-b56ba.firebaseapp.com",
+  projectId: "usm-football-b56ba",
+  storageBucket: "usm-football-b56ba.firebasestorage.app",
+  messagingSenderId: "1004955626049",
+  appId: "1:1004955626049:web:1982ac82e68599946f74c0",
+  measurementId: "G-5FCYP7CMQD"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
 /* ================= 2. TRAITEMENT IMAGE (Canvas WebP & JPG 4:5) ================= */
 const dropZone = document.getElementById('drop-zone');
@@ -100,3 +108,4 @@ document.getElementById('content-form').addEventListener('submit', async (e) => 
     } catch (err) { alert("Erreur: " + err); } 
     finally { btn.disabled = false; btn.textContent = "Publier & Envoyer Webhook"; }
 });
+
