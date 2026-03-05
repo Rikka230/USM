@@ -2,6 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 /* ================= 1. TRADUCTION i18n ================= */
+/* ================= 1. TRADUCTION i18n ================= */
 const translations = {
     fr: {
         nav_agency: "L'Agence", nav_services: "Services", nav_talents: "Les Talents", nav_button: "Espace Joueur",
@@ -28,8 +29,33 @@ const translations = {
         vip_badge: "Founder & CEO", vip_quote: '"The advisor with 3,000 contacts."',
         vip_desc: "FIFA and FFF Agent since 1998, Christophe Mongai has built one of Europe's largest agencies. With over 27 years of experience, he holds an unmatched global network.",
         roster_title: "Premium Roster", filter_all: "All", filter_gk: "Goalkeepers", filter_def: "Defenders"
+    },
+    es: {
+        nav_agency: "La Agencia", nav_services: "Servicios", nav_talents: "Los Talentos", nav_button: "Portal del Jugador",
+        hero_subtitle: "Juntos, desarrollemos tus talentos.",
+        stat_1_label: "Actividad y Transacciones", stat_1_desc: "Operaciones realizadas y más de 25.000 contactos directos con clubes en todo el mundo.",
+        stat_2_label: "Confianza y Roster", stat_2_desc: "Jugadores gestionados desde 1998. +100 jugadores profesionales representados actualmente.",
+        stat_3_label: "Impacto Digital (N°3 Mundial Linkedin)", stat_3_sub: "Seguidores totales",
+        services_label: "Acompañamiento Global", services_title: "Servicios Exclusivos",
+        srv_1: "Conserjería Servicio Dedicado 5*", srv_2: "Derecho Deportivo y Fiscalidad", srv_3: "Family Office (Red de expertos)",
+        srv_4: "Gestión de Carrera y Traspasos", srv_5: "Patrocinio (Puma, etc.) e Imagen", srv_6: "Valoración Data y Rendimiento",
+        vip_badge: "Fundador y CEO", vip_quote: '"El asesor de los 3.000 contactos."',
+        vip_desc: "Agente FIFA y FFF desde 1998, Christophe Mongai ha construido una de las agencias más grandes de Europa. Con más de 27 años de experiencia en la cima, posee una red mundial inigualable.",
+        roster_title: "Roster Premium", filter_all: "Todos", filter_gk: "Porteros", filter_def: "Defensas"
+    },
+    pt: {
+        nav_agency: "A Agência", nav_services: "Serviços", nav_talents: "Os Talentos", nav_button: "Portal do Jogador",
+        hero_subtitle: "Juntos, vamos desenvolver seus talentos.",
+        stat_1_label: "Atividade e Transações", stat_1_desc: "Operações concluídas e mais de 25.000 contatos diretos com clubes em todo o mundo.",
+        stat_2_label: "Confiança e Roster", stat_2_desc: "Jogadores gerenciados desde 1998. +100 jogadores profissionais atualmente representados.",
+        stat_3_label: "Impacto Digital (N°3 Mundial Linkedin)", stat_3_sub: "Seguidores totais",
+        services_label: "Acompanhamento Global", services_title: "Serviços Exclusivos",
+        srv_1: "Concierge Serviço Dedicado 5*", srv_2: "Direito Desportivo e Fiscalidade", srv_3: "Family Office (Rede de especialistas)",
+        srv_4: "Gestão de Carreira e Transferências", srv_5: "Patrocínio (Puma, etc.) e Imagem", srv_6: "Valorização Data e Desempenho",
+        vip_badge: "Fundador e CEO", vip_quote: '"O conselheiro de 3.000 contatos."',
+        vip_desc: "Agente FIFA e FFF desde 1998, Christophe Mongai construiu uma das maiores agências da Europa. Com mais de 27 anos de experiência no topo, possui uma rede global incomparável.",
+        roster_title: "Roster Premium", filter_all: "Todos", filter_gk: "Goleiros", filter_def: "Defensores"
     }
-    // Ajouter es et pt ici sur le même modèle
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -100,3 +126,4 @@ async function loadPlayers() {
 }
 // Décommenter loadPlayers() une fois Firebase configuré
 // loadPlayers();
+
