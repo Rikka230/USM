@@ -1,22 +1,49 @@
 :root { --usm-pink: #d80056; --bg-admin: #050507; --surface: #1e1e1e; }
 * { box-sizing: border-box; font-family: system-ui, sans-serif; margin: 0; padding: 0;}
-body.admin-body { background: var(--bg-admin); color: #fff; display: flex; height: 100vh;}
-.hidden { display: none !important; } .active { display: flex; }
+body.admin-body { background: var(--bg-admin); color: #fff; display: flex; height: 100vh; overflow: hidden;}
+.hidden { display: none !important; }
 
-#login-screen { width: 100%; height: 100%; align-items: center; justify-content: center; background: radial-gradient(circle, #1a1a1a, #000); }
+/* Loader Anti-clignotement */
+.fullscreen-loader {
+    position: fixed; inset: 0; background: var(--bg-admin); z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+}
+.pulse-anim { animation: pulse 1.5s infinite alternate; }
+@keyframes pulse { 0% { opacity: 0.5; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1.1); } }
+
+/* Login */
+#login-screen { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, #1a1a1a, #000); }
 #login-form { display: flex; flex-direction: column; gap: 15px; width: 320px; background: rgba(25,25,30,0.8); padding: 40px; border-radius: 16px; border: 1px solid #333;}
 #login-form input, #login-form button { padding: 15px; border-radius: 8px; border: none; font-size: 16px; }
-#login-form button { background: var(--usm-pink); color: white; font-weight: bold; cursor: pointer; }
+#login-form button { background: var(--usm-pink); color: white; font-weight: bold; cursor: pointer; transition: 0.3s;}
+#login-form button:hover { background: #ff0066; }
 
-.sidebar { width: 250px; background: var(--surface); padding: 30px 20px; display: flex; flex-direction: column; gap: 20px; border-right: 1px solid #333;}
-.sidebar button { padding: 15px; text-align: left; background: transparent; border: none; color: #aaa; cursor: pointer; font-size: 16px;}
-.sidebar button.active { color: #fff; border-left: 4px solid var(--usm-pink); }
-.pink-accent { color: var(--usm-pink); margin-bottom: 20px;}
+/* Sidebar & Dashboard */
+#dashboard { display: flex; width: 100%; height: 100%; }
+.sidebar { width: 250px; background: var(--surface); padding: 30px 20px; display: flex; flex-direction: column; gap: 15px; border-right: 1px solid #333;}
+.sidebar button { padding: 15px; text-align: left; background: transparent; border: none; color: #aaa; cursor: pointer; font-size: 16px; border-radius: 8px;}
+.sidebar button.active { background: rgba(216,0,86,0.1); color: #fff; border-left: 4px solid var(--usm-pink); }
+.sidebar button:hover:not(.active) { background: rgba(255,255,255,0.05); }
+.danger { color: #ff4444 !important; }
+.pink-accent { color: var(--usm-pink); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px;}
 
-.admin-content { flex: 1; padding: 60px; overflow-y: auto; }
+/* Content */
+.admin-content { flex: 1; padding: 50px; overflow-y: auto; }
 .admin-content h1 { margin-bottom: 30px; }
+
+/* Formulaire Ajout */
 .bento-form { display: flex; flex-direction: column; gap: 20px; max-width: 600px;}
 .bento-form input, .bento-form select { width: 100%; padding: 15px; border-radius: 8px; background: var(--surface); border: 1px solid #444; color: white; font-size: 16px; }
 .drop-zone { border: 2px dashed #555; border-radius: 12px; padding: 40px; text-align: center; cursor: pointer; transition: 0.3s; background: rgba(0,0,0,0.2);}
 .drop-zone.dragover { border-color: var(--usm-pink); background: rgba(216,0,86,0.1); }
 .btn-publish { background: var(--usm-pink); color: white; padding: 20px; font-size: 18px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;}
+
+/* Table Gestion Joueurs */
+.table-container { background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid #333; margin-top: 20px; max-width: 1000px;}
+.admin-table { width: 100%; border-collapse: collapse; text-align: left; }
+.admin-table th { background: #111; padding: 15px 20px; color: #888; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;}
+.admin-table td { padding: 15px 20px; border-bottom: 1px solid #333; vertical-align: middle;}
+.admin-table tr:hover { background: rgba(255,255,255,0.02); }
+.player-list-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #555;}
+.btn-delete { background: rgba(255, 0, 0, 0.1); color: #ff4444; border: 1px solid #ff4444; padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: 0.3s; font-weight: bold;}
+.btn-delete:hover { background: #ff4444; color: white;}
