@@ -1,7 +1,7 @@
 /* ================= 1. IMPORTS & CONFIGURATION FIREBASE ADMIN ================= */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -19,32 +19,54 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-/* ================= 2. AUTHENTIFICATION ================= */
+/* ================= 2. AUTHENTIFICATION & ANTI-FLICKER ================= */
 onAuthStateChanged(auth, (user) => {
-    document.getElementById('login-screen').classList.toggle('hidden', !!user);
-    document.getElementById('dashboard').classList.toggle('hidden', !user);
+    // Dès que Firebase répond, on cache le loader global
+    document.getElementById('auth-loader').classList.add('hidden');
+
+    if (user) {
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+    } else {
+        document.getElementById('dashboard').classList.add('hidden');
+        document.getElementById('login-screen').classList.remove('hidden');
+    }
 });
 
 document.getElementById('login-form').addEventListener('submit', (e) => {
-    e.preventDefault(); // Empêche la page de se recharger (et de vider les champs)
-    
+    e.preventDefault();
     const email = document.getElementById('admin-email').value;
     const pwd = document.getElementById('admin-pwd').value;
-    
     signInWithEmailAndPassword(auth, email, pwd)
-        .catch(err => {
-            console.error(err);
-            alert("Identifiants incorrects ou non autorisés.");
-        });
+        .catch(err => { alert("Identifiants incorrects."); });
 });
 
-document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+document.getElementById('logout-btn').addEventListener('click', () => {
+    signOut(auth).then(() => window.location.reload());
+});
 
-/* ================= 3. TRAITEMENT IMAGE (Canvas WebP & JPG 4:5) ================= */
+/* ================= 3. GESTION DES ONGLETS (NAVIGATION ADMIN) ================= */
+const navAdd = document.getElementById('nav-add');
+const navManage = document.getElementById('nav-manage');
+const secAdd = document.getElementById('add-player-section');
+const secManage = document.getElementById('manage-players-section');
+
+navAdd.addEventListener('click', () => {
+    navAdd.classList.add('active'); navManage.classList.remove('active');
+    secAdd.classList.remove('hidden'); secManage.classList.add('hidden');
+});
+
+navManage.addEventListener('click', () => {
+    navManage.classList.add('active'); navAdd.classList.remove('active');
+    secManage.classList.remove('hidden'); secAdd.classList.add('hidden');
+    loadAdminPlayers(); // Charge la liste à l'ouverture de l'onglet
+});
+
+
+/* ================= 4. TRAITEMENT IMAGE (Canvas WebP) ================= */
 const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('media-upload');
 let optimizedWebMedia = null;
-let socialMediaMedia = null;
 
 dropZone.addEventListener('click', () => fileInput.click());
 dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
@@ -58,7 +80,6 @@ function handleImage(file) {
     reader.onload = (event) => {
         const img = new Image();
         img.onload = () => {
-            // A. Version WebP pour le site (Allégée)
             const webCanvas = document.createElement('canvas');
             const webCtx = webCanvas.getContext('2d');
             let wWidth = img.width, wHeight = img.height;
@@ -67,20 +88,6 @@ function handleImage(file) {
             webCtx.drawImage(img, 0, 0, wWidth, wHeight);
             optimizedWebMedia = webCanvas.toDataURL('image/webp', 0.8);
 
-            // B. Version JPG 4:5 pour Réseaux
-            const socCanvas = document.createElement('canvas');
-            const socCtx = socCanvas.getContext('2d');
-            const targetRatio = 4/5;
-            let cropW, cropH, offX = 0, offY = 0;
-            if (img.width / img.height > targetRatio) {
-                cropH = img.height; cropW = img.height * targetRatio; offX = (img.width - cropW) / 2;
-            } else {
-                cropW = img.width; cropH = img.width / targetRatio; offY = (img.height - cropH) / 2;
-            }
-            socCanvas.width = 1080; socCanvas.height = 1350; // Format Insta
-            socCtx.drawImage(img, offX, offY, cropW, cropH, 0, 0, 1080, 1350);
-            socialMediaMedia = socCanvas.toDataURL('image/jpeg', 0.9);
-
             dropZone.innerHTML = `<img src="${optimizedWebMedia}" style="max-height: 200px; border-radius: 8px;"> <p style="color:var(--usm-pink)">Prêt pour publication</p>`;
         };
         img.src = event.target.result;
@@ -88,57 +95,85 @@ function handleImage(file) {
     reader.readAsDataURL(file);
 }
 
-/* ================= 4. PUBLICATION & WEBHOOK MAKE ================= */
+/* ================= 5. PUBLICATION (AJOUT JOUEUR) ================= */
 document.getElementById('content-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!optimizedWebMedia) return alert("Veuillez ajouter une photo.");
-
     const btn = document.getElementById('publish-btn');
-    btn.disabled = true; 
-    btn.textContent = "Upload en cours...";
+    btn.disabled = true; btn.textContent = "Upload en cours...";
 
     try {
         const playerName = document.getElementById('player-name').value;
-        const playerCategory = document.getElementById('player-category').value;
-        const playerStat = document.getElementById('player-stat').value;
+        let publicImageUrl = "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"; // Fallback par défaut
 
-        // 1. Upload Firebase Storage
-        const imageName = `players/${Date.now()}_${playerName.replace(/\s+/g, '-').toLowerCase()}.webp`;
-        const storageReference = ref(storage, imageName);
-        await uploadString(storageReference, optimizedWebMedia, 'data_url');
-        const publicImageUrl = await getDownloadURL(storageReference);
+        // Si une image a été droppée, on l'upload
+        if (optimizedWebMedia) {
+            const imageName = `players/${Date.now()}_${playerName.replace(/\s+/g, '-').toLowerCase()}.webp`;
+            const storageReference = ref(storage, imageName);
+            await uploadString(storageReference, optimizedWebMedia, 'data_url');
+            publicImageUrl = await getDownloadURL(storageReference);
+        }
 
-        // 2. Sauvegarde Firestore
         const payload = {
             name: playerName,
-            category: playerCategory,
-            stat: playerStat,
+            category: document.getElementById('player-category').value,
+            stat: document.getElementById('player-stat').value,
             image_url: publicImageUrl, 
             timestamp: new Date()
         };
-        const docRef = await addDoc(collection(db, "players"), payload);
 
-        // 3. Envoi Webhook Make
-        await fetch("https://hook.eu1.make.com/TON_ID_WEBHOOK_ICI", {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...payload, id: docRef.id, image_social: socialMediaMedia })
-        });
+        await addDoc(collection(db, "players"), payload);
 
         alert("Joueur publié avec succès !");
         document.getElementById('content-form').reset();
         dropZone.innerHTML = "<p>Glissez la photo du joueur ici</p>";
-        optimizedWebMedia = null; socialMediaMedia = null;
+        optimizedWebMedia = null;
 
     } catch (err) { 
-        console.error(err);
         alert("Erreur: " + err.message); 
-    } 
-    finally { 
-        btn.disabled = false; 
-        btn.textContent = "Publier & Envoyer Webhook"; 
+    } finally { 
+        btn.disabled = false; btn.textContent = "Publier sur le site"; 
     }
 });
 
+/* ================= 6. GESTION DES JOUEURS (LISTE ET SUPPRESSION) ================= */
+async function loadAdminPlayers() {
+    const listContainer = document.getElementById('admin-players-list');
+    listContainer.innerHTML = '<tr><td colspan="4" style="text-align:center;">Chargement...</td></tr>';
+    
+    try {
+        const q = query(collection(db, "players"), orderBy("timestamp", "desc"));
+        const querySnapshot = await getDocs(q);
+        listContainer.innerHTML = '';
+        
+        querySnapshot.forEach((docSnap) => {
+            const player = docSnap.data();
+            const playerId = docSnap.id;
+            
+            listContainer.innerHTML += `
+                <tr>
+                    <td><img src="${player.image_url}" class="player-list-img" alt="Photo"></td>
+                    <td style="font-weight:bold;">${player.name}</td>
+                    <td style="text-transform:uppercase; color:#888;">${player.category}</td>
+                    <td>
+                        <button class="btn-delete" data-id="${playerId}">Supprimer</button>
+                    </td>
+                </tr>
+            `;
+        });
 
+        // Attacher les événements de suppression
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const idToDelete = e.target.getAttribute('data-id');
+                if(confirm("Êtes-vous sûr de vouloir retirer ce joueur du site ?")) {
+                    e.target.textContent = "...";
+                    await deleteDoc(doc(db, "players", idToDelete));
+                    loadAdminPlayers(); // Recharge la liste
+                }
+            });
+        });
 
-
+    } catch (error) {
+        listContainer.innerHTML = `<tr><td colspan="4" style="color:red;">Erreur de chargement</td></tr>`;
+    }
+}
