@@ -1,12 +1,3 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-const firebaseConfig = { /* Insérer clés Admin Firebase ici */ };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
 /* ================= 1. IMPORTS & CONFIGURATION FIREBASE ADMIN ================= */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -28,7 +19,28 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-/* ================= 2. TRAITEMENT IMAGE (Canvas WebP & JPG 4:5) ================= */
+/* ================= 2. AUTHENTIFICATION ================= */
+onAuthStateChanged(auth, (user) => {
+    document.getElementById('login-screen').classList.toggle('hidden', !!user);
+    document.getElementById('dashboard').classList.toggle('hidden', !user);
+});
+
+document.getElementById('login-form').addEventListener('submit', (e) => {
+    e.preventDefault(); // Empêche la page de se recharger (et de vider les champs)
+    
+    const email = document.getElementById('admin-email').value;
+    const pwd = document.getElementById('admin-pwd').value;
+    
+    signInWithEmailAndPassword(auth, email, pwd)
+        .catch(err => {
+            console.error(err);
+            alert("Identifiants incorrects ou non autorisés.");
+        });
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+
+/* ================= 3. TRAITEMENT IMAGE (Canvas WebP & JPG 4:5) ================= */
 const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('media-upload');
 let optimizedWebMedia = null;
@@ -76,36 +88,53 @@ function handleImage(file) {
     reader.readAsDataURL(file);
 }
 
-/* ================= 3. PUBLICATION & WEBHOOK MAKE ================= */
+/* ================= 4. PUBLICATION & WEBHOOK MAKE ================= */
 document.getElementById('content-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!optimizedWebMedia) return alert("Veuillez ajouter une photo.");
+
     const btn = document.getElementById('publish-btn');
-    btn.disabled = true; btn.textContent = "Envoi...";
+    btn.disabled = true; 
+    btn.textContent = "Upload en cours...";
 
     try {
+        const playerName = document.getElementById('player-name').value;
+        const playerCategory = document.getElementById('player-category').value;
+        const playerStat = document.getElementById('player-stat').value;
+
+        // 1. Upload Firebase Storage
+        const imageName = `players/${Date.now()}_${playerName.replace(/\s+/g, '-').toLowerCase()}.webp`;
+        const storageReference = ref(storage, imageName);
+        await uploadString(storageReference, optimizedWebMedia, 'data_url');
+        const publicImageUrl = await getDownloadURL(storageReference);
+
+        // 2. Sauvegarde Firestore
         const payload = {
-            name: document.getElementById('player-name').value,
-            category: document.getElementById('player-category').value,
-            stat: document.getElementById('player-stat').value,
-            image_web: optimizedWebMedia, 
+            name: playerName,
+            category: playerCategory,
+            stat: playerStat,
+            image_url: publicImageUrl, 
             timestamp: new Date()
         };
-
-        // 1. Sauvegarde Firebase
         const docRef = await addDoc(collection(db, "players"), payload);
 
-        // 2. Envoi Webhook (incluant la version réseau social 4:5)
+        // 3. Envoi Webhook Make
         await fetch("https://hook.eu1.make.com/TON_ID_WEBHOOK_ICI", {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...payload, id: docRef.id, image_social: socialMediaMedia })
         });
 
-        alert("Joueur ajouté et envoyé à Make !");
+        alert("Joueur publié avec succès !");
         document.getElementById('content-form').reset();
         dropZone.innerHTML = "<p>Glissez la photo du joueur ici</p>";
         optimizedWebMedia = null; socialMediaMedia = null;
 
-    } catch (err) { alert("Erreur: " + err); } 
-    finally { btn.disabled = false; btn.textContent = "Publier & Envoyer Webhook"; }
+    } catch (err) { 
+        console.error(err);
+        alert("Erreur: " + err.message); 
+    } 
+    finally { 
+        btn.disabled = false; 
+        btn.textContent = "Publier & Envoyer Webhook"; 
+    }
 });
-
