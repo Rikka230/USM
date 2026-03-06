@@ -260,3 +260,71 @@ body {
     margin: 0;
 }
 
+/* ================= BOUTONS DU SLIDER ================= */
+.slider-controls {
+    display: flex;
+    gap: 12px;
+}
+
+.slider-btn {
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 1.2rem;
+}
+
+.slider-btn:hover {
+    background: var(--usm-pink);
+    border-color: var(--usm-pink);
+    transform: scale(1.1);
+}
+
+/* ================= BARRE DE DÉFILEMENT (SCROLLBAR) ================= */
+.horizontal-scroller {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    padding-bottom: 20px;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    /* On force l'affichage de la barre sur Firefox */
+    scrollbar-width: thin; 
+    scrollbar-color: #333 rgba(255, 255, 255, 0.05);
+}
+
+/* Design de la barre sur Chrome / Safari / Edge */
+.horizontal-scroller::-webkit-scrollbar {
+    height: 8px; /* Force la hauteur de la barre pour la rendre visible */
+    display: block; /* S'assure qu'elle n'est pas cachée */
+}
+
+.horizontal-scroller::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05); 
+    border-radius: 10px;
+}
+
+.horizontal-scroller::-webkit-scrollbar-thumb {
+    background: #444; 
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.horizontal-scroller::-webkit-scrollbar-thumb:hover {
+    background: var(--usm-pink); /* S'allume en rose si on passe dessus */
+}
+
+/* Force les cartes à garder une bonne taille dans le slider */
+.horizontal-scroller .player-card {
+    flex: 0 0 280px; 
+    scroll-snap-align: start;
+    margin: 0;
+}
+
