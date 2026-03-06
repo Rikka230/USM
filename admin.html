@@ -37,9 +37,43 @@
 
         <main class="admin-content">
             
-            <section id="add-player-section">
-                <header><h1>Ajouter au Roster</h1></header>
+            <section id="manage-players-section">
+                <header style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px;">
+                    <div>
+                        <h1>Gérer le Roster</h1>
+                        <button id="btn-show-add-form" style="background:var(--usm-pink); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;">➕ Ajouter un profil</button>
+                    </div>
+                    <input type="text" id="search-bar" placeholder="🔍 Rechercher un nom..." style="padding:10px 15px; border-radius:8px; border:1px solid #444; background:#1e1e1e; color:#fff;">
+                </header>
+
+                <div class="admin-tabs" style="display:flex; gap:10px; margin-bottom: 20px;">
+                    <button class="admin-tab active" data-cat="gardien">Gardiens</button>
+                    <button class="admin-tab" data-cat="defenseur">Défenseurs</button>
+                    <button class="admin-tab" data-cat="milieu">Milieux</button>
+                    <button class="admin-tab" data-cat="attaquant">Attaquants</button>
+                    <button class="admin-tab" data-cat="feminine">Féminines</button>
+                    <button class="admin-tab" data-cat="coach">Coachs</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead><tr><th>Ordre</th><th>Photo</th><th>Nom</th><th>Action</th></tr></thead>
+                        <tbody id="admin-players-list"></tbody>
+                    </table>
+                </div>
+                <div id="pagination-controls" style="display:flex; gap:10px; margin-top:20px; justify-content:center;"></div>
+            </section>
+
+            <section id="form-player-section" class="hidden">
+                <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h1 id="form-title">Créer un Profil</h1>
+                    <button class="btn-cancel" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">❌ Annuler</button>
+                </header>
+                
                 <form id="content-form" class="bento-form">
+                    <input type="hidden" id="edit-player-id">
+                    <input type="hidden" id="existing-image-url">
+                    
                     <input type="text" id="player-name" placeholder="Nom du Joueur" required>
                     <input type="text" id="player-stat" placeholder="Statistique (ex: 150 Sélections)">
                     <input type="url" id="player-tm" placeholder="Lien Transfermarkt (Optionnel)">
@@ -54,12 +88,34 @@
                     </select>
                     
                     <div id="drop-zone" class="drop-zone">
-                        <p>Glissez la photo du joueur ici</p>
+                        <p>Glissez une nouvelle photo ici (laisse vide pour conserver l'actuelle)</p>
                         <input type="file" id="media-upload" accept="image/*" hidden>
                     </div>
-                    <button type="submit" id="publish-btn" class="btn-publish">Publier (Ordre Auto)</button>
+                    
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button type="button" class="btn-cancel" style="flex:1; background:#333; color:white; border:none; padding:20px; border-radius:8px; font-weight:bold; cursor:pointer;">Annuler</button>
+                        <button type="submit" id="publish-btn" class="btn-publish" style="flex:2;">Enregistrer</button>
+                    </div>
                 </form>
             </section>
+
+            <section id="settings-section" class="hidden">
+                <header><h1>Paramètres du Site (Scores & Médias)</h1></header>
+                <form id="settings-form" class="bento-form">
+                    <label style="color:#aaa;">Statistique 1 (ex: Opérations)</label>
+                    <input type="text" id="set-stat1" placeholder="1,600+">
+                    
+                    <label style="color:#aaa;">Statistique 2 (ex: Joueurs)</label>
+                    <input type="text" id="set-stat2" placeholder="1,000+">
+                    
+                    <label style="color:#aaa;">Statistique 3 (ex: Abonnés)</label>
+                    <input type="text" id="set-stat3" placeholder="68,260">
+
+                    <button type="submit" class="btn-publish">Mettre à jour le site</button>
+                </form>
+            </section>
+
+        </main>
 
             <section id="manage-players-section" class="hidden">
                 <header style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px;">
@@ -103,5 +159,6 @@
     <script type="module" src="admin.js"></script>
 </body>
 </html>
+
 
 
