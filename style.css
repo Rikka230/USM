@@ -81,18 +81,28 @@ body {
 .card-full { grid-column: 1 / -1; }
 
 .data-huge {
-    /* clamp(min, idéal, max) : Le texte fera au moins 2.5rem, au max 4.5rem, et s'adaptera entre les deux */
-    font-size: clamp(2.5rem, 4vw, 4.5rem); 
+    /* On réduit légèrement la fourchette pour que ça rentre parfaitement */
+    font-size: clamp(2rem, 3.2vw, 3.8rem); 
     font-weight: 900;
-    line-height: 1.1; /* Réduit l'espace vide au-dessus et en-dessous du chiffre */
-    white-space: nowrap; /* LE SECRET : Force le chiffre à rester sur une seule ligne */
-    letter-spacing: -1px; /* Rapproche un peu les caractères pour un look plus compact */
-    margin: 15px 0;
+    line-height: 1.2; 
+    white-space: nowrap; 
+    letter-spacing: -2px; /* On resserre un peu plus les chiffres entre eux */
+    margin: 10px 0;
     
-    /* Si tu avais déjà un dégradé rose/blanc, garde ces 3 lignes, sinon tu peux les enlever */
+    /* Le dégradé textuel */
     background: linear-gradient(135deg, #fff, var(--usm-pink));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    
+    /* L'astuce magique pour empêcher le conteneur de couper le dernier caractère (le + ou le 0) */
+    padding-right: 8px; 
+}
+
+/* Sécurité supplémentaire pour les écrans moyens (petits ordis portables / tablettes) */
+@media (max-width: 1100px) {
+    .data-huge {
+        font-size: clamp(1.8rem, 3vw, 2.8rem);
+    }
 }
 
 /* On s'assure aussi que la carte elle-même cache ce qui dépasse au cas où */
@@ -342,5 +352,6 @@ body {
     scroll-snap-align: start;
     margin: 0;
 }
+
 
 
