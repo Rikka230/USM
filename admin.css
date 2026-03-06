@@ -47,3 +47,63 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 .player-list-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #555;}
 .btn-delete { background: rgba(255, 0, 0, 0.1); color: #ff4444; border: 1px solid #ff4444; padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: 0.3s; font-weight: bold;}
 .btn-delete:hover { background: #ff4444; color: white;}
+
+/* ================= DESIGN DES ONGLETS ADMIN & BOUTONS ================= */
+.admin-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.admin-tab {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--surface-border);
+    color: #aaa;
+    padding: 10px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.admin-tab:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.admin-tab.active {
+    background: var(--usm-pink) !important;
+    border-color: var(--usm-pink) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(216, 0, 86, 0.4);
+}
+
+/* Bouton Retour au site */
+.btn-return {
+    display: block;
+    padding: 15px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: 0.3s;
+    font-size: 14px;
+    border: 1px solid #333;
+}
+
+.btn-return:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #666;
+}
+
+/* Fix design des flèches pour le tri (▲ ▼) */
+.btn-order { 
+    background: #333; color: white; border: none; 
+    width: 30px; height: 30px; border-radius: 4px; 
+    cursor: pointer; transition: 0.2s; 
+} 
+.btn-order:hover { background: var(--usm-pink); }
