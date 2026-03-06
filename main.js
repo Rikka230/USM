@@ -110,40 +110,64 @@ document.addEventListener("DOMContentLoaded", () => {
     loadPlayers();
 });
 
-// --- C. CHARGEMENT DYNAMIQUE (ONGLETS & ORDRE FIXÉ) ---
+/* ================= 4. CHARGEMENT DES PARAMÈTRES DU SITE ================= */
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+async function loadSettings() {
+    try {
+        const docSnap = await getDoc(doc(db, "settings", "general"));
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            if(data.stat1) document.getElementById('stat-1').textContent = data.stat1;
+            if(data.stat2) document.getElementById('stat-2').textContent = data.stat2;
+            if(data.stat3) document.getElementById('stat-3').textContent = data.stat3;
+            // Si tu as ajouté un ID à l'image du boss :
+            if(data.founderImg) document.getElementById('founder-img').src = data.founderImg;
+        }
+    } catch (e) { console.error("Erreur de chargement des paramètres :", e); }
+}
+
+/* ================= 5. CHARGEMENT DYNAMIQUE DU ROSTER ================= */
 let allPlayersData = []; 
+let currentFrontCat = 'gardien';
+let currentFrontSearch = '';
 
 async function loadPlayers() {
     const container = document.getElementById('roster-categories-container');
     if (!container) return;
 
     try {
-        // On récupère la collection sans orderBy pour éviter l'erreur Firestore
         const q = collection(db, "players");
         const querySnapshot = await getDocs(q);
         
         allPlayersData = [];
-        querySnapshot.forEach((doc) => allPlayersData.push(doc.data()));
-
-        // TRI JAVASCRIPT : Les joueurs sans numéro d'ordre seront placés à la fin (999)
+        querySnapshot.forEach((docSnap) => allPlayersData.push(docSnap.data()));
         allPlayersData.sort((a, b) => (a.order || 999) - (b.order || 999));
 
-        // Initialiser l'affichage sur "gardien" par défaut
-        renderCategorySlider('gardien');
+        renderCategorySlider();
         setupTabs();
 
+        // Écouteur pour la barre de recherche
+        document.getElementById('front-search').addEventListener('input', (e) => {
+            currentFrontSearch = e.target.value.toLowerCase();
+            renderCategorySlider();
+        });
+
     } catch (error) {
-        console.error(error);
-        container.innerHTML = '<p style="color:red; text-align:center;">Erreur de connexion à la base de données.</p>';
+        container.innerHTML = '<p style="color:red; text-align:center;">Erreur de connexion.</p>';
     }
 }
 
-function renderCategorySlider(category) {
+function renderCategorySlider() {
     const container = document.getElementById('roster-categories-container');
-    const filteredPlayers = allPlayersData.filter(p => p.category === category);
+    // Filtre par catégorie ET par recherche
+    const filteredPlayers = allPlayersData.filter(p => 
+        p.category === currentFrontCat && 
+        p.name.toLowerCase().includes(currentFrontSearch)
+    );
 
     if (filteredPlayers.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#888; padding: 40px;">Aucun profil dans cette catégorie pour le moment.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#888; padding: 40px;">Aucun joueur trouvé.</p>';
         return;
     }
 
@@ -161,23 +185,16 @@ function renderCategorySlider(category) {
     `;
 
     filteredPlayers.forEach(player => {
-        // Ajout du bouton Transfermarkt s'il existe
-        const tmLink = player.transfermarkt ? `<a href="${player.transfermarkt}" target="_blank" class="tm-link" style="color:var(--usm-pink); font-size:0.8rem; text-decoration:none; margin-top:5px; display:inline-block;">🔗 Transfermarkt</a>` : '';
-
+        const tmLink = player.transfermarkt ? `<a href="${player.transfermarkt}" target="_blank" style="color:var(--usm-pink); font-size:0.8rem; text-decoration:none; display:inline-block;">🔗 Transfermarkt</a>` : '';
         sliderHTML += `
             <div class="player-card">
                 <div class="player-img-container">
                     <img src="${player.image_url}" alt="${player.name}" loading="lazy">
                 </div>
                 <div class="player-info">
-                    <div>
-                        <h3>${player.name}</h3>
-                        ${tmLink}
-                    </div>
+                    <div><h3>${player.name}</h3>${tmLink}</div>
                 </div>
-                <div style="padding: 0 15px 15px;">
-                     <div class="player-stat">${player.stat || ''}</div>
-                </div>
+                <div style="padding: 0 15px 15px;"><div class="player-stat">${player.stat || ''}</div></div>
             </div>
         `;
     });
@@ -185,7 +202,6 @@ function renderCategorySlider(category) {
     sliderHTML += `</div></div></div>`;
     container.innerHTML = sliderHTML;
 
-    // Activer les flèches du slider
     const scroller = document.getElementById('active-scroller');
     document.querySelector('.prev-btn').addEventListener('click', () => scroller.scrollBy({ left: -304, behavior: 'smooth' }));
     document.querySelector('.next-btn').addEventListener('click', () => scroller.scrollBy({ left: 304, behavior: 'smooth' }));
@@ -197,11 +213,18 @@ function setupTabs() {
         tab.addEventListener('click', (e) => {
             tabs.forEach(t => t.classList.remove('active'));
             e.target.classList.add('active');
-            renderCategorySlider(e.target.getAttribute('data-tab'));
+            currentFrontCat = e.target.getAttribute('data-tab');
+            renderCategorySlider();
         });
     });
 }
 
+// N'oublie pas d'appeler loadSettings() au chargement de la page avec loadPlayers() !
+document.addEventListener("DOMContentLoaded", () => {
+    // ... tes autres inits ...
+    loadSettings();
+    loadPlayers();
+});
 // --- D. SYSTÈME DE FILTRES ---
 function initFilters() {
     const filterBtns = document.querySelectorAll('.filter-btn');
@@ -226,6 +249,7 @@ function initFilters() {
         });
     });
 }
+
 
 
 
