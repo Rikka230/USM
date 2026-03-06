@@ -38,6 +38,7 @@
                 <form id="content-form" class="bento-form">
                     <input type="text" id="player-name" placeholder="Nom du Joueur" required>
                     <input type="text" id="player-stat" placeholder="Statistique (ex: 150 Sélections)">
+                    <input type="url" id="player-tm" placeholder="Lien Transfermarkt (Optionnel)">
                     
                     <select id="player-category">
                         <option value="gardien">Gardien</option>
@@ -49,26 +50,38 @@
                     </select>
                     
                     <div id="drop-zone" class="drop-zone">
-                        <p>Glissez la photo du joueur ici (Crop Auto 4:5 et WebP)</p>
+                        <p>Glissez la photo du joueur ici</p>
                         <input type="file" id="media-upload" accept="image/*" hidden>
                     </div>
-                    
-                    <button type="submit" id="publish-btn" class="btn-publish">Publier sur le site</button>
+                    <button type="submit" id="publish-btn" class="btn-publish">Publier (Ordre Auto)</button>
                 </form>
             </section>
 
             <section id="manage-players-section" class="hidden">
-                <header>
-                    <h1>Gérer le Roster</h1>
-                    <p style="color: #aaa;">Liste de tous les joueurs publiés sur le site.</p>
+                <header style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px;">
+                    <div>
+                        <h1>Gérer le Roster</h1>
+                        <p style="color: #aaa;">Classement par ordre d'apparition sur le site.</p>
+                    </div>
+                    <input type="text" id="search-bar" placeholder="🔍 Rechercher un nom..." style="padding:10px 15px; border-radius:8px; border:1px solid #444; background:#1e1e1e; color:#fff;">
                 </header>
+
+                <div class="admin-tabs" style="display:flex; gap:10px; margin-bottom: 20px;">
+                    <button class="admin-tab active" data-cat="gardien">Gardiens</button>
+                    <button class="admin-tab" data-cat="defenseur">Défenseurs</button>
+                    <button class="admin-tab" data-cat="milieu">Milieux</button>
+                    <button class="admin-tab" data-cat="attaquant">Attaquants</button>
+                    <button class="admin-tab" data-cat="feminine">Féminines</button>
+                    <button class="admin-tab" data-cat="coach">Coachs</button>
+                </div>
+
                 <div class="table-container">
                     <table class="admin-table">
                         <thead>
                             <tr>
+                                <th>Ordre</th>
                                 <th>Photo</th>
                                 <th>Nom</th>
-                                <th>Catégorie</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -76,11 +89,14 @@
                             </tbody>
                     </table>
                 </div>
+                
+                <div id="pagination-controls" style="display:flex; gap:10px; margin-top:20px; justify-content:center;">
+                    </div>
             </section>
-
         </main>
     </div>
 
     <script type="module" src="admin.js"></script>
 </body>
 </html>
+
