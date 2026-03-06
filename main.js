@@ -26,6 +26,8 @@ const translations = {
         stat_1_label: "Activité & Transactions", stat_1_desc: "Opérations réalisées et plus de 25 000 contacts directs avec des clubs.",
         stat_2_label: "Confiance & Roster", stat_2_desc: "Joueurs gérés depuis 1998. +100 joueurs professionnels actuellement représentés.",
         stat_3_label: "Impact Digital (N°3 Mondial Linkedin)", stat_3_sub: "Abonnés cumulés",
+        stat_1_label: "Activité & Transactions", stat_1_desc: "Opérations réalisées sur le marché des transferts.",
+        stat_4_label: "Réseau Mondial", stat_4_desc: "Contacts directs avec des clubs à travers le monde.",
         services_label: "Accompagnement Global", services_title: "Services Exclusifs",
         srv_1: "Conciergerie Service Dédié 5*", srv_2: "Droit du Sport & Fiscalité", srv_3: "Family Office (Réseau d'experts)",
         srv_4: "Gestion de Carrière & Transferts", srv_5: "Sponsoring (Puma, etc.) & Image", srv_6: "Valorisation Data & Performance",
@@ -77,6 +79,7 @@ async function loadSettings() {
             if(data.stat1) document.getElementById('stat-1').textContent = data.stat1;
             if(data.stat2) document.getElementById('stat-2').textContent = data.stat2;
             if(data.stat3) document.getElementById('stat-3').textContent = data.stat3;
+            if(data.stat4) document.getElementById('stat-4').textContent = data.stat4;
         }
     } catch (e) { console.error("Erreur de chargement des paramètres :", e); }
 }
@@ -191,3 +194,4 @@ function setupTabs() {
         });
     });
 }
+
