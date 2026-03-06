@@ -70,52 +70,44 @@ body {
 .hero-massive h1 { font-size: clamp(1.5rem, 4vw, 3rem); text-transform: uppercase; letter-spacing: 4px; font-weight: 900; margin-bottom: 15px;}
 @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
 
-/* ================= 5. BENTO GRID ================= */
+/* ================= 5. BENTO GRID (CORRECTION CENTRAGE & LAYOUT) ================= */
 .bento-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; padding: var(--spacing-main); max-width: 1400px; margin: 0 auto; }
+
 .bento-card {
     background: var(--surface); border: 1px solid var(--surface-border); border-radius: var(--card-radius); padding: 40px;
-    backdrop-filter: blur(15px); display: flex; flex-direction: column; justify-content: space-between; transition: 0.4s;
+    backdrop-filter: blur(15px); 
+    
+    /* LE SECRET DU CENTRAGE EST ICI */
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; /* Centre verticalement de haut en bas */
+    align-items: center;     /* Centre horizontalement de gauche à droite */
+    text-align: center;      /* Centre le texte multi-lignes */
+    gap: 15px;               /* Espace parfait entre le titre, le gros chiffre et la description */
+    transition: 0.4s;
 }
 .bento-card:hover { transform: translateY(-5px); border-color: var(--usm-pink); background: rgba(40, 30, 40, 0.6); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
 .highlight-card { background: linear-gradient(145deg, rgba(25,25,30,0.8), rgba(216,0,86,0.15)); }
-.card-full { grid-column: 1 / -1; }
+
+/* On remet le texte à gauche uniquement pour la grande carte des Services */
+.card-full { 
+    grid-column: 1 / -1; 
+    align-items: flex-start; 
+    text-align: left; 
+}
 
 .data-huge {
-    /* On passe le max de 3.8rem à 3.4rem pour que les grands nombres rentrent */
-    font-size: clamp(1.8rem, 2.8vw, 3.4rem); 
+    font-size: clamp(2rem, 3.5vw, 4rem); 
     font-weight: 900;
-    line-height: 1.2; 
+    line-height: 1.1; 
     white-space: nowrap; 
     letter-spacing: -1px; 
-    margin: 10px 0;
-    
+    margin: 0; /* Géré proprement par le gap du parent maintenant */
     background: linear-gradient(135deg, #fff, var(--usm-pink));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    
-    /* Marge de sécurité doublée pour le dégradé webkit */
-    padding-right: 15px; 
+    padding-right: 15px; /* Empêche ton 0 d'être coupé à droite */
 }
-
-/* Sécurité supplémentaire pour les écrans moyens (petits ordis portables / tablettes) */
-@media (max-width: 1100px) {
-    .data-huge {
-        font-size: clamp(1.8rem, 3vw, 2.8rem);
-    }
-}
-
-/* On s'assure aussi que la carte elle-même cache ce qui dépasse au cas où */
-.bento-card {
-    overflow: hidden; 
-}
-.stat-medium { font-size: clamp(3rem, 6vw, 4.5rem); }
-.data-label { font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; color: #888; font-weight: bold;}
-.data-desc { color: #aaa; font-size: 0.95rem; margin-top: 15px;}
-
-.services-wrapper { display: flex; flex-wrap: wrap; gap: 40px; }
-.services-list { list-style: none; margin-top: 20px; flex: 1; min-width: 250px;}
-.services-list li { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; font-weight: bold; }
-.services-list li::before { content: '✦'; color: var(--usm-pink); }
 
 /* ================= 6. VIP SECTION ================= */
 .founder-vip-section {
@@ -351,6 +343,7 @@ body {
     scroll-snap-align: start;
     margin: 0;
 }
+
 
 
 
