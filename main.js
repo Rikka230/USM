@@ -127,7 +127,7 @@ async function loadSettings() {
     } catch (e) { console.error("Erreur de chargement des paramètres :", e); }
 }
 
-/* ================= 5. CHARGEMENT DYNAMIQUE DU ROSTER ================= */
+/* ================= 5. CHARGEMENT DYNAMIQUE DU ROSTER (AVEC RECHERCHE GLOBALE) ================= */
 let allPlayersData = []; 
 let currentFrontCat = 'gardien';
 let currentFrontSearch = '';
@@ -142,14 +142,24 @@ async function loadPlayers() {
         
         allPlayersData = [];
         querySnapshot.forEach((docSnap) => allPlayersData.push(docSnap.data()));
+        // Tri par numéro d'ordre
         allPlayersData.sort((a, b) => (a.order || 999) - (b.order || 999));
 
         renderCategorySlider();
         setupTabs();
 
-        // Écouteur pour la barre de recherche
+        // Écouteur pour la barre de recherche GLOBALE
         document.getElementById('front-search').addEventListener('input', (e) => {
             currentFrontSearch = e.target.value.toLowerCase();
+            
+            // UX : Si on cherche, on enlève l'effet "actif" des onglets pour montrer qu'on cherche partout
+            if(currentFrontSearch.length > 0) {
+                document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active'));
+            } else {
+                // Si on vide la barre, on remet l'onglet courant en surbrillance
+                document.querySelector(`.filter-btn[data-tab="${currentFrontCat}"]`).classList.add('active');
+            }
+            
             renderCategorySlider();
         });
 
@@ -160,21 +170,32 @@ async function loadPlayers() {
 
 function renderCategorySlider() {
     const container = document.getElementById('roster-categories-container');
-    // Filtre par catégorie ET par recherche
-    const filteredPlayers = allPlayersData.filter(p => 
-        p.category === currentFrontCat && 
-        p.name.toLowerCase().includes(currentFrontSearch)
-    );
+    
+    let filteredPlayers = [];
+
+    // MOTEUR DE RECHERCHE GLOBALE OU PAR ONGLET
+    if (currentFrontSearch.length > 0) {
+        // Mode Recherche : On ignore currentFrontCat et on cherche partout
+        filteredPlayers = allPlayersData.filter(p => p.name.toLowerCase().includes(currentFrontSearch));
+    } else {
+        // Mode Normal : On filtre par l'onglet actif
+        filteredPlayers = allPlayersData.filter(p => p.category === currentFrontCat);
+    }
 
     if (filteredPlayers.length === 0) {
         container.innerHTML = '<p style="text-align:center; color:#888; padding: 40px;">Aucun joueur trouvé.</p>';
         return;
     }
 
+    // Gestion du Titre (Montre ce qu'on cherche)
+    let titleText = currentFrontSearch.length > 0 
+        ? `Résultats pour "${currentFrontSearch}"` 
+        : `✦ <span style="color:var(--usm-pink)">${filteredPlayers.length}</span> Profils`;
+
     let sliderHTML = `
         <div class="category-block reveal visible">
             <div class="category-header">
-                <h3 class="category-title" style="color: #fff;">✦ <span style="color:var(--usm-pink)">${filteredPlayers.length}</span> Profils</h3>
+                <h3 class="category-title" style="color: #fff; text-transform:none;">${titleText}</h3>
                 <div class="slider-controls">
                     <button class="slider-btn prev-btn">❮</button>
                     <button class="slider-btn next-btn">❯</button>
@@ -185,14 +206,22 @@ function renderCategorySlider() {
     `;
 
     filteredPlayers.forEach(player => {
-        const tmLink = player.transfermarkt ? `<a href="${player.transfermarkt}" target="_blank" style="color:var(--usm-pink); font-size:0.8rem; text-decoration:none; display:inline-block;">🔗 Transfermarkt</a>` : '';
+        const tmLink = player.transfermarkt ? `<a href="${player.transfermarkt}" target="_blank" style="color:var(--usm-pink); font-size:0.8rem; text-decoration:none; display:inline-block; margin-top:5px;">🔗 Transfermarkt</a>` : '';
+        
+        // UX : Si on est en recherche globale, on affiche la catégorie sous le nom du joueur pour l'identifier
+        const catLabel = currentFrontSearch.length > 0 ? `<p style="color:#888; font-size:0.75rem; text-transform:uppercase; margin-top:2px;">${player.category}</p>` : '';
+
         sliderHTML += `
             <div class="player-card">
                 <div class="player-img-container">
                     <img src="${player.image_url}" alt="${player.name}" loading="lazy">
                 </div>
                 <div class="player-info">
-                    <div><h3>${player.name}</h3>${tmLink}</div>
+                    <div>
+                        <h3>${player.name}</h3>
+                        ${catLabel}
+                        ${tmLink}
+                    </div>
                 </div>
                 <div style="padding: 0 15px 15px;"><div class="player-stat">${player.stat || ''}</div></div>
             </div>
@@ -202,6 +231,7 @@ function renderCategorySlider() {
     sliderHTML += `</div></div></div>`;
     container.innerHTML = sliderHTML;
 
+    // Activation du Slider
     const scroller = document.getElementById('active-scroller');
     document.querySelector('.prev-btn').addEventListener('click', () => scroller.scrollBy({ left: -304, behavior: 'smooth' }));
     document.querySelector('.next-btn').addEventListener('click', () => scroller.scrollBy({ left: 304, behavior: 'smooth' }));
@@ -211,6 +241,10 @@ function setupTabs() {
     const tabs = document.querySelectorAll('.filter-btn');
     tabs.forEach(tab => {
         tab.addEventListener('click', (e) => {
+            // On vide la recherche globale si on clique sur un onglet
+            document.getElementById('front-search').value = '';
+            currentFrontSearch = '';
+
             tabs.forEach(t => t.classList.remove('active'));
             e.target.classList.add('active');
             currentFrontCat = e.target.getAttribute('data-tab');
@@ -218,13 +252,6 @@ function setupTabs() {
         });
     });
 }
-
-// N'oublie pas d'appeler loadSettings() au chargement de la page avec loadPlayers() !
-document.addEventListener("DOMContentLoaded", () => {
-    // ... tes autres inits ...
-    loadSettings();
-    loadPlayers();
-});
 // --- D. SYSTÈME DE FILTRES ---
 function initFilters() {
     const filterBtns = document.querySelectorAll('.filter-btn');
@@ -249,6 +276,7 @@ function initFilters() {
         });
     });
 }
+
 
 
 
