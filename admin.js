@@ -1,5 +1,5 @@
 /* ==========================================================================
-   USM FOOTBALL - ADMIN JAVASCRIPT (CMS & RECHERCHE GLOBALE)
+   USM FOOTBALL - ADMIN JAVASCRIPT (CMS COMPLET AVEC 4 STATS)
    ========================================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -28,7 +28,7 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('dashboard').classList.remove('hidden');
-        loadAdminPlayers(); // Charge tous les joueurs
+        loadAdminPlayers(); 
     } else {
         document.getElementById('dashboard').classList.add('hidden');
         document.getElementById('login-screen').classList.remove('hidden');
@@ -43,32 +43,36 @@ document.getElementById('login-form').addEventListener('submit', (e) => {
 
 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth).then(() => window.location.reload()));
 
-/* ================= 2. NAVIGATION ================= */
+/* ================= 2. NAVIGATION ET SECTIONS ================= */
 const secManage = document.getElementById('manage-players-section');
 const secForm = document.getElementById('form-player-section');
 const secSettings = document.getElementById('settings-section');
 
+// Onglet Gérer le Roster
 document.getElementById('nav-manage').addEventListener('click', (e) => {
     document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
     e.target.classList.add('active');
     secManage.classList.remove('hidden'); secForm.classList.add('hidden'); secSettings.classList.add('hidden');
 });
 
+// Onglet Paramètres du Site (4 STATS)
 document.getElementById('nav-settings').addEventListener('click', async (e) => {
     document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
     e.target.classList.add('active');
     secSettings.classList.remove('hidden'); secManage.classList.add('hidden'); secForm.classList.add('hidden');
     
+    // CHARGEMENT DES 4 STATS DEPUIS FIREBASE
     const docSnap = await getDoc(doc(db, "settings", "general"));
     if (docSnap.exists()) {
         const data = docSnap.data();
         document.getElementById('set-stat1').value = data.stat1 || '';
         document.getElementById('set-stat2').value = data.stat2 || '';
         document.getElementById('set-stat3').value = data.stat3 || '';
-        document.getElementById('set-stat4').value = data.stat4 || '';
+        document.getElementById('set-stat4').value = data.stat4 || ''; // Ajouté pour le 4ème bloc
     }
 });
 
+// Boutons d'ajout et annulation
 document.getElementById('btn-show-add-form').addEventListener('click', () => {
     document.getElementById('content-form').reset();
     document.getElementById('edit-player-id').value = '';
@@ -86,7 +90,7 @@ document.querySelectorAll('.btn-cancel').forEach(btn => {
     });
 });
 
-/* ================= 3. IMAGE (CANVAS) ================= */
+/* ================= 3. IMAGE CANVAS (WEBP) ================= */
 const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('media-upload');
 let optimizedWebMedia = null;
@@ -117,8 +121,8 @@ function handleImage(file) {
     reader.readAsDataURL(file);
 }
 
-/* ================= 4. GESTION DES JOUEURS (MOTEUR DE RECHERCHE & AFFICHAGE) ================= */
-let allAdminPlayers = []; // Stocke TOUTE la base de données
+/* ================= 4. GESTION DU ROSTER (MOTEUR DE RECHERCHE) ================= */
+let allAdminPlayers = []; 
 let adminCurrentCat = 'gardien';
 let adminSearchQuery = '';
 let adminCurrentPage = 1;
@@ -129,7 +133,7 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
         document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
         adminCurrentCat = e.target.getAttribute('data-cat');
-        adminSearchQuery = ''; // On vide la recherche quand on change d'onglet
+        adminSearchQuery = ''; 
         document.getElementById('search-bar').value = '';
         adminCurrentPage = 1;
         renderAdminTable();
@@ -139,18 +143,15 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
 document.getElementById('search-bar').addEventListener('input', (e) => {
     adminSearchQuery = e.target.value.toLowerCase();
     adminCurrentPage = 1;
-    // Si on cherche, on désactive visuellement les onglets car on cherche partout
     if(adminSearchQuery.length > 0) {
         document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
     }
     renderAdminTable();
 });
 
-// A. Charger TOUTE la base (Une seule fois pour éviter de ramer)
 async function loadAdminPlayers() {
     const listContainer = document.getElementById('admin-players-list');
-    listContainer.innerHTML = '<tr><td colspan="4" style="text-align:center;">Chargement de la base de données...</td></tr>';
-    
+    listContainer.innerHTML = '<tr><td colspan="4" style="text-align:center;">Chargement...</td></tr>';
     try {
         const querySnapshot = await getDocs(collection(db, "players"));
         allAdminPlayers = [];
@@ -159,28 +160,18 @@ async function loadAdminPlayers() {
         });
         renderAdminTable();
     } catch (error) {
-        listContainer.innerHTML = `<tr><td colspan="4" style="color:red;">Erreur de chargement.</td></tr>`;
+        listContainer.innerHTML = `<tr><td colspan="4" style="color:red;">Erreur.</td></tr>`;
     }
 }
 
-// B. Rendu du tableau (Avec Recherche Globale)
 function renderAdminTable() {
     const listContainer = document.getElementById('admin-players-list');
     const paginationContainer = document.getElementById('pagination-controls');
     
-    let filtered = [];
+    let filtered = adminSearchQuery.length > 0 
+        ? allAdminPlayers.filter(p => p.name.toLowerCase().includes(adminSearchQuery))
+        : allAdminPlayers.filter(p => p.category === adminCurrentCat);
     
-    // RECHERCHE GLOBALE : Si on tape un nom, on ignore les onglets et on cherche dans toute la base
-    if (adminSearchQuery.length > 0) {
-        filtered = allAdminPlayers.filter(p => p.name.toLowerCase().includes(adminSearchQuery));
-    } else {
-        // Sinon, on affiche l'onglet actif
-        filtered = allAdminPlayers.filter(p => p.category === adminCurrentCat);
-        // On remet la couleur sur l'onglet actif
-        document.querySelector(`.admin-tab[data-cat="${adminCurrentCat}"]`).classList.add('active');
-    }
-    
-    // Tri par ordre d'apparition
     filtered.sort((a, b) => (a.order || 999) - (b.order || 999));
     
     const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
@@ -196,27 +187,23 @@ function renderAdminTable() {
 
     paginated.forEach((player, indexOnPage) => {
         const globalIndex = startIndex + indexOnPage;
-        
-        // On ne peut réorganiser l'ordre que si on est dans un onglet (pas pendant une recherche globale)
         const canMove = adminSearchQuery === '';
         const isFirst = globalIndex === 0;
         const isLast = globalIndex === filtered.length - 1;
         
         const upBtn = (canMove && !isFirst) ? `<button class="btn-order btn-move-up" data-index="${globalIndex}">▲</button>` : '';
         const downBtn = (canMove && !isLast) ? `<button class="btn-order btn-move-down" data-index="${globalIndex}">▼</button>` : '';
-
-        // J'affiche la catégorie sous le nom si on est en mode recherche globale
-        const catLabel = adminSearchQuery.length > 0 ? `<br><span style="font-size:0.8rem; color:#888; text-transform:uppercase;">${player.category}</span>` : '';
+        const catLabel = adminSearchQuery.length > 0 ? `<br><span style="font-size:0.8rem; color:#888;">${player.category}</span>` : '';
 
         listContainer.innerHTML += `
             <tr>
-                <td style="font-weight:900; color:var(--usm-pink); font-size:1.2rem;">#${player.order || '-'}</td>
-                <td><img src="${player.image_url}" class="player-list-img" alt="Photo"></td>
+                <td style="font-weight:900; color:var(--usm-pink);">#${player.order || '-'}</td>
+                <td><img src="${player.image_url}" class="player-list-img"></td>
                 <td style="font-weight:bold;">${player.name} ${catLabel}</td>
                 <td>
-                    <div style="display:flex; gap:8px; align-items:center;">
+                    <div style="display:flex; gap:8px;">
                         ${upBtn} ${downBtn}
-                        <button class="btn-edit" style="background:#444; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; margin-left:10px;" data-id="${player.id}">Éditer</button>
+                        <button class="btn-edit" data-id="${player.id}">Éditer</button>
                         <button class="btn-delete" data-id="${player.id}">Supprimer</button>
                     </div>
                 </td>
@@ -224,7 +211,7 @@ function renderAdminTable() {
         `;
     });
 
-    // Événements sécurisés (remplace les onclick)
+    // Event listeners
     document.querySelectorAll('.btn-edit').forEach(btn => btn.addEventListener('click', (e) => editPlayer(e.target.dataset.id)));
     document.querySelectorAll('.btn-delete').forEach(btn => btn.addEventListener('click', (e) => deletePlayer(e.target.dataset.id)));
     document.querySelectorAll('.btn-move-up').forEach(btn => btn.addEventListener('click', (e) => movePlayer(parseInt(e.target.dataset.index), -1)));
@@ -235,71 +222,57 @@ function renderAdminTable() {
     for(let i = 1; i <= totalPages; i++) {
         const btn = document.createElement('button');
         btn.textContent = i;
-        btn.style = `padding: 5px 12px; border:none; border-radius:4px; cursor:pointer; background: ${i === adminCurrentPage ? '#d80056' : '#333'}; color:white;`;
+        btn.className = `pag-btn ${i === adminCurrentPage ? 'active' : ''}`;
         btn.addEventListener('click', () => { adminCurrentPage = i; renderAdminTable(); });
         paginationContainer.appendChild(btn);
     }
 }
 
-/* ================= 5. CRUD ACTIONS (EDIT, DELETE, MOVE) ================= */
+/* ================= 5. CRUD ACTIONS ================= */
 function editPlayer(id) {
     const player = allAdminPlayers.find(p => p.id === id);
     if(!player) return;
-
     document.getElementById('edit-player-id').value = player.id;
     document.getElementById('player-name').value = player.name;
     document.getElementById('player-stat').value = player.stat || '';
     document.getElementById('player-tm').value = player.transfermarkt || '';
     document.getElementById('player-category').value = player.category;
     document.getElementById('existing-image-url').value = player.image_url;
-
     document.getElementById('form-title').textContent = "Modifier : " + player.name;
     document.getElementById('publish-btn').textContent = "Mettre à jour";
-    document.getElementById('drop-zone').innerHTML = `<img src="${player.image_url}" style="max-height: 150px; border-radius: 8px;"> <p style="font-size:12px; color:#aaa; margin-top:10px;">(Glissez une nouvelle photo pour remplacer)</p>`;
-    
-    optimizedWebMedia = null;
+    document.getElementById('drop-zone').innerHTML = `<img src="${player.image_url}" style="max-height: 150px; border-radius: 8px;">`;
     secManage.classList.add('hidden'); secForm.classList.remove('hidden');
 }
 
 async function deletePlayer(id) {
-    if(confirm("Supprimer définitivement ce profil ?")) {
+    if(confirm("Supprimer ce profil ?")) {
         await deleteDoc(doc(db, "players", id));
-        loadAdminPlayers(); // Recharge propre
+        loadAdminPlayers();
     }
 }
 
 async function movePlayer(currentIndex, direction) {
-    // Récupérer uniquement les joueurs de la catégorie actuelle
-    let categoryPlayers = allAdminPlayers.filter(p => p.category === adminCurrentCat);
-    categoryPlayers.sort((a, b) => (a.order || 999) - (b.order || 999));
-
+    let categoryPlayers = allAdminPlayers.filter(p => p.category === adminCurrentCat).sort((a, b) => (a.order || 999) - (b.order || 999));
     const targetIndex = currentIndex + direction;
     if(targetIndex < 0 || targetIndex >= categoryPlayers.length) return;
 
-    // Swap
     const temp = categoryPlayers[currentIndex];
     categoryPlayers[currentIndex] = categoryPlayers[targetIndex];
     categoryPlayers[targetIndex] = temp;
 
-    // Batch update
     const batch = writeBatch(db);
     categoryPlayers.forEach((player, index) => {
-        const newOrder = index + 1;
-        const docRef = doc(db, "players", player.id);
-        batch.update(docRef, { order: newOrder });
+        batch.update(doc(db, "players", player.id), { order: index + 1 });
     });
-
-    try {
-        await batch.commit();
-        loadAdminPlayers(); // Rafraîchit la base
-    } catch(err) { alert("Erreur de réorganisation."); }
+    await batch.commit();
+    loadAdminPlayers();
 }
 
-/* ================= 6. SOUMISSION DU FORMULAIRE (SAVE) ================= */
+/* ================= 6. SAUVEGARDE JOUEUR ================= */
 document.getElementById('content-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('publish-btn');
-    btn.disabled = true; btn.textContent = "Enregistrement en cours...";
+    btn.disabled = true; btn.textContent = "Sauvegarde...";
 
     try {
         const editId = document.getElementById('edit-player-id').value;
@@ -324,37 +297,31 @@ document.getElementById('content-form').addEventListener('submit', async (e) => 
 
         if (editId) {
             await updateDoc(doc(db, "players", editId), payload);
-            alert("Profil mis à jour !");
         } else {
-            const q = query(collection(db, "players"), where("category", "==", cat));
-            const snap = await getDocs(q);
+            const snap = await getDocs(query(collection(db, "players"), where("category", "==", cat)));
             payload.order = snap.size + 1;
             await addDoc(collection(db, "players"), payload);
-            alert("Nouveau profil ajouté !");
         }
-
         secForm.classList.add('hidden'); secManage.classList.remove('hidden');
         loadAdminPlayers();
-
     } catch (err) { alert("Erreur: " + err.message); } 
     finally { btn.disabled = false; }
 });
 
-//* ================= 7. PARAMÈTRES DU SITE ================= */
+/* ================= 7. PARAMÈTRES DU SITE (4 STATS) ================= */
 document.getElementById('settings-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector('button[type="submit"]');
-    btn.textContent = "Sauvegarde en cours...";
+    btn.textContent = "Sauvegarde...";
     
     try {
         await setDoc(doc(db, "settings", "general"), {
             stat1: document.getElementById('set-stat1').value,
             stat2: document.getElementById('set-stat2').value,
             stat3: document.getElementById('set-stat3').value,
-            stat4: document.getElementById('set-stat4').value
+            stat4: document.getElementById('set-stat4').value // Sauvegarde du 4ème bloc
         }, { merge: true });
-        alert("Les statistiques ont été mises à jour !");
+        alert("Statistiques mises à jour !");
     } catch(err) { alert("Erreur : " + err.message); } 
     finally { btn.textContent = "Mettre à jour le site"; }
 });
-
