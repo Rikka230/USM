@@ -1,3 +1,7 @@
+/* ==========================================================================
+   USM FOOTBALL - STYLESHEET PRINCIPAL (FRONT-OFFICE)
+   ========================================================================== */
+
 /* ================= 1. VARIABLES & RESET ================= */
 :root {
     --bg-dark: #050507; 
@@ -10,86 +14,221 @@
     --spacing-main: clamp(20px, 5vw, 60px);
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; font-family: 'Helvetica Neue', Arial, sans-serif; }
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+
+html { 
+    scroll-behavior: smooth; 
+    font-family: 'Helvetica Neue', Arial, sans-serif; 
+}
 
 body {
     background-color: var(--bg-dark);
     background-image: 
         radial-gradient(circle at 50% 0%, var(--usm-pink-glow) 0%, transparent 60%),
-        url('assets/leather-texture.png'); /* Texture à lier localement */
-    background-attachment: fixed; color: var(--text-light); line-height: 1.4; overflow-x: hidden;
+        url('assets/leather-texture.png');
+    background-attachment: fixed; 
+    color: var(--text-light); 
+    line-height: 1.4; 
+    overflow-x: hidden;
 }
 
-.pink-accent { color: var(--usm-pink); font-weight: bold;}
-.text-white { color: #fff; }
+.pink-accent { 
+    color: var(--usm-pink); 
+    font-weight: bold;
+}
+
+.text-white { 
+    color: #fff; 
+}
+
 
 /* ================= 2. TYPO GÉANTE & ANIMATIONS ================= */
 .giant-bg-text {
-    position: absolute; font-size: clamp(6rem, 12vw, 15rem); font-weight: 900;
-    text-transform: uppercase; color: rgba(255, 255, 255, 0.02);
-    z-index: -1; line-height: 0.8; pointer-events: none; white-space: nowrap;
+    position: absolute; 
+    font-size: clamp(6rem, 12vw, 15rem); 
+    font-weight: 900;
+    text-transform: uppercase; 
+    color: rgba(255, 255, 255, 0.02);
+    z-index: -1; 
+    line-height: 0.8; 
+    pointer-events: none; 
+    white-space: nowrap;
 }
-.text-1 { top: 20%; left: -5%; } .text-2 { top: 60%; right: -5%; text-align: right; }
 
-.reveal { opacity: 0; transform: translateY(40px); transition: 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
-.reveal.visible { opacity: 1; transform: translateY(0); }
+.text-1 { top: 20%; left: -5%; } 
+.text-2 { top: 60%; right: -5%; text-align: right; }
 
-/* ================= 3. NAVBAR & i18n ================= */
+.reveal { 
+    opacity: 0; 
+    transform: translateY(40px); 
+    transition: 0.8s cubic-bezier(0.25, 1, 0.5, 1); 
+}
+
+.reveal.visible { 
+    opacity: 1; 
+    transform: translateY(0); 
+}
+
+
+/* ================= 3. NAVBAR & LANGUES ================= */
 .navbar {
-    display: flex; justify-content: space-between; align-items: center; padding: 20px var(--spacing-main);
-    background: rgba(5, 5, 7, 0.8); backdrop-filter: blur(20px); position: fixed; top: 0; width: 100%; 
-    z-index: 100; border-bottom: 1px solid var(--surface-border);
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 20px var(--spacing-main);
+    background: rgba(5, 5, 7, 0.8); 
+    backdrop-filter: blur(20px); 
+    position: fixed; 
+    top: 0; 
+    width: 100%; 
+    z-index: 100; 
+    border-bottom: 1px solid var(--surface-border);
 }
-.logo-nav { font-size: 1.2rem; font-weight: 900; letter-spacing: 2px; display: flex; align-items: center; gap: 10px;}
-.logo-nav img { height: 30px; } .logo-nav span { color: var(--usm-pink); }
-.nav-links { display: flex; align-items: center; gap: 30px; }
-.nav-links a { color: white; text-decoration: none; font-size: 0.9rem; text-transform: uppercase; font-weight: bold; transition: 0.3s; }
-.nav-links a:hover { color: var(--usm-pink); }
-.btn-premium { background: var(--usm-pink); color: white; padding: 10px 24px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; }
 
-/* Selecteur Langue */
+.logo-nav { 
+    font-size: 1.2rem; 
+    font-weight: 900; 
+    letter-spacing: 2px; 
+    display: flex; 
+    align-items: center; 
+    gap: 10px;
+}
+
+.logo-nav img { height: 30px; } 
+.logo-nav span { color: var(--usm-pink); }
+
+.nav-links { 
+    display: flex; 
+    align-items: center; 
+    gap: 30px; 
+}
+
+.nav-links a { 
+    color: white; 
+    text-decoration: none; 
+    font-size: 0.9rem; 
+    text-transform: uppercase; 
+    font-weight: bold; 
+    transition: 0.3s; 
+}
+
+.nav-links a:hover { 
+    color: var(--usm-pink); 
+}
+
+.btn-premium { 
+    background: var(--usm-pink); 
+    color: white; 
+    padding: 10px 24px; 
+    border-radius: 30px; 
+    border: none; 
+    font-weight: bold; 
+    cursor: pointer; 
+}
+
 .lang-switcher select {
-    background: transparent; color: var(--text-light); border: 1px solid var(--surface-border);
-    padding: 5px 10px; border-radius: 20px; font-weight: bold; cursor: pointer; appearance: none;
-    text-align: center; transition: 0.3s;
+    background: transparent; 
+    color: var(--text-light); 
+    border: 1px solid var(--surface-border);
+    padding: 5px 10px; 
+    border-radius: 20px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    appearance: none;
+    text-align: center; 
+    transition: 0.3s;
 }
-.lang-switcher select:hover { border-color: var(--usm-pink); color: var(--usm-pink); }
-.lang-switcher select option { background: var(--bg-dark); color: white; }
 
-/* ================= 4. HERO ================= */
+.lang-switcher select:hover { 
+    border-color: var(--usm-pink); 
+    color: var(--usm-pink); 
+}
+
+.lang-switcher select option { 
+    background: var(--bg-dark); 
+    color: white; 
+}
+
+
+/* ================= 4. HERO SECTION ================= */
 .hero-massive {
-    min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; padding: 120px 20px 40px; position: relative;
-}
-.massive-eagle-wrapper {
-    width: clamp(200px, 40vw, 400px); margin-bottom: 30px;
-    filter: drop-shadow(0 0 40px rgba(216,0,86,0.6)); animation: float 6s ease-in-out infinite;
-}
-.massive-eagle-wrapper img { width: 100%; height: auto; }
-.hero-massive h1 { font-size: clamp(1.5rem, 4vw, 3rem); text-transform: uppercase; letter-spacing: 4px; font-weight: 900; margin-bottom: 15px;}
-@keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
-
-/* ================= 5. BENTO GRID (CORRECTION CENTRAGE & LAYOUT) ================= */
-.bento-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; padding: var(--spacing-main); max-width: 1400px; margin: 0 auto; }
-
-.bento-card {
-    background: var(--surface); border: 1px solid var(--surface-border); border-radius: var(--card-radius); padding: 40px;
-    backdrop-filter: blur(15px); 
-    
-    /* LE SECRET DU CENTRAGE EST ICI */
+    min-height: 80vh; 
     display: flex; 
     flex-direction: column; 
-    justify-content: center; /* Centre verticalement de haut en bas */
-    align-items: center;     /* Centre horizontalement de gauche à droite */
-    text-align: center;      /* Centre le texte multi-lignes */
-    gap: 15px;               /* Espace parfait entre le titre, le gros chiffre et la description */
-    transition: 0.4s;
+    align-items: center; 
+    justify-content: center;
+    text-align: center; 
+    padding: 120px 20px 40px; 
+    position: relative;
 }
-.bento-card:hover { transform: translateY(-5px); border-color: var(--usm-pink); background: rgba(40, 30, 40, 0.6); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-.highlight-card { background: linear-gradient(145deg, rgba(25,25,30,0.8), rgba(216,0,86,0.15)); }
 
-/* On remet le texte à gauche uniquement pour la grande carte des Services */
+.massive-eagle-wrapper {
+    width: clamp(200px, 40vw, 400px); 
+    margin-bottom: 30px;
+    filter: drop-shadow(0 0 40px rgba(216,0,86,0.6)); 
+    animation: float 6s ease-in-out infinite;
+}
+
+.massive-eagle-wrapper img { 
+    width: 100%; 
+    height: auto; 
+}
+
+.hero-massive h1 { 
+    font-size: clamp(1.5rem, 4vw, 3rem); 
+    text-transform: uppercase; 
+    letter-spacing: 4px; 
+    font-weight: 900; 
+    margin-bottom: 15px;
+}
+
+@keyframes float { 
+    0%, 100% { transform: translateY(0px); } 
+    50% { transform: translateY(-20px); } 
+}
+
+
+/* ================= 5. BENTO GRID (STATISTIQUES) ================= */
+.bento-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+    gap: 24px; 
+    padding: var(--spacing-main); 
+    max-width: 1400px; 
+    margin: 0 auto; 
+}
+
+.bento-card {
+    background: var(--surface); 
+    border: 1px solid var(--surface-border); 
+    border-radius: var(--card-radius); 
+    padding: 40px;
+    backdrop-filter: blur(15px); 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center;     
+    text-align: center;      
+    gap: 15px;               
+    transition: 0.4s;
+    overflow: hidden;
+}
+
+.bento-card:hover { 
+    transform: translateY(-5px); 
+    border-color: var(--usm-pink); 
+    background: rgba(40, 30, 40, 0.6); 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5); 
+}
+
+.highlight-card { 
+    background: linear-gradient(145deg, rgba(25,25,30,0.8), rgba(216,0,86,0.15)); 
+}
+
 .card-full { 
     grid-column: 1 / -1; 
     align-items: flex-start; 
@@ -102,86 +241,196 @@ body {
     line-height: 1.1; 
     white-space: nowrap; 
     letter-spacing: -1px; 
-    margin: 0; /* Géré proprement par le gap du parent maintenant */
+    margin: 0; 
     background: linear-gradient(135deg, #fff, var(--usm-pink));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    padding-right: 15px; /* Empêche ton 0 d'être coupé à droite */
+    padding-right: 15px;
 }
 
-/* ================= 6. VIP SECTION ================= */
-.founder-vip-section {
-    display: flex; flex-wrap: wrap; margin: 20px auto 80px; max-width: 1360px;
-    background: var(--surface); border: 1px solid rgba(216, 0, 86, 0.3); border-radius: var(--card-radius); overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.6);
-}
-.vip-photo-wrapper { flex: 1 1 400px; position: relative; min-height: 500px; }
-.vip-photo-wrapper img { width: 100%; height: 100%; object-fit: cover; object-position: top center; filter: contrast(1.1) brightness(0.9); }
-.vip-photo-wrapper::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(to right, transparent 60%, rgba(25, 25, 30, 0.8) 100%), linear-gradient(to top, rgba(5, 5, 7, 0.9) 0%, transparent 30%);
-}
-.vip-content { flex: 1 1 500px; padding: 60px; display: flex; flex-direction: column; justify-content: center; background: linear-gradient(135deg, rgba(25, 25, 30, 0.9), rgba(216, 0, 86, 0.05)); }
-.vip-badge { align-self: flex-start; background: var(--usm-pink); color: white; padding: 8px 16px; border-radius: 20px; font-weight: 900; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 20px; }
-.vip-name { font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 900; line-height: 1; text-transform: uppercase; margin-bottom: 10px; }
-.vip-name span { color: var(--usm-pink); }
-.vip-quote { font-size: 1.5rem; color: #fff; font-style: italic; margin-bottom: 30px; border-left: 4px solid var(--usm-pink); padding-left: 15px; }
-.vip-desc { color: #aaa; font-size: 1.1rem; margin-bottom: 30px; line-height: 1.6; }
-.licenses-wrapper { display: flex; gap: 15px; flex-wrap: wrap;}
-.license-badge { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 1rem; }
-
-/* ================= 7. JOUEURS ================= */
-.players-section { padding: var(--spacing-main); max-width: 1400px; margin: 0 auto; }
-.players-section h2 { font-size: 2.5rem; text-transform: uppercase; margin-bottom: 20px;}
-.player-filters { display: flex; gap: 10px; margin-bottom: 40px;}
-.filter-btn { background: transparent; color: #aaa; border: 1px solid var(--surface-border); padding: 10px 24px; border-radius: 30px; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-size: 0.8rem; font-weight: bold; }
-.filter-btn.active, .filter-btn:hover { background: var(--usm-pink); color: white; border-color: var(--usm-pink);}
-
-.players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
-.player-card { background: var(--surface); border: 1px solid var(--surface-border); border-radius: 24px; overflow: hidden; padding: 15px; transition: 0.4s; }
-.player-card:hover { border-color: var(--usm-pink); transform: translateY(-10px); background: rgba(25, 25, 30, 0.8);}
-.player-img-container { width: 100%; height: 320px; border-radius: 16px; overflow: hidden; background: #111;}
-.player-img-container img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.4s;}
-.player-card:hover img { opacity: 1; transform: scale(1.05);}
-.player-info { padding: 15px 5px 5px; display: flex; justify-content: space-between; align-items: center;}
-.player-info h3 { font-size: 1.2rem; text-transform: uppercase; margin-bottom: 5px;}
-.player-stat { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;}
-
-/* ================= 8. FOOTER & LIENS ================= */
-.site-footer {
-    background: rgba(5, 5, 7, 0.9);
-    border-top: 1px solid var(--surface-border);
-    padding: 30px var(--spacing-main);
-    margin-top: 80px;
-    text-align: center;
-}
-
-.footer-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    font-size: 0.85rem;
-    color: #888;
-}
-
-.footer-separator { color: #333; }
-.legal-link { color: #aaa; text-decoration: none; transition: 0.3s; }
-.legal-link:hover { color: var(--usm-pink); }
-.copyright { color: #aaa; }
-
-/* Le lien secret caché en plein texte */
-.admin-secret-link {
+.data-label { 
+    font-size: 1rem; 
+    text-transform: uppercase; 
+    letter-spacing: 2px; 
     color: #888; 
-    text-decoration: none; 
-    cursor: default; /* Enlève la petite main au survol pour plus de discrétion */
+    font-weight: bold;
+}
+
+.data-desc { 
+    color: #aaa; 
+    font-size: 0.95rem; 
+}
+
+
+/* ================= 6. SERVICES (TUILES) ================= */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+    width: 100%;
+}
+
+.service-mini-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--surface-border);
+    padding: 20px 25px;
+    border-radius: 16px;
+    color: white;
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 0.95rem;
     transition: 0.3s;
 }
-.admin-secret-link:hover {
-    color: var(--usm-pink); /* Un petit effet rose si on le trouve ! */
+
+.service-mini-card:hover {
+    background: rgba(216, 0, 86, 0.1);
+    border-color: var(--usm-pink);
+    transform: translateY(-3px);
+    color: var(--usm-pink);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
 }
 
-/* ================= 9. LAYOUT ROSTER & SLIDER (NETFLIX STYLE) ================= */
+
+/* ================= 7. SECTION VIP (FONDATEUR) ================= */
+.founder-vip-section {
+    display: flex; 
+    flex-wrap: wrap; 
+    margin: 20px auto 80px; 
+    max-width: 1360px;
+    background: var(--surface); 
+    border: 1px solid rgba(216, 0, 86, 0.3); 
+    border-radius: var(--card-radius); 
+    overflow: hidden; 
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+}
+
+.vip-photo-wrapper { 
+    flex: 1 1 400px; 
+    position: relative; 
+    min-height: 500px; 
+}
+
+.vip-photo-wrapper img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    object-position: top center; 
+    filter: contrast(1.1) brightness(0.9); 
+}
+
+.vip-photo-wrapper::after {
+    content: ''; 
+    position: absolute; 
+    inset: 0;
+    background: linear-gradient(to right, transparent 60%, rgba(25, 25, 30, 0.8) 100%), 
+                linear-gradient(to top, rgba(5, 5, 7, 0.9) 0%, transparent 30%);
+}
+
+.vip-content { 
+    flex: 1 1 500px; 
+    padding: 60px; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    background: linear-gradient(135deg, rgba(25, 25, 30, 0.9), rgba(216, 0, 86, 0.05)); 
+}
+
+.vip-badge { 
+    align-self: flex-start; 
+    background: var(--usm-pink); 
+    color: white; 
+    padding: 8px 16px; 
+    border-radius: 20px; 
+    font-weight: 900; 
+    text-transform: uppercase; 
+    font-size: 0.8rem; 
+    margin-bottom: 20px; 
+}
+
+.vip-name { 
+    font-size: clamp(2.5rem, 5vw, 4.5rem); 
+    font-weight: 900; 
+    line-height: 1; 
+    text-transform: uppercase; 
+    margin-bottom: 10px; 
+}
+
+.vip-name span { color: var(--usm-pink); }
+
+.vip-quote { 
+    font-size: 1.5rem; 
+    color: #fff; 
+    font-style: italic; 
+    margin-bottom: 30px; 
+    border-left: 4px solid var(--usm-pink); 
+    padding-left: 15px; 
+}
+
+.vip-desc { 
+    color: #aaa; 
+    font-size: 1.1rem; 
+    margin-bottom: 30px; 
+    line-height: 1.6; 
+}
+
+.licenses-wrapper { 
+    display: flex; 
+    gap: 15px; 
+    flex-wrap: wrap;
+}
+
+.license-badge { 
+    background: rgba(0,0,0,0.5); 
+    border: 1px solid rgba(255,255,255,0.2); 
+    padding: 10px 20px; 
+    border-radius: 20px; 
+    font-weight: bold; 
+    font-size: 1rem; 
+}
+
+
+/* ================= 8. ROSTER & SLIDER (NETFLIX STYLE) ================= */
+.players-section { 
+    padding: var(--spacing-main); 
+    max-width: 1400px; 
+    margin: 0 auto; 
+}
+
+.players-section h2 { 
+    font-size: 2.5rem; 
+    text-transform: uppercase; 
+    margin-bottom: 20px;
+}
+
+.player-filters { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.filter-btn { 
+    background: transparent; 
+    color: #aaa; 
+    border: 1px solid var(--surface-border); 
+    padding: 10px 24px; 
+    border-radius: 30px; 
+    cursor: pointer; 
+    transition: 0.3s; 
+    text-transform: uppercase; 
+    font-size: 0.8rem; 
+    font-weight: bold; 
+}
+
+.filter-btn.active, .filter-btn:hover { 
+    background: var(--usm-pink); 
+    color: white; 
+    border-color: var(--usm-pink);
+}
+
 .category-block {
     margin-bottom: 60px;
     position: relative;
@@ -206,7 +455,6 @@ body {
     gap: 10px;
 }
 
-/* Boutons du Slider */
 .slider-controls {
     display: flex;
     gap: 12px;
@@ -246,80 +494,13 @@ body {
     padding-bottom: 20px;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-
-/* Design Premium de la barre de défilement horizontale */
-.horizontal-scroller::-webkit-scrollbar {
-    height: 8px; /* Épaisseur de la barre */
-}
-
-.horizontal-scroller::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05); /* Fond discret */
-    border-radius: 10px;
-}
-
-.horizontal-scroller::-webkit-scrollbar-thumb {
-    background: #333; /* Couleur de la poignée */
-    border-radius: 10px;
-    transition: 0.3s;
-}
-
-.horizontal-scroller::-webkit-scrollbar-thumb:hover {
-    background: var(--usm-pink); /* S'allume en rose au survol */
-}
-
-.horizontal-scroller .player-card {
-    flex: 0 0 280px;
-    scroll-snap-align: start;
-    margin: 0;
-}
-
-/* ================= BOUTONS DU SLIDER ================= */
-.slider-controls {
-    display: flex;
-    gap: 12px;
-}
-
-.slider-btn {
-    background: var(--surface);
-    border: 1px solid var(--surface-border);
-    color: white;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: 0.3s;
-    font-size: 1.2rem;
-}
-
-.slider-btn:hover {
-    background: var(--usm-pink);
-    border-color: var(--usm-pink);
-    transform: scale(1.1);
-}
-
-/* ================= BARRE DE DÉFILEMENT (SCROLLBAR) ================= */
-.horizontal-scroller {
-    display: flex;
-    gap: 24px;
-    overflow-x: auto;
-    padding-bottom: 20px;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    /* On force l'affichage de la barre sur Firefox */
     scrollbar-width: thin; 
-    scrollbar-color: #333 rgba(255, 255, 255, 0.05);
+    scrollbar-color: #444 rgba(255, 255, 255, 0.05);
 }
 
-/* Design de la barre sur Chrome / Safari / Edge */
 .horizontal-scroller::-webkit-scrollbar {
-    height: 8px; /* Force la hauteur de la barre pour la rendre visible */
-    display: block; /* S'assure qu'elle n'est pas cachée */
+    height: 8px; 
+    display: block; 
 }
 
 .horizontal-scroller::-webkit-scrollbar-track {
@@ -334,17 +515,107 @@ body {
 }
 
 .horizontal-scroller::-webkit-scrollbar-thumb:hover {
-    background: var(--usm-pink); /* S'allume en rose si on passe dessus */
+    background: var(--usm-pink); 
 }
 
-/* Force les cartes à garder une bonne taille dans le slider */
-.horizontal-scroller .player-card {
+.player-card { 
+    background: var(--surface); 
+    border: 1px solid var(--surface-border); 
+    border-radius: 24px; 
+    overflow: hidden; 
+    padding: 15px; 
+    transition: 0.4s; 
     flex: 0 0 280px; 
     scroll-snap-align: start;
     margin: 0;
 }
 
+.player-card:hover { 
+    border-color: var(--usm-pink); 
+    transform: translateY(-10px); 
+    background: rgba(25, 25, 30, 0.8);
+}
+
+.player-img-container { 
+    width: 100%; 
+    height: 320px; 
+    border-radius: 16px; 
+    overflow: hidden; 
+    background: #111;
+}
+
+.player-img-container img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    opacity: 0.8; 
+    transition: 0.4s;
+}
+
+.player-card:hover img { 
+    opacity: 1; 
+    transform: scale(1.05);
+}
+
+.player-info { 
+    padding: 15px 5px 5px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.player-info h3 { 
+    font-size: 1.2rem; 
+    text-transform: uppercase; 
+    margin-bottom: 5px;
+}
+
+.player-stat { 
+    background: rgba(255,255,255,0.1); 
+    padding: 5px 12px; 
+    border-radius: 12px; 
+    font-size: 0.8rem; 
+    font-weight: bold;
+}
 
 
+/* ================= 9. FOOTER & LIENS ================= */
+.site-footer {
+    background: rgba(5, 5, 7, 0.9);
+    border-top: 1px solid var(--surface-border);
+    padding: 30px var(--spacing-main);
+    margin-top: 80px;
+    text-align: center;
+}
 
+.footer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 0.85rem;
+    color: #888;
+}
 
+.footer-separator { color: #333; }
+
+.legal-link { 
+    color: #aaa; 
+    text-decoration: none; 
+    transition: 0.3s; 
+}
+
+.legal-link:hover { color: var(--usm-pink); }
+.copyright { color: #aaa; }
+
+.admin-secret-link {
+    color: #888; 
+    text-decoration: none; 
+    cursor: default; 
+    transition: 0.3s;
+}
+
+.admin-secret-link:hover {
+    color: var(--usm-pink); 
+}
