@@ -165,13 +165,14 @@ document.getElementById('search-bar').addEventListener('input', (e) => {
     renderAdminTable();
 });
 
-// 1. Récupération de la base (pour l'onglet actif)
+// 1. Récupération de la base (pour l'onglet actif) FIXÉE
 async function loadAdminPlayers() {
     const listContainer = document.getElementById('admin-players-list');
     listContainer.innerHTML = '<tr><td colspan="4" style="text-align:center;">Chargement...</td></tr>';
     
     try {
-        const q = query(collection(db, "players"), where("category", "==", adminCurrentCat), orderBy("order", "asc"));
+        // On retire le orderBy("order", "asc") qui fait planter Firebase sans index
+        const q = query(collection(db, "players"), where("category", "==", adminCurrentCat));
         const querySnapshot = await getDocs(q);
         
         adminPlayers = [];
@@ -179,13 +180,15 @@ async function loadAdminPlayers() {
             adminPlayers.push({ id: docSnap.id, ...docSnap.data() });
         });
         
+        // TRI JAVASCRIPT ROBUSTE
+        adminPlayers.sort((a, b) => (a.order || 999) - (b.order || 999));
+        
         renderAdminTable();
     } catch (error) {
         console.error(error);
         listContainer.innerHTML = `<tr><td colspan="4" style="color:red;">Erreur de chargement.</td></tr>`;
     }
 }
-
 // 2. Affichage avec Filtres et Pagination
 function renderAdminTable() {
     const listContainer = document.getElementById('admin-players-list');
@@ -283,4 +286,5 @@ async function saveNewOrderToFirebase() {
         alert("Erreur de synchronisation : " + err.message);
     }
 }
+
 
