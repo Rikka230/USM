@@ -231,10 +231,16 @@ function renderCategorySlider() {
     sliderHTML += `</div></div></div>`;
     container.innerHTML = sliderHTML;
 
-    // Activation du Slider
+    // Activation du Slider (Défilement par blocs massifs)
     const scroller = document.getElementById('active-scroller');
-    document.querySelector('.prev-btn').addEventListener('click', () => scroller.scrollBy({ left: -304, behavior: 'smooth' }));
-    document.querySelector('.next-btn').addEventListener('click', () => scroller.scrollBy({ left: 304, behavior: 'smooth' }));
+    document.querySelector('.prev-btn').addEventListener('click', () => {
+        // Défile vers la gauche de 80% de la largeur visible de l'écran (environ 3 à 4 joueurs d'un coup)
+        scroller.scrollBy({ left: -(scroller.clientWidth * 0.8), behavior: 'smooth' });
+    });
+    document.querySelector('.next-btn').addEventListener('click', () => {
+        // Défile vers la droite
+        scroller.scrollBy({ left: (scroller.clientWidth * 0.8), behavior: 'smooth' });
+    });
 }
 
 function setupTabs() {
@@ -276,6 +282,7 @@ function initFilters() {
         });
     });
 }
+
 
 
 
