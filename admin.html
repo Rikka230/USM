@@ -22,11 +22,12 @@
     </div>
 
     <div id="dashboard" class="hidden">
+        
         <aside class="sidebar">
             <h2 class="pink-accent">USM Admin</h2>
             <nav>
-                <button id="nav-add" class="active">Nouveau Joueur</button>
-                <button id="nav-manage">Gérer le Roster</button>
+                <button id="nav-manage" class="active">Gérer le Roster</button>
+                <button id="nav-settings">Paramètres du Site</button>
                 
                 <div style="margin-top: 50px; display: flex; flex-direction: column; gap: 10px;">
                     <a href="index.html" class="btn-return">🔙 Retour au site</a>
@@ -38,15 +39,15 @@
         <main class="admin-content">
             
             <section id="manage-players-section">
-                <header style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px;">
+                <header style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px; flex-wrap: wrap; gap: 15px;">
                     <div>
                         <h1>Gérer le Roster</h1>
-                        <button id="btn-show-add-form" style="background:var(--usm-pink); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;">➕ Ajouter un profil</button>
+                        <button id="btn-show-add-form" style="background:var(--usm-pink); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold; transition:0.3s;">➕ Ajouter un profil</button>
                     </div>
-                    <input type="text" id="search-bar" placeholder="🔍 Rechercher un nom..." style="padding:10px 15px; border-radius:8px; border:1px solid #444; background:#1e1e1e; color:#fff;">
+                    <input type="text" id="search-bar" placeholder="🔍 Rechercher un joueur..." style="padding:12px 20px; border-radius:30px; border:1px solid #444; background:#1e1e1e; color:#fff; min-width: 250px;">
                 </header>
 
-                <div class="admin-tabs" style="display:flex; gap:10px; margin-bottom: 20px;">
+                <div class="admin-tabs">
                     <button class="admin-tab active" data-cat="gardien">Gardiens</button>
                     <button class="admin-tab" data-cat="defenseur">Défenseurs</button>
                     <button class="admin-tab" data-cat="milieu">Milieux</button>
@@ -57,8 +58,16 @@
 
                 <div class="table-container">
                     <table class="admin-table">
-                        <thead><tr><th>Ordre</th><th>Photo</th><th>Nom</th><th>Action</th></tr></thead>
-                        <tbody id="admin-players-list"></tbody>
+                        <thead>
+                            <tr>
+                                <th>Ordre</th>
+                                <th>Photo</th>
+                                <th>Nom</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-players-list">
+                            </tbody>
                     </table>
                 </div>
                 <div id="pagination-controls" style="display:flex; gap:10px; margin-top:20px; justify-content:center;"></div>
@@ -88,7 +97,7 @@
                     </select>
                     
                     <div id="drop-zone" class="drop-zone">
-                        <p>Glissez une nouvelle photo ici (laisse vide pour conserver l'actuelle)</p>
+                        <p>Glissez une photo ici (laissez vide pour conserver l'actuelle)</p>
                         <input type="file" id="media-upload" accept="image/*" hidden>
                     </div>
                     
@@ -100,65 +109,24 @@
             </section>
 
             <section id="settings-section" class="hidden">
-                <header><h1>Paramètres du Site (Scores & Médias)</h1></header>
+                <header><h1>Paramètres du Site</h1></header>
                 <form id="settings-form" class="bento-form">
-                    <label style="color:#aaa;">Statistique 1 (ex: Opérations)</label>
-                    <input type="text" id="set-stat1" placeholder="1,600+">
+                    <label style="color:#aaa;">Activité & Transactions</label>
+                    <input type="text" id="set-stat1" placeholder="ex: 1,600+">
                     
-                    <label style="color:#aaa;">Statistique 2 (ex: Joueurs)</label>
-                    <input type="text" id="set-stat2" placeholder="1,000+">
+                    <label style="color:#aaa;">Confiance & Roster</label>
+                    <input type="text" id="set-stat2" placeholder="ex: 1,000+">
                     
-                    <label style="color:#aaa;">Statistique 3 (ex: Abonnés)</label>
-                    <input type="text" id="set-stat3" placeholder="68,260">
-
+                    <label style="color:#aaa;">Impact Digital (Abonnés)</label>
+                    <input type="text" id="set-stat3" placeholder="ex: 68,260">
+                    
                     <button type="submit" class="btn-publish">Mettre à jour le site</button>
                 </form>
             </section>
 
-        </main>
-
-            <section id="manage-players-section" class="hidden">
-                <header style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px;">
-                    <div>
-                        <h1>Gérer le Roster</h1>
-                        <p style="color: #aaa;">Classement par ordre d'apparition sur le site.</p>
-                    </div>
-                    <input type="text" id="search-bar" placeholder="🔍 Rechercher un nom..." style="padding:10px 15px; border-radius:8px; border:1px solid #444; background:#1e1e1e; color:#fff;">
-                </header>
-
-                <div class="admin-tabs" style="display:flex; gap:10px; margin-bottom: 20px;">
-                    <button class="admin-tab active" data-cat="gardien">Gardiens</button>
-                    <button class="admin-tab" data-cat="defenseur">Défenseurs</button>
-                    <button class="admin-tab" data-cat="milieu">Milieux</button>
-                    <button class="admin-tab" data-cat="attaquant">Attaquants</button>
-                    <button class="admin-tab" data-cat="feminine">Féminines</button>
-                    <button class="admin-tab" data-cat="coach">Coachs</button>
-                </div>
-
-                <div class="table-container">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Ordre</th>
-                                <th>Photo</th>
-                                <th>Nom</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-players-list">
-                            </tbody>
-                    </table>
-                </div>
-                
-                <div id="pagination-controls" style="display:flex; gap:10px; margin-top:20px; justify-content:center;">
-                    </div>
-            </section>
         </main>
     </div>
 
     <script type="module" src="admin.js"></script>
 </body>
 </html>
-
-
-
