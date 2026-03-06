@@ -110,20 +110,23 @@ document.addEventListener("DOMContentLoaded", () => {
     loadPlayers();
 });
 
-// --- C. CHARGEMENT DYNAMIQUE (ONGLETS & ORDRE) ---
-let allPlayersData = []; // Stockage global pour éviter de re-télécharger
+// --- C. CHARGEMENT DYNAMIQUE (ONGLETS & ORDRE FIXÉ) ---
+let allPlayersData = []; 
 
 async function loadPlayers() {
     const container = document.getElementById('roster-categories-container');
     if (!container) return;
 
     try {
-        // On récupère tout, trié par le numéro d'ordre !
-        const q = query(collection(db, "players"), orderBy("order", "asc"));
+        // On récupère la collection sans orderBy pour éviter l'erreur Firestore
+        const q = collection(db, "players");
         const querySnapshot = await getDocs(q);
         
         allPlayersData = [];
         querySnapshot.forEach((doc) => allPlayersData.push(doc.data()));
+
+        // TRI JAVASCRIPT : Les joueurs sans numéro d'ordre seront placés à la fin (999)
+        allPlayersData.sort((a, b) => (a.order || 999) - (b.order || 999));
 
         // Initialiser l'affichage sur "gardien" par défaut
         renderCategorySlider('gardien');
@@ -131,7 +134,7 @@ async function loadPlayers() {
 
     } catch (error) {
         console.error(error);
-        container.innerHTML = '<p style="color:red; text-align:center;">Erreur de connexion.</p>';
+        container.innerHTML = '<p style="color:red; text-align:center;">Erreur de connexion à la base de données.</p>';
     }
 }
 
@@ -223,6 +226,7 @@ function initFilters() {
         });
     });
 }
+
 
 
 
