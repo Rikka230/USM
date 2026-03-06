@@ -110,101 +110,93 @@ document.addEventListener("DOMContentLoaded", () => {
     loadPlayers();
 });
 
-// --- C. CHARGEMENT DYNAMIQUE DES JOUEURS & SLIDER ---
+// --- C. CHARGEMENT DYNAMIQUE (ONGLETS & ORDRE) ---
+let allPlayersData = []; // Stockage global pour éviter de re-télécharger
+
 async function loadPlayers() {
     const container = document.getElementById('roster-categories-container');
     if (!container) return;
 
     try {
-        const q = query(collection(db, "players"), orderBy("timestamp", "desc"));
+        // On récupère tout, trié par le numéro d'ordre !
+        const q = query(collection(db, "players"), orderBy("order", "asc"));
         const querySnapshot = await getDocs(q);
         
-        const categoriesData = {
-            "gardien": { title: "Gardiens", players: [] },
-            "defenseur": { title: "Défenseurs", players: [] },
-            "milieu": { title: "Milieux", players: [] },
-            "attaquant": { title: "Attaquants", players: [] },
-            "feminine": { title: "Féminines", players: [] },
-            "coach": { title: "Coachs & Staff", players: [] }
-        };
+        allPlayersData = [];
+        querySnapshot.forEach((doc) => allPlayersData.push(doc.data()));
 
-        querySnapshot.forEach((doc) => {
-            const player = doc.data();
-            if (categoriesData[player.category]) {
-                categoriesData[player.category].players.push(player);
-            }
-        });
-
-        container.innerHTML = ''; 
-
-        for (const [catKey, catData] of Object.entries(categoriesData)) {
-            if (catData.players.length === 0) continue;
-
-            // Structure avec les boutons de slider
-            let categoryHTML = `
-                <div class="category-block reveal visible">
-                    <div class="category-header">
-                        <h3 class="category-title">✦ ${catData.title} <span style="color:#666; font-size:0.8rem;">(${catData.players.length})</span></h3>
-                        <div class="slider-controls">
-                            <button class="slider-btn prev-btn" aria-label="Précédent">❮</button>
-                            <button class="slider-btn next-btn" aria-label="Suivant">❯</button>
-                        </div>
-                    </div>
-                    <div class="slider-container">
-                        <div class="horizontal-scroller">
-            `;
-
-            catData.players.forEach(player => {
-                categoryHTML += `
-                    <div class="player-card">
-                        <div class="player-img-container">
-                            <img src="${player.image_url}" alt="${player.name}" loading="lazy">
-                        </div>
-                        <div class="player-info">
-                            <div>
-                                <h3>${player.name}</h3>
-                            </div>
-                        </div>
-                        <div style="padding: 0 15px 15px;">
-                             <div class="player-stat">${player.stat || ''}</div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            categoryHTML += `
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            container.innerHTML += categoryHTML;
-        }
-
-        // --- ACTIVATION DES BOUTONS DU SLIDER ---
-        document.querySelectorAll('.category-block').forEach(block => {
-            const scroller = block.querySelector('.horizontal-scroller');
-            const prevBtn = block.querySelector('.prev-btn');
-            const nextBtn = block.querySelector('.next-btn');
-
-            if(prevBtn && nextBtn && scroller) {
-                // Largeur d'une carte (280px) + le gap (24px)
-                const scrollAmount = 304; 
-                
-                prevBtn.addEventListener('click', () => {
-                    scroller.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-                });
-                
-                nextBtn.addEventListener('click', () => {
-                    scroller.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                });
-            }
-        });
+        // Initialiser l'affichage sur "gardien" par défaut
+        renderCategorySlider('gardien');
+        setupTabs();
 
     } catch (error) {
-        console.error("Erreur de récupération :", error);
-        container.innerHTML = '<p style="color:red; text-align:center;">Erreur de connexion à la base de données.</p>';
+        console.error(error);
+        container.innerHTML = '<p style="color:red; text-align:center;">Erreur de connexion.</p>';
     }
+}
+
+function renderCategorySlider(category) {
+    const container = document.getElementById('roster-categories-container');
+    const filteredPlayers = allPlayersData.filter(p => p.category === category);
+
+    if (filteredPlayers.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#888; padding: 40px;">Aucun profil dans cette catégorie pour le moment.</p>';
+        return;
+    }
+
+    let sliderHTML = `
+        <div class="category-block reveal visible">
+            <div class="category-header">
+                <h3 class="category-title" style="color: #fff;">✦ <span style="color:var(--usm-pink)">${filteredPlayers.length}</span> Profils</h3>
+                <div class="slider-controls">
+                    <button class="slider-btn prev-btn">❮</button>
+                    <button class="slider-btn next-btn">❯</button>
+                </div>
+            </div>
+            <div class="slider-container">
+                <div class="horizontal-scroller" id="active-scroller">
+    `;
+
+    filteredPlayers.forEach(player => {
+        // Ajout du bouton Transfermarkt s'il existe
+        const tmLink = player.transfermarkt ? `<a href="${player.transfermarkt}" target="_blank" class="tm-link" style="color:var(--usm-pink); font-size:0.8rem; text-decoration:none; margin-top:5px; display:inline-block;">🔗 Transfermarkt</a>` : '';
+
+        sliderHTML += `
+            <div class="player-card">
+                <div class="player-img-container">
+                    <img src="${player.image_url}" alt="${player.name}" loading="lazy">
+                </div>
+                <div class="player-info">
+                    <div>
+                        <h3>${player.name}</h3>
+                        ${tmLink}
+                    </div>
+                </div>
+                <div style="padding: 0 15px 15px;">
+                     <div class="player-stat">${player.stat || ''}</div>
+                </div>
+            </div>
+        `;
+    });
+
+    sliderHTML += `</div></div></div>`;
+    container.innerHTML = sliderHTML;
+
+    // Activer les flèches du slider
+    const scroller = document.getElementById('active-scroller');
+    document.querySelector('.prev-btn').addEventListener('click', () => scroller.scrollBy({ left: -304, behavior: 'smooth' }));
+    document.querySelector('.next-btn').addEventListener('click', () => scroller.scrollBy({ left: 304, behavior: 'smooth' }));
+}
+
+function setupTabs() {
+    const tabs = document.querySelectorAll('.filter-btn');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            tabs.forEach(t => t.classList.remove('active'));
+            e.target.classList.add('active');
+            renderCategorySlider(e.target.getAttribute('data-tab'));
+        });
+    });
 }
 
 // --- D. SYSTÈME DE FILTRES ---
@@ -231,5 +223,6 @@ function initFilters() {
         });
     });
 }
+
 
 
