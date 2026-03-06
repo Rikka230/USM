@@ -65,6 +65,7 @@ document.getElementById('nav-settings').addEventListener('click', async (e) => {
         document.getElementById('set-stat1').value = data.stat1 || '';
         document.getElementById('set-stat2').value = data.stat2 || '';
         document.getElementById('set-stat3').value = data.stat3 || '';
+        document.getElementById('set-stat4').value = data.stat4 || '';
     }
 });
 
@@ -339,7 +340,7 @@ document.getElementById('content-form').addEventListener('submit', async (e) => 
     finally { btn.disabled = false; }
 });
 
-/* ================= 7. PARAMÈTRES DU SITE ================= */
+//* ================= 7. PARAMÈTRES DU SITE ================= */
 document.getElementById('settings-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector('button[type="submit"]');
@@ -349,9 +350,11 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
         await setDoc(doc(db, "settings", "general"), {
             stat1: document.getElementById('set-stat1').value,
             stat2: document.getElementById('set-stat2').value,
-            stat3: document.getElementById('set-stat3').value
+            stat3: document.getElementById('set-stat3').value,
+            stat4: document.getElementById('set-stat4').value
         }, { merge: true });
         alert("Les statistiques ont été mises à jour !");
     } catch(err) { alert("Erreur : " + err.message); } 
     finally { btn.textContent = "Mettre à jour le site"; }
 });
+
