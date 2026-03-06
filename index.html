@@ -48,7 +48,7 @@
         <div class="bento-grid">
             <div class="bento-card reveal">
                 <div class="data-label" data-i18n="stat_1_label">Activité & Transactions</div>
-                <div class="data-huge">1,600+</div>
+                <div class="data-huge" id="stat-1">1,600+</div>
                 <div class="data-desc" data-i18n="stat_1_desc">Opérations réalisées et plus de 25 000 contacts directs avec des clubs.</div>
             </div>
 
@@ -101,6 +101,9 @@
 
         <section class="players-section reveal" id="joueurs">
             <h2 data-i18n="roster_title">Roster Premium</h2>
+                <div style="text-align: center; margin-bottom: 20px;">
+                <input type="text" id="front-search" placeholder="🔍 Rechercher un joueur..." style="padding: 12px 20px; width: 100%; max-width: 400px; border-radius: 30px; border: 1px solid #333; background: #1e1e1e; color: white;">
+            </div>
             
             <div class="player-filters" id="roster-tabs">
                 <button class="filter-btn active" data-tab="gardien">Gardiens</button>
@@ -132,6 +135,7 @@
     <script type="module" src="main.js"></script>
 </body>
 </html>
+
 
 
 
