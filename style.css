@@ -234,8 +234,24 @@ body {
     scrollbar-width: none;
 }
 
+/* Design Premium de la barre de défilement horizontale */
 .horizontal-scroller::-webkit-scrollbar {
-    display: none;
+    height: 8px; /* Épaisseur de la barre */
+}
+
+.horizontal-scroller::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05); /* Fond discret */
+    border-radius: 10px;
+}
+
+.horizontal-scroller::-webkit-scrollbar-thumb {
+    background: #333; /* Couleur de la poignée */
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.horizontal-scroller::-webkit-scrollbar-thumb:hover {
+    background: var(--usm-pink); /* S'allume en rose au survol */
 }
 
 .horizontal-scroller .player-card {
@@ -243,3 +259,4 @@ body {
     scroll-snap-align: start;
     margin: 0;
 }
+
