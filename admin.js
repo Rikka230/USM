@@ -1,10 +1,10 @@
 /* ==========================================================================
-   USM FOOTBALL - ADMIN JAVASCRIPT (AVEC STUDIO DE CADRAGE PHOTOS)
+   USM FOOTBALL - ADMIN JAVASCRIPT (AJOUT DES SERVICES DYNAMIQUES)
    ========================================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, query, where, writeBatch, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, query, writeBatch, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -29,6 +29,7 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('dashboard').classList.remove('hidden');
         loadAdminPlayers(); 
+        loadAdminServices(); // On charge aussi les services au démarrage
     } else {
         document.getElementById('dashboard').classList.add('hidden');
         document.getElementById('login-screen').classList.remove('hidden');
@@ -37,27 +38,34 @@ onAuthStateChanged(auth, (user) => {
 
 document.getElementById('login-form').addEventListener('submit', (e) => {
     e.preventDefault();
-    signInWithEmailAndPassword(auth, document.getElementById('admin-email').value, document.getElementById('admin-pwd').value)
-        .catch(() => alert("Identifiants incorrects."));
+    signInWithEmailAndPassword(auth, document.getElementById('admin-email').value, document.getElementById('admin-pwd').value).catch(() => alert("Identifiants incorrects."));
 });
-
 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth).then(() => window.location.reload()));
 
 /* ================= 2. NAVIGATION ================= */
 const secManage = document.getElementById('manage-players-section');
 const secForm = document.getElementById('form-player-section');
 const secSettings = document.getElementById('settings-section');
+const secServices = document.getElementById('manage-services-section');
+const secFormSrv = document.getElementById('form-service-section');
+
+function hideAllSections() {
+    [secManage, secForm, secSettings, secServices, secFormSrv].forEach(s => s.classList.add('hidden'));
+}
 
 document.getElementById('nav-manage').addEventListener('click', (e) => {
-    document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
-    e.target.classList.add('active');
-    secManage.classList.remove('hidden'); secForm.classList.add('hidden'); secSettings.classList.add('hidden');
+    document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active')); e.target.classList.add('active');
+    hideAllSections(); secManage.classList.remove('hidden');
+});
+
+document.getElementById('nav-services').addEventListener('click', (e) => {
+    document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active')); e.target.classList.add('active');
+    hideAllSections(); secServices.classList.remove('hidden');
 });
 
 document.getElementById('nav-settings').addEventListener('click', async (e) => {
-    document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
-    e.target.classList.add('active');
-    secSettings.classList.remove('hidden'); secManage.classList.add('hidden'); secForm.classList.add('hidden');
+    document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active')); e.target.classList.add('active');
+    hideAllSections(); secSettings.classList.remove('hidden');
     
     try {
         const docSnap = await getDoc(doc(db, "settings", "general"));
@@ -95,21 +103,18 @@ document.getElementById('btn-show-add-form').addEventListener('click', () => {
     document.getElementById('edit-player-id').value = '';
     document.getElementById('form-title').textContent = "Créer un Profil";
     document.getElementById('publish-btn').textContent = "Ajouter au Roster";
-    
-    // Reset du Studio
-    document.getElementById('cropper-ui').classList.add('hidden');
-    document.getElementById('drop-zone').classList.remove('hidden');
+    document.getElementById('cropper-ui').classList.add('hidden'); document.getElementById('drop-zone').classList.remove('hidden');
     prefillImageZone('drop-zone', 'existing-image-url', '', 'Glissez la photo du joueur ici');
     cropState.img = null;
-    
-    secManage.classList.add('hidden'); secForm.classList.remove('hidden');
+    hideAllSections(); secForm.classList.remove('hidden');
 });
 
 document.querySelectorAll('.btn-cancel').forEach(btn => {
-    btn.addEventListener('click', () => { secForm.classList.add('hidden'); secManage.classList.remove('hidden'); });
+    btn.addEventListener('click', () => { hideAllSections(); secManage.classList.remove('hidden'); });
 });
 
 /* ================= 3. LE STUDIO DE CADRAGE (JOUEURS) ================= */
+// [Le code du studio reste identique et fonctionnel...]
 let cropState = { img: null, zoom: 1, x: 0, y: 0, baseScale: 1 };
 const playerDropZone = document.getElementById('drop-zone');
 const playerInput = document.getElementById('media-upload');
@@ -122,31 +127,19 @@ playerDropZone.addEventListener('drop', (e) => { e.preventDefault(); playerDropZ
 playerInput.addEventListener('change', (e) => loadPlayerImage(e.target.files[0]));
 
 function loadPlayerImage(file) {
-    if (!file || !file.type.startsWith('image/')) return alert("Veuillez utiliser une image.");
+    if (!file || !file.type.startsWith('image/')) return;
     const reader = new FileReader();
     reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
             cropState.img = img;
-            // Calcule le ratio pour que l'image couvre parfaitement la carte 3:4 (240x320)
-            const scaleX = 240 / img.width;
-            const scaleY = 320 / img.height;
+            const scaleX = 240 / img.width; const scaleY = 320 / img.height;
             cropState.baseScale = Math.max(scaleX, scaleY);
-            
-            // Paramétrage des Sliders
-            const zSlider = document.getElementById('crop-zoom');
-            zSlider.min = cropState.baseScale * 0.2;
-            zSlider.max = cropState.baseScale * 5;
-            
-            document.getElementById('crop-x').min = -img.width;
-            document.getElementById('crop-x').max = img.width;
-            document.getElementById('crop-y').min = -img.height;
-            document.getElementById('crop-y').max = img.height;
-
+            document.getElementById('crop-zoom').min = cropState.baseScale * 0.2; document.getElementById('crop-zoom').max = cropState.baseScale * 5;
+            document.getElementById('crop-x').min = -img.width; document.getElementById('crop-x').max = img.width;
+            document.getElementById('crop-y').min = -img.height; document.getElementById('crop-y').max = img.height;
             resetCropState();
-            
-            document.getElementById('drop-zone').classList.add('hidden');
-            document.getElementById('cropper-ui').classList.remove('hidden');
+            document.getElementById('drop-zone').classList.add('hidden'); document.getElementById('cropper-ui').classList.remove('hidden');
         };
         img.src = e.target.result;
     };
@@ -154,12 +147,8 @@ function loadPlayerImage(file) {
 }
 
 function resetCropState() {
-    cropState.zoom = cropState.baseScale;
-    cropState.x = 0;
-    cropState.y = 0;
-    document.getElementById('crop-zoom').value = cropState.zoom;
-    document.getElementById('crop-x').value = 0;
-    document.getElementById('crop-y').value = 0;
+    cropState.zoom = cropState.baseScale; cropState.x = 0; cropState.y = 0;
+    document.getElementById('crop-zoom').value = cropState.zoom; document.getElementById('crop-x').value = 0; document.getElementById('crop-y').value = 0;
     updateCropUI();
 }
 
@@ -174,58 +163,31 @@ function resetCropState() {
 
 document.getElementById('btn-reset-crop').addEventListener('click', resetCropState);
 document.getElementById('btn-cancel-crop').addEventListener('click', () => {
-    cropState.img = null;
-    document.getElementById('cropper-ui').classList.add('hidden');
-    document.getElementById('drop-zone').classList.remove('hidden');
-    playerInput.value = '';
+    cropState.img = null; document.getElementById('cropper-ui').classList.add('hidden'); document.getElementById('drop-zone').classList.remove('hidden'); playerInput.value = '';
 });
 
-// DRAG TO PAN (Déplacement à la souris)
-let isDragging = false;
-let startDragX, startDragY;
-
-cropCanvas.addEventListener('mousedown', (e) => {
-    if(!cropState.img) return;
-    isDragging = true;
-    startDragX = e.clientX; startDragY = e.clientY;
-    cropCanvas.style.cursor = 'grabbing';
-});
+let isDragging = false; let startDragX, startDragY;
+cropCanvas.addEventListener('mousedown', (e) => { if(!cropState.img) return; isDragging = true; startDragX = e.clientX; startDragY = e.clientY; cropCanvas.style.cursor = 'grabbing'; });
 window.addEventListener('mouseup', () => { isDragging = false; cropCanvas.style.cursor = 'grab'; });
 window.addEventListener('mousemove', (e) => {
     if(!isDragging || !cropState.img) return;
-    const dx = e.clientX - startDragX;
-    const dy = e.clientY - startDragY;
-    cropState.x += dx / cropState.zoom;
-    cropState.y += dy / cropState.zoom;
-    
-    document.getElementById('crop-x').value = cropState.x;
-    document.getElementById('crop-y').value = cropState.y;
-    
-    startDragX = e.clientX; startDragY = e.clientY;
-    updateCropUI();
+    cropState.x += (e.clientX - startDragX) / cropState.zoom; cropState.y += (e.clientY - startDragY) / cropState.zoom;
+    document.getElementById('crop-x').value = cropState.x; document.getElementById('crop-y').value = cropState.y;
+    startDragX = e.clientX; startDragY = e.clientY; updateCropUI();
 });
 
 function updateCropUI() {
     document.getElementById('val-zoom').textContent = Math.round((cropState.zoom / cropState.baseScale) * 100) + '%';
-    document.getElementById('val-x').textContent = Math.round(cropState.x);
-    document.getElementById('val-y').textContent = Math.round(cropState.y);
-    
+    document.getElementById('val-x').textContent = Math.round(cropState.x); document.getElementById('val-y').textContent = Math.round(cropState.y);
     const ctx = cropCanvas.getContext('2d');
-    ctx.clearRect(0,0,240,320);
-    ctx.save();
-    ctx.translate(120, 160); // Centre du canvas
-    ctx.scale(cropState.zoom, cropState.zoom);
-    ctx.drawImage(cropState.img, -cropState.img.width/2 + cropState.x, -cropState.img.height/2 + cropState.y);
-    ctx.restore();
+    ctx.clearRect(0,0,240,320); ctx.save(); ctx.translate(120, 160); ctx.scale(cropState.zoom, cropState.zoom);
+    ctx.drawImage(cropState.img, -cropState.img.width/2 + cropState.x, -cropState.img.height/2 + cropState.y); ctx.restore();
 }
 
 function getCroppedWebP() {
     if(!cropState.img) return null;
-    const off = document.createElement('canvas');
-    off.width = 600; off.height = 800; // Résolution HD pour le site
-    const ctx = off.getContext('2d');
-    ctx.translate(300, 400); 
-    ctx.scale(cropState.zoom * 2.5, cropState.zoom * 2.5); // 600 / 240 = 2.5
+    const off = document.createElement('canvas'); off.width = 600; off.height = 800; 
+    const ctx = off.getContext('2d'); ctx.translate(300, 400); ctx.scale(cropState.zoom * 2.5, cropState.zoom * 2.5); 
     ctx.drawImage(cropState.img, -cropState.img.width/2 + cropState.x, -cropState.img.height/2 + cropState.y);
     return off.toDataURL('image/webp', 0.9);
 }
@@ -234,8 +196,7 @@ function getCroppedWebP() {
 let optimizedImages = { founder: null, nav: null, hero: null };
 
 function setupDropZone(zoneId, inputId, targetKey) {
-    const zone = document.getElementById(zoneId);
-    const input = document.getElementById(inputId);
+    const zone = document.getElementById(zoneId); const input = document.getElementById(inputId);
     zone.addEventListener('click', () => input.click());
     zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
     zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
@@ -249,16 +210,12 @@ function processStandardImage(file, zoneElement, targetKey) {
     reader.onload = (event) => {
         const img = new Image();
         img.onload = () => {
-            const webCanvas = document.createElement('canvas');
-            const webCtx = webCanvas.getContext('2d');
+            const webCanvas = document.createElement('canvas'); const webCtx = webCanvas.getContext('2d');
             let wWidth = img.width, wHeight = img.height;
             if (wWidth > 1200) { wHeight = Math.round((wHeight * 1200) / wWidth); wWidth = 1200; }
-            webCanvas.width = wWidth; webCanvas.height = wHeight;
-            webCtx.drawImage(img, 0, 0, wWidth, wHeight);
-            
+            webCanvas.width = wWidth; webCanvas.height = wHeight; webCtx.drawImage(img, 0, 0, wWidth, wHeight);
             const webpData = webCanvas.toDataURL('image/webp', 0.8);
             optimizedImages[targetKey] = webpData; 
-            
             const fileInput = zoneElement.querySelector('input[type="file"]');
             zoneElement.innerHTML = `<img src="${webpData}" style="max-height: 80px; border-radius: 8px;"> <p style="color:var(--usm-pink); font-size:11px; margin-top:5px;">✓ Prêt</p>`;
             if (fileInput) zoneElement.appendChild(fileInput);
@@ -280,79 +237,46 @@ let adminSearchQuery = '';
 let adminCurrentPage = 1;
 const ITEMS_PER_PAGE = 5;
 
-document.querySelectorAll('.admin-tab:not(.lang-tab)').forEach(tab => {
+document.querySelectorAll('.admin-tab:not(.lang-tab):not(.lang-tab-srv)').forEach(tab => {
     tab.addEventListener('click', (e) => {
-        document.querySelectorAll('.admin-tab:not(.lang-tab)').forEach(t => t.classList.remove('active'));
-        e.target.classList.add('active');
-        adminCurrentCat = e.target.getAttribute('data-cat');
-        adminSearchQuery = ''; 
-        document.getElementById('search-bar').value = '';
-        adminCurrentPage = 1;
-        renderAdminTable();
+        document.querySelectorAll('.admin-tab:not(.lang-tab):not(.lang-tab-srv)').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active'); adminCurrentCat = e.target.getAttribute('data-cat');
+        adminSearchQuery = ''; document.getElementById('search-bar').value = ''; adminCurrentPage = 1; renderAdminTable();
     });
 });
 
 document.getElementById('search-bar').addEventListener('input', (e) => {
-    adminSearchQuery = e.target.value.toLowerCase();
-    adminCurrentPage = 1;
-    if(adminSearchQuery.length > 0) document.querySelectorAll('.admin-tab:not(.lang-tab)').forEach(t => t.classList.remove('active'));
+    adminSearchQuery = e.target.value.toLowerCase(); adminCurrentPage = 1;
+    if(adminSearchQuery.length > 0) document.querySelectorAll('.admin-tab:not(.lang-tab):not(.lang-tab-srv)').forEach(t => t.classList.remove('active'));
     renderAdminTable();
 });
 
 async function loadAdminPlayers() {
-    const listContainer = document.getElementById('admin-players-list');
-    listContainer.innerHTML = '<tr><td colspan="4" style="text-align:center;">Chargement...</td></tr>';
+    document.getElementById('admin-players-list').innerHTML = '<tr><td colspan=\"4\" style=\"text-align:center;\">Chargement...</td></tr>';
     try {
         const querySnapshot = await getDocs(collection(db, "players"));
-        allAdminPlayers = [];
-        querySnapshot.forEach((docSnap) => allAdminPlayers.push({ id: docSnap.id, ...docSnap.data() }));
+        allAdminPlayers = []; querySnapshot.forEach((docSnap) => allAdminPlayers.push({ id: docSnap.id, ...docSnap.data() }));
         renderAdminTable();
-    } catch (error) { listContainer.innerHTML = `<tr><td colspan="4" style="color:red;">Erreur.</td></tr>`; }
+    } catch (error) { document.getElementById('admin-players-list').innerHTML = `<tr><td colspan=\"4\" style=\"color:red;\">Erreur.</td></tr>`; }
 }
 
 function renderAdminTable() {
     const listContainer = document.getElementById('admin-players-list');
-    const paginationContainer = document.getElementById('pagination-controls');
-    
-    let filtered = adminSearchQuery.length > 0 
-        ? allAdminPlayers.filter(p => p.name.toLowerCase().includes(adminSearchQuery))
-        : allAdminPlayers.filter(p => p.category === adminCurrentCat);
-    
+    let filtered = adminSearchQuery.length > 0 ? allAdminPlayers.filter(p => p.name.toLowerCase().includes(adminSearchQuery)) : allAdminPlayers.filter(p => p.category === adminCurrentCat);
     filtered.sort((a, b) => (a.order || 999) - (b.order || 999));
     
-    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
     const startIndex = (adminCurrentPage - 1) * ITEMS_PER_PAGE;
     const paginated = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     listContainer.innerHTML = '';
-    if (paginated.length === 0) {
-        listContainer.innerHTML = '<tr><td colspan="4" style="text-align:center;">Aucun joueur trouvé.</td></tr>';
-        paginationContainer.innerHTML = '';
-        return;
-    }
+    if (paginated.length === 0) { listContainer.innerHTML = '<tr><td colspan=\"4\" style=\"text-align:center;\">Aucun joueur trouvé.</td></tr>'; document.getElementById('pagination-controls').innerHTML = ''; return; }
 
     paginated.forEach((player, indexOnPage) => {
         const globalIndex = startIndex + indexOnPage;
-        const canMove = adminSearchQuery === '';
-        
-        const upBtn = (canMove && globalIndex !== 0) ? `<button class="btn-order btn-move-up" data-index="${globalIndex}">▲</button>` : `<div style="width: 30px; height: 30px;"></div>`; 
-        const downBtn = (canMove && globalIndex !== filtered.length - 1) ? `<button class="btn-order btn-move-down" data-index="${globalIndex}">▼</button>` : `<div style="width: 30px; height: 30px;"></div>`;
-        const catLabel = adminSearchQuery.length > 0 ? `<br><span style="font-size:0.8rem; color:#888;">${player.category}</span>` : '';
-
-        listContainer.innerHTML += `
-            <tr>
-                <td style="font-weight:900; color:var(--usm-pink);">#${player.order || '-'}</td>
-                <td><img src="${player.image_url}" class="player-list-img"></td>
-                <td style="font-weight:bold;">${player.name} ${catLabel}</td>
-                <td>
-                    <div style="display:flex; gap:8px;">
-                        ${upBtn} ${downBtn}
-                        <button class="btn-edit" data-id="${player.id}">Éditer</button>
-                        <button class="btn-delete" data-id="${player.id}">Supprimer</button>
-                    </div>
-                </td>
-            </tr>
-        `;
+        const upBtn = (adminSearchQuery === '' && globalIndex !== 0) ? `<button class="btn-order btn-move-up" data-index="${globalIndex}">▲</button>` : `<div style="width: 30px; height: 30px;"></div>`; 
+        const downBtn = (adminSearchQuery === '' && globalIndex !== filtered.length - 1) ? `<button class="btn-order btn-move-down" data-index="${globalIndex}">▼</button>` : `<div style="width: 30px; height: 30px;"></div>`;
+        listContainer.innerHTML += `<tr><td style="font-weight:900; color:var(--usm-pink);">#${player.order || '-'}</td><td><img src="${player.image_url}" class="player-list-img"></td><td style="font-weight:bold;">${player.name}</td>
+                <td><div style="display:flex; gap:8px;">${upBtn} ${downBtn}<button class="btn-edit" data-id="${player.id}">Éditer</button><button class="btn-delete" data-id="${player.id}">Supprimer</button></div></td></tr>`;
     });
 
     document.querySelectorAll('.btn-edit').forEach(btn => btn.addEventListener('click', (e) => editPlayer(e.target.dataset.id)));
@@ -360,167 +284,174 @@ function renderAdminTable() {
     document.querySelectorAll('.btn-move-up').forEach(btn => btn.addEventListener('click', (e) => movePlayer(parseInt(e.target.dataset.index), -1)));
     document.querySelectorAll('.btn-move-down').forEach(btn => btn.addEventListener('click', (e) => movePlayer(parseInt(e.target.dataset.index), 1)));
 
-    paginationContainer.innerHTML = '';
-    for(let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement('button');
-        btn.textContent = i;
-        btn.className = `pag-btn ${i === adminCurrentPage ? 'active' : ''}`;
-        btn.addEventListener('click', () => { adminCurrentPage = i; renderAdminTable(); });
-        paginationContainer.appendChild(btn);
+    const paginationContainer = document.getElementById('pagination-controls'); paginationContainer.innerHTML = '';
+    for(let i = 1; i <= Math.ceil(filtered.length / ITEMS_PER_PAGE); i++) {
+        const btn = document.createElement('button'); btn.textContent = i; btn.className = `pag-btn ${i === adminCurrentPage ? 'active' : ''}`;
+        btn.addEventListener('click', () => { adminCurrentPage = i; renderAdminTable(); }); paginationContainer.appendChild(btn);
     }
 }
 
-/* ================= 6. CRUD ACTIONS ================= */
 function editPlayer(id) {
     const player = allAdminPlayers.find(p => p.id === id);
     if(!player) return;
-    document.getElementById('edit-player-id').value = player.id;
-    document.getElementById('player-name').value = player.name;
-    document.getElementById('player-stat').value = player.stat || '';
-    document.getElementById('player-tm').value = player.transfermarkt || '';
-    document.getElementById('player-category').value = player.category;
-    document.getElementById('existing-image-url').value = player.image_url;
-    document.getElementById('form-title').textContent = "Modifier : " + player.name;
+    document.getElementById('edit-player-id').value = player.id; document.getElementById('player-name').value = player.name;
+    document.getElementById('player-stat').value = player.stat || ''; document.getElementById('player-tm').value = player.transfermarkt || '';
+    document.getElementById('player-category').value = player.category; document.getElementById('form-title').textContent = "Modifier : " + player.name;
     document.getElementById('publish-btn').textContent = "Mettre à jour";
-    
-    document.getElementById('cropper-ui').classList.add('hidden');
-    document.getElementById('drop-zone').classList.remove('hidden');
+    document.getElementById('cropper-ui').classList.add('hidden'); document.getElementById('drop-zone').classList.remove('hidden');
     prefillImageZone('drop-zone', 'existing-image-url', player.image_url, 'Glissez la photo du joueur ici');
-    cropState.img = null;
-    
-    secManage.classList.add('hidden'); secForm.classList.remove('hidden');
+    cropState.img = null; hideAllSections(); secForm.classList.remove('hidden');
 }
 
-async function deletePlayer(id) {
-    if(confirm("Supprimer ce profil ?")) {
-        await deleteDoc(doc(db, "players", id));
-        loadAdminPlayers();
-    }
-}
-
+async function deletePlayer(id) { if(confirm("Supprimer ce profil ?")) { await deleteDoc(doc(db, "players", id)); loadAdminPlayers(); } }
 async function movePlayer(currentIndex, direction) {
     let categoryPlayers = allAdminPlayers.filter(p => p.category === adminCurrentCat).sort((a, b) => (a.order || 999) - (b.order || 999));
     const targetIndex = currentIndex + direction;
     if(targetIndex < 0 || targetIndex >= categoryPlayers.length) return;
-
-    const temp = categoryPlayers[currentIndex];
-    categoryPlayers[currentIndex] = categoryPlayers[targetIndex];
-    categoryPlayers[targetIndex] = temp;
-
-    const batch = writeBatch(db);
-    categoryPlayers.forEach((player, index) => batch.update(doc(db, "players", player.id), { order: index + 1 }));
-    await batch.commit();
-    loadAdminPlayers();
+    const temp = categoryPlayers[currentIndex]; categoryPlayers[currentIndex] = categoryPlayers[targetIndex]; categoryPlayers[targetIndex] = temp;
+    const batch = writeBatch(db); categoryPlayers.forEach((player, index) => batch.update(doc(db, "players", player.id), { order: index + 1 }));
+    await batch.commit(); loadAdminPlayers();
 }
 
-/* ================= 7. SAUVEGARDE JOUEUR ================= */
 document.getElementById('content-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('publish-btn');
-    btn.disabled = true; btn.textContent = "Génération de l'image...";
-
+    e.preventDefault(); const btn = document.getElementById('publish-btn'); btn.disabled = true; btn.textContent = "Génération...";
     try {
-        const editId = document.getElementById('edit-player-id').value;
-        const cat = document.getElementById('player-category').value;
+        const editId = document.getElementById('edit-player-id').value; const cat = document.getElementById('player-category').value;
         let finalImageUrl = document.getElementById('existing-image-url').value || "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png";
-        
         const croppedData = getCroppedWebP();
         if (croppedData) {
-            const imageName = `players/${Date.now()}.webp`;
-            const storageReference = ref(storage, imageName);
-            await uploadString(storageReference, croppedData, 'data_url');
-            finalImageUrl = await getDownloadURL(storageReference);
+            const r = ref(storage, `players/${Date.now()}.webp`); await uploadString(r, croppedData, 'data_url'); finalImageUrl = await getDownloadURL(r);
         }
+        const payload = { name: document.getElementById('player-name').value, category: cat, stat: document.getElementById('player-stat').value, transfermarkt: document.getElementById('player-tm').value, image_url: finalImageUrl, timestamp: new Date() };
+        if (editId) { await updateDoc(doc(db, "players", editId), payload); } 
+        else { const snap = await getDocs(query(collection(db, "players"), where("category", "==", cat))); payload.order = snap.size + 1; await addDoc(collection(db, "players"), payload); }
+        hideAllSections(); secManage.classList.remove('hidden'); loadAdminPlayers();
+    } catch (err) { alert("Erreur: " + err.message); } finally { btn.disabled = false; }
+});
 
+/* ================= 6. GESTION DES SERVICES DYNAMIQUES ================= */
+let allAdminServices = [];
+
+async function loadAdminServices() {
+    document.getElementById('admin-services-list').innerHTML = '<tr><td colspan=\"3\" style=\"text-align:center;\">Chargement...</td></tr>';
+    try {
+        const querySnapshot = await getDocs(collection(db, "services"));
+        allAdminServices = []; querySnapshot.forEach((docSnap) => allAdminServices.push({ id: docSnap.id, ...docSnap.data() }));
+        renderAdminServicesTable();
+    } catch (error) { document.getElementById('admin-services-list').innerHTML = `<tr><td colspan=\"3\" style=\"color:red;\">Erreur.</td></tr>`; }
+}
+
+function renderAdminServicesTable() {
+    const listContainer = document.getElementById('admin-services-list');
+    allAdminServices.sort((a, b) => (a.order || 999) - (b.order || 999));
+    listContainer.innerHTML = '';
+    
+    if (allAdminServices.length === 0) { listContainer.innerHTML = '<tr><td colspan=\"3\" style=\"text-align:center;\">Aucun service trouvé.</td></tr>'; return; }
+
+    allAdminServices.forEach((srv, index) => {
+        const upBtn = (index !== 0) ? `<button class="btn-order btn-move-srv-up" data-index="${index}">▲</button>` : `<div style="width:30px; height:30px;"></div>`; 
+        const downBtn = (index !== allAdminServices.length - 1) ? `<button class="btn-order btn-move-srv-down" data-index="${index}">▼</button>` : `<div style="width:30px; height:30px;"></div>`;
+        listContainer.innerHTML += `<tr><td style="font-weight:900; color:var(--usm-pink);">#${srv.order || '-'}</td><td style="font-weight:bold;">${srv.title_fr || '-'}</td>
+                <td><div style="display:flex; gap:8px;">${upBtn} ${downBtn}<button class="btn-edit-srv" data-id="${srv.id}">Éditer</button><button class="btn-delete-srv" data-id="${srv.id}">Supprimer</button></div></td></tr>`;
+    });
+
+    document.querySelectorAll('.btn-edit-srv').forEach(btn => btn.addEventListener('click', (e) => editService(e.target.dataset.id)));
+    document.querySelectorAll('.btn-delete-srv').forEach(btn => btn.addEventListener('click', (e) => deleteService(e.target.dataset.id)));
+    document.querySelectorAll('.btn-move-srv-up').forEach(btn => btn.addEventListener('click', (e) => moveService(parseInt(e.target.dataset.index), -1)));
+    document.querySelectorAll('.btn-move-srv-down').forEach(btn => btn.addEventListener('click', (e) => moveService(parseInt(e.target.dataset.index), 1)));
+}
+
+document.getElementById('btn-add-service').addEventListener('click', () => {
+    document.getElementById('service-form').reset();
+    document.getElementById('edit-service-id').value = '';
+    document.getElementById('service-form-title').textContent = "Créer un Service";
+    hideAllSections(); secFormSrv.classList.remove('hidden');
+});
+
+document.querySelectorAll('.btn-cancel-service').forEach(btn => {
+    btn.addEventListener('click', () => { hideAllSections(); secServices.classList.remove('hidden'); });
+});
+
+function editService(id) {
+    const srv = allAdminServices.find(s => s.id === id); if(!srv) return;
+    document.getElementById('edit-service-id').value = srv.id;
+    document.getElementById('srv-link').value = srv.link || '';
+    document.getElementById('srv-title-fr').value = srv.title_fr || '';
+    document.getElementById('srv-title-en').value = srv.title_en || '';
+    document.getElementById('srv-title-es').value = srv.title_es || '';
+    document.getElementById('srv-title-pt').value = srv.title_pt || '';
+    document.getElementById('service-form-title').textContent = "Modifier le Service";
+    hideAllSections(); secFormSrv.classList.remove('hidden');
+}
+
+async function deleteService(id) { if(confirm("Supprimer ce service ?")) { await deleteDoc(doc(db, "services", id)); loadAdminServices(); } }
+async function moveService(currentIndex, direction) {
+    const targetIndex = currentIndex + direction;
+    if(targetIndex < 0 || targetIndex >= allAdminServices.length) return;
+    const temp = allAdminServices[currentIndex]; allAdminServices[currentIndex] = allAdminServices[targetIndex]; allAdminServices[targetIndex] = temp;
+    const batch = writeBatch(db); allAdminServices.forEach((srv, index) => batch.update(doc(db, "services", srv.id), { order: index + 1 }));
+    await batch.commit(); loadAdminServices();
+}
+
+document.getElementById('service-form').addEventListener('submit', async (e) => {
+    e.preventDefault(); const btn = document.getElementById('save-service-btn'); btn.disabled = true; btn.textContent = "Sauvegarde...";
+    try {
+        const editId = document.getElementById('edit-service-id').value;
         const payload = {
-            name: document.getElementById('player-name').value,
-            category: cat,
-            stat: document.getElementById('player-stat').value,
-            transfermarkt: document.getElementById('player-tm').value,
-            image_url: finalImageUrl,
+            link: document.getElementById('srv-link').value,
+            title_fr: document.getElementById('srv-title-fr').value,
+            title_en: document.getElementById('srv-title-en').value,
+            title_es: document.getElementById('srv-title-es').value,
+            title_pt: document.getElementById('srv-title-pt').value,
             timestamp: new Date()
         };
-
-        if (editId) {
-            await updateDoc(doc(db, "players", editId), payload);
-        } else {
-            const snap = await getDocs(query(collection(db, "players"), where("category", "==", cat)));
-            payload.order = snap.size + 1;
-            await addDoc(collection(db, "players"), payload);
-        }
-        secForm.classList.add('hidden'); secManage.classList.remove('hidden');
-        loadAdminPlayers();
-    } catch (err) { alert("Erreur: " + err.message); } 
-    finally { btn.disabled = false; }
+        if (editId) { await updateDoc(doc(db, "services", editId), payload); } 
+        else { payload.order = allAdminServices.length + 1; await addDoc(collection(db, "services"), payload); }
+        hideAllSections(); secServices.classList.remove('hidden'); loadAdminServices();
+    } catch (err) { alert("Erreur: " + err.message); } finally { btn.disabled = false; btn.textContent = "Enregistrer le Service"; }
 });
 
-/* ================= 8. SAUVEGARDE DES PARAMÈTRES ================= */
+// Onglets de langue pour les Services
+document.querySelectorAll('.lang-tab-srv').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+        e.preventDefault(); 
+        document.querySelectorAll('.lang-tab-srv').forEach(t => t.classList.remove('active')); e.target.classList.add('active');
+        document.querySelectorAll('.lang-content-srv').forEach(c => c.classList.add('hidden'));
+        document.getElementById(`lang-srv-${e.target.getAttribute('data-lang')}`).classList.remove('hidden');
+    });
+});
+
+/* ================= 7. SAUVEGARDE DES PARAMÈTRES ET ONGLETS ================= */
 document.getElementById('settings-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = e.target.querySelector('button[type="submit"]');
-    btn.textContent = "Sauvegarde en cours...";
-    
+    e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); btn.textContent = "Sauvegarde en cours...";
     try {
         let finalFounderUrl = document.getElementById('existing-founder-img').value || "";
-        if (optimizedImages.founder) {
-            const r = ref(storage, `site/founder_${Date.now()}.webp`);
-            await uploadString(r, optimizedImages.founder, 'data_url');
-            finalFounderUrl = await getDownloadURL(r);
-        }
-
+        if (optimizedImages.founder) { const r = ref(storage, `site/founder_${Date.now()}.webp`); await uploadString(r, optimizedImages.founder, 'data_url'); finalFounderUrl = await getDownloadURL(r); }
         let finalNavUrl = document.getElementById('existing-logo-nav').value || "";
-        if (optimizedImages.nav) {
-            const r = ref(storage, `site/logo_nav_${Date.now()}.webp`);
-            await uploadString(r, optimizedImages.nav, 'data_url');
-            finalNavUrl = await getDownloadURL(r);
-        }
-
+        if (optimizedImages.nav) { const r = ref(storage, `site/logo_nav_${Date.now()}.webp`); await uploadString(r, optimizedImages.nav, 'data_url'); finalNavUrl = await getDownloadURL(r); }
         let finalHeroUrl = document.getElementById('existing-logo-hero').value || "";
-        if (optimizedImages.hero) {
-            const r = ref(storage, `site/logo_hero_${Date.now()}.webp`);
-            await uploadString(r, optimizedImages.hero, 'data_url');
-            finalHeroUrl = await getDownloadURL(r);
-        }
+        if (optimizedImages.hero) { const r = ref(storage, `site/logo_hero_${Date.now()}.webp`); await uploadString(r, optimizedImages.hero, 'data_url'); finalHeroUrl = await getDownloadURL(r); }
 
         await setDoc(doc(db, "settings", "general"), {
-            logoNav: finalNavUrl,
-            logoHero: finalHeroUrl,
-            founderImg: finalFounderUrl,
-            
-            founderQuote_fr: document.getElementById('set-founder-quote-fr').value,
-            founderDesc_fr: document.getElementById('set-founder-desc-fr').value,
-            founderQuote_en: document.getElementById('set-founder-quote-en').value,
-            founderDesc_en: document.getElementById('set-founder-desc-en').value,
-            founderQuote_es: document.getElementById('set-founder-quote-es').value,
-            founderDesc_es: document.getElementById('set-founder-desc-es').value,
-            founderQuote_pt: document.getElementById('set-founder-quote-pt').value,
-            founderDesc_pt: document.getElementById('set-founder-desc-pt').value,
-            
-            stat1: document.getElementById('set-stat1').value,
-            stat2: document.getElementById('set-stat2').value,
-            stat3: document.getElementById('set-stat3').value,
-            stat4: document.getElementById('set-stat4').value
+            logoNav: finalNavUrl, logoHero: finalHeroUrl, founderImg: finalFounderUrl,
+            founderQuote_fr: document.getElementById('set-founder-quote-fr').value, founderDesc_fr: document.getElementById('set-founder-desc-fr').value,
+            founderQuote_en: document.getElementById('set-founder-quote-en').value, founderDesc_en: document.getElementById('set-founder-desc-en').value,
+            founderQuote_es: document.getElementById('set-founder-quote-es').value, founderDesc_es: document.getElementById('set-founder-desc-es').value,
+            founderQuote_pt: document.getElementById('set-founder-quote-pt').value, founderDesc_pt: document.getElementById('set-founder-desc-pt').value,
+            stat1: document.getElementById('set-stat1').value, stat2: document.getElementById('set-stat2').value, stat3: document.getElementById('set-stat3').value, stat4: document.getElementById('set-stat4').value
         }, { merge: true });
         
-        document.getElementById('existing-founder-img').value = finalFounderUrl;
-        document.getElementById('existing-logo-nav').value = finalNavUrl;
-        document.getElementById('existing-logo-hero').value = finalHeroUrl;
+        document.getElementById('existing-founder-img').value = finalFounderUrl; document.getElementById('existing-logo-nav').value = finalNavUrl; document.getElementById('existing-logo-hero').value = finalHeroUrl;
         optimizedImages = { founder: null, nav: null, hero: null };
-
         alert("Identité et Paramètres mis à jour avec succès !");
-    } catch(err) { alert("Erreur : " + err.message); } 
-    finally { btn.textContent = "Enregistrer les modifications"; }
+    } catch(err) { alert("Erreur : " + err.message); } finally { btn.textContent = "Enregistrer les modifications"; }
 });
 
-/* ================= 9. GESTION DES ONGLETS DE LANGUE ================= */
 document.querySelectorAll('.lang-tab').forEach(tab => {
     tab.addEventListener('click', (e) => {
         e.preventDefault(); 
-        document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
-        e.target.classList.add('active');
-        
+        document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active')); e.target.classList.add('active');
         document.querySelectorAll('.lang-content').forEach(c => c.classList.add('hidden'));
-        const lang = e.target.getAttribute('data-lang');
-        document.getElementById(`lang-${lang}`).classList.remove('hidden');
+        document.getElementById(`lang-${e.target.getAttribute('data-lang')}`).classList.remove('hidden');
     });
 });
