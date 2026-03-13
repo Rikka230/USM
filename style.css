@@ -745,7 +745,7 @@ body {
 .btn-back { display: inline-block; margin-bottom: 20px; color: var(--usm-pink); text-decoration: none; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
 .btn-back:hover { color: #fff; transform: translateX(-5px); }
 
-/* ================= 12. LAYOUT PAGE SERVICE (SIDEBAR) ================= */
+/* ================= 12. LAYOUT PAGE DYNAMIQUE (SIDEBAR) ================= */
 .service-page-layout {
     display: flex;
     flex-wrap: wrap;
@@ -756,11 +756,11 @@ body {
 }
 
 .service-main-content {
-    flex: 1 1 600px; /* Prend tout l'espace restant */
+    flex: 1 1 600px; /* Le texte prend la majorité de l'espace à gauche */
 }
 
 .service-sidebar {
-    flex: 0 0 350px; /* Fixe la largeur du menu à droite */
+    flex: 0 0 350px; /* La colonne fixe à droite pour la liste des services */
     width: 100%;
 }
 
@@ -771,7 +771,7 @@ body {
     white-space: pre-line; 
 }
 
-/* Les boutons du menu latéral */
+/* Le design des boutons de la liste à droite */
 .sidebar-srv-link {
     display: flex;
     justify-content: space-between;
@@ -791,7 +791,7 @@ body {
 .sidebar-srv-link:hover, .sidebar-srv-link.active {
     border-color: var(--usm-pink);
     background: rgba(216, 0, 86, 0.1);
-    transform: translateX(8px); /* Petit effet de glissement */
+    transform: translateX(8px); /* Animation au survol */
     color: var(--usm-pink);
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
