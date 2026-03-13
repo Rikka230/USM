@@ -611,8 +611,8 @@ function renderAdminServicesTable() {
                 <td>
                     <div style="display:flex;gap:8px;">
                         ${upBtn} ${downBtn}
-                        <button class="btn-edit-srv" data-id="${srv.id}">Éditer</button>
-                        <button class="btn-delete-srv" data-id="${srv.id}">Supprimer</button>
+                        <button class="btn-edit btn-edit-srv" data-id="${srv.id}">Éditer</button>
+                        <button class="btn-delete btn-delete-srv" data-id="${srv.id}">Supprimer</button>
                     </div>
                 </td>
             </tr>`;
@@ -841,3 +841,4 @@ document.querySelectorAll('.lang-tab-srv').forEach(tab => {
         if(content) content.classList.remove('hidden');
     });
 });
+
