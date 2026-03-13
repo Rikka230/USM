@@ -649,23 +649,20 @@ document.querySelectorAll('.btn-cancel-service').forEach(btn => {
 });
 
 function editService(id) {
-    const srv = allAdminServices.find(s => s.id === id); 
-    if(!srv) return;
-    
-    const editId = document.getElementById('edit-service-id');
-    if(editId) editId.value = srv.id;
-    
-    prefillImageZone('drop-zone-srv', 'existing-srv-img', srv.image_url, 'Glissez la photo du service ici'); 
-    optimizedImages.service = null;
+    const srv = allAdminServices.find(s => s.id === id); if(!srv) return;
+    const editId = document.getElementById('edit-service-id'); if(editId) editId.value = srv.id;
+    prefillImageZone('drop-zone-srv', 'existing-srv-img', srv.image_url, 'Glissez la photo du service ici'); optimizedImages.service = null;
     
     ['fr', 'en', 'es', 'pt'].forEach(l => { 
-        const t = document.getElementById(`srv-title-${l}`);
-        if(t) t.value = srv[`title_${l}`] || ''; 
-        const d = document.getElementById(`srv-desc-${l}`);
-        if(d) d.value = srv[`desc_${l}`] || ''; 
-        const s = document.getElementById(`srv-seo-${l}`);
-        if(s) s.value = srv[`seo_${l}`] || ''; 
+        const t = document.getElementById(`srv-title-${l}`); if(t) t.value = srv[`title_${l}`] || ''; 
+        const sub = document.getElementById(`srv-subtitle-${l}`); if(sub) sub.value = srv[`subtitle_${l}`] || ''; 
+        const d = document.getElementById(`srv-desc-${l}`); if(d) d.value = srv[`desc_${l}`] || ''; 
+        const s = document.getElementById(`srv-seo-${l}`); if(s) s.value = srv[`seo_${l}`] || ''; 
     });
+    
+    const title = document.getElementById('service-form-title'); if(title) title.textContent = "Modifier le Service"; 
+    hideAllSections(); const secFS = document.getElementById('form-service-section'); if(secFS) secFS.classList.remove('hidden');
+}
     
     const title = document.getElementById('service-form-title');
     if(title) title.textContent = "Modifier le Service"; 
@@ -698,49 +695,24 @@ async function moveService(currentIndex, direction) {
 const srvForm = document.getElementById('service-form');
 if(srvForm) {
     srvForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); 
-        const btn = document.getElementById('save-service-btn'); 
-        if(btn) { btn.disabled = true; btn.textContent = "Sauvegarde..."; }
-        
+        e.preventDefault(); const btn = document.getElementById('save-service-btn'); if(btn) { btn.disabled = true; btn.textContent = "Sauvegarde..."; }
         try {
-            const editId = document.getElementById('edit-service-id').value; 
-            let finalSrvUrl = document.getElementById('existing-srv-img').value || "";
-            
-            if (optimizedImages.service) { 
-                const r = ref(storage, `services/${Date.now()}.webp`); 
-                await uploadString(r, optimizedImages.service, 'data_url'); 
-                finalSrvUrl = await getDownloadURL(r); 
-            }
+            const editId = document.getElementById('edit-service-id').value; let finalSrvUrl = document.getElementById('existing-srv-img').value || "";
+            if (optimizedImages.service) { const r = ref(storage, `services/${Date.now()}.webp`); await uploadString(r, optimizedImages.service, 'data_url'); finalSrvUrl = await getDownloadURL(r); }
             
             const payload = { image_url: finalSrvUrl, timestamp: new Date() };
             ['fr', 'en', 'es', 'pt'].forEach(l => { 
-                const t = document.getElementById(`srv-title-${l}`);
-                if(t) payload[`title_${l}`] = t.value; 
-                const d = document.getElementById(`srv-desc-${l}`);
-                if(d) payload[`desc_${l}`] = d.value; 
-                const s = document.getElementById(`srv-seo-${l}`);
-                if(s) payload[`seo_${l}`] = s.value; 
+                const t = document.getElementById(`srv-title-${l}`); if(t) payload[`title_${l}`] = t.value; 
+                const sub = document.getElementById(`srv-subtitle-${l}`); if(sub) payload[`subtitle_${l}`] = sub.value; 
+                const d = document.getElementById(`srv-desc-${l}`); if(d) payload[`desc_${l}`] = d.value; 
+                const s = document.getElementById(`srv-seo-${l}`); if(s) payload[`seo_${l}`] = s.value; 
             });
             
-            if (editId) { 
-                await updateDoc(doc(db, "services", editId), payload); 
-            } else { 
-                payload.order = allAdminServices.length + 1; 
-                await addDoc(collection(db, "services"), payload); 
-            }
-            
-            hideAllSections(); 
-            const secM = document.getElementById('manage-services-section');
-            if(secM) secM.classList.remove('hidden'); 
-            loadAdminServices();
-        } catch (err) { 
-            alert("Erreur: " + err.message); 
-        } finally { 
-            if(btn) { btn.disabled = false; btn.textContent = "Enregistrer le Service"; } 
-        }
+            if (editId) { await updateDoc(doc(db, "services", editId), payload); } else { payload.order = allAdminServices.length + 1; await addDoc(collection(db, "services"), payload); }
+            hideAllSections(); const secM = document.getElementById('manage-services-section'); if(secM) secM.classList.remove('hidden'); loadAdminServices();
+        } catch (err) { alert("Erreur: " + err.message); } finally { if(btn) { btn.disabled = false; btn.textContent = "Enregistrer le Service"; } }
     });
 }
-
 
 /* ================= 6. SAUVEGARDE DES PARAMÈTRES GLOBAUX ================= */
 const settingsForm = document.getElementById('settings-form');
@@ -835,3 +807,4 @@ document.querySelectorAll('.lang-tab-srv').forEach(tab => {
         if(content) content.classList.remove('hidden');
     });
 });
+
