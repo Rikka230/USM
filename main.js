@@ -112,27 +112,68 @@ document.addEventListener("DOMContentLoaded", () => {
     if(langSelect) langSelect.value = currentLang;
 
     const updateContent = (lang) => {
-        document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (translations[lang] && translations[lang][key]) el.textContent = translations[lang][key]; });
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key]; });
+        document.querySelectorAll('[data-i18n]').forEach(el => { 
+            const key = el.getAttribute('data-i18n'); 
+            if (translations[lang] && translations[lang][key]) el.textContent = translations[lang][key]; 
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { 
+            const key = el.getAttribute('data-i18n-placeholder'); 
+            if (translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key]; 
+        });
         document.documentElement.lang = lang;
         
         renderServices(); 
         
         if(window.currentServiceData) {
             const srv = window.currentServiceData;
-            const titleEl = document.getElementById('srv-page-title'); const descEl = document.getElementById('srv-page-desc');
-            if(titleEl) titleEl.textContent = srv[`title_${lang}`] || srv.title_fr;
-            if(descEl) descEl.textContent = srv[`desc_${lang}`] || srv.desc_fr;
+            
+            const titleText = srv[`title_${lang}`] || srv.title_fr;
+            const descText = srv[`desc_${lang}`] || srv.desc_fr;
+            const seoText = srv[`seo_${lang}`] || srv.seo_fr;
+            
+            const titleEl = document.getElementById('srv-page-title'); 
+            const descEl = document.getElementById('srv-page-desc');
+            const imgEl = document.getElementById('srv-hero-img');
+            
+            if(titleEl) titleEl.textContent = titleText;
+            if(descEl) descEl.textContent = descText;
+            if(imgEl) imgEl.alt = titleText;
+            
+            // Mise à jour SEO en direct lors du changement de langue
+            document.title = `${titleText} | USM Football`;
+            
+            if (descText) {
+                let metaDesc = document.querySelector('meta[name="description"]');
+                if (metaDesc) metaDesc.content = descText.length > 155 ? descText.substring(0, 155) + "..." : descText;
+            }
+            if (seoText) {
+                let metaKeys = document.querySelector('meta[name="keywords"]');
+                if (metaKeys) metaKeys.content = seoText;
+            }
         }
     };
     
-    if(langSelect) langSelect.addEventListener('change', (e) => { localStorage.setItem('usm_lang', e.target.value); updateContent(e.target.value); });
+    if(langSelect) {
+        langSelect.addEventListener('change', (e) => { 
+            localStorage.setItem('usm_lang', e.target.value); 
+            updateContent(e.target.value); 
+        });
+    }
+    
     updateContent(currentLang);
 
-    const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { threshold: 0.1 });
+    const observer = new IntersectionObserver((entries) => { 
+        entries.forEach(entry => { 
+            if (entry.isIntersecting) entry.target.classList.add('visible'); 
+        }); 
+    }, { threshold: 0.1 });
+    
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-    loadSettings(); loadServices(); loadPlayers(); loadSingleServicePage();
+    loadSettings(); 
+    loadServices(); 
+    loadPlayers(); 
+    loadSingleServicePage();
 });
 
 /* ================= 4. CHARGEMENT PARAMÈTRES ================= */
@@ -141,33 +182,57 @@ async function loadSettings() {
         const d = await getDoc(doc(db, "settings", "general"));
         if (d.exists()) {
             const data = d.data();
-            ['stat1', 'stat2', 'stat3', 'stat4'].forEach(s => { if(data[s] && document.getElementById(`stat-${s.replace('stat','')}`)) document.getElementById(`stat-${s.replace('stat','')}`).textContent = data[s]; });
+            ['stat1', 'stat2', 'stat3', 'stat4'].forEach(s => { 
+                if(data[s] && document.getElementById(`stat-${s.replace('stat','')}`)) 
+                    document.getElementById(`stat-${s.replace('stat','')}`).textContent = data[s]; 
+            });
+            
             if(data.logoNav && document.querySelector('.logo-nav img')) document.querySelector('.logo-nav img').src = data.logoNav;
             if(data.logoHero && document.querySelector('.massive-eagle-wrapper img')) document.querySelector('.massive-eagle-wrapper img').src = data.logoHero;
             if(data.founderImg && document.querySelector('.vip-photo-wrapper img')) document.querySelector('.vip-photo-wrapper img').src = data.founderImg;
 
-            ['fr', 'en', 'es', 'pt'].forEach(lang => { if(data[`founderQuote_${lang}`]) translations[lang].vip_quote = data[`founderQuote_${lang}`]; if(data[`founderDesc_${lang}`]) translations[lang].vip_desc = data[`founderDesc_${lang}`]; });
+            ['fr', 'en', 'es', 'pt'].forEach(lang => { 
+                if(data[`founderQuote_${lang}`]) translations[lang].vip_quote = data[`founderQuote_${lang}`]; 
+                if(data[`founderDesc_${lang}`]) translations[lang].vip_desc = data[`founderDesc_${lang}`]; 
+            });
+            
             const currentLang = localStorage.getItem('usm_lang') || 'fr';
-            document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (translations[currentLang] && translations[currentLang][key]) el.textContent = translations[currentLang][key]; });
+            document.querySelectorAll('[data-i18n]').forEach(el => { 
+                const key = el.getAttribute('data-i18n'); 
+                if (translations[currentLang] && translations[currentLang][key]) 
+                    el.textContent = translations[currentLang][key]; 
+            });
         }
-    } catch (e) {}
+    } catch (e) { console.error("Erreur Settings:", e); }
 }
 
 /* ================= 5. CHARGEMENT DES SERVICES DYNAMIQUES ================= */
 let allServicesData = [];
 async function loadServices() {
-    const container = document.getElementById('services-container'); if(!container) return;
+    const container = document.getElementById('services-container'); 
+    if(!container) return;
     try {
-        const querySnapshot = await getDocs(collection(db, "services")); allServicesData = [];
+        const querySnapshot = await getDocs(collection(db, "services")); 
+        allServicesData = [];
         querySnapshot.forEach((docSnap) => allServicesData.push({ id: docSnap.id, ...docSnap.data() }));
-        allServicesData.sort((a, b) => (a.order || 999) - (b.order || 999)); renderServices();
-    } catch (error) { container.innerHTML = '<p style="color:red;">Erreur de chargement.</p>'; }
+        allServicesData.sort((a, b) => (a.order || 999) - (b.order || 999)); 
+        renderServices();
+    } catch (error) { 
+        container.innerHTML = '<p style="color:red;">Erreur de chargement.</p>'; 
+    }
 }
 
 function renderServices() {
-    const container = document.getElementById('services-container'); if(!container) return;
-    if(allServicesData.length === 0) { container.innerHTML = '<p style="color:#aaa;">Aucun service disponible.</p>'; return; }
-    const currentLang = localStorage.getItem('usm_lang') || 'fr'; let html = '';
+    const container = document.getElementById('services-container'); 
+    if(!container) return;
+    
+    if(allServicesData.length === 0) { 
+        container.innerHTML = '<p style="color:#aaa;">Aucun service disponible.</p>'; 
+        return; 
+    }
+    
+    const currentLang = localStorage.getItem('usm_lang') || 'fr'; 
+    let html = '';
     
     allServicesData.forEach(srv => {
         const title = srv[`title_${currentLang}`] || srv.title_fr || 'Service';
@@ -176,7 +241,7 @@ function renderServices() {
     container.innerHTML = html;
 }
 
-/* ================= 6. CHARGEMENT DE LA PAGE SERVICE UNIQUE (AVEC AUTO-SEO) ================= */
+/* ================= 6. CHARGEMENT DE LA PAGE SERVICE UNIQUE & AUTO-SEO ================= */
 async function loadSingleServicePage() {
     const urlParams = new URLSearchParams(window.location.search);
     const srvId = urlParams.get('id');
@@ -193,24 +258,22 @@ async function loadSingleServicePage() {
             const descText = srv[`desc_${currentLang}`] || srv.desc_fr || "";
             const seoText = srv[`seo_${currentLang}`] || srv.seo_fr || "";
             
-            // 1. Affichage Image et attribut SEO "Alt"
+            // Image + Alt SEO
             const imgEl = document.getElementById('srv-hero-img');
             if(imgEl && srv.image_url) {
                 imgEl.src = srv.image_url;
                 imgEl.alt = titleText;
             }
             
-            // 2. Affichage des Textes sur la page
+            // Textes
             const titleEl = document.getElementById('srv-page-title');
             const descEl = document.getElementById('srv-page-desc');
             if(titleEl) titleEl.textContent = titleText;
             if(descEl) descEl.textContent = descText;
 
-            // 3. INJECTION AUTO-SEO GOOGLE
-            // Nom de l'onglet
+            // Méta SEO Google
             document.title = `${titleText} | USM Football`;
 
-            // Méta Description (Coupée proprement à 150 caractères pour Google)
             if (descText) {
                 let metaDesc = document.querySelector('meta[name="description"]');
                 if (!metaDesc) {
@@ -221,7 +284,6 @@ async function loadSingleServicePage() {
                 metaDesc.content = descText.length > 155 ? descText.substring(0, 155) + "..." : descText;
             }
 
-            // Mots-clés
             if (seoText) {
                 let metaKeys = document.querySelector('meta[name="keywords"]');
                 if (!metaKeys) {
@@ -241,26 +303,80 @@ async function loadSingleServicePage() {
 }
 
 /* ================= 7. CHARGEMENT DU ROSTER ================= */
-let allPlayersData = []; let currentFrontCat = 'gardien'; let currentFrontSearch = '';
-async function loadPlayers() {
-    const container = document.getElementById('roster-categories-container'); if (!container) return;
-    try {
-        const querySnapshot = await getDocs(collection(db, "players")); allPlayersData = [];
-        querySnapshot.forEach((docSnap) => allPlayersData.push(docSnap.data())); allPlayersData.sort((a, b) => (a.order || 999) - (b.order || 999));
-        renderCategorySlider(); setupTabs();
-        const searchInput = document.getElementById('front-search');
-        if(searchInput) searchInput.addEventListener('input', (e) => { currentFrontSearch = e.target.value.toLowerCase(); if(currentFrontSearch.length > 0) document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); else document.querySelector(`.filter-btn[data-tab="${currentFrontCat}"]`).classList.add('active'); renderCategorySlider(); });
-    } catch (error) { container.innerHTML = '<p style="color:red; text-align:center;">Erreur base de données.</p>'; }
-}
-function renderCategorySlider() {
-    const container = document.getElementById('roster-categories-container'); if(!container) return;
-    let filteredPlayers = currentFrontSearch.length > 0 ? allPlayersData.filter(p => p.name.toLowerCase().includes(currentFrontSearch)) : allPlayersData.filter(p => p.category === currentFrontCat);
-    if (filteredPlayers.length === 0) { container.innerHTML = '<p style="text-align:center; color:#888; padding: 40px;">Aucun joueur trouvé.</p>'; return; }
-    let sliderHTML = `<div class="category-block reveal visible"><div class="category-header"><h3 class="category-title" style="color: #fff; text-transform:none;">${currentFrontSearch.length > 0 ? `Résultats pour "${currentFrontSearch}"` : `✦ <span style="color:var(--usm-pink)">${filteredPlayers.length}</span> Profils`}</h3><div class="slider-controls"><button class="slider-btn prev-btn">❮</button><button class="slider-btn next-btn">❯</button></div></div><div class="slider-container"><div class="horizontal-scroller" id="active-scroller">`;
-    filteredPlayers.forEach(player => { sliderHTML += `<div class="player-card"><div class="player-img-container"><img src="${player.image_url}" alt="${player.name}" loading="lazy"></div><div class="player-info"><div><h3>${player.name}</h3>${currentFrontSearch.length > 0 ? `<p style="color:#888; font-size:0.75rem; text-transform:uppercase; margin-top:2px;">${player.category}</p>` : ''}${player.transfermarkt ? `<a href="${player.transfermarkt}" target="_blank" style="color:var(--usm-pink); font-size:0.8rem; text-decoration:none; display:inline-block; margin-top:5px;">🔗 Transfermarkt</a>` : ''}</div></div><div style="padding: 0 15px 15px;"><div class="player-stat">${player.stat || ''}</div></div></div>`; });
-    container.innerHTML = sliderHTML + `</div></div></div>`;
-    const scroller = document.getElementById('active-scroller');
-    document.querySelector('.prev-btn').addEventListener('click', () => scroller.scrollBy({ left: -(scroller.clientWidth * 0.8), behavior: 'smooth' })); document.querySelector('.next-btn').addEventListener('click', () => scroller.scrollBy({ left: (scroller.clientWidth * 0.8), behavior: 'smooth' }));
-}
-function setupTabs() { document.querySelectorAll('.filter-btn').forEach(tab => { tab.addEventListener('click', (e) => { document.getElementById('front-search').value = ''; currentFrontSearch = ''; document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); e.target.classList.add('active'); currentFrontCat = e.target.getAttribute('data-tab'); renderCategorySlider(); }); }); }
+let allPlayersData = []; 
+let currentFrontCat = 'gardien'; 
+let currentFrontSearch = '';
 
+async function loadPlayers() {
+    const container = document.getElementById('roster-categories-container'); 
+    if (!container) return;
+    
+    try {
+        const querySnapshot = await getDocs(collection(db, "players")); 
+        allPlayersData = [];
+        querySnapshot.forEach((docSnap) => allPlayersData.push(docSnap.data())); 
+        allPlayersData.sort((a, b) => (a.order || 999) - (b.order || 999));
+        
+        renderCategorySlider(); 
+        setupTabs();
+        
+        const searchInput = document.getElementById('front-search');
+        if(searchInput) {
+            searchInput.addEventListener('input', (e) => { 
+                currentFrontSearch = e.target.value.toLowerCase(); 
+                if(currentFrontSearch.length > 0) {
+                    document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); 
+                } else {
+                    const activeTab = document.querySelector(`.filter-btn[data-tab="${currentFrontCat}"]`);
+                    if(activeTab) activeTab.classList.add('active'); 
+                }
+                renderCategorySlider(); 
+            });
+        }
+    } catch (error) { 
+        container.innerHTML = '<p style="color:red; text-align:center;">Erreur base de données.</p>'; 
+    }
+}
+
+function renderCategorySlider() {
+    const container = document.getElementById('roster-categories-container'); 
+    if(!container) return;
+    
+    let filteredPlayers = currentFrontSearch.length > 0 
+        ? allPlayersData.filter(p => p.name.toLowerCase().includes(currentFrontSearch)) 
+        : allPlayersData.filter(p => p.category === currentFrontCat);
+        
+    if (filteredPlayers.length === 0) { 
+        container.innerHTML = '<p style="text-align:center; color:#888; padding: 40px;">Aucun joueur trouvé.</p>'; 
+        return; 
+    }
+    
+    let sliderHTML = `<div class="category-block reveal visible"><div class="category-header"><h3 class="category-title" style="color: #fff; text-transform:none;">${currentFrontSearch.length > 0 ? `Résultats pour "${currentFrontSearch}"` : `✦ <span style="color:var(--usm-pink)">${filteredPlayers.length}</span> Profils`}</h3><div class="slider-controls"><button class="slider-btn prev-btn">❮</button><button class="slider-btn next-btn">❯</button></div></div><div class="slider-container"><div class="horizontal-scroller" id="active-scroller">`;
+    
+    filteredPlayers.forEach(player => { 
+        sliderHTML += `<div class="player-card"><div class="player-img-container"><img src="${player.image_url}" alt="${player.name}" loading="lazy"></div><div class="player-info"><div><h3>${player.name}</h3>${currentFrontSearch.length > 0 ? `<p style="color:#888; font-size:0.75rem; text-transform:uppercase; margin-top:2px;">${player.category}</p>` : ''}${player.transfermarkt ? `<a href="${player.transfermarkt}" target="_blank" style="color:var(--usm-pink); font-size:0.8rem; text-decoration:none; display:inline-block; margin-top:5px;">🔗 Transfermarkt</a>` : ''}</div></div><div style="padding: 0 15px 15px;"><div class="player-stat">${player.stat || ''}</div></div></div>`; 
+    });
+    
+    container.innerHTML = sliderHTML + `</div></div></div>`;
+    
+    const scroller = document.getElementById('active-scroller');
+    const prevBtn = document.querySelector('.prev-btn');
+    const nextBtn = document.querySelector('.next-btn');
+    
+    if(prevBtn) prevBtn.addEventListener('click', () => scroller.scrollBy({ left: -(scroller.clientWidth * 0.8), behavior: 'smooth' })); 
+    if(nextBtn) nextBtn.addEventListener('click', () => scroller.scrollBy({ left: (scroller.clientWidth * 0.8), behavior: 'smooth' }));
+}
+
+function setupTabs() { 
+    document.querySelectorAll('.filter-btn').forEach(tab => { 
+        tab.addEventListener('click', (e) => { 
+            const fSearch = document.getElementById('front-search');
+            if(fSearch) fSearch.value = ''; 
+            currentFrontSearch = ''; 
+            document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); 
+            e.target.classList.add('active'); 
+            currentFrontCat = e.target.getAttribute('data-tab'); 
+            renderCategorySlider(); 
+        }); 
+    }); 
+}
