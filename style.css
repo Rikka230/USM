@@ -34,10 +34,15 @@ html {
 
 body {
     background-color: var(--bg-dark);
+    
+    /* Le secret est ici : on combine ton halo rose avec un motif Seamless en ligne */
     background-image: 
         radial-gradient(circle at 50% 0%, var(--usm-pink-glow) 0%, transparent 60%),
-        url('Assets/leather-texture.png');
+        url('https://www.transparenttextures.com/patterns/black-scales.png');
+        
     background-attachment: fixed; 
+    background-repeat: repeat; /* Force le petit carré à se répéter à l'infini */
+    
     color: var(--text-light); 
     line-height: 1.4; 
     overflow-x: hidden;
