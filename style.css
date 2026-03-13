@@ -5,8 +5,8 @@
 /* ================= 1. VARIABLES & RESET ================= */
 @font-face {
     font-family: 'Moglan';
-    src: url('assets/Moglan.ttf') format('ttf'), /* Ajuste le chemin selon ton dossier */
-         url('assets/Moglan.woff') format('woff');
+    src: url('Assets/Moglan.ttf') format('ttf'), /* Ajuste le chemin selon ton dossier */
+         url('Assets/Moglan.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 }
@@ -630,6 +630,7 @@ body {
 .admin-secret-link:hover {
     color: var(--usm-pink); 
 }
+
 
 
 
