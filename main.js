@@ -78,7 +78,7 @@ const translations = {
         contact_form_title: "Enviar un mensaje",
         contact_ph_name: "Tu nombre completo", contact_ph_email: "Tu correo electrónico",
         contact_opt_player: "Soy jugador", contact_opt_club: "Represento a un club", contact_opt_other: "Otra consulta",
-        contact_ph_msg: "Tu mensaje...", contact_btn_send: "Enviar mensaje"
+        contact_ph_msg: "Tu mensaje...", contact_btn_send: "Enviar mensagem"
     },
     pt: {
         nav_agency: "A Agência", nav_services: "Serviços", nav_talents: "Os Talentos", nav_button: "Contato",
@@ -106,7 +106,7 @@ window.currentServiceData = null;
 window.currentServiceId = null;
 
 /* ================= 3. LOGIQUE GLOBALE ================= */
-document.addEventListener("DOMContentLoaded", async () => { 
+document.addEventListener("DOMContentLoaded", () => { 
     const langSelect = document.getElementById('lang-select');
     let currentLang = localStorage.getItem('usm_lang') || 'fr';
     if (!translations[currentLang]) currentLang = 'fr';
@@ -164,7 +164,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 metaKeys.content = seoText;
             }
             
-            // Mise à jour de la sidebar dans la bonne langue
             renderOtherServices(window.currentServiceId, lang);
         }
     };
@@ -236,12 +235,12 @@ async function loadServices() {
         querySnapshot.forEach((docSnap) => allServicesData.push({ id: docSnap.id, ...docSnap.data() }));
         allServicesData.sort((a, b) => (a.order || 999) - (b.order || 999)); 
         renderServices();
-        if(window.currentServiceId) renderOtherServices(window.currentServiceId, localStorage.getItem('usm_lang') || 'fr');
     } catch (error) { 
         if(container) container.innerHTML = '<p style="color:red;">Erreur de chargement.</p>'; 
     }
 }
 
+// Génère les grandes cartes pour l'accueil (index.html)
 function renderServices() {
     const container = document.getElementById('services-container'); 
     if(!container) return;
@@ -259,8 +258,9 @@ function renderServices() {
         const sub = srv[`subtitle_${currentLang}`] || srv.subtitle_fr || '';
         const bgImg = srv.image_url ? `url('${srv.image_url}')` : 'none';
         
+        // LIEN CORRIGÉ : pointe vers page-dynamique.html
         html += `
-        <a href="service.html?id=${srv.id}" class="bento-service-card" style="background-image: linear-gradient(to top, rgba(5,5,7,0.95) 10%, rgba(5,5,7,0.2) 100%), ${bgImg}; background-size: cover; background-position: center;">
+        <a href="page-dynamique.html?id=${srv.id}" class="bento-service-card" style="background-image: linear-gradient(to top, rgba(5,5,7,0.95) 10%, rgba(5,5,7,0.2) 100%), ${bgImg}; background-size: cover; background-position: center;">
             <div class="srv-card-content"><h3>${title}</h3><p>${sub}</p></div>
             <div class="srv-card-arrow">En savoir plus ➔</div>
         </a>`;
@@ -268,6 +268,7 @@ function renderServices() {
     container.innerHTML = html;
 }
 
+// Génère la liste de la Sidebar (page-dynamique.html)
 function renderOtherServices(currentId, lang) {
     const container = document.getElementById('other-services-container'); 
     if(!container) return;
@@ -275,10 +276,13 @@ function renderOtherServices(currentId, lang) {
     let html = '';
     allServicesData.forEach(srv => {
         const title = srv[`title_${lang}`] || srv.title_fr || 'Service';
+        
+        // Si c'est le service actuel, on met la classe CSS 'active'
         const isActive = srv.id === currentId ? 'active' : '';
         
+        // LIEN CORRIGÉ : pointe vers page-dynamique.html
         html += `
-        <a href="service.html?id=${srv.id}" class="sidebar-srv-link ${isActive}">
+        <a href="page-dynamique.html?id=${srv.id}" class="sidebar-srv-link ${isActive}">
             <span>${title}</span>
             <span>➔</span>
         </a>`;
@@ -341,6 +345,7 @@ async function loadSingleServicePage() {
                 metaKeys.content = seoText;
             }
             
+            // On déclenche l'affichage de la sidebar avec le bon ID sélectionné
             renderOtherServices(srvId, currentLang);
 
         } else {
