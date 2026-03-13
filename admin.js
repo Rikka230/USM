@@ -1,5 +1,5 @@
 /* ==========================================================================
-   USM FOOTBALL - ADMIN JAVASCRIPT (CMS COMPLET AVEC DRAG & DROP FONDATEUR)
+   USM FOOTBALL - ADMIN JAVASCRIPT (CMS COMPLET + GESTION DES 4 IMAGES)
    ========================================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -43,7 +43,7 @@ document.getElementById('login-form').addEventListener('submit', (e) => {
 
 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth).then(() => window.location.reload()));
 
-/* ================= 2. NAVIGATION ET SECTIONS ================= */
+/* ================= 2. NAVIGATION ET CHARGEMENT SETTINGS ================= */
 const secManage = document.getElementById('manage-players-section');
 const secForm = document.getElementById('form-player-section');
 const secSettings = document.getElementById('settings-section');
@@ -62,26 +62,33 @@ document.getElementById('nav-settings').addEventListener('click', async (e) => {
     const docSnap = await getDoc(doc(db, "settings", "general"));
     if (docSnap.exists()) {
         const data = docSnap.data();
-        document.getElementById('set-logo-nav').value = data.logoNav || '';
-        document.getElementById('set-logo-hero').value = data.logoHero || '';
-        document.getElementById('set-founder-quote').value = data.founderQuote || '';
-        document.getElementById('set-founder-desc').value = data.founderDesc || '';
+        
+        // Stats
         document.getElementById('set-stat1').value = data.stat1 || '';
         document.getElementById('set-stat2').value = data.stat2 || '';
         document.getElementById('set-stat3').value = data.stat3 || '';
         document.getElementById('set-stat4').value = data.stat4 || '';
+        
+        // Textes Fondateur
+        document.getElementById('set-founder-quote').value = data.founderQuote || '';
+        document.getElementById('set-founder-desc').value = data.founderDesc || '';
 
-        // Chargement Image Fondateur Existante
-        document.getElementById('existing-founder-img').value = data.founderImg || '';
-        const dzFounder = document.getElementById('drop-zone-founder');
-        if(data.founderImg) {
-            dzFounder.innerHTML = `<img src="${data.founderImg}" style="max-height: 150px; border-radius: 8px;"> <p style="font-size:12px; color:#aaa; margin-top:10px;">(Glissez une nouvelle photo pour remplacer)</p>`;
-        } else {
-            dzFounder.innerHTML = `<p>Glissez la photo du fondateur ici</p>`;
-        }
-        optimizedFounderMedia = null;
+        // Pré-remplissage des images
+        prefillImageZone('drop-zone-nav', 'existing-logo-nav', data.logoNav, 'Glissez le logo header');
+        prefillImageZone('drop-zone-hero', 'existing-logo-hero', data.logoHero, 'Glissez le logo central');
+        prefillImageZone('drop-zone-founder', 'existing-founder-img', data.founderImg, 'Glissez la photo du fondateur');
+        
+        // Réinitialisation des buffers de nouveaux fichiers
+        optimizedImages = { player: null, founder: null, nav: null, hero: null };
     }
 });
+
+function prefillImageZone(zoneId, inputId, url, defaultText) {
+    document.getElementById(inputId).value = url || '';
+    const zone = document.getElementById(zoneId);
+    if(url) zone.innerHTML = `<img src="${url}" style="max-height: 80px; border-radius: 8px;"> <p style="font-size:11px; color:#aaa; margin-top:5px;">(Cliquez pour remplacer)</p>`;
+    else zone.innerHTML = `<p style="font-size: 0.9rem;">${defaultText}</p>`;
+}
 
 document.getElementById('btn-show-add-form').addEventListener('click', () => {
     document.getElementById('content-form').reset();
@@ -90,42 +97,37 @@ document.getElementById('btn-show-add-form').addEventListener('click', () => {
     document.getElementById('form-title').textContent = "Créer un Profil";
     document.getElementById('publish-btn').textContent = "Ajouter au Roster";
     document.getElementById('drop-zone').innerHTML = "<p>Glissez la photo du joueur ici</p>";
-    optimizedWebMedia = null;
+    optimizedImages.player = null;
     secManage.classList.add('hidden'); secForm.classList.remove('hidden');
 });
 
 document.querySelectorAll('.btn-cancel').forEach(btn => {
-    btn.addEventListener('click', () => {
-        secForm.classList.add('hidden'); secManage.classList.remove('hidden');
-    });
+    btn.addEventListener('click', () => { secForm.classList.add('hidden'); secManage.classList.remove('hidden'); });
 });
 
-/* ================= 3. IMAGE CANVAS (DRAG & DROP JOUEURS & FONDATEUR) ================= */
-// A. Pour les Joueurs
-const dropZone = document.getElementById('drop-zone');
-const fileInput = document.getElementById('media-upload');
-let optimizedWebMedia = null;
+/* ================= 3. LE MOTEUR UNIVERSEL DE DRAG & DROP ================= */
+let optimizedImages = { player: null, founder: null, nav: null, hero: null };
 
-dropZone.addEventListener('click', () => fileInput.click());
-dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', (e) => { e.preventDefault(); handleImage(e.dataTransfer.files[0], dropZone, true); });
-fileInput.addEventListener('change', (e) => { handleImage(e.target.files[0], dropZone, true); });
+function setupDropZone(zoneId, inputId, targetKey) {
+    const zone = document.getElementById(zoneId);
+    const input = document.getElementById(inputId);
+    
+    zone.addEventListener('click', () => input.click());
+    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    
+    zone.addEventListener('drop', (e) => { 
+        e.preventDefault(); 
+        zone.classList.remove('dragover');
+        processImage(e.dataTransfer.files[0], zone, targetKey); 
+    });
+    
+    input.addEventListener('change', (e) => processImage(e.target.files[0], zone, targetKey));
+}
 
-// B. Pour le Fondateur
-const dropZoneFounder = document.getElementById('drop-zone-founder');
-const fileInputFounder = document.getElementById('founder-upload');
-let optimizedFounderMedia = null;
-
-dropZoneFounder.addEventListener('click', () => fileInputFounder.click());
-dropZoneFounder.addEventListener('dragover', (e) => { e.preventDefault(); dropZoneFounder.classList.add('dragover'); });
-dropZoneFounder.addEventListener('dragleave', () => dropZoneFounder.classList.remove('dragover'));
-dropZoneFounder.addEventListener('drop', (e) => { e.preventDefault(); handleImage(e.dataTransfer.files[0], dropZoneFounder, false); });
-fileInputFounder.addEventListener('change', (e) => { handleImage(e.target.files[0], dropZoneFounder, false); });
-
-// Moteur de traitement d'image commun
-function handleImage(file, zoneElement, isPlayer) {
-    if (!file.type.startsWith('image/')) return alert("Image uniquement.");
+function processImage(file, zoneElement, targetKey) {
+    if (!file || !file.type.startsWith('image/')) return alert("Veuillez utiliser une image.");
+    
     const reader = new FileReader();
     reader.onload = (event) => {
         const img = new Image();
@@ -133,22 +135,27 @@ function handleImage(file, zoneElement, isPlayer) {
             const webCanvas = document.createElement('canvas');
             const webCtx = webCanvas.getContext('2d');
             let wWidth = img.width, wHeight = img.height;
+            
             if (wWidth > 1200) { wHeight = Math.round((wHeight * 1200) / wWidth); wWidth = 1200; }
             webCanvas.width = wWidth; webCanvas.height = wHeight;
             webCtx.drawImage(img, 0, 0, wWidth, wHeight);
             
-            if(isPlayer) {
-                optimizedWebMedia = webCanvas.toDataURL('image/webp', 0.8);
-            } else {
-                optimizedFounderMedia = webCanvas.toDataURL('image/webp', 0.8);
-            }
+            const webpData = webCanvas.toDataURL('image/webp', 0.8);
+            optimizedImages[targetKey] = webpData; // Stockage dans le bon buffer
             
-            zoneElement.innerHTML = `<img src="${isPlayer ? optimizedWebMedia : optimizedFounderMedia}" style="max-height: 150px; border-radius: 8px;"> <p style="color:var(--usm-pink); font-size:12px; margin-top:10px;">Prêt pour l'envoi</p>`;
+            zoneElement.innerHTML = `<img src="${webpData}" style="max-height: 80px; border-radius: 8px;"> <p style="color:var(--usm-pink); font-size:11px; margin-top:5px;">✓ Prêt</p>`;
         };
         img.src = event.target.result;
     };
     reader.readAsDataURL(file);
 }
+
+// Activation des 4 zones
+setupDropZone('drop-zone', 'media-upload', 'player');
+setupDropZone('drop-zone-founder', 'founder-upload', 'founder');
+setupDropZone('drop-zone-nav', 'nav-upload', 'nav');
+setupDropZone('drop-zone-hero', 'hero-upload', 'hero');
+
 
 /* ================= 4. GESTION DU ROSTER ================= */
 let allAdminPlayers = []; 
@@ -172,9 +179,7 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
 document.getElementById('search-bar').addEventListener('input', (e) => {
     adminSearchQuery = e.target.value.toLowerCase();
     adminCurrentPage = 1;
-    if(adminSearchQuery.length > 0) {
-        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-    }
+    if(adminSearchQuery.length > 0) document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
     renderAdminTable();
 });
 
@@ -184,13 +189,9 @@ async function loadAdminPlayers() {
     try {
         const querySnapshot = await getDocs(collection(db, "players"));
         allAdminPlayers = [];
-        querySnapshot.forEach((docSnap) => {
-            allAdminPlayers.push({ id: docSnap.id, ...docSnap.data() });
-        });
+        querySnapshot.forEach((docSnap) => allAdminPlayers.push({ id: docSnap.id, ...docSnap.data() }));
         renderAdminTable();
-    } catch (error) {
-        listContainer.innerHTML = `<tr><td colspan="4" style="color:red;">Erreur.</td></tr>`;
-    }
+    } catch (error) { listContainer.innerHTML = `<tr><td colspan="4" style="color:red;">Erreur.</td></tr>`; }
 }
 
 function renderAdminTable() {
@@ -217,16 +218,9 @@ function renderAdminTable() {
     paginated.forEach((player, indexOnPage) => {
         const globalIndex = startIndex + indexOnPage;
         const canMove = adminSearchQuery === '';
-        const isFirst = globalIndex === 0;
-        const isLast = globalIndex === filtered.length - 1;
         
-        const upBtn = (canMove && !isFirst) 
-            ? `<button class="btn-order btn-move-up" data-index="${globalIndex}">▲</button>` 
-            : `<div style="width: 34px; height: 34px;"></div>`; 
-            
-        const downBtn = (canMove && !isLast) 
-            ? `<button class="btn-order btn-move-down" data-index="${globalIndex}">▼</button>` 
-            : `<div style="width: 34px; height: 34px;"></div>`;
+        const upBtn = (canMove && globalIndex !== 0) ? `<button class="btn-order btn-move-up" data-index="${globalIndex}">▲</button>` : `<div style="width: 30px; height: 30px;"></div>`; 
+        const downBtn = (canMove && globalIndex !== filtered.length - 1) ? `<button class="btn-order btn-move-down" data-index="${globalIndex}">▼</button>` : `<div style="width: 30px; height: 30px;"></div>`;
         const catLabel = adminSearchQuery.length > 0 ? `<br><span style="font-size:0.8rem; color:#888;">${player.category}</span>` : '';
 
         listContainer.innerHTML += `
@@ -273,6 +267,7 @@ function editPlayer(id) {
     document.getElementById('form-title').textContent = "Modifier : " + player.name;
     document.getElementById('publish-btn').textContent = "Mettre à jour";
     document.getElementById('drop-zone').innerHTML = `<img src="${player.image_url}" style="max-height: 150px; border-radius: 8px;">`;
+    optimizedImages.player = null;
     secManage.classList.add('hidden'); secForm.classList.remove('hidden');
 }
 
@@ -293,9 +288,7 @@ async function movePlayer(currentIndex, direction) {
     categoryPlayers[targetIndex] = temp;
 
     const batch = writeBatch(db);
-    categoryPlayers.forEach((player, index) => {
-        batch.update(doc(db, "players", player.id), { order: index + 1 });
-    });
+    categoryPlayers.forEach((player, index) => batch.update(doc(db, "players", player.id), { order: index + 1 }));
     await batch.commit();
     loadAdminPlayers();
 }
@@ -311,10 +304,10 @@ document.getElementById('content-form').addEventListener('submit', async (e) => 
         const cat = document.getElementById('player-category').value;
         let finalImageUrl = document.getElementById('existing-image-url').value || "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png";
         
-        if (optimizedWebMedia) {
+        if (optimizedImages.player) {
             const imageName = `players/${Date.now()}.webp`;
             const storageReference = ref(storage, imageName);
-            await uploadString(storageReference, optimizedWebMedia, 'data_url');
+            await uploadString(storageReference, optimizedImages.player, 'data_url');
             finalImageUrl = await getDownloadURL(storageReference);
         }
 
@@ -340,27 +333,40 @@ document.getElementById('content-form').addEventListener('submit', async (e) => 
     finally { btn.disabled = false; }
 });
 
-/* ================= 7. PARAMÈTRES DU SITE ================= */
+/* ================= 7. SAUVEGARDE DES PARAMÈTRES ================= */
 document.getElementById('settings-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector('button[type="submit"]');
-    btn.textContent = "Sauvegarde...";
+    btn.textContent = "Sauvegarde en cours...";
     
     try {
-        // Gestion de la nouvelle image fondateur si uploadée
-        let finalFounderImgUrl = document.getElementById('existing-founder-img').value || "";
-        
-        if (optimizedFounderMedia) {
-            const imageName = `site/founder_${Date.now()}.webp`;
-            const storageReference = ref(storage, imageName);
-            await uploadString(storageReference, optimizedFounderMedia, 'data_url');
-            finalFounderImgUrl = await getDownloadURL(storageReference);
+        // 1. Uploads des 3 images si modifiées
+        let finalFounderUrl = document.getElementById('existing-founder-img').value || "";
+        if (optimizedImages.founder) {
+            const r = ref(storage, `site/founder_${Date.now()}.webp`);
+            await uploadString(r, optimizedImages.founder, 'data_url');
+            finalFounderUrl = await getDownloadURL(r);
         }
 
+        let finalNavUrl = document.getElementById('existing-logo-nav').value || "";
+        if (optimizedImages.nav) {
+            const r = ref(storage, `site/logo_nav_${Date.now()}.webp`);
+            await uploadString(r, optimizedImages.nav, 'data_url');
+            finalNavUrl = await getDownloadURL(r);
+        }
+
+        let finalHeroUrl = document.getElementById('existing-logo-hero').value || "";
+        if (optimizedImages.hero) {
+            const r = ref(storage, `site/logo_hero_${Date.now()}.webp`);
+            await uploadString(r, optimizedImages.hero, 'data_url');
+            finalHeroUrl = await getDownloadURL(r);
+        }
+
+        // 2. Envoi sur Firestore
         await setDoc(doc(db, "settings", "general"), {
-            logoNav: document.getElementById('set-logo-nav').value,
-            logoHero: document.getElementById('set-logo-hero').value,
-            founderImg: finalFounderImgUrl,
+            logoNav: finalNavUrl,
+            logoHero: finalHeroUrl,
+            founderImg: finalFounderUrl,
             founderQuote: document.getElementById('set-founder-quote').value,
             founderDesc: document.getElementById('set-founder-desc').value,
             stat1: document.getElementById('set-stat1').value,
@@ -369,11 +375,13 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
             stat4: document.getElementById('set-stat4').value
         }, { merge: true });
         
-        // Met à jour le champ caché pour éviter un double upload si on resauvegarde
-        document.getElementById('existing-founder-img').value = finalFounderImgUrl;
-        optimizedFounderMedia = null;
+        // 3. Mise à jour locale pour éviter le double upload
+        document.getElementById('existing-founder-img').value = finalFounderUrl;
+        document.getElementById('existing-logo-nav').value = finalNavUrl;
+        document.getElementById('existing-logo-hero').value = finalHeroUrl;
+        optimizedImages.founder = null; optimizedImages.nav = null; optimizedImages.hero = null;
 
-        alert("Paramètres mis à jour avec succès !");
+        alert("Identité et Paramètres mis à jour avec succès !");
     } catch(err) { alert("Erreur : " + err.message); } 
     finally { btn.textContent = "Enregistrer les modifications"; }
 });
