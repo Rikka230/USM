@@ -97,16 +97,20 @@ body {
 }
 
 .logo-nav { 
-    font-family: 'Moglan', sans-serif; /* L'ajout de la police est ici */
-    font-size: 1.5rem; /* Tu pourras ajuster la taille si Moglan taille petit */
+    font-family: 'Moglan', sans-serif; 
+    font-size: 1.5rem; 
     font-weight: 900; 
     letter-spacing: 2px; 
     display: flex; 
     align-items: center; 
-    gap: 10px;
+    gap: 12px; 
 }
 
-.logo-nav img { height: 30px; } 
+.logo-nav img {
+    height: 35px; 
+    width: auto;
+    transform: translateY(3px); 
+}
 .logo-nav span { color: var(--usm-pink); }
 
 .nav-links { 
@@ -651,6 +655,7 @@ body {
     border-color: var(--usm-pink); outline: none; background: rgba(216, 0, 86, 0.05); box-shadow: 0 0 15px rgba(216,0,86,0.2);
 }
 .public-form select option { background: var(--bg-dark); color: white; }
+
 
 
 
