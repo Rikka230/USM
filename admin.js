@@ -198,8 +198,13 @@ function renderAdminTable() {
         const isFirst = globalIndex === 0;
         const isLast = globalIndex === filtered.length - 1;
         
-        const upBtn = (canMove && !isFirst) ? `<button class="btn-order btn-move-up" data-index="${globalIndex}">▲</button>` : '';
-        const downBtn = (canMove && !isLast) ? `<button class="btn-order btn-move-down" data-index="${globalIndex}">▼</button>` : '';
+        const upBtn = (canMove && !isFirst) 
+            ? `<button class="btn-order btn-move-up" data-index="${globalIndex}">▲</button>` 
+            : `<div style="width: 34px; height: 34px;"></div>`; 
+            
+        const downBtn = (canMove && !isLast) 
+            ? `<button class="btn-order btn-move-down" data-index="${globalIndex}">▼</button>` 
+            : `<div style="width: 34px; height: 34px;"></div>`;
         const catLabel = adminSearchQuery.length > 0 ? `<br><span style="font-size:0.8rem; color:#888;">${player.category}</span>` : '';
 
         listContainer.innerHTML += `
@@ -337,4 +342,5 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
     } catch(err) { alert("Erreur : " + err.message); } 
     finally { btn.textContent = "Mettre à jour le site"; }
 });
+
 
