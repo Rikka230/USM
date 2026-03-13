@@ -34,6 +34,16 @@ const translations = {
         vip_desc: "Agent FIFA et FFF depuis 1998, Christophe Mongai a bâti l'une des plus importantes écuries d'Europe. Avec plus de 27 ans d'expérience au sommet, il possède un réseau mondial inégalé.",
         roster_title: "Roster Premium", filter_all: "Tous", filter_gk: "Gardiens", filter_def: "Défenseurs",
         legal_mentions: "Mentions Légales"
+        contact_title: "Contact", contact_subtitle: "Discutons de votre avenir.",
+        contact_info_title: "Nos Coordonnées",
+        contact_hq: "Siège Social", contact_hq_val: "Marseille, France",
+        contact_phone: "Téléphone", contact_phone_val: "+33 (0)4 XX XX XX XX",
+        contact_email: "Email", contact_email_val: "contact@usm-football.com",
+        contact_form_title: "Envoyer un message",
+        contact_ph_name: "Votre nom complet", contact_ph_email: "Votre adresse email",
+        contact_opt_player: "Je suis un joueur", contact_opt_club: "Je représente un club", contact_opt_other: "Autre demande",
+        contact_ph_msg: "Votre message...", contact_btn_send: "Envoyer le message"
+      
     },
     en: {
         nav_agency: "The Agency", nav_services: "Services", nav_talents: "Talents", nav_button: "Contact",
@@ -49,6 +59,15 @@ const translations = {
         vip_desc: "FIFA and FFF Agent since 1998, Christophe Mongai has built one of Europe's largest agencies. With over 27 years of experience, he holds an unmatched global network.",
         roster_title: "Premium Roster", filter_all: "All", filter_gk: "Goalkeepers", filter_def: "Defenders",
         legal_mentions: "Legal Notice"
+        contact_title: "Contact", contact_subtitle: "Let's discuss your future.",
+        contact_info_title: "Our Details",
+        contact_hq: "Headquarters", contact_hq_val: "Marseille, France",
+        contact_phone: "Phone", contact_phone_val: "+33 (0)4 XX XX XX XX",
+        contact_email: "Email", contact_email_val: "contact@usm-football.com",
+        contact_form_title: "Send a message",
+        contact_ph_name: "Your full name", contact_ph_email: "Your email address",
+        contact_opt_player: "I am a player", contact_opt_club: "I represent a club", contact_opt_other: "Other request",
+        contact_ph_msg: "Your message...", contact_btn_send: "Send message"
     },
     es: {
         nav_agency: "La Agencia", nav_services: "Servicios", nav_talents: "Los Talentos", nav_button: "Contacto",
@@ -64,6 +83,15 @@ const translations = {
         vip_desc: "Agente FIFA y FFF desde 1998, Christophe Mongai ha construido una de las agencias más grandes de Europa. Con más de 27 años de experiencia en la cima, posee una red mundial inigualable.",
         roster_title: "Roster Premium", filter_all: "Todos", filter_gk: "Porteros", filter_def: "Defensas",
         legal_mentions: "Aviso Legal"
+        contact_title: "Contacto", contact_subtitle: "Hablemos de tu futuro.",
+        contact_info_title: "Nuestros Datos",
+        contact_hq: "Sede Central", contact_hq_val: "Marsella, Francia",
+        contact_phone: "Teléfono", contact_phone_val: "+33 (0)4 XX XX XX XX",
+        contact_email: "Email", contact_email_val: "contact@usm-football.com",
+        contact_form_title: "Enviar un mensaje",
+        contact_ph_name: "Tu nombre completo", contact_ph_email: "Tu correo electrónico",
+        contact_opt_player: "Soy jugador", contact_opt_club: "Represento a un club", contact_opt_other: "Otra consulta",
+        contact_ph_msg: "Tu mensaje...", contact_btn_send: "Enviar mensaje"
     },
     pt: {
         nav_agency: "A Agência", nav_services: "Serviços", nav_talents: "Os Talentos", nav_button: "Contato",
@@ -79,6 +107,15 @@ const translations = {
         vip_desc: "Agente FIFA e FFF depuis 1998, Christophe Mongai construiu uma das maiores agências da Europa. Com mais de 27 anos de experiência no topo, possui uma rede global incomparável.",
         roster_title: "Roster Premium", filter_all: "Todos", filter_gk: "Goleiros", filter_def: "Defensores",
         legal_mentions: "Aviso Legal"
+        contact_title: "Contato", contact_subtitle: "Vamos discutir o seu futuro.",
+        contact_info_title: "Nossos Dados",
+        contact_hq: "Sede", contact_hq_val: "Marselha, França",
+        contact_phone: "Telefone", contact_phone_val: "+33 (0)4 XX XX XX XX",
+        contact_email: "Email", contact_email_val: "contact@usm-football.com",
+        contact_form_title: "Enviar uma mensagem",
+        contact_ph_name: "Seu nome completo", contact_ph_email: "Seu endereço de email",
+        contact_opt_player: "Sou jogador", contact_opt_club: "Represento um clube", contact_opt_other: "Outro pedido",
+        contact_ph_msg: "Sua mensagem...", contact_btn_send: "Enviar mensagem"
     }
 };
 
@@ -90,10 +127,18 @@ document.addEventListener("DOMContentLoaded", () => {
     langSelect.value = currentLang;
 
     const updateContent = (lang) => {
+        // Traduction des textes normaux
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (translations[lang] && translations[lang][key]) el.textContent = translations[lang][key];
         });
+        
+        // NOUVEAU : Traduction des placeholders des formulaires
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key];
+        });
+        
         document.documentElement.lang = lang;
     };
     langSelect.addEventListener('change', (e) => {
@@ -263,6 +308,7 @@ function setupTabs() {
         });
     });
 }
+
 
 
 
