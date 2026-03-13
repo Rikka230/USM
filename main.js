@@ -33,16 +33,13 @@ const translations = {
         srv_4: "Gestion de Carrière & Transferts", srv_5: "Sponsoring (Puma, etc.) & Image", srv_6: "Valorisation Data & Performance",
         
         vip_badge: "Fondateur & CEO", 
-        vip_quote: '"Le conseiller aux 3 000 numéros."',
-        vip_desc: "Né à Marseille dans le quartier de la \"Belle de Mai\", Christophe Mongai s'est forgé une détermination à toute épreuve. Devenu Agent FIFA et FFF, il fonde USM Football en 1998, une agence dédiée à l'accompagnement et la gestion de carrière des footballeurs et entraîneurs professionnels.\n\nAujourd'hui à la tête de l'une des plus importantes écuries de France et d'Europe, il s'impose comme une référence incontournable. Fort d'un réseau mondial exclusif de plus de 25 000 contacts directs avec les clubs, il accompagne tous types de profils, des jeunes talents prometteurs aux internationaux confirmés.\n\nEn plus de 25 ans, il a géré la trajectoire de figures emblématiques telles que Bacary Sagna, Lorik Cana, Kalidou Koulibaly, Mario Yepes ou encore Frédéric Kanouté. Une excellence récompensée en 2012 par le prestigieux CIES Football Observatory, classant le Groupe USM 1ère agence mondiale pour son nombre de joueurs évoluant dans le Top 5 européen.",
+        vip_quote: "...", // Texte en attente
+        vip_desc: "", // Laissé vide intentionnellement pour Firebase
         
         roster_title: "USM FAMILY", filter_all: "Tous", filter_gk: "Gardiens", filter_def: "Défenseurs",
         legal_mentions: "Mentions Légales",
-
-        // Textes Page Contact
         contact_title: "Contact", contact_subtitle: "Discutons de votre avenir.",
-        contact_info_title: "Nos Coordonnées",
-        contact_hq: "Siège Social", contact_hq_val: "Marseille, France",
+        contact_info_title: "Nos Coordonnées", contact_hq: "Siège Social", contact_hq_val: "Marseille, France",
         contact_phone: "Téléphone", contact_phone_val: "+33 (0)4 XX XX XX XX",
         contact_email: "Email", contact_email_val: "contact@usm-football.com",
         contact_form_title: "Envoyer un message",
@@ -62,15 +59,13 @@ const translations = {
         srv_4: "Career Management & Transfers", srv_5: "Sponsorship (Puma, etc.) & Image", srv_6: "Data & Performance Valuation",
         
         vip_badge: "Founder & CEO", 
-        vip_quote: '"The advisor with 3,000 contacts."',
-        vip_desc: "Born in Marseille in the \"Belle de Mai\" district, Christophe Mongai forged an unfailing determination. Becoming a FIFA and FFF Agent, he founded USM Football in 1998, an agency dedicated to the support and career management of professional footballers and coaches.\n\nToday at the head of one of the largest agencies in France and Europe, he stands out as an essential reference. Armed with an exclusive global network of over 25,000 direct club contacts, he manages all types of profiles, from promising young talents to established internationals.\n\nIn over 25 years, he has managed the careers of iconic figures such as Bacary Sagna, Lorik Cana, Kalidou Koulibaly, Mario Yepes, and Frédéric Kanouté. This excellence was recognized in 2012 by the prestigious CIES Football Observatory, ranking the USM Group as the #1 global agency for the number of players in the European Top 5.",
+        vip_quote: "...", 
+        vip_desc: "", 
         
         roster_title: "USM FAMILY", filter_all: "All", filter_gk: "Goalkeepers", filter_def: "Defenders",
         legal_mentions: "Legal Notice",
-
         contact_title: "Contact", contact_subtitle: "Let's discuss your future.",
-        contact_info_title: "Our Details",
-        contact_hq: "Headquarters", contact_hq_val: "Marseille, France",
+        contact_info_title: "Our Details", contact_hq: "Headquarters", contact_hq_val: "Marseille, France",
         contact_phone: "Phone", contact_phone_val: "+33 (0)4 XX XX XX XX",
         contact_email: "Email", contact_email_val: "contact@usm-football.com",
         contact_form_title: "Send a message",
@@ -86,19 +81,17 @@ const translations = {
         stat_2_label: "Confianza y Roster", stat_2_desc: "Jugadores gestionados desde 1998. +100 jugadores profesionales representados actualmente.",
         stat_3_label: "Impacto Digital (N°3 Mundial)", stat_3_sub: "Seguidores totales",
         services_label: "Acompañamiento Global", services_title: "Servicios Exclusivos",
-        srv_1: "Conserjería Servicio Dedicado 5*", srv_2: "Derecho Deportivo y Fiscalidad", srv_3: "Family Office (Red de expertos)",
+        srv_1: "Conserjería Servicio Dedicado 5*", srv_2: "Derecho Deportivo y Fiscalidade", srv_3: "Family Office (Red de expertos)",
         srv_4: "Gestión de Carrera y Traspasos", srv_5: "Patrocinio (Puma, etc.) e Imagen", srv_6: "Valoración Data y Rendimiento",
         
         vip_badge: "Fundador y CEO", 
-        vip_quote: '"El asesor de los 3.000 contactos."',
-        vip_desc: "Nacido en Marsella en el barrio de la \"Belle de Mai\", Christophe Mongai forjó una determinación inquebrantable. Convertido en Agente FIFA y FFF, fundó USM Football en 1998, una agencia dedicada al acompañamiento y la gestión de carrera de futbolistas y entrenadores profesionales.\n\nHoy a la cabeza de una de las agencias más importantes de Francia y Europa, se impone como una referencia ineludible. Con una red mundial exclusiva de más de 25.000 contactos directos con clubes, acompaña a todo tipo de perfiles, desde jóvenes promesas hasta internacionales consolidados.\n\nEn más de 25 años, ha gestionado la trayectoria de figuras emblemáticas como Bacary Sagna, Lorik Cana, Kalidou Koulibaly, Mario Yepes o Frédéric Kanouté. Una excelencia premiada en 2012 por el prestigioso CIES Football Observatory, que clasificó al Grupo USM como la 1ª agencia mundial por su número de jugadores en el Top 5 europeo.",
+        vip_quote: "...", 
+        vip_desc: "", 
         
         roster_title: "USM FAMILY", filter_all: "Todos", filter_gk: "Porteros", filter_def: "Defensas",
         legal_mentions: "Aviso Legal",
-
         contact_title: "Contacto", contact_subtitle: "Hablemos de tu futuro.",
-        contact_info_title: "Nuestros Datos",
-        contact_hq: "Sede Central", contact_hq_val: "Marsella, Francia",
+        contact_info_title: "Nuestros Datos", contact_hq: "Sede Central", contact_hq_val: "Marsella, Francia",
         contact_phone: "Teléfono", contact_phone_val: "+33 (0)4 XX XX XX XX",
         contact_email: "Email", contact_email_val: "contact@usm-football.com",
         contact_form_title: "Enviar un mensaje",
@@ -118,15 +111,13 @@ const translations = {
         srv_4: "Gestão de Carreira e Transferências", srv_5: "Patrocínio (Puma, etc.) e Imagem", srv_6: "Valorização Data e Desempenho",
         
         vip_badge: "Fundador e CEO", 
-        vip_quote: '"O conselheiro de 3.000 contatos."',
-        vip_desc: "Nascido em Marselha, no bairro da \"Belle de Mai\", Christophe Mongai forjou uma determinação inabalável. Tornando-se Agente FIFA e FFF, fundou a USM Football em 1998, uma agência dedicada ao acompanhamento e gestão de carreira de jogadores e treinadores profissionais.\n\nHoje à frente de uma das maiores agências da França e da Europa, impõe-se como uma referência incontornável. Com uma rede global exclusiva de mais de 25.000 contactos diretos com clubes, acompanha todos os tipos de perfis, desde jovens promessas a internacionais confirmados.\n\nEm mais de 25 anos, geriu a carreira de figuras emblemáticas como Bacary Sagna, Lorik Cana, Kalidou Koulibaly, Mario Yepes e Frédéric Kanouté. Uma excelência reconhecida em 2012 pelo prestigiado CIES Football Observatory, classificando o Grupo USM como a 1ª agência mundial pelo seu número de jogadores no Top 5 europeu.",
+        vip_quote: "...", 
+        vip_desc: "", 
         
         roster_title: "USM FAMILY", filter_all: "Todos", filter_gk: "Goleiros", filter_def: "Defensores",
         legal_mentions: "Aviso Legal",
-
         contact_title: "Contato", contact_subtitle: "Vamos discutir o seu futuro.",
-        contact_info_title: "Nossos Dados",
-        contact_hq: "Sede", contact_hq_val: "Marselha, França",
+        contact_info_title: "Nossos Dados", contact_hq: "Sede", contact_hq_val: "Marselha, França",
         contact_phone: "Telefone", contact_phone_val: "+33 (0)4 XX XX XX XX",
         contact_email: "Email", contact_email_val: "contact@usm-football.com",
         contact_form_title: "Enviar uma mensagem",
@@ -338,3 +329,4 @@ function setupTabs() {
         });
     });
 }
+
