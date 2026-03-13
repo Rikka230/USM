@@ -177,15 +177,28 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ================= 5. CHARGEMENT DES PARAMÈTRES DU SITE ================= */
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
 async function loadSettings() {
     try {
         const docSnap = await getDoc(doc(db, "settings", "general"));
         if (docSnap.exists()) {
             const data = docSnap.data();
+            
+            // 1. Statistiques
             if(data.stat1) document.getElementById('stat-1').textContent = data.stat1;
             if(data.stat2) document.getElementById('stat-2').textContent = data.stat2;
             if(data.stat3) document.getElementById('stat-3').textContent = data.stat3;
             if(data.stat4) document.getElementById('stat-4').textContent = data.stat4;
+            
+            // 2. Logos de l'Agence
+            if(data.logoNav) document.querySelector('.logo-nav img').src = data.logoNav;
+            if(data.logoHero) document.querySelector('.massive-eagle-wrapper img').src = data.logoHero;
+            
+            // 3. Section Fondateur / VIP
+            if(data.founderImg) document.querySelector('.vip-photo-wrapper img').src = data.founderImg;
+            if(data.founderQuote) document.querySelector('.vip-quote').textContent = data.founderQuote;
+            if(data.founderDesc) document.querySelector('.vip-desc').textContent = data.founderDesc;
         }
     } catch (e) { console.error("Erreur de chargement des paramètres :", e); }
 }
@@ -300,5 +313,6 @@ function setupTabs() {
         });
     });
 }
+
 
 
