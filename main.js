@@ -129,10 +129,26 @@ async function loadSettings() {
             if(data.logoNav) document.querySelector('.logo-nav img').src = data.logoNav;
             if(data.logoHero) document.querySelector('.massive-eagle-wrapper img').src = data.logoHero;
             
-            // Fondateur
+            // Fondateur (Image & Citation)
             if(data.founderImg) document.querySelector('.vip-photo-wrapper img').src = data.founderImg;
             if(data.founderQuote) document.querySelector('.vip-quote').textContent = data.founderQuote;
-            if(data.founderDesc) document.querySelector('.vip-desc').textContent = data.founderDesc;
+
+            // INJECTION DYNAMIQUE DES TRADUCTIONS DEPUIS FIREBASE
+            if(data.founderDesc_fr) translations.fr.vip_desc = data.founderDesc_fr;
+            if(data.founderDesc_en) translations.en.vip_desc = data.founderDesc_en;
+            if(data.founderDesc_es) translations.es.vip_desc = data.founderDesc_es;
+            if(data.founderDesc_pt) translations.pt.vip_desc = data.founderDesc_pt;
+
+            // On force le rafraîchissement du texte à l'écran avec la langue actuelle
+            const langSelect = document.getElementById('lang-select');
+            const currentLang = langSelect ? langSelect.value : 'fr';
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang] && translations[currentLang][key]) {
+                    el.textContent = translations[currentLang][key];
+                }
+            });
         }
     } catch (e) { console.error("Erreur de chargement des paramètres :", e); }
 }
@@ -247,5 +263,6 @@ function setupTabs() {
         });
     });
 }
+
 
 
