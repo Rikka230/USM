@@ -1,5 +1,4 @@
 /* ================= 1. IMPORTS FIREBASE ================= */
-// TOUS LES IMPORTS SONT BIEN EN HAUT !
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
@@ -29,13 +28,7 @@ const translations = {
         stat_2_label: "Confiance & Roster", stat_2_desc: "Joueurs gérés depuis 1998. +100 joueurs professionnels actuellement représentés.",
         stat_3_label: "Impact Digital (N°3 Mondial)", stat_3_sub: "Abonnés cumulés",
         services_label: "Accompagnement Global", services_title: "Services Exclusifs",
-        srv_1: "Conciergerie Service Dédié 5*", srv_2: "Droit du Sport & Fiscalité", srv_3: "Family Office (Réseau d'experts)",
-        srv_4: "Gestion de Carrière & Transferts", srv_5: "Sponsoring (Puma, etc.) & Image", srv_6: "Valorisation Data & Performance",
-        
-        vip_badge: "Fondateur & CEO", 
-        vip_quote: "...", // Texte en attente
-        vip_desc: "", // Laissé vide intentionnellement pour Firebase
-        
+        vip_badge: "Fondateur & CEO", vip_quote: "...", vip_desc: "",
         roster_title: "USM FAMILY", filter_all: "Tous", filter_gk: "Gardiens", filter_def: "Défenseurs",
         legal_mentions: "Mentions Légales",
         contact_title: "Contact", contact_subtitle: "Discutons de votre avenir.",
@@ -55,13 +48,7 @@ const translations = {
         stat_2_label: "Trust & Roster", stat_2_desc: "Players managed since 1998. +100 pro players currently represented.",
         stat_3_label: "Digital Impact (#3 Worldwide)", stat_3_sub: "Total Followers",
         services_label: "Global Support", services_title: "Exclusive Services",
-        srv_1: "5* Dedicated Concierge Service", srv_2: "Sports Law & Taxation", srv_3: "Family Office (Expert Network)",
-        srv_4: "Career Management & Transfers", srv_5: "Sponsorship (Puma, etc.) & Image", srv_6: "Data & Performance Valuation",
-        
-        vip_badge: "Founder & CEO", 
-        vip_quote: "...", 
-        vip_desc: "", 
-        
+        vip_badge: "Founder & CEO", vip_quote: "...", vip_desc: "", 
         roster_title: "USM FAMILY", filter_all: "All", filter_gk: "Goalkeepers", filter_def: "Defenders",
         legal_mentions: "Legal Notice",
         contact_title: "Contact", contact_subtitle: "Let's discuss your future.",
@@ -81,13 +68,7 @@ const translations = {
         stat_2_label: "Confianza y Roster", stat_2_desc: "Jugadores gestionados desde 1998. +100 jugadores profesionales representados actualmente.",
         stat_3_label: "Impacto Digital (N°3 Mundial)", stat_3_sub: "Seguidores totales",
         services_label: "Acompañamiento Global", services_title: "Servicios Exclusivos",
-        srv_1: "Conserjería Servicio Dedicado 5*", srv_2: "Derecho Deportivo y Fiscalidade", srv_3: "Family Office (Red de expertos)",
-        srv_4: "Gestión de Carrera y Traspasos", srv_5: "Patrocinio (Puma, etc.) e Imagen", srv_6: "Valoración Data y Rendimiento",
-        
-        vip_badge: "Fundador y CEO", 
-        vip_quote: "...", 
-        vip_desc: "", 
-        
+        vip_badge: "Fundador y CEO", vip_quote: "...", vip_desc: "", 
         roster_title: "USM FAMILY", filter_all: "Todos", filter_gk: "Porteros", filter_def: "Defensas",
         legal_mentions: "Aviso Legal",
         contact_title: "Contacto", contact_subtitle: "Hablemos de tu futuro.",
@@ -107,13 +88,7 @@ const translations = {
         stat_2_label: "Confiança e Roster", stat_2_desc: "Jogadores gerenciados desde 1998. +100 jogadores profissionais atualmente representados.",
         stat_3_label: "Impacto Digital (N°3 Mundial)", stat_3_sub: "Seguidores totais",
         services_label: "Acompanhamento Global", services_title: "Serviços Exclusivos",
-        srv_1: "Concierge Serviço Dedicado 5*", srv_2: "Direito Desportivo e Fiscalidade", srv_3: "Family Office (Rede de especialistas)",
-        srv_4: "Gestão de Carreira e Transferências", srv_5: "Patrocínio (Puma, etc.) e Imagem", srv_6: "Valorização Data e Desempenho",
-        
-        vip_badge: "Fundador e CEO", 
-        vip_quote: "...", 
-        vip_desc: "", 
-        
+        vip_badge: "Fundador e CEO", vip_quote: "...", vip_desc: "", 
         roster_title: "USM FAMILY", filter_all: "Todos", filter_gk: "Goleiros", filter_def: "Defensores",
         legal_mentions: "Aviso Legal",
         contact_title: "Contato", contact_subtitle: "Vamos discutir o seu futuro.",
@@ -139,14 +114,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const key = el.getAttribute('data-i18n');
             if (translations[lang] && translations[lang][key]) el.textContent = translations[lang][key];
         });
-        
-        // NOUVEAU : Traduction des placeholders (Textes grisés dans les formulaires)
         document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
             const key = el.getAttribute('data-i18n-placeholder');
             if (translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key];
         });
-        
         document.documentElement.lang = lang;
+        renderServices(); // Met à jour la liste des services selon la langue sélectionnée !
     };
     
     if(langSelect) {
@@ -164,57 +137,78 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
     loadSettings();
+    loadServices(); // On appelle la base de données des services
     loadPlayers();
 });
 
-/* ================= 5. CHARGEMENT DES PARAMÈTRES DU SITE ================= */
+/* ================= 5. CHARGEMENT PARAMÈTRES ================= */
 async function loadSettings() {
     try {
         const docSnap = await getDoc(doc(db, "settings", "general"));
         if (docSnap.exists()) {
             const data = docSnap.data();
-            
-            // Stats
             if(data.stat1 && document.getElementById('stat-1')) document.getElementById('stat-1').textContent = data.stat1;
             if(data.stat2 && document.getElementById('stat-2')) document.getElementById('stat-2').textContent = data.stat2;
             if(data.stat3 && document.getElementById('stat-3')) document.getElementById('stat-3').textContent = data.stat3;
             if(data.stat4 && document.getElementById('stat-4')) document.getElementById('stat-4').textContent = data.stat4;
-            
-            // Logos
             if(data.logoNav && document.querySelector('.logo-nav img')) document.querySelector('.logo-nav img').src = data.logoNav;
             if(data.logoHero && document.querySelector('.massive-eagle-wrapper img')) document.querySelector('.massive-eagle-wrapper img').src = data.logoHero;
-            
-            // Fondateur (Image)
             if(data.founderImg && document.querySelector('.vip-photo-wrapper img')) document.querySelector('.vip-photo-wrapper img').src = data.founderImg;
 
-            // INJECTION DYNAMIQUE DES TRADUCTIONS DEPUIS FIREBASE
-            if(data.founderQuote_fr) translations.fr.vip_quote = data.founderQuote_fr;
-            if(data.founderDesc_fr) translations.fr.vip_desc = data.founderDesc_fr;
-            
-            if(data.founderQuote_en) translations.en.vip_quote = data.founderQuote_en;
-            if(data.founderDesc_en) translations.en.vip_desc = data.founderDesc_en;
-            
-            if(data.founderQuote_es) translations.es.vip_quote = data.founderQuote_es;
-            if(data.founderDesc_es) translations.es.vip_desc = data.founderDesc_es;
-            
-            if(data.founderQuote_pt) translations.pt.vip_quote = data.founderQuote_pt;
-            if(data.founderDesc_pt) translations.pt.vip_desc = data.founderDesc_pt;
+            if(data.founderQuote_fr) translations.fr.vip_quote = data.founderQuote_fr; if(data.founderDesc_fr) translations.fr.vip_desc = data.founderDesc_fr;
+            if(data.founderQuote_en) translations.en.vip_quote = data.founderQuote_en; if(data.founderDesc_en) translations.en.vip_desc = data.founderDesc_en;
+            if(data.founderQuote_es) translations.es.vip_quote = data.founderQuote_es; if(data.founderDesc_es) translations.es.vip_desc = data.founderDesc_es;
+            if(data.founderQuote_pt) translations.pt.vip_quote = data.founderQuote_pt; if(data.founderDesc_pt) translations.pt.vip_desc = data.founderDesc_pt;
 
-            // Rafraîchissement immédiat du texte sur la page avec la langue en cours
             const langSelect = document.getElementById('lang-select');
             const currentLang = langSelect ? langSelect.value : 'fr';
-            
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (translations[currentLang] && translations[currentLang][key]) {
-                    el.textContent = translations[currentLang][key];
-                }
+                if (translations[currentLang] && translations[currentLang][key]) el.textContent = translations[currentLang][key];
             });
         }
-    } catch (e) { console.error("Erreur de chargement des paramètres :", e); }
+    } catch (e) { console.error("Erreur param :", e); }
 }
 
-/* ================= 6. CHARGEMENT DYNAMIQUE DU ROSTER ================= */
+/* ================= 6. CHARGEMENT DYNAMIQUE DES SERVICES ================= */
+let allServicesData = [];
+
+async function loadServices() {
+    const container = document.getElementById('services-container');
+    if(!container) return;
+    try {
+        const querySnapshot = await getDocs(collection(db, "services"));
+        allServicesData = [];
+        querySnapshot.forEach((docSnap) => allServicesData.push(docSnap.data()));
+        allServicesData.sort((a, b) => (a.order || 999) - (b.order || 999));
+        renderServices();
+    } catch (error) { console.error("Erreur services :", error); container.innerHTML = '<p style="color:red;">Erreur de chargement des services.</p>'; }
+}
+
+function renderServices() {
+    const container = document.getElementById('services-container');
+    if(!container) return;
+    if(allServicesData.length === 0) {
+        container.innerHTML = '<p style="color:#aaa;">Aucun service disponible pour le moment.</p>';
+        return;
+    }
+    
+    // Détecte la langue en cours
+    const langSelect = document.getElementById('lang-select');
+    const currentLang = langSelect ? langSelect.value : 'fr';
+    
+    let html = '';
+    allServicesData.forEach(srv => {
+        // Sélectionne le titre dans la bonne langue, ou revient au FR par défaut si vide
+        const title = srv[`title_${currentLang}`] || srv.title_fr || 'Service USM';
+        const link = srv.link || '#';
+        html += `<a href="${link}" class="service-mini-card"><span>${title}</span> <span>➔</span></a>`;
+    });
+    
+    container.innerHTML = html;
+}
+
+/* ================= 7. CHARGEMENT DYNAMIQUE DU ROSTER ================= */
 let allPlayersData = []; 
 let currentFrontCat = 'gardien';
 let currentFrontSearch = '';
@@ -246,66 +240,38 @@ async function loadPlayers() {
                 renderCategorySlider();
             });
         }
-
-    } catch (error) {
-        console.error(error);
-        container.innerHTML = '<p style="color:red; text-align:center;">Erreur de connexion base de données.</p>';
-    }
+    } catch (error) { console.error(error); container.innerHTML = '<p style="color:red; text-align:center;">Erreur base de données.</p>'; }
 }
 
 function renderCategorySlider() {
     const container = document.getElementById('roster-categories-container');
     if(!container) return;
-    
-    let filteredPlayers = [];
-
-    if (currentFrontSearch.length > 0) {
-        filteredPlayers = allPlayersData.filter(p => p.name.toLowerCase().includes(currentFrontSearch));
-    } else {
-        filteredPlayers = allPlayersData.filter(p => p.category === currentFrontCat);
-    }
+    let filteredPlayers = currentFrontSearch.length > 0 ? allPlayersData.filter(p => p.name.toLowerCase().includes(currentFrontSearch)) : allPlayersData.filter(p => p.category === currentFrontCat);
 
     if (filteredPlayers.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#888; padding: 40px;">Aucun joueur trouvé.</p>';
-        return;
+        container.innerHTML = '<p style="text-align:center; color:#888; padding: 40px;">Aucun joueur trouvé.</p>'; return;
     }
 
-    let titleText = currentFrontSearch.length > 0 
-        ? `Résultats pour "${currentFrontSearch}"` 
-        : `✦ <span style="color:var(--usm-pink)">${filteredPlayers.length}</span> Profils`;
-
+    let titleText = currentFrontSearch.length > 0 ? `Résultats pour "${currentFrontSearch}"` : `✦ <span style="color:var(--usm-pink)">${filteredPlayers.length}</span> Profils`;
     let sliderHTML = `
         <div class="category-block reveal visible">
             <div class="category-header">
                 <h3 class="category-title" style="color: #fff; text-transform:none;">${titleText}</h3>
                 <div class="slider-controls">
-                    <button class="slider-btn prev-btn">❮</button>
-                    <button class="slider-btn next-btn">❯</button>
+                    <button class="slider-btn prev-btn">❮</button><button class="slider-btn next-btn">❯</button>
                 </div>
             </div>
-            <div class="slider-container">
-                <div class="horizontal-scroller" id="active-scroller">
-    `;
+            <div class="slider-container"><div class="horizontal-scroller" id="active-scroller">`;
 
     filteredPlayers.forEach(player => {
         const tmLink = player.transfermarkt ? `<a href="${player.transfermarkt}" target="_blank" style="color:var(--usm-pink); font-size:0.8rem; text-decoration:none; display:inline-block; margin-top:5px;">🔗 Transfermarkt</a>` : '';
         const catLabel = currentFrontSearch.length > 0 ? `<p style="color:#888; font-size:0.75rem; text-transform:uppercase; margin-top:2px;">${player.category}</p>` : '';
-
         sliderHTML += `
             <div class="player-card">
-                <div class="player-img-container">
-                    <img src="${player.image_url}" alt="${player.name}" loading="lazy">
-                </div>
-                <div class="player-info">
-                    <div>
-                        <h3>${player.name}</h3>
-                        ${catLabel}
-                        ${tmLink}
-                    </div>
-                </div>
+                <div class="player-img-container"><img src="${player.image_url}" alt="${player.name}" loading="lazy"></div>
+                <div class="player-info"><div><h3>${player.name}</h3>${catLabel}${tmLink}</div></div>
                 <div style="padding: 0 15px 15px;"><div class="player-stat">${player.stat || ''}</div></div>
-            </div>
-        `;
+            </div>`;
     });
 
     sliderHTML += `</div></div></div>`;
@@ -320,13 +286,9 @@ function setupTabs() {
     const tabs = document.querySelectorAll('.filter-btn');
     tabs.forEach(tab => {
         tab.addEventListener('click', (e) => {
-            document.getElementById('front-search').value = '';
-            currentFrontSearch = '';
-            tabs.forEach(t => t.classList.remove('active'));
-            e.target.classList.add('active');
-            currentFrontCat = e.target.getAttribute('data-tab');
-            renderCategorySlider();
+            document.getElementById('front-search').value = ''; currentFrontSearch = '';
+            tabs.forEach(t => t.classList.remove('active')); e.target.classList.add('active');
+            currentFrontCat = e.target.getAttribute('data-tab'); renderCategorySlider();
         });
     });
 }
-
