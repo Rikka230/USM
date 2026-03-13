@@ -745,6 +745,56 @@ body {
 .btn-back { display: inline-block; margin-bottom: 20px; color: var(--usm-pink); text-decoration: none; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
 .btn-back:hover { color: #fff; transform: translateX(-5px); }
 
+/* ================= 12. LAYOUT PAGE SERVICE (SIDEBAR) ================= */
+.service-page-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 60px;
+    max-width: 1400px;
+    margin: 50px auto 100px;
+    padding: 0 var(--spacing-main);
+}
+
+.service-main-content {
+    flex: 1 1 600px; /* Prend tout l'espace restant */
+}
+
+.service-sidebar {
+    flex: 0 0 350px; /* Fixe la largeur du menu à droite */
+    width: 100%;
+}
+
+.service-desc { 
+    font-size: 1.15rem; 
+    line-height: 1.8; 
+    color: #ccc; 
+    white-space: pre-line; 
+}
+
+/* Les boutons du menu latéral */
+.sidebar-srv-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.95rem;
+    transition: 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.sidebar-srv-link:hover, .sidebar-srv-link.active {
+    border-color: var(--usm-pink);
+    background: rgba(216, 0, 86, 0.1);
+    transform: translateX(8px); /* Petit effet de glissement */
+    color: var(--usm-pink);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
 
 
 
