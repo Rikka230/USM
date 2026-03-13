@@ -102,7 +102,7 @@ const translations = {
     }
 };
 
-window.currentServiceData = null; // Mémoire de la page service
+window.currentServiceData = null; 
 
 /* ================= 3. LOGIQUE GLOBALE ================= */
 document.addEventListener("DOMContentLoaded", () => {
@@ -116,10 +116,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key]; });
         document.documentElement.lang = lang;
         
-        // Rafraîchissement des textes dynamiques
         renderServices(); 
         
-        // Rafraîchissement du texte Service Dynamique (Si on est sur la page Service)
         if(window.currentServiceData) {
             const srv = window.currentServiceData;
             const titleEl = document.getElementById('srv-page-title'); const descEl = document.getElementById('srv-page-desc');
@@ -134,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { threshold: 0.1 });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-    loadSettings(); loadServices(); loadPlayers(); loadSingleServicePage(); // <- Lancement de la nouvelle fonction
+    loadSettings(); loadServices(); loadPlayers(); loadSingleServicePage();
 });
 
 /* ================= 4. CHARGEMENT PARAMÈTRES ================= */
@@ -171,7 +169,6 @@ function renderServices() {
     if(allServicesData.length === 0) { container.innerHTML = '<p style="color:#aaa;">Aucun service disponible.</p>'; return; }
     const currentLang = localStorage.getItem('usm_lang') || 'fr'; let html = '';
     
-    // NOUVEAU LIEN DYNAMIQUE
     allServicesData.forEach(srv => {
         const title = srv[`title_${currentLang}`] || srv.title_fr || 'Service';
         html += `<a href="service.html?id=${srv.id}" class="service-mini-card"><span>${title}</span> <span>➔</span></a>`;
@@ -179,7 +176,7 @@ function renderServices() {
     container.innerHTML = html;
 }
 
-/* ================= 6. NOUVEAU : CHARGEMENT DE LA PAGE SERVICE UNIQUE ================= */
+/* ================= 6. CHARGEMENT DE LA PAGE SERVICE UNIQUE ================= */
 async function loadSingleServicePage() {
     const urlParams = new URLSearchParams(window.location.search);
     const srvId = urlParams.get('id');
@@ -191,16 +188,18 @@ async function loadSingleServicePage() {
             window.currentServiceData = docSnap.data();
             const srv = window.currentServiceData;
             
-            // Image
             const imgEl = document.getElementById('srv-hero-img');
             if(imgEl && srv.image_url) imgEl.src = srv.image_url;
             
-            // Textes
             const currentLang = localStorage.getItem('usm_lang') || 'fr';
             const titleEl = document.getElementById('srv-page-title');
             const descEl = document.getElementById('srv-page-desc');
             if(titleEl) titleEl.textContent = srv[`title_${currentLang}`] || srv.title_fr;
             if(descEl) descEl.textContent = srv[`desc_${currentLang}`] || srv.desc_fr;
+        } else {
+            // SÉCURITÉ : Si le service a été supprimé !
+            if(document.getElementById('srv-page-title')) document.getElementById('srv-page-title').textContent = "Service Introuvable";
+            if(document.getElementById('srv-page-desc')) document.getElementById('srv-page-desc').textContent = "Ce service n'existe pas ou a été supprimé.";
         }
     } catch(e) { console.error("Erreur Service: ", e); }
 }
@@ -228,4 +227,3 @@ function renderCategorySlider() {
     document.querySelector('.prev-btn').addEventListener('click', () => scroller.scrollBy({ left: -(scroller.clientWidth * 0.8), behavior: 'smooth' })); document.querySelector('.next-btn').addEventListener('click', () => scroller.scrollBy({ left: (scroller.clientWidth * 0.8), behavior: 'smooth' }));
 }
 function setupTabs() { document.querySelectorAll('.filter-btn').forEach(tab => { tab.addEventListener('click', (e) => { document.getElementById('front-search').value = ''; currentFrontSearch = ''; document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); e.target.classList.add('active'); currentFrontCat = e.target.getAttribute('data-tab'); renderCategorySlider(); }); }); }
-
