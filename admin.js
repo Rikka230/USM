@@ -1,5 +1,5 @@
 /* ==========================================================================
-   USM FOOTBALL - ADMIN JAVASCRIPT (SERVICES AVEC IMAGES & TEXTES DYNAMIQUES)
+   USM FOOTBALL - ADMIN JAVASCRIPT (CORRIGÉ : ONGLETS & SERVICES)
    ========================================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -10,7 +10,7 @@ import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstat
 const firebaseConfig = { apiKey: "AIzaSyDd7OvBbX35PaQPlm6saccOGTQyvI3UEoU", authDomain: "usm-football-b56ba.firebaseapp.com", projectId: "usm-football-b56ba", storageBucket: "usm-football-b56ba.firebasestorage.app", messagingSenderId: "1004955626049", appId: "1:1004955626049:web:1982ac82e68599946f74c0" };
 const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app); const storage = getStorage(app);
 
-/* ================= AUTHENTIFICATION & NAVIGATION ================= */
+/* ================= 1. AUTHENTIFICATION & NAVIGATION ================= */
 onAuthStateChanged(auth, (user) => {
     document.getElementById('auth-loader').classList.add('hidden');
     if (user) { document.getElementById('login-screen').classList.add('hidden'); document.getElementById('dashboard').classList.remove('hidden'); loadAdminPlayers(); loadAdminServices(); } 
@@ -47,7 +47,7 @@ function prefillImageZone(zoneId, inputId, url, text) {
 document.querySelectorAll('.btn-cancel').forEach(btn => btn.addEventListener('click', () => { hideAllSections(); secManage.classList.remove('hidden'); }));
 document.querySelectorAll('.btn-cancel-service').forEach(btn => btn.addEventListener('click', () => { hideAllSections(); secServices.classList.remove('hidden'); }));
 
-/* ================= UPLOADS STANDARDS (INCLUT LES SERVICES) ================= */
+/* ================= 2. UPLOADS & CROPPER JOUEURS ================= */
 let optimizedImages = { founder: null, nav: null, hero: null, service: null };
 function setupDropZone(zoneId, inputId, targetKey) {
     const zone = document.getElementById(zoneId); const input = document.getElementById(inputId);
@@ -73,7 +73,49 @@ function processStandardImage(file, zoneElement, targetKey) {
 }
 setupDropZone('drop-zone-founder', 'founder-upload', 'founder'); setupDropZone('drop-zone-nav', 'nav-upload', 'nav'); setupDropZone('drop-zone-hero', 'hero-upload', 'hero'); setupDropZone('drop-zone-srv', 'srv-upload', 'service');
 
-/* ================= GESTION DES SERVICES ================= */
+let cropState = { img: null, zoom: 1, x: 0, y: 0, baseScale: 1 };
+const playerDropZone = document.getElementById('drop-zone'); const playerInput = document.getElementById('media-upload'); const cropCanvas = document.getElementById('crop-canvas');
+if(playerDropZone) {
+    playerDropZone.addEventListener('click', () => playerInput.click()); playerDropZone.addEventListener('dragover', (e) => { e.preventDefault(); playerDropZone.classList.add('dragover'); }); playerDropZone.addEventListener('dragleave', () => playerDropZone.classList.remove('dragover'));
+    playerDropZone.addEventListener('drop', (e) => { e.preventDefault(); playerDropZone.classList.remove('dragover'); loadPlayerImage(e.dataTransfer.files[0]); });
+    playerInput.addEventListener('change', (e) => loadPlayerImage(e.target.files[0]));
+}
+function loadPlayerImage(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image(); img.onload = () => {
+            cropState.img = img; const scaleX = 240 / img.width; const scaleY = 320 / img.height; cropState.baseScale = Math.max(scaleX, scaleY);
+            document.getElementById('crop-zoom').min = cropState.baseScale * 0.2; document.getElementById('crop-zoom').max = cropState.baseScale * 5;
+            document.getElementById('crop-x').min = -img.width; document.getElementById('crop-x').max = img.width; document.getElementById('crop-y').min = -img.height; document.getElementById('crop-y').max = img.height;
+            resetCropState(); document.getElementById('drop-zone').classList.add('hidden'); document.getElementById('cropper-ui').classList.remove('hidden');
+        }; img.src = e.target.result;
+    }; reader.readAsDataURL(file);
+}
+function resetCropState() { cropState.zoom = cropState.baseScale; cropState.x = 0; cropState.y = 0; document.getElementById('crop-zoom').value = cropState.zoom; document.getElementById('crop-x').value = 0; document.getElementById('crop-y').value = 0; updateCropUI(); }
+['crop-zoom', 'crop-x', 'crop-y'].forEach(id => { document.getElementById(id).addEventListener('input', (e) => { if(id === 'crop-zoom') cropState.zoom = parseFloat(e.target.value); if(id === 'crop-x') cropState.x = parseFloat(e.target.value); if(id === 'crop-y') cropState.y = parseFloat(e.target.value); updateCropUI(); }); });
+if(document.getElementById('btn-reset-crop')) document.getElementById('btn-reset-crop').addEventListener('click', resetCropState);
+if(document.getElementById('btn-cancel-crop')) document.getElementById('btn-cancel-crop').addEventListener('click', () => { cropState.img = null; document.getElementById('cropper-ui').classList.add('hidden'); document.getElementById('drop-zone').classList.remove('hidden'); playerInput.value = ''; });
+
+let isDragging = false; let startDragX, startDragY;
+if(cropCanvas) {
+    cropCanvas.addEventListener('mousedown', (e) => { if(!cropState.img) return; isDragging = true; startDragX = e.clientX; startDragY = e.clientY; cropCanvas.style.cursor = 'grabbing'; });
+    window.addEventListener('mouseup', () => { isDragging = false; cropCanvas.style.cursor = 'grab'; });
+    window.addEventListener('mousemove', (e) => {
+        if(!isDragging || !cropState.img) return;
+        cropState.x += (e.clientX - startDragX) / cropState.zoom; cropState.y += (e.clientY - startDragY) / cropState.zoom;
+        document.getElementById('crop-x').value = cropState.x; document.getElementById('crop-y').value = cropState.y; startDragX = e.clientX; startDragY = e.clientY; updateCropUI();
+    });
+}
+function updateCropUI() {
+    document.getElementById('val-zoom').textContent = Math.round((cropState.zoom / cropState.baseScale) * 100) + '%'; document.getElementById('val-x').textContent = Math.round(cropState.x); document.getElementById('val-y').textContent = Math.round(cropState.y);
+    const ctx = cropCanvas.getContext('2d'); ctx.clearRect(0,0,240,320); ctx.save(); ctx.translate(120, 160); ctx.scale(cropState.zoom, cropState.zoom); ctx.drawImage(cropState.img, -cropState.img.width/2 + cropState.x, -cropState.img.height/2 + cropState.y); ctx.restore();
+}
+function getCroppedWebP() {
+    if(!cropState.img) return null; const off = document.createElement('canvas'); off.width = 600; off.height = 800; const ctx = off.getContext('2d'); ctx.translate(300, 400); ctx.scale(cropState.zoom * 2.5, cropState.zoom * 2.5); ctx.drawImage(cropState.img, -cropState.img.width/2 + cropState.x, -cropState.img.height/2 + cropState.y); return off.toDataURL('image/webp', 0.9);
+}
+
+/* ================= 3. GESTION DES SERVICES (AVEC CORRECTION DES ONGLETS) ================= */
 let allAdminServices = [];
 async function loadAdminServices() {
     try {
@@ -132,38 +174,21 @@ document.getElementById('service-form').addEventListener('submit', async (e) => 
     } catch (err) { alert("Erreur: " + err.message); } finally { btn.disabled = false; btn.textContent = "Enregistrer le Service"; }
 });
 
-/* ================= 7. JOUEURS (CROPPER INCLUS) ET AUTRES PARAMÈTRES ================= */
-document.getElementById('settings-form').addEventListener('submit', async (e) => {
-    e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); btn.textContent = "Sauvegarde en cours...";
-    try {
-        let finalFounderUrl = document.getElementById('existing-founder-img').value || "";
-        if (optimizedImages.founder) { const r = ref(storage, `site/founder_${Date.now()}.webp`); await uploadString(r, optimizedImages.founder, 'data_url'); finalFounderUrl = await getDownloadURL(r); }
-        let finalNavUrl = document.getElementById('existing-logo-nav').value || "";
-        if (optimizedImages.nav) { const r = ref(storage, `site/logo_nav_${Date.now()}.webp`); await uploadString(r, optimizedImages.nav, 'data_url'); finalNavUrl = await getDownloadURL(r); }
-        let finalHeroUrl = document.getElementById('existing-logo-hero').value || "";
-        if (optimizedImages.hero) { const r = ref(storage, `site/logo_hero_${Date.now()}.webp`); await uploadString(r, optimizedImages.hero, 'data_url'); finalHeroUrl = await getDownloadURL(r); }
-
-        await setDoc(doc(db, "settings", "general"), {
-            logoNav: finalNavUrl, logoHero: finalHeroUrl, founderImg: finalFounderUrl,
-            founderQuote_fr: document.getElementById('set-founder-quote-fr').value, founderDesc_fr: document.getElementById('set-founder-desc-fr').value,
-            founderQuote_en: document.getElementById('set-founder-quote-en').value, founderDesc_en: document.getElementById('set-founder-desc-en').value,
-            founderQuote_es: document.getElementById('set-founder-quote-es').value, founderDesc_es: document.getElementById('set-founder-desc-es').value,
-            founderQuote_pt: document.getElementById('set-founder-quote-pt').value, founderDesc_pt: document.getElementById('set-founder-desc-pt').value,
-            stat1: document.getElementById('set-stat1').value, stat2: document.getElementById('set-stat2').value, stat3: document.getElementById('set-stat3').value, stat4: document.getElementById('set-stat4').value
-        }, { merge: true });
-        
-        document.getElementById('existing-founder-img').value = finalFounderUrl; document.getElementById('existing-logo-nav').value = finalNavUrl; document.getElementById('existing-logo-hero').value = finalHeroUrl;
-        optimizedImages = { founder: null, nav: null, hero: null };
-        alert("Identité et Paramètres mis à jour avec succès !");
-    } catch(err) { alert("Erreur : " + err.message); } finally { btn.textContent = "Enregistrer les modifications"; }
-});
-
-document.querySelectorAll('.lang-tab').forEach(tab => {
+// LE CORRECTIF EST ICI : LES ONGLETS DES SERVICES FONCTIONNENT !
+document.querySelectorAll('.lang-tab-srv').forEach(tab => {
     tab.addEventListener('click', (e) => {
         e.preventDefault(); 
-        document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active')); e.target.classList.add('active');
-        document.querySelectorAll('.lang-content').forEach(c => c.classList.add('hidden'));
-        document.getElementById(`lang-${e.target.getAttribute('data-lang')}`).classList.remove('hidden');
+        document.querySelectorAll('.lang-tab-srv').forEach(t => t.classList.remove('active')); e.target.classList.add('active');
+        document.querySelectorAll('.lang-content-srv').forEach(c => c.classList.add('hidden'));
+        document.getElementById(`lang-srv-${e.target.getAttribute('data-lang')}`).classList.remove('hidden');
     });
 });
 
+/* ================= 4. GESTION DU ROSTER (JOUEURS) ================= */
+let allAdminPlayers = []; let adminCurrentCat = 'gardien'; let adminSearchQuery = ''; let adminCurrentPage = 1; const ITEMS_PER_PAGE = 5;
+
+document.querySelectorAll('.admin-tab:not(.lang-tab):not(.lang-tab-srv)').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+        document.querySelectorAll('.admin-tab:not(.lang-tab):not(.lang-tab-srv)').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active'); adminCurrentCat = e.target.getAttribute('data-cat');
+        adminSearchQuery = ''; document.getElementById('search-bar').value = ''; adminCurrentPage = 1; renderAdminTable();
