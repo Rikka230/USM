@@ -176,7 +176,7 @@ function renderServices() {
     container.innerHTML = html;
 }
 
-/* ================= 6. CHARGEMENT DE LA PAGE SERVICE UNIQUE ================= */
+/* ================= 6. CHARGEMENT DE LA PAGE SERVICE UNIQUE (AVEC AUTO-SEO) ================= */
 async function loadSingleServicePage() {
     const urlParams = new URLSearchParams(window.location.search);
     const srvId = urlParams.get('id');
@@ -188,18 +188,54 @@ async function loadSingleServicePage() {
             window.currentServiceData = docSnap.data();
             const srv = window.currentServiceData;
             
-            const imgEl = document.getElementById('srv-hero-img');
-            if(imgEl && srv.image_url) imgEl.src = srv.image_url;
-            
             const currentLang = localStorage.getItem('usm_lang') || 'fr';
+            const titleText = srv[`title_${currentLang}`] || srv.title_fr || "Service";
+            const descText = srv[`desc_${currentLang}`] || srv.desc_fr || "";
+            const seoText = srv[`seo_${currentLang}`] || srv.seo_fr || "";
+            
+            // 1. Affichage Image et attribut SEO "Alt"
+            const imgEl = document.getElementById('srv-hero-img');
+            if(imgEl && srv.image_url) {
+                imgEl.src = srv.image_url;
+                imgEl.alt = titleText;
+            }
+            
+            // 2. Affichage des Textes sur la page
             const titleEl = document.getElementById('srv-page-title');
             const descEl = document.getElementById('srv-page-desc');
-            if(titleEl) titleEl.textContent = srv[`title_${currentLang}`] || srv.title_fr;
-            if(descEl) descEl.textContent = srv[`desc_${currentLang}`] || srv.desc_fr;
+            if(titleEl) titleEl.textContent = titleText;
+            if(descEl) descEl.textContent = descText;
+
+            // 3. INJECTION AUTO-SEO GOOGLE
+            // Nom de l'onglet
+            document.title = `${titleText} | USM Football`;
+
+            // Méta Description (Coupée proprement à 150 caractères pour Google)
+            if (descText) {
+                let metaDesc = document.querySelector('meta[name="description"]');
+                if (!metaDesc) {
+                    metaDesc = document.createElement('meta');
+                    metaDesc.name = "description";
+                    document.head.appendChild(metaDesc);
+                }
+                metaDesc.content = descText.length > 155 ? descText.substring(0, 155) + "..." : descText;
+            }
+
+            // Mots-clés
+            if (seoText) {
+                let metaKeys = document.querySelector('meta[name="keywords"]');
+                if (!metaKeys) {
+                    metaKeys = document.createElement('meta');
+                    metaKeys.name = "keywords";
+                    document.head.appendChild(metaKeys);
+                }
+                metaKeys.content = seoText;
+            }
+
         } else {
-            // SÉCURITÉ : Si le service a été supprimé !
             if(document.getElementById('srv-page-title')) document.getElementById('srv-page-title').textContent = "Service Introuvable";
             if(document.getElementById('srv-page-desc')) document.getElementById('srv-page-desc').textContent = "Ce service n'existe pas ou a été supprimé.";
+            document.title = "Service Introuvable | USM Football";
         }
     } catch(e) { console.error("Erreur Service: ", e); }
 }
@@ -227,3 +263,4 @@ function renderCategorySlider() {
     document.querySelector('.prev-btn').addEventListener('click', () => scroller.scrollBy({ left: -(scroller.clientWidth * 0.8), behavior: 'smooth' })); document.querySelector('.next-btn').addEventListener('click', () => scroller.scrollBy({ left: (scroller.clientWidth * 0.8), behavior: 'smooth' }));
 }
 function setupTabs() { document.querySelectorAll('.filter-btn').forEach(tab => { tab.addEventListener('click', (e) => { document.getElementById('front-search').value = ''; currentFrontSearch = ''; document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); e.target.classList.add('active'); currentFrontCat = e.target.getAttribute('data-tab'); renderCategorySlider(); }); }); }
+
