@@ -1,4 +1,5 @@
 /* ================= 1. IMPORTS FIREBASE ================= */
+// TOUS LES IMPORTS SONT BIEN EN HAUT !
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
@@ -30,10 +31,15 @@ const translations = {
         services_label: "Accompagnement Global", services_title: "Services Exclusifs",
         srv_1: "Conciergerie Service Dédié 5*", srv_2: "Droit du Sport & Fiscalité", srv_3: "Family Office (Réseau d'experts)",
         srv_4: "Gestion de Carrière & Transferts", srv_5: "Sponsoring (Puma, etc.) & Image", srv_6: "Valorisation Data & Performance",
-        vip_badge: "Fondateur & CEO", vip_quote: '"Le conseiller aux 3 000 numéros."',
-        vip_desc: "Agent FIFA et FFF depuis 1998, Christophe Mongai a bâti l'une des plus importantes écuries d'Europe. Avec plus de 27 ans d'expérience au sommet, il possède un réseau mondial inégalé.",
-        roster_title: "Roster Premium", filter_all: "Tous", filter_gk: "Gardiens", filter_def: "Défenseurs",
-        legal_mentions: "Mentions Légales"
+        
+        vip_badge: "Fondateur & CEO", 
+        vip_quote: '"Le conseiller aux 3 000 numéros."',
+        vip_desc: "Né à Marseille dans le quartier de la \"Belle de Mai\", Christophe Mongai s'est forgé une détermination à toute épreuve. Devenu Agent FIFA et FFF, il fonde USM Football en 1998, une agence dédiée à l'accompagnement et la gestion de carrière des footballeurs et entraîneurs professionnels.\n\nAujourd'hui à la tête de l'une des plus importantes écuries de France et d'Europe, il s'impose comme une référence incontournable. Fort d'un réseau mondial exclusif de plus de 25 000 contacts directs avec les clubs, il accompagne tous types de profils, des jeunes talents prometteurs aux internationaux confirmés.\n\nEn plus de 25 ans, il a géré la trajectoire de figures emblématiques telles que Bacary Sagna, Lorik Cana, Kalidou Koulibaly, Mario Yepes ou encore Frédéric Kanouté. Une excellence récompensée en 2012 par le prestigieux CIES Football Observatory, classant le Groupe USM 1ère agence mondiale pour son nombre de joueurs évoluant dans le Top 5 européen.",
+        
+        roster_title: "USM FAMILY", filter_all: "Tous", filter_gk: "Gardiens", filter_def: "Défenseurs",
+        legal_mentions: "Mentions Légales",
+
+        // Textes Page Contact
         contact_title: "Contact", contact_subtitle: "Discutons de votre avenir.",
         contact_info_title: "Nos Coordonnées",
         contact_hq: "Siège Social", contact_hq_val: "Marseille, France",
@@ -43,7 +49,6 @@ const translations = {
         contact_ph_name: "Votre nom complet", contact_ph_email: "Votre adresse email",
         contact_opt_player: "Je suis un joueur", contact_opt_club: "Je représente un club", contact_opt_other: "Autre demande",
         contact_ph_msg: "Votre message...", contact_btn_send: "Envoyer le message"
-      
     },
     en: {
         nav_agency: "The Agency", nav_services: "Services", nav_talents: "Talents", nav_button: "Contact",
@@ -55,10 +60,14 @@ const translations = {
         services_label: "Global Support", services_title: "Exclusive Services",
         srv_1: "5* Dedicated Concierge Service", srv_2: "Sports Law & Taxation", srv_3: "Family Office (Expert Network)",
         srv_4: "Career Management & Transfers", srv_5: "Sponsorship (Puma, etc.) & Image", srv_6: "Data & Performance Valuation",
-        vip_badge: "Founder & CEO", vip_quote: '"The advisor with 3,000 contacts."',
-        vip_desc: "FIFA and FFF Agent since 1998, Christophe Mongai has built one of Europe's largest agencies. With over 27 years of experience, he holds an unmatched global network.",
-        roster_title: "Premium Roster", filter_all: "All", filter_gk: "Goalkeepers", filter_def: "Defenders",
-        legal_mentions: "Legal Notice"
+        
+        vip_badge: "Founder & CEO", 
+        vip_quote: '"The advisor with 3,000 contacts."',
+        vip_desc: "Born in Marseille in the \"Belle de Mai\" district, Christophe Mongai forged an unfailing determination. Becoming a FIFA and FFF Agent, he founded USM Football in 1998, an agency dedicated to the support and career management of professional footballers and coaches.\n\nToday at the head of one of the largest agencies in France and Europe, he stands out as an essential reference. Armed with an exclusive global network of over 25,000 direct club contacts, he manages all types of profiles, from promising young talents to established internationals.\n\nIn over 25 years, he has managed the careers of iconic figures such as Bacary Sagna, Lorik Cana, Kalidou Koulibaly, Mario Yepes, and Frédéric Kanouté. This excellence was recognized in 2012 by the prestigious CIES Football Observatory, ranking the USM Group as the #1 global agency for the number of players in the European Top 5.",
+        
+        roster_title: "USM FAMILY", filter_all: "All", filter_gk: "Goalkeepers", filter_def: "Defenders",
+        legal_mentions: "Legal Notice",
+
         contact_title: "Contact", contact_subtitle: "Let's discuss your future.",
         contact_info_title: "Our Details",
         contact_hq: "Headquarters", contact_hq_val: "Marseille, France",
@@ -79,10 +88,14 @@ const translations = {
         services_label: "Acompañamiento Global", services_title: "Servicios Exclusivos",
         srv_1: "Conserjería Servicio Dedicado 5*", srv_2: "Derecho Deportivo y Fiscalidad", srv_3: "Family Office (Red de expertos)",
         srv_4: "Gestión de Carrera y Traspasos", srv_5: "Patrocinio (Puma, etc.) e Imagen", srv_6: "Valoración Data y Rendimiento",
-        vip_badge: "Fundador y CEO", vip_quote: '"El asesor de los 3.000 contactos."',
-        vip_desc: "Agente FIFA y FFF desde 1998, Christophe Mongai ha construido una de las agencias más grandes de Europa. Con más de 27 años de experiencia en la cima, posee una red mundial inigualable.",
-        roster_title: "Roster Premium", filter_all: "Todos", filter_gk: "Porteros", filter_def: "Defensas",
-        legal_mentions: "Aviso Legal"
+        
+        vip_badge: "Fundador y CEO", 
+        vip_quote: '"El asesor de los 3.000 contactos."',
+        vip_desc: "Nacido en Marsella en el barrio de la \"Belle de Mai\", Christophe Mongai forjó una determinación inquebrantable. Convertido en Agente FIFA y FFF, fundó USM Football en 1998, una agencia dedicada al acompañamiento y la gestión de carrera de futbolistas y entrenadores profesionales.\n\nHoy a la cabeza de una de las agencias más importantes de Francia y Europa, se impone como una referencia ineludible. Con una red mundial exclusiva de más de 25.000 contactos directos con clubes, acompaña a todo tipo de perfiles, desde jóvenes promesas hasta internacionales consolidados.\n\nEn más de 25 años, ha gestionado la trayectoria de figuras emblemáticas como Bacary Sagna, Lorik Cana, Kalidou Koulibaly, Mario Yepes o Frédéric Kanouté. Una excelencia premiada en 2012 por el prestigioso CIES Football Observatory, que clasificó al Grupo USM como la 1ª agencia mundial por su número de jugadores en el Top 5 europeo.",
+        
+        roster_title: "USM FAMILY", filter_all: "Todos", filter_gk: "Porteros", filter_def: "Defensas",
+        legal_mentions: "Aviso Legal",
+
         contact_title: "Contacto", contact_subtitle: "Hablemos de tu futuro.",
         contact_info_title: "Nuestros Datos",
         contact_hq: "Sede Central", contact_hq_val: "Marsella, Francia",
@@ -97,16 +110,20 @@ const translations = {
         nav_agency: "A Agência", nav_services: "Serviços", nav_talents: "Os Talentos", nav_button: "Contato",
         hero_subtitle: "Juntos, vamos desenvolver seus talentos.",
         stat_1_label: "Atividade e Transações", stat_1_desc: "Operações realizadas no mercado de transferências.",
-        stat_4_label: "Rede Global", stat_4_desc: "Contactos directos com clubes em todo o mundo.",
+        stat_4_label: "Rede Global", stat_4_desc: "Contactos diretos com clubes em todo o mundo.",
         stat_2_label: "Confiança e Roster", stat_2_desc: "Jogadores gerenciados desde 1998. +100 jogadores profissionais atualmente representados.",
         stat_3_label: "Impacto Digital (N°3 Mundial)", stat_3_sub: "Seguidores totais",
         services_label: "Acompanhamento Global", services_title: "Serviços Exclusivos",
         srv_1: "Concierge Serviço Dedicado 5*", srv_2: "Direito Desportivo e Fiscalidade", srv_3: "Family Office (Rede de especialistas)",
         srv_4: "Gestão de Carreira e Transferências", srv_5: "Patrocínio (Puma, etc.) e Imagem", srv_6: "Valorização Data e Desempenho",
-        vip_badge: "Fundador e CEO", vip_quote: '"O conselheiro de 3.000 contatos."',
-        vip_desc: "Agente FIFA e FFF depuis 1998, Christophe Mongai construiu uma das maiores agências da Europa. Com mais de 27 anos de experiência no topo, possui uma rede global incomparável.",
-        roster_title: "Roster Premium", filter_all: "Todos", filter_gk: "Goleiros", filter_def: "Defensores",
-        legal_mentions: "Aviso Legal"
+        
+        vip_badge: "Fundador e CEO", 
+        vip_quote: '"O conselheiro de 3.000 contatos."',
+        vip_desc: "Nascido em Marselha, no bairro da \"Belle de Mai\", Christophe Mongai forjou uma determinação inabalável. Tornando-se Agente FIFA e FFF, fundou a USM Football em 1998, uma agência dedicada ao acompanhamento e gestão de carreira de jogadores e treinadores profissionais.\n\nHoje à frente de uma das maiores agências da França e da Europa, impõe-se como uma referência incontornável. Com uma rede global exclusiva de mais de 25.000 contactos diretos com clubes, acompanha todos os tipos de perfis, desde jovens promessas a internacionais confirmados.\n\nEm mais de 25 anos, geriu a carreira de figuras emblemáticas como Bacary Sagna, Lorik Cana, Kalidou Koulibaly, Mario Yepes e Frédéric Kanouté. Uma excelência reconhecida em 2012 pelo prestigiado CIES Football Observatory, classificando o Grupo USM como a 1ª agência mundial pelo seu número de jogadores no Top 5 europeu.",
+        
+        roster_title: "USM FAMILY", filter_all: "Todos", filter_gk: "Goleiros", filter_def: "Defensores",
+        legal_mentions: "Aviso Legal",
+
         contact_title: "Contato", contact_subtitle: "Vamos discutir o seu futuro.",
         contact_info_title: "Nossos Dados",
         contact_hq: "Sede", contact_hq_val: "Marselha, França",
@@ -124,16 +141,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const langSelect = document.getElementById('lang-select');
     let currentLang = localStorage.getItem('usm_lang') || 'fr';
     if (!translations[currentLang]) currentLang = 'fr';
-    langSelect.value = currentLang;
+    if(langSelect) langSelect.value = currentLang;
 
     const updateContent = (lang) => {
-        // Traduction des textes normaux
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (translations[lang] && translations[lang][key]) el.textContent = translations[lang][key];
         });
         
-        // NOUVEAU : Traduction des placeholders des formulaires
+        // NOUVEAU : Traduction des placeholders (Textes grisés dans les formulaires)
         document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
             const key = el.getAttribute('data-i18n-placeholder');
             if (translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key];
@@ -141,11 +157,14 @@ document.addEventListener("DOMContentLoaded", () => {
         
         document.documentElement.lang = lang;
     };
-    langSelect.addEventListener('change', (e) => {
-        const newLang = e.target.value;
-        localStorage.setItem('usm_lang', newLang);
-        updateContent(newLang);
-    });
+    
+    if(langSelect) {
+        langSelect.addEventListener('change', (e) => {
+            const newLang = e.target.value;
+            localStorage.setItem('usm_lang', newLang);
+            updateContent(newLang);
+        });
+    }
     updateContent(currentLang);
 
     const observer = new IntersectionObserver((entries) => {
@@ -165,26 +184,32 @@ async function loadSettings() {
             const data = docSnap.data();
             
             // Stats
-            if(data.stat1) document.getElementById('stat-1').textContent = data.stat1;
-            if(data.stat2) document.getElementById('stat-2').textContent = data.stat2;
-            if(data.stat3) document.getElementById('stat-3').textContent = data.stat3;
-            if(data.stat4) document.getElementById('stat-4').textContent = data.stat4;
+            if(data.stat1 && document.getElementById('stat-1')) document.getElementById('stat-1').textContent = data.stat1;
+            if(data.stat2 && document.getElementById('stat-2')) document.getElementById('stat-2').textContent = data.stat2;
+            if(data.stat3 && document.getElementById('stat-3')) document.getElementById('stat-3').textContent = data.stat3;
+            if(data.stat4 && document.getElementById('stat-4')) document.getElementById('stat-4').textContent = data.stat4;
             
             // Logos
-            if(data.logoNav) document.querySelector('.logo-nav img').src = data.logoNav;
-            if(data.logoHero) document.querySelector('.massive-eagle-wrapper img').src = data.logoHero;
+            if(data.logoNav && document.querySelector('.logo-nav img')) document.querySelector('.logo-nav img').src = data.logoNav;
+            if(data.logoHero && document.querySelector('.massive-eagle-wrapper img')) document.querySelector('.massive-eagle-wrapper img').src = data.logoHero;
             
-            // Fondateur (Image & Citation)
-            if(data.founderImg) document.querySelector('.vip-photo-wrapper img').src = data.founderImg;
-            if(data.founderQuote) document.querySelector('.vip-quote').textContent = data.founderQuote;
+            // Fondateur (Image)
+            if(data.founderImg && document.querySelector('.vip-photo-wrapper img')) document.querySelector('.vip-photo-wrapper img').src = data.founderImg;
 
             // INJECTION DYNAMIQUE DES TRADUCTIONS DEPUIS FIREBASE
+            if(data.founderQuote_fr) translations.fr.vip_quote = data.founderQuote_fr;
             if(data.founderDesc_fr) translations.fr.vip_desc = data.founderDesc_fr;
+            
+            if(data.founderQuote_en) translations.en.vip_quote = data.founderQuote_en;
             if(data.founderDesc_en) translations.en.vip_desc = data.founderDesc_en;
+            
+            if(data.founderQuote_es) translations.es.vip_quote = data.founderQuote_es;
             if(data.founderDesc_es) translations.es.vip_desc = data.founderDesc_es;
+            
+            if(data.founderQuote_pt) translations.pt.vip_quote = data.founderQuote_pt;
             if(data.founderDesc_pt) translations.pt.vip_desc = data.founderDesc_pt;
 
-            // On force le rafraîchissement du texte à l'écran avec la langue actuelle
+            // Rafraîchissement immédiat du texte sur la page avec la langue en cours
             const langSelect = document.getElementById('lang-select');
             const currentLang = langSelect ? langSelect.value : 'fr';
             
@@ -218,15 +243,18 @@ async function loadPlayers() {
         renderCategorySlider();
         setupTabs();
 
-        document.getElementById('front-search').addEventListener('input', (e) => {
-            currentFrontSearch = e.target.value.toLowerCase();
-            if(currentFrontSearch.length > 0) {
-                document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active'));
-            } else {
-                document.querySelector(`.filter-btn[data-tab="${currentFrontCat}"]`).classList.add('active');
-            }
-            renderCategorySlider();
-        });
+        const frontSearch = document.getElementById('front-search');
+        if(frontSearch) {
+            frontSearch.addEventListener('input', (e) => {
+                currentFrontSearch = e.target.value.toLowerCase();
+                if(currentFrontSearch.length > 0) {
+                    document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active'));
+                } else {
+                    document.querySelector(`.filter-btn[data-tab="${currentFrontCat}"]`).classList.add('active');
+                }
+                renderCategorySlider();
+            });
+        }
 
     } catch (error) {
         console.error(error);
@@ -236,6 +264,8 @@ async function loadPlayers() {
 
 function renderCategorySlider() {
     const container = document.getElementById('roster-categories-container');
+    if(!container) return;
+    
     let filteredPlayers = [];
 
     if (currentFrontSearch.length > 0) {
@@ -308,7 +338,3 @@ function setupTabs() {
         });
     });
 }
-
-
-
-
