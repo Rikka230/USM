@@ -63,14 +63,21 @@ document.getElementById('nav-settings').addEventListener('click', async (e) => {
     
     // CHARGEMENT DES 4 STATS DEPUIS FIREBASE
     const docSnap = await getDoc(doc(db, "settings", "general"));
-    if (docSnap.exists()) {
-        const data = docSnap.data();
-        document.getElementById('set-stat1').value = data.stat1 || '';
-        document.getElementById('set-stat2').value = data.stat2 || '';
-        document.getElementById('set-stat3').value = data.stat3 || '';
-        document.getElementById('set-stat4').value = data.stat4 || ''; // Ajouté pour le 4ème bloc
-    }
-});
+if (docSnap.exists()) {
+    const data = docSnap.data();
+    // Logos
+    document.getElementById('set-logo-nav').value = data.logoNav || '';
+    document.getElementById('set-logo-hero').value = data.logoHero || '';
+    // Fondateur
+    document.getElementById('set-founder-img').value = data.founderImg || '';
+    document.getElementById('set-founder-quote').value = data.founderQuote || '';
+    document.getElementById('set-founder-desc').value = data.founderDesc || '';
+    // Stats
+    document.getElementById('set-stat1').value = data.stat1 || '';
+    document.getElementById('set-stat2').value = data.stat2 || '';
+    document.getElementById('set-stat3').value = data.stat3 || '';
+    document.getElementById('set-stat4').value = data.stat4 || '';
+}
 
 // Boutons d'ajout et annulation
 document.getElementById('btn-show-add-form').addEventListener('click', () => {
@@ -316,12 +323,18 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
     
     try {
         await setDoc(doc(db, "settings", "general"), {
-            stat1: document.getElementById('set-stat1').value,
-            stat2: document.getElementById('set-stat2').value,
-            stat3: document.getElementById('set-stat3').value,
-            stat4: document.getElementById('set-stat4').value // Sauvegarde du 4ème bloc
-        }, { merge: true });
+    logoNav: document.getElementById('set-logo-nav').value,
+    logoHero: document.getElementById('set-logo-hero').value,
+    founderImg: document.getElementById('set-founder-img').value,
+    founderQuote: document.getElementById('set-founder-quote').value,
+    founderDesc: document.getElementById('set-founder-desc').value,
+    stat1: document.getElementById('set-stat1').value,
+    stat2: document.getElementById('set-stat2').value,
+    stat3: document.getElementById('set-stat3').value,
+    stat4: document.getElementById('set-stat4').value
+}, { merge: true });
         alert("Statistiques mises à jour !");
     } catch(err) { alert("Erreur : " + err.message); } 
     finally { btn.textContent = "Mettre à jour le site"; }
 });
+
