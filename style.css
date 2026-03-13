@@ -3,6 +3,13 @@
    ========================================================================== */
 
 /* ================= 1. VARIABLES & RESET ================= */
+@font-face {
+    font-family: 'Moglan';
+    src: url('assets/Moglan.woff2') format('woff2'), /* Ajuste le chemin selon ton dossier */
+         url('assets/Moglan.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
 :root {
     --bg-dark: #050507; 
     --usm-pink: #d80056;
@@ -622,6 +629,7 @@ body {
 .admin-secret-link:hover {
     color: var(--usm-pink); 
 }
+
 
 
 
