@@ -26,6 +26,7 @@
             <h2 class="pink-accent">USM Admin</h2>
             <nav>
                 <button id="nav-manage" class="active">Gérer le Roster</button>
+                <button id="nav-services">Gérer les Services</button>
                 <button id="nav-settings">Paramètres du Site</button>
                 <div style="margin-top: 50px; display: flex; flex-direction: column; gap: 10px;">
                     <a href="index.html" class="btn-return">🔙 Retour au site</a>
@@ -55,17 +56,9 @@
                         <input type="text" id="search-bar" placeholder="🔍 Rechercher un joueur..." style="padding:10px 20px; border-radius:30px; border:1px solid #444; background:#111; color:#fff; width: 250px;">
                     </div>
                 </header>
-
                 <div class="table-container">
                     <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Ordre</th>
-                                <th>Photo</th>
-                                <th>Nom</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Ordre</th><th>Photo</th><th>Nom</th><th>Action</th></tr></thead>
                         <tbody id="admin-players-list"></tbody>
                     </table>
                 </div>
@@ -84,47 +77,26 @@
                     <input type="text" id="player-stat" placeholder="Statistique (ex: 150 Sélections)">
                     <input type="url" id="player-tm" placeholder="Lien Transfermarkt (Optionnel)">
                     <select id="player-category">
-                        <option value="gardien">Gardien</option>
-                        <option value="defenseur">Défenseur</option>
-                        <option value="milieu">Milieu</option>
-                        <option value="attaquant">Attaquant</option>
-                        <option value="feminine">Féminine</option>
-                        <option value="coach">Coach & Staff</option>
+                        <option value="gardien">Gardien</option><option value="defenseur">Défenseur</option>
+                        <option value="milieu">Milieu</option><option value="attaquant">Attaquant</option>
+                        <option value="feminine">Féminine</option><option value="coach">Coach & Staff</option>
                     </select>
-
-                    <div id="drop-zone" class="drop-zone">
-                        <p>Glissez une photo ici</p>
-                        <input type="file" id="media-upload" accept="image/*" hidden>
-                    </div>
-
+                    <div id="drop-zone" class="drop-zone"><p>Glissez une photo ici</p><input type="file" id="media-upload" accept="image/*" hidden></div>
                     <div id="cropper-ui" class="hidden" style="background: rgba(25,25,30,0.6); padding: 25px; border-radius: 12px; border: 1px solid var(--surface-border);">
                         <h3 class="pink-accent" style="font-size: 1rem; margin-bottom: 20px;">Cadrage de la carte (Format 3:4)</h3>
                         <div style="display: flex; gap: 30px; flex-wrap: wrap; align-items: center;">
-                            <div style="flex: 0 0 auto; margin: 0 auto;">
-                                <canvas id="crop-canvas" width="240" height="320" style="border-radius: 12px; background: #000; border: 1px solid #444; box-shadow: 0 10px 30px rgba(0,0,0,0.5); cursor: grab;"></canvas>
-                                <p style="text-align: center; color: #888; font-size: 0.75rem; margin-top: 10px;">💡 Glissez l'image avec la souris</p>
-                            </div>
+                            <div style="flex: 0 0 auto; margin: 0 auto;"><canvas id="crop-canvas" width="240" height="320" style="border-radius: 12px; background: #000; border: 1px solid #444; box-shadow: 0 10px 30px rgba(0,0,0,0.5); cursor: grab;"></canvas></div>
                             <div style="flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 250px;">
-                                <div>
-                                    <label style="color:#aaa; font-size:0.85rem; display:flex; justify-content:space-between; margin-bottom: 8px;">Zoom <span id="val-zoom" style="color:var(--usm-pink); font-weight:bold;">100%</span></label>
-                                    <input type="range" id="crop-zoom" min="0.1" max="3" step="0.01" value="1" style="width: 100%; padding: 0; background: transparent; border: none; margin:0;">
-                                </div>
-                                <div>
-                                    <label style="color:#aaa; font-size:0.85rem; display:flex; justify-content:space-between; margin-bottom: 8px;">Axe Horizontal <span id="val-x" style="color:var(--usm-pink); font-weight:bold;">0</span></label>
-                                    <input type="range" id="crop-x" min="-1000" max="1000" step="1" value="0" style="width: 100%; padding: 0; background: transparent; border: none; margin:0;">
-                                </div>
-                                <div>
-                                    <label style="color:#aaa; font-size:0.85rem; display:flex; justify-content:space-between; margin-bottom: 8px;">Axe Vertical <span id="val-y" style="color:var(--usm-pink); font-weight:bold;">0</span></label>
-                                    <input type="range" id="crop-y" min="-1000" max="1000" step="1" value="0" style="width: 100%; padding: 0; background: transparent; border: none; margin:0;">
-                                </div>
+                                <div><label style="color:#aaa; font-size:0.85rem; display:flex; justify-content:space-between; margin-bottom: 8px;">Zoom <span id="val-zoom" style="color:var(--usm-pink); font-weight:bold;">100%</span></label><input type="range" id="crop-zoom" min="0.1" max="3" step="0.01" value="1" style="width: 100%;"></div>
+                                <div><label style="color:#aaa; font-size:0.85rem; display:flex; justify-content:space-between; margin-bottom: 8px;">Axe Horizontal <span id="val-x" style="color:var(--usm-pink); font-weight:bold;">0</span></label><input type="range" id="crop-x" min="-1000" max="1000" step="1" value="0" style="width: 100%;"></div>
+                                <div><label style="color:#aaa; font-size:0.85rem; display:flex; justify-content:space-between; margin-bottom: 8px;">Axe Vertical <span id="val-y" style="color:var(--usm-pink); font-weight:bold;">0</span></label><input type="range" id="crop-y" min="-1000" max="1000" step="1" value="0" style="width: 100%;"></div>
                                 <div style="display:flex; gap: 10px; margin-top: 10px;">
-                                    <button type="button" id="btn-reset-crop" style="flex:1; background: #333; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight:bold; transition: 0.3s;">Centrer</button>
-                                    <button type="button" id="btn-cancel-crop" style="flex:1; background: rgba(255,0,0,0.1); color: #ff4444; border: 1px solid #ff4444; padding: 12px; border-radius: 8px; cursor: pointer; font-weight:bold; transition: 0.3s;">Annuler</button>
+                                    <button type="button" id="btn-reset-crop" style="flex:1; background: #333; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight:bold;">Centrer</button>
+                                    <button type="button" id="btn-cancel-crop" style="flex:1; background: rgba(255,0,0,0.1); color: #ff4444; border: 1px solid #ff4444; padding: 12px; border-radius: 8px; cursor: pointer; font-weight:bold;">Annuler</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                     <div style="display: flex; gap: 15px; margin-top: 20px;">
                         <button type="button" class="btn-cancel" style="flex:1; background:#333; color:white; border:none; padding:20px; border-radius:8px; font-weight:bold; cursor:pointer;">Annuler</button>
                         <button type="submit" id="publish-btn" class="btn-publish" style="flex:2;">Enregistrer le Joueur</button>
@@ -132,37 +104,84 @@
                 </form>
             </section>
 
+            <section id="manage-services-section" class="hidden">
+                <header style="margin-bottom: 25px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                        <h1 style="margin: 0;">Gérer les Services</h1>
+                        <button id="btn-add-service" style="background:var(--usm-pink); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;">➕ Ajouter un Service</button>
+                    </div>
+                </header>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead><tr><th>Ordre</th><th>Titre (FR)</th><th>Action</th></tr></thead>
+                        <tbody id="admin-services-list"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="form-service-section" class="hidden">
+                <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h1 id="service-form-title">Créer un Service</h1>
+                    <button class="btn-cancel-service" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">❌ Annuler</button>
+                </header>
+                <form id="service-form" class="bento-form">
+                    <input type="hidden" id="edit-service-id">
+                    
+                    <label style="color:#aaa; font-size:0.85rem;">Lien de redirection (ex: contact.html ou #)</label>
+                    <input type="text" id="srv-link" placeholder="Lien du clic" required>
+
+                    <h3 class="pink-accent" style="margin-top:20px;">Titres (Multilingue)</h3>
+                    <div style="display:flex; gap:10px; margin-bottom: 20px;">
+                        <button type="button" class="admin-tab lang-tab-srv active" data-lang="fr">🇫🇷 FR</button>
+                        <button type="button" class="admin-tab lang-tab-srv" data-lang="en">🇬🇧 EN</button>
+                        <button type="button" class="admin-tab lang-tab-srv" data-lang="es">🇪🇸 ES</button>
+                        <button type="button" class="admin-tab lang-tab-srv" data-lang="pt">🇵🇹 PT</button>
+                    </div>
+
+                    <div class="lang-content-srv" id="lang-srv-fr">
+                        <label style="color:#aaa; font-size:0.85rem;">Titre (Français)</label>
+                        <input type="text" id="srv-title-fr" placeholder="Ex: Gestion de Carrière" required>
+                    </div>
+                    <div class="lang-content-srv hidden" id="lang-srv-en">
+                        <label style="color:#aaa; font-size:0.85rem;">Titre (Anglais)</label>
+                        <input type="text" id="srv-title-en" placeholder="Ex: Career Management">
+                    </div>
+                    <div class="lang-content-srv hidden" id="lang-srv-es">
+                        <label style="color:#aaa; font-size:0.85rem;">Titre (Espagnol)</label>
+                        <input type="text" id="srv-title-es" placeholder="Ex: Gestión de Carrera">
+                    </div>
+                    <div class="lang-content-srv hidden" id="lang-srv-pt">
+                        <label style="color:#aaa; font-size:0.85rem;">Titre (Portugais)</label>
+                        <input type="text" id="srv-title-pt" placeholder="Ex: Gestão de Carreira">
+                    </div>
+
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button type="button" class="btn-cancel-service" style="flex:1; background:#333; color:white; border:none; padding:20px; border-radius:8px; font-weight:bold; cursor:pointer;">Annuler</button>
+                        <button type="submit" id="save-service-btn" class="btn-publish" style="flex:2;">Enregistrer le Service</button>
+                    </div>
+                </form>
+            </section>
+
             <section id="settings-section" class="hidden">
                 <header><h1>Identité & Paramètres</h1></header>
                 <form id="settings-form" class="bento-form">
-                    
                     <h3 class="pink-accent">Logos du Site</h3>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
                         <div>
                             <label style="color:#aaa; font-size:0.85rem;">Logo Menu (Header)</label>
-                            <div id="drop-zone-nav" class="drop-zone" style="padding: 20px; margin-top:5px;">
-                                <p style="font-size: 0.9rem;">Glissez le logo</p>
-                                <input type="file" id="nav-upload" accept="image/*" hidden>
-                            </div>
+                            <div id="drop-zone-nav" class="drop-zone" style="padding: 20px; margin-top:5px;"><p style="font-size: 0.9rem;">Glissez le logo</p><input type="file" id="nav-upload" accept="image/*" hidden></div>
                             <input type="hidden" id="existing-logo-nav">
                         </div>
                         <div>
                             <label style="color:#aaa; font-size:0.85rem;">Logo Central (Aigle géant)</label>
-                            <div id="drop-zone-hero" class="drop-zone" style="padding: 20px; margin-top:5px;">
-                                <p style="font-size: 0.9rem;">Glissez le logo</p>
-                                <input type="file" id="hero-upload" accept="image/*" hidden>
-                            </div>
+                            <div id="drop-zone-hero" class="drop-zone" style="padding: 20px; margin-top:5px;"><p style="font-size: 0.9rem;">Glissez le logo</p><input type="file" id="hero-upload" accept="image/*" hidden></div>
                             <input type="hidden" id="existing-logo-hero">
                         </div>
                     </div>
 
                     <h3 class="pink-accent" style="margin-top:20px;">Section Fondateur (Multilingue)</h3>
-                    
                     <label style="color:#aaa; font-size:0.85rem;">Photo du Fondateur</label>
-                    <div id="drop-zone-founder" class="drop-zone">
-                        <p>Glissez la photo du fondateur ici</p>
-                        <input type="file" id="founder-upload" accept="image/*" hidden>
-                    </div>
+                    <div id="drop-zone-founder" class="drop-zone"><p>Glissez la photo du fondateur ici</p><input type="file" id="founder-upload" accept="image/*" hidden></div>
                     <input type="hidden" id="existing-founder-img">
                     
                     <div style="display:flex; gap:10px; margin: 20px 0;">
@@ -171,30 +190,21 @@
                         <button type="button" class="admin-tab lang-tab" data-lang="es">🇪🇸 ES</button>
                         <button type="button" class="admin-tab lang-tab" data-lang="pt">🇵🇹 PT</button>
                     </div>
-
                     <div class="lang-content" id="lang-fr">
-                        <label style="color:#aaa; font-size:0.85rem;">Citation (FR)</label>
-                        <input type="text" id="set-founder-quote-fr" placeholder='Ex: "Le conseiller aux 3000 numéros."'>
-                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (FR)</label>
-                        <textarea id="set-founder-desc-fr" rows="5" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
+                        <label style="color:#aaa; font-size:0.85rem;">Citation (FR)</label><input type="text" id="set-founder-quote-fr">
+                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (FR)</label><textarea id="set-founder-desc-fr" rows="5" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
                     </div>
                     <div class="lang-content hidden" id="lang-en">
-                        <label style="color:#aaa; font-size:0.85rem;">Citation (EN)</label>
-                        <input type="text" id="set-founder-quote-en" placeholder='Ex: "The advisor with 3000 contacts."'>
-                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (EN)</label>
-                        <textarea id="set-founder-desc-en" rows="5" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
+                        <label style="color:#aaa; font-size:0.85rem;">Citation (EN)</label><input type="text" id="set-founder-quote-en">
+                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (EN)</label><textarea id="set-founder-desc-en" rows="5" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
                     </div>
                     <div class="lang-content hidden" id="lang-es">
-                        <label style="color:#aaa; font-size:0.85rem;">Citation (ES)</label>
-                        <input type="text" id="set-founder-quote-es" placeholder='Ex: "El asesor de los 3.000 contactos."'>
-                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (ES)</label>
-                        <textarea id="set-founder-desc-es" rows="5" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
+                        <label style="color:#aaa; font-size:0.85rem;">Citation (ES)</label><input type="text" id="set-founder-quote-es">
+                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (ES)</label><textarea id="set-founder-desc-es" rows="5" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
                     </div>
                     <div class="lang-content hidden" id="lang-pt">
-                        <label style="color:#aaa; font-size:0.85rem;">Citation (PT)</label>
-                        <input type="text" id="set-founder-quote-pt" placeholder='Ex: "O conselheiro de 3.000 contatos."'>
-                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (PT)</label>
-                        <textarea id="set-founder-desc-pt" rows="5" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
+                        <label style="color:#aaa; font-size:0.85rem;">Citation (PT)</label><input type="text" id="set-founder-quote-pt">
+                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (PT)</label><textarea id="set-founder-desc-pt" rows="5" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
                     </div>
 
                     <h3 class="pink-accent" style="margin-top:20px;">Statistiques</h3>
