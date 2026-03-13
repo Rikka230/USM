@@ -167,9 +167,9 @@ body {
 }
 
 .massive-eagle-wrapper {
-    width: clamp(200px, 40vw, 400px); 
-    margin-bottom: 30px;
-    filter: drop-shadow(0 0 40px rgba(216,0,86,0.6)); 
+    width: clamp(300px, 60vw, 800px); 
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 50px rgba(216,0,86,0.3)); 
     animation: float 6s ease-in-out infinite;
 }
 
@@ -621,4 +621,5 @@ body {
 .admin-secret-link:hover {
     color: var(--usm-pink); 
 }
+
 
