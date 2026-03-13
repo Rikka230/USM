@@ -126,6 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         if(window.currentServiceData) {
             const srv = window.currentServiceData;
+            
             const titleText = srv[`title_${lang}`] || srv.title_fr;
             const subText = srv[`subtitle_${lang}`] || srv.subtitle_fr;
             const descText = srv[`desc_${lang}`] || srv.desc_fr;
@@ -145,15 +146,26 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (descText) {
                 let metaDesc = document.querySelector('meta[name="description"]');
-                if (metaDesc) metaDesc.content = descText.length > 155 ? descText.substring(0, 155) + "..." : descText;
+                if (!metaDesc) {
+                    metaDesc = document.createElement('meta');
+                    metaDesc.name = "description";
+                    document.head.appendChild(metaDesc);
+                }
+                metaDesc.content = descText.length > 155 ? descText.substring(0, 155) + "..." : descText;
             }
             if (seoText) {
                 let metaKeys = document.querySelector('meta[name="keywords"]');
-                if (metaKeys) metaKeys.content = seoText;
+                if (!metaKeys) {
+                    metaKeys = document.createElement('meta');
+                    metaKeys.name = "keywords";
+                    document.head.appendChild(metaKeys);
+                }
+                metaKeys.content = seoText;
             }
             
             renderOtherServices(window.currentServiceId, lang);
         }
+    };
     
     if(langSelect) {
         langSelect.addEventListener('change', (e) => { 
@@ -210,22 +222,33 @@ async function loadSettings() {
 
 /* ================= 5. CHARGEMENT DES SERVICES DYNAMIQUES ================= */
 let allServicesData = [];
+
 async function loadServices() {
     const container = document.getElementById('services-container'); 
     try {
-        const querySnapshot = await getDocs(collection(db, "services")); allServicesData = [];
+        const querySnapshot = await getDocs(collection(db, "services")); 
+        allServicesData = [];
         querySnapshot.forEach((docSnap) => allServicesData.push({ id: docSnap.id, ...docSnap.data() }));
         allServicesData.sort((a, b) => (a.order || 999) - (b.order || 999)); 
         renderServices();
         if(window.currentServiceId) renderOtherServices(window.currentServiceId, localStorage.getItem('usm_lang') || 'fr');
-    } catch (error) { if(container) container.innerHTML = '<p style="color:red;">Erreur de chargement.</p>'; }
+    } catch (error) { 
+        if(container) container.innerHTML = '<p style="color:red;">Erreur de chargement.</p>'; 
+    }
 }
 
 function renderServices() {
-    const container = document.getElementById('services-container'); if(!container) return;
-    if(allServicesData.length === 0) { container.innerHTML = '<p style="color:#aaa;">Aucun service disponible.</p>'; return; }
+    const container = document.getElementById('services-container'); 
+    if(!container) return;
     
-    const currentLang = localStorage.getItem('usm_lang') || 'fr'; let html = '';
+    if(allServicesData.length === 0) { 
+        container.innerHTML = '<p style="color:#aaa;">Aucun service disponible.</p>'; 
+        return; 
+    }
+    
+    const currentLang = localStorage.getItem('usm_lang') || 'fr'; 
+    let html = '';
+    
     allServicesData.forEach(srv => {
         const title = srv[`title_${currentLang}`] || srv.title_fr || 'Service';
         const sub = srv[`subtitle_${currentLang}`] || srv.subtitle_fr || '';
@@ -235,7 +258,9 @@ function renderServices() {
 }
 
 function renderOtherServices(excludeId, lang) {
-    const container = document.getElementById('other-services-container'); if(!container) return;
+    const container = document.getElementById('other-services-container'); 
+    if(!container) return;
+    
     let html = '';
     allServicesData.forEach(srv => {
         if(srv.id !== excludeId) {
@@ -267,7 +292,10 @@ async function loadSingleServicePage() {
             const seoText = srv[`seo_${currentLang}`] || srv.seo_fr || "";
             
             const imgEl = document.getElementById('srv-hero-img');
-            if(imgEl && srv.image_url) { imgEl.src = srv.image_url; imgEl.alt = titleText; }
+            if(imgEl && srv.image_url) {
+                imgEl.src = srv.image_url;
+                imgEl.alt = titleText;
+            }
             
             const titleEl = document.getElementById('srv-page-title');
             const subEl = document.getElementById('srv-page-subtitle');
@@ -282,12 +310,20 @@ async function loadSingleServicePage() {
 
             if (descText) {
                 let metaDesc = document.querySelector('meta[name="description"]');
-                if (!metaDesc) { metaDesc = document.createElement('meta'); metaDesc.name = "description"; document.head.appendChild(metaDesc); }
+                if (!metaDesc) {
+                    metaDesc = document.createElement('meta');
+                    metaDesc.name = "description";
+                    document.head.appendChild(metaDesc);
+                }
                 metaDesc.content = descText.length > 155 ? descText.substring(0, 155) + "..." : descText;
             }
             if (seoText) {
                 let metaKeys = document.querySelector('meta[name="keywords"]');
-                if (!metaKeys) { metaKeys = document.createElement('meta'); metaKeys.name = "keywords"; document.head.appendChild(metaKeys); }
+                if (!metaKeys) {
+                    metaKeys = document.createElement('meta');
+                    metaKeys.name = "keywords";
+                    document.head.appendChild(metaKeys);
+                }
                 metaKeys.content = seoText;
             }
             
@@ -295,7 +331,8 @@ async function loadSingleServicePage() {
 
         } else {
             if(document.getElementById('srv-page-title')) document.getElementById('srv-page-title').textContent = "Service Introuvable";
-            if(document.getElementById('srv-page-desc')) document.getElementById('srv-page-desc').textContent = "Ce service n'existe pas.";
+            if(document.getElementById('srv-page-desc')) document.getElementById('srv-page-desc').textContent = "Ce service n'existe pas ou a été supprimé.";
+            document.title = "Service Introuvable | USM Football";
         }
     } catch(e) { console.error("Erreur Service: ", e); }
 }
@@ -378,4 +415,3 @@ function setupTabs() {
         }); 
     }); 
 }
-
