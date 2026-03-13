@@ -1,5 +1,5 @@
 /* ==========================================================================
-   USM FOOTBALL - ADMIN JAVASCRIPT (CORRIGÉ & SÉCURISÉ)
+   USM FOOTBALL - ADMIN JAVASCRIPT (CORRIGÉ ET SANS DOUBLONS)
    ========================================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -21,7 +21,6 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// VARIABLE GLOBALE CORRIGÉE (Plus de crash écran noir)
 let optimizedImages = { founder: null, nav: null, hero: null, service: null };
 
 /* ================= 1. AUTHENTIFICATION ================= */
@@ -321,7 +320,7 @@ function updateCropUI() {
 function getCroppedWebP() {
     if(!cropState.img) return null;
     const off = document.createElement('canvas');
-    off.width = 600; off.height = 800; 
+    off.width = 600; off.height = 800;
     const ctx = off.getContext('2d');
     ctx.translate(300, 400); 
     ctx.scale(cropState.zoom * 2.5, cropState.zoom * 2.5); 
@@ -585,7 +584,7 @@ async function loadAdminServices() {
         querySnapshot.forEach((docSnap) => allAdminServices.push({ id: docSnap.id, ...docSnap.data() })); 
         renderAdminServicesTable();
     } catch (e) {
-        list.innerHTML = '<tr><td colspan="3" style="color:red;">Erreur.</td></tr>';
+        list.innerHTML = '<tr><td colspan="3" style="color:red;">Erreur de chargement.</td></tr>';
     }
 }
 
@@ -841,4 +840,3 @@ document.querySelectorAll('.lang-tab-srv').forEach(tab => {
         if(content) content.classList.remove('hidden');
     });
 });
-
