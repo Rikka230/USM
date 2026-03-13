@@ -1,5 +1,5 @@
 /* ==========================================================================
-   USM FOOTBALL - ADMIN JAVASCRIPT (CMS COMPLET + GESTION DES 4 IMAGES)
+   USM FOOTBALL - ADMIN JAVASCRIPT (CMS COMPLET + MULTILINGUE + IMAGES)
    ========================================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -59,38 +59,53 @@ document.getElementById('nav-settings').addEventListener('click', async (e) => {
     e.target.classList.add('active');
     secSettings.classList.remove('hidden'); secManage.classList.add('hidden'); secForm.classList.add('hidden');
     
-    const docSnap = await getDoc(doc(db, "settings", "general"));
-    if (docSnap.exists()) {
-        const data = docSnap.data();
-        
-        // Stats
-        document.getElementById('set-stat1').value = data.stat1 || '';
-        document.getElementById('set-stat2').value = data.stat2 || '';
-        document.getElementById('set-stat3').value = data.stat3 || '';
-        document.getElementById('set-stat4').value = data.stat4 || '';
-        
-        // Textes Fondateur
-        document.getElementById('set-founder-quote').value = data.founderQuote || '';
-        document.getElementById('set-founder-desc-fr').value = data.founderDesc_fr || '';
-        document.getElementById('set-founder-desc-en').value = data.founderDesc_en || '';
-        document.getElementById('set-founder-desc-es').value = data.founderDesc_es || '';
-        document.getElementById('set-founder-desc-pt').value = data.founderDesc_pt || '';
+    try {
+        const docSnap = await getDoc(doc(db, "settings", "general"));
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            
+            // Stats
+            document.getElementById('set-stat1').value = data.stat1 || '';
+            document.getElementById('set-stat2').value = data.stat2 || '';
+            document.getElementById('set-stat3').value = data.stat3 || '';
+            document.getElementById('set-stat4').value = data.stat4 || '';
+            
+            // Textes Fondateur (Correction des IDs multilingues)
+            document.getElementById('set-founder-quote-fr').value = data.founderQuote_fr || data.founderQuote || '';
+            document.getElementById('set-founder-desc-fr').value = data.founderDesc_fr || data.founderDesc || '';
+            
+            document.getElementById('set-founder-quote-en').value = data.founderQuote_en || '';
+            document.getElementById('set-founder-desc-en').value = data.founderDesc_en || '';
+            
+            document.getElementById('set-founder-quote-es').value = data.founderQuote_es || '';
+            document.getElementById('set-founder-desc-es').value = data.founderDesc_es || '';
+            
+            document.getElementById('set-founder-quote-pt').value = data.founderQuote_pt || '';
+            document.getElementById('set-founder-desc-pt').value = data.founderDesc_pt || '';
 
-        // Pré-remplissage des images
-        prefillImageZone('drop-zone-nav', 'existing-logo-nav', data.logoNav, 'Glissez le logo header');
-        prefillImageZone('drop-zone-hero', 'existing-logo-hero', data.logoHero, 'Glissez le logo central');
-        prefillImageZone('drop-zone-founder', 'existing-founder-img', data.founderImg, 'Glissez la photo du fondateur');
-        
-        // Réinitialisation des buffers de nouveaux fichiers
-        optimizedImages = { player: null, founder: null, nav: null, hero: null };
-    }
+            // Pré-remplissage des images
+            prefillImageZone('drop-zone-nav', 'existing-logo-nav', data.logoNav, 'Glissez le logo header');
+            prefillImageZone('drop-zone-hero', 'existing-logo-hero', data.logoHero, 'Glissez le logo central');
+            prefillImageZone('drop-zone-founder', 'existing-founder-img', data.founderImg, 'Glissez la photo du fondateur');
+            
+            optimizedImages = { player: null, founder: null, nav: null, hero: null };
+        }
+    } catch(err) { console.error("Erreur de chargement:", err); }
 });
 
+// Affiche la photo tout en conservant le bouton d'upload invisible intact
 function prefillImageZone(zoneId, inputId, url, defaultText) {
     document.getElementById(inputId).value = url || '';
     const zone = document.getElementById(zoneId);
-    if(url) zone.innerHTML = `<img src="${url}" style="max-height: 80px; border-radius: 8px;"> <p style="font-size:11px; color:#aaa; margin-top:5px;">(Cliquez pour remplacer)</p>`;
-    else zone.innerHTML = `<p style="font-size: 0.9rem;">${defaultText}</p>`;
+    const fileInput = zone.querySelector('input[type="file"]'); // On sauvegarde l'input
+    
+    if(url) {
+        zone.innerHTML = `<img src="${url}" style="max-height: 80px; border-radius: 8px;"> <p style="font-size:11px; color:#aaa; margin-top:5px;">(Cliquez pour remplacer)</p>`;
+    } else {
+        zone.innerHTML = `<p style="font-size: 0.9rem;">${defaultText}</p>`;
+    }
+    
+    if (fileInput) zone.appendChild(fileInput); // On le remet dedans !
 }
 
 document.getElementById('btn-show-add-form').addEventListener('click', () => {
@@ -99,7 +114,7 @@ document.getElementById('btn-show-add-form').addEventListener('click', () => {
     document.getElementById('existing-image-url').value = '';
     document.getElementById('form-title').textContent = "Créer un Profil";
     document.getElementById('publish-btn').textContent = "Ajouter au Roster";
-    document.getElementById('drop-zone').innerHTML = "<p>Glissez la photo du joueur ici</p>";
+    prefillImageZone('drop-zone', 'existing-image-url', '', 'Glissez la photo du joueur ici');
     optimizedImages.player = null;
     secManage.classList.add('hidden'); secForm.classList.remove('hidden');
 });
@@ -144,9 +159,11 @@ function processImage(file, zoneElement, targetKey) {
             webCtx.drawImage(img, 0, 0, wWidth, wHeight);
             
             const webpData = webCanvas.toDataURL('image/webp', 0.8);
-            optimizedImages[targetKey] = webpData; // Stockage dans le bon buffer
+            optimizedImages[targetKey] = webpData; 
             
+            const fileInput = zoneElement.querySelector('input[type="file"]');
             zoneElement.innerHTML = `<img src="${webpData}" style="max-height: 80px; border-radius: 8px;"> <p style="color:var(--usm-pink); font-size:11px; margin-top:5px;">✓ Prêt</p>`;
+            if (fileInput) zoneElement.appendChild(fileInput); // Garde le bouton intact
         };
         img.src = event.target.result;
     };
@@ -167,9 +184,9 @@ let adminSearchQuery = '';
 let adminCurrentPage = 1;
 const ITEMS_PER_PAGE = 5;
 
-document.querySelectorAll('.admin-tab').forEach(tab => {
+document.querySelectorAll('.admin-tab:not(.lang-tab)').forEach(tab => {
     tab.addEventListener('click', (e) => {
-        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.admin-tab:not(.lang-tab)').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
         adminCurrentCat = e.target.getAttribute('data-cat');
         adminSearchQuery = ''; 
@@ -182,7 +199,7 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
 document.getElementById('search-bar').addEventListener('input', (e) => {
     adminSearchQuery = e.target.value.toLowerCase();
     adminCurrentPage = 1;
-    if(adminSearchQuery.length > 0) document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    if(adminSearchQuery.length > 0) document.querySelectorAll('.admin-tab:not(.lang-tab)').forEach(t => t.classList.remove('active'));
     renderAdminTable();
 });
 
@@ -266,10 +283,11 @@ function editPlayer(id) {
     document.getElementById('player-stat').value = player.stat || '';
     document.getElementById('player-tm').value = player.transfermarkt || '';
     document.getElementById('player-category').value = player.category;
-    document.getElementById('existing-image-url').value = player.image_url;
+    
     document.getElementById('form-title').textContent = "Modifier : " + player.name;
     document.getElementById('publish-btn').textContent = "Mettre à jour";
-    document.getElementById('drop-zone').innerHTML = `<img src="${player.image_url}" style="max-height: 150px; border-radius: 8px;">`;
+    prefillImageZone('drop-zone', 'existing-image-url', player.image_url, 'Glissez la photo du joueur ici');
+    
     optimizedImages.player = null;
     secManage.classList.add('hidden'); secForm.classList.remove('hidden');
 }
@@ -343,7 +361,7 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
     btn.textContent = "Sauvegarde en cours...";
     
     try {
-        // 1. Uploads des 3 images si modifiées
+        // Uploads des images si modifiées
         let finalFounderUrl = document.getElementById('existing-founder-img').value || "";
         if (optimizedImages.founder) {
             const r = ref(storage, `site/founder_${Date.now()}.webp`);
@@ -365,27 +383,32 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
             finalHeroUrl = await getDownloadURL(r);
         }
 
-        // 2. Envoi sur Firestore
+        // Envoi sur Firestore
         await setDoc(doc(db, "settings", "general"), {
             logoNav: finalNavUrl,
             logoHero: finalHeroUrl,
             founderImg: finalFounderUrl,
-            founderQuote: document.getElementById('set-founder-quote').value,
+            
+            founderQuote_fr: document.getElementById('set-founder-quote-fr').value,
             founderDesc_fr: document.getElementById('set-founder-desc-fr').value,
+            founderQuote_en: document.getElementById('set-founder-quote-en').value,
             founderDesc_en: document.getElementById('set-founder-desc-en').value,
+            founderQuote_es: document.getElementById('set-founder-quote-es').value,
             founderDesc_es: document.getElementById('set-founder-desc-es').value,
+            founderQuote_pt: document.getElementById('set-founder-quote-pt').value,
             founderDesc_pt: document.getElementById('set-founder-desc-pt').value,
+            
             stat1: document.getElementById('set-stat1').value,
             stat2: document.getElementById('set-stat2').value,
             stat3: document.getElementById('set-stat3').value,
             stat4: document.getElementById('set-stat4').value
         }, { merge: true });
         
-        // 3. Mise à jour locale pour éviter le double upload
+        // Mise à jour locale
         document.getElementById('existing-founder-img').value = finalFounderUrl;
         document.getElementById('existing-logo-nav').value = finalNavUrl;
         document.getElementById('existing-logo-hero').value = finalHeroUrl;
-        optimizedImages.founder = null; optimizedImages.nav = null; optimizedImages.hero = null;
+        optimizedImages = { player: null, founder: null, nav: null, hero: null };
 
         alert("Identité et Paramètres mis à jour avec succès !");
     } catch(err) { alert("Erreur : " + err.message); } 
@@ -395,7 +418,7 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
 /* ================= 8. GESTION DES ONGLETS DE LANGUE ================= */
 document.querySelectorAll('.lang-tab').forEach(tab => {
     tab.addEventListener('click', (e) => {
-        e.preventDefault(); // Empêche le formulaire de s'envoyer
+        e.preventDefault();
         document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active');
         
