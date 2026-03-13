@@ -97,7 +97,8 @@ body {
 }
 
 .logo-nav { 
-    font-size: 1.2rem; 
+    font-family: 'Moglan', sans-serif; /* L'ajout de la police est ici */
+    font-size: 1.5rem; /* Tu pourras ajuster la taille si Moglan taille petit */
     font-weight: 900; 
     letter-spacing: 2px; 
     display: flex; 
@@ -629,6 +630,7 @@ body {
 .admin-secret-link:hover {
     color: var(--usm-pink); 
 }
+
 
 
 
