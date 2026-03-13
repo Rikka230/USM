@@ -376,6 +376,7 @@ body {
     font-size: 1.1rem; 
     margin-bottom: 30px; 
     line-height: 1.6; 
+    white-space: pre-line;
 }
 
 .licenses-wrapper { 
@@ -621,5 +622,6 @@ body {
 .admin-secret-link:hover {
     color: var(--usm-pink); 
 }
+
 
 
