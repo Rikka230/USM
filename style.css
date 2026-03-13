@@ -102,14 +102,14 @@ body {
     font-weight: 900; 
     letter-spacing: 2px; 
     display: flex; 
-    align-items: center; 
+    align-items: center; /* Centre la ligne de base */
     gap: 12px; 
 }
 
 .logo-nav img {
-    height: 35px; 
+    height: 38px; /* On lui donne un peu plus de prestance */
     width: auto;
-    transform: translateY(3px); 
+    transform: translateY(-5px); /* 🪄 Valeur NÉGATIVE pour faire monter l'aigle au niveau du serif */
 }
 .logo-nav span { color: var(--usm-pink); }
 
@@ -655,6 +655,7 @@ body {
     border-color: var(--usm-pink); outline: none; background: rgba(216, 0, 86, 0.05); box-shadow: 0 0 15px rgba(216,0,86,0.2);
 }
 .public-form select option { background: var(--bg-dark); color: white; }
+
 
 
 
