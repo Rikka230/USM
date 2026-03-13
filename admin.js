@@ -71,7 +71,10 @@ document.getElementById('nav-settings').addEventListener('click', async (e) => {
         
         // Textes Fondateur
         document.getElementById('set-founder-quote').value = data.founderQuote || '';
-        document.getElementById('set-founder-desc').value = data.founderDesc || '';
+        document.getElementById('set-founder-desc-fr').value = data.founderDesc_fr || '';
+        document.getElementById('set-founder-desc-en').value = data.founderDesc_en || '';
+        document.getElementById('set-founder-desc-es').value = data.founderDesc_es || '';
+        document.getElementById('set-founder-desc-pt').value = data.founderDesc_pt || '';
 
         // Pré-remplissage des images
         prefillImageZone('drop-zone-nav', 'existing-logo-nav', data.logoNav, 'Glissez le logo header');
@@ -368,7 +371,10 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
             logoHero: finalHeroUrl,
             founderImg: finalFounderUrl,
             founderQuote: document.getElementById('set-founder-quote').value,
-            founderDesc: document.getElementById('set-founder-desc').value,
+            founderDesc_fr: document.getElementById('set-founder-desc-fr').value,
+            founderDesc_en: document.getElementById('set-founder-desc-en').value,
+            founderDesc_es: document.getElementById('set-founder-desc-es').value,
+            founderDesc_pt: document.getElementById('set-founder-desc-pt').value,
             stat1: document.getElementById('set-stat1').value,
             stat2: document.getElementById('set-stat2').value,
             stat3: document.getElementById('set-stat3').value,
@@ -385,3 +391,4 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
     } catch(err) { alert("Erreur : " + err.message); } 
     finally { btn.textContent = "Enregistrer les modifications"; }
 });
+
