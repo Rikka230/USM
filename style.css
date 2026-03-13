@@ -277,35 +277,37 @@ body {
 
 
 /* ================= 6. SERVICES (TUILES) ================= */
-.services-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 15px;
-    width: 100%;
-}
+.services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 30px; }
 
-.service-mini-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--surface-border);
-    padding: 20px 25px;
-    border-radius: 16px;
-    color: white;
-    text-decoration: none;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: bold;
-    font-size: 0.95rem;
-    transition: 0.3s;
+.bento-service-card {
+    display: flex; flex-direction: column; justify-content: flex-end;
+    min-height: 280px; /* Donne de la hauteur pour bien voir la photo */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 3px solid var(--usm-pink);
+    padding: 30px; border-radius: 16px;
+    text-decoration: none; transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    overflow: hidden;
 }
+.bento-service-card:hover {
+    border-color: rgba(216, 0, 86, 0.8);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+}
+/* Force le texte à passer au-dessus de l'image de fond */
+.srv-card-content, .srv-card-arrow { position: relative; z-index: 2; }
 
-.service-mini-card:hover {
-    background: rgba(216, 0, 86, 0.1);
-    border-color: var(--usm-pink);
-    transform: translateY(-3px);
-    color: var(--usm-pink);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+.srv-card-content h3 { font-size: 1.6rem; color: #fff; margin-bottom: 10px; text-shadow: 0 2px 15px rgba(0,0,0,0.9); }
+.srv-card-content p { 
+    font-size: 0.95rem; color: #eee; line-height: 1.5; 
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; 
+    text-shadow: 0 2px 15px rgba(0,0,0,0.9);
 }
+.srv-card-arrow { 
+    align-self: flex-end; margin-top: 25px; color: var(--usm-pink); font-weight: bold; 
+    font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; 
+}
+.bento-service-card:hover .srv-card-arrow { transform: translateX(8px); color: #fff; }
 
 
 /* ================= 7. SECTION VIP (FONDATEUR) ================= */
@@ -697,6 +699,7 @@ body {
 .service-desc { font-size: 1.15rem; line-height: 1.8; color: #ccc; white-space: pre-line; }
 .btn-back { display: inline-block; margin-bottom: 20px; color: var(--usm-pink); text-decoration: none; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
 .btn-back:hover { color: #fff; transform: translateX(-5px); }
+
 
 
 
