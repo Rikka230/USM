@@ -113,13 +113,13 @@
                     <input type="hidden" id="edit-service-id">
                     <input type="hidden" id="existing-srv-img">
 
-                    <label style="color:#aaa; font-size:0.85rem;">Image d'illustration (Bannière)</label>
+                    <label style="color:#aaa; font-size:0.85rem;">Image d'illustration (Bannière / Balise Alt SEO)</label>
                     <div id="drop-zone-srv" class="drop-zone">
                         <p>Glissez la photo du service ici</p>
                         <input type="file" id="srv-upload" accept="image/*" hidden>
                     </div>
 
-                    <h3 class="pink-accent" style="margin-top:20px;">Textes (Multilingue)</h3>
+                    <h3 class="pink-accent" style="margin-top:20px;">Contenu & SEO (Multilingue)</h3>
                     <div style="display:flex; gap:10px; margin-bottom: 20px;">
                         <button type="button" class="admin-tab lang-tab-srv active" data-lang="fr">🇫🇷 FR</button>
                         <button type="button" class="admin-tab lang-tab-srv" data-lang="en">🇬🇧 EN</button>
@@ -128,25 +128,27 @@
                     </div>
 
                     <div class="lang-content-srv" id="lang-srv-fr">
-                        <label style="color:#aaa; font-size:0.85rem;">Titre (FR)</label>
+                        <label style="color:#aaa; font-size:0.85rem;">Titre (H1 & Balise Title)</label>
                         <input type="text" id="srv-title-fr" placeholder="Ex: Gestion de Carrière" required>
-                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (FR)</label>
+                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Mots-clés SEO (séparés par des virgules)</label>
+                        <input type="text" id="srv-seo-fr" placeholder="Ex: agent football, transfert, gestion, contrat...">
+                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (Contenu & Meta Description)</label>
                         <textarea id="srv-desc-fr" rows="6" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
                     </div>
                     <div class="lang-content-srv hidden" id="lang-srv-en">
                         <label style="color:#aaa; font-size:0.85rem;">Titre (EN)</label><input type="text" id="srv-title-en">
-                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (EN)</label>
-                        <textarea id="srv-desc-en" rows="6" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
+                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Mots-clés SEO (EN)</label><input type="text" id="srv-seo-en" placeholder="Ex: football agent, transfers...">
+                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (EN)</label><textarea id="srv-desc-en" rows="6" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
                     </div>
                     <div class="lang-content-srv hidden" id="lang-srv-es">
                         <label style="color:#aaa; font-size:0.85rem;">Titre (ES)</label><input type="text" id="srv-title-es">
-                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (ES)</label>
-                        <textarea id="srv-desc-es" rows="6" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
+                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Mots-clés SEO (ES)</label><input type="text" id="srv-seo-es">
+                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (ES)</label><textarea id="srv-desc-es" rows="6" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
                     </div>
                     <div class="lang-content-srv hidden" id="lang-srv-pt">
                         <label style="color:#aaa; font-size:0.85rem;">Titre (PT)</label><input type="text" id="srv-title-pt">
-                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (PT)</label>
-                        <textarea id="srv-desc-pt" rows="6" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
+                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Mots-clés SEO (PT)</label><input type="text" id="srv-seo-pt">
+                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (PT)</label><textarea id="srv-desc-pt" rows="6" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
                     </div>
 
                     <div style="display: flex; gap: 15px; margin-top: 20px;">
@@ -262,4 +264,5 @@
     <script type="module" src="admin.js"></script>
 </body>
 </html>
+
 
