@@ -1,5 +1,5 @@
 /* ==========================================================================
-   USM FOOTBALL - ADMIN JAVASCRIPT (BASE 4 + CROPPER + SERVICES)
+   USM FOOTBALL - ADMIN JAVASCRIPT (FULL CMS + CROPPER + SERVICES SEO)
    ========================================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -13,8 +13,7 @@ const firebaseConfig = {
   projectId: "usm-football-b56ba",
   storageBucket: "usm-football-b56ba.firebasestorage.app",
   messagingSenderId: "1004955626049",
-  appId: "1:1004955626049:web:1982ac82e68599946f74c0",
-  measurementId: "G-5FCYP7CMQD"
+  appId: "1:1004955626049:web:1982ac82e68599946f74c0"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -34,7 +33,7 @@ onAuthStateChanged(auth, (user) => {
         if(dash) dash.classList.remove('hidden');
         
         loadAdminPlayers(); 
-        loadAdminServices(); // On charge les services au démarrage
+        loadAdminServices();
     } else {
         const dash = document.getElementById('dashboard');
         if(dash) dash.classList.add('hidden');
@@ -59,8 +58,7 @@ if(logoutBtn) {
 
 /* ================= 2. NAVIGATION ET CHARGEMENT SETTINGS ================= */
 function hideAllSections() {
-    const sections = ['manage-players-section', 'form-player-section', 'settings-section', 'manage-services-section', 'form-service-section'];
-    sections.forEach(id => {
+    ['manage-players-section', 'form-player-section', 'settings-section', 'manage-services-section', 'form-service-section'].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.classList.add('hidden');
     });
@@ -72,8 +70,7 @@ if(navManage) {
         document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
         e.target.classList.add('active');
         hideAllSections();
-        const sec = document.getElementById('manage-players-section');
-        if(sec) sec.classList.remove('hidden');
+        document.getElementById('manage-players-section').classList.remove('hidden');
     });
 }
 
@@ -83,8 +80,7 @@ if(navServices) {
         document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
         e.target.classList.add('active');
         hideAllSections();
-        const sec = document.getElementById('manage-services-section');
-        if(sec) sec.classList.remove('hidden');
+        document.getElementById('manage-services-section').classList.remove('hidden');
     });
 }
 
@@ -94,25 +90,21 @@ if(navSettings) {
         document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
         e.target.classList.add('active');
         hideAllSections();
-        const sec = document.getElementById('settings-section');
-        if(sec) sec.classList.remove('hidden');
+        document.getElementById('settings-section').classList.remove('hidden');
         
         try {
             const docSnap = await getDoc(doc(db, "settings", "general"));
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 
-                // Stats
                 ['stat1', 'stat2', 'stat3', 'stat4'].forEach(s => {
                     const el = document.getElementById(`set-${s}`);
                     if(el) el.value = data[s] || '';
                 });
                 
-                // Textes Multilingues
                 ['fr', 'en', 'es', 'pt'].forEach(lang => {
                     const q = document.getElementById(`set-founder-quote-${lang}`);
                     if(q) q.value = data[`founderQuote_${lang}`] || data.founderQuote || '';
-                    
                     const d = document.getElementById(`set-founder-desc-${lang}`);
                     if(d) d.value = data[`founderDesc_${lang}`] || data.founderDesc || '';
                 });
@@ -123,19 +115,15 @@ if(navSettings) {
                 
                 optimizedImages = { founder: null, nav: null, hero: null, service: null };
             }
-        } catch (error) {
-            console.error("Erreur chargement paramètres :", error);
-        }
+        } catch (error) { console.error(error); }
     });
 }
 
 function prefillImageZone(zoneId, inputId, url, defaultText) {
     const input = document.getElementById(inputId);
     if(input) input.value = url || '';
-    
     const zone = document.getElementById(zoneId);
     if(!zone) return;
-    
     const fileInput = zone.querySelector('input[type="file"]'); 
     
     if(url) {
@@ -143,14 +131,12 @@ function prefillImageZone(zoneId, inputId, url, defaultText) {
     } else {
         zone.innerHTML = `<p style="font-size: 0.9rem;">${defaultText}</p>`;
     }
-    
     if (fileInput) zone.appendChild(fileInput);
 }
 
 /* ================= 3. LE STUDIO PHOTO (CROPPER) & UPLOADS ================= */
 let optimizedImages = { founder: null, nav: null, hero: null, service: null };
 
-// A. Upload Standard (Logos, Services, Fondateur)
 function setupDropZone(zoneId, inputId, targetKey) {
     const zone = document.getElementById(zoneId);
     const input = document.getElementById(inputId);
@@ -159,19 +145,15 @@ function setupDropZone(zoneId, inputId, targetKey) {
     zone.addEventListener('click', () => input.click());
     zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
     zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
-    
     zone.addEventListener('drop', (e) => { 
-        e.preventDefault(); 
-        zone.classList.remove('dragover');
+        e.preventDefault(); zone.classList.remove('dragover');
         processStandardImage(e.dataTransfer.files[0], zone, targetKey); 
     });
-    
     input.addEventListener('change', (e) => processStandardImage(e.target.files[0], zone, targetKey));
 }
 
 function processStandardImage(file, zoneElement, targetKey) {
-    if (!file || !file.type.startsWith('image/')) return alert("Veuillez utiliser une image.");
-    
+    if (!file || !file.type.startsWith('image/')) return;
     const reader = new FileReader();
     reader.onload = (event) => {
         const img = new Image();
@@ -179,16 +161,13 @@ function processStandardImage(file, zoneElement, targetKey) {
             const webCanvas = document.createElement('canvas');
             const webCtx = webCanvas.getContext('2d');
             let wWidth = img.width, wHeight = img.height;
-            
             if (wWidth > 1200) { wHeight = Math.round((wHeight * 1200) / wWidth); wWidth = 1200; }
             webCanvas.width = wWidth; webCanvas.height = wHeight;
             webCtx.drawImage(img, 0, 0, wWidth, wHeight);
             
-            const webpData = webCanvas.toDataURL('image/webp', 0.8);
-            optimizedImages[targetKey] = webpData; 
-            
+            optimizedImages[targetKey] = webCanvas.toDataURL('image/webp', 0.8); 
             const fileInput = zoneElement.querySelector('input[type="file"]');
-            zoneElement.innerHTML = `<img src="${webpData}" style="max-height: 80px; border-radius: 8px;"> <p style="color:var(--usm-pink); font-size:11px; margin-top:5px;">✓ Prêt</p>`;
+            zoneElement.innerHTML = `<img src="${optimizedImages[targetKey]}" style="max-height: 80px; border-radius: 8px;"> <p style="color:var(--usm-pink); font-size:11px; margin-top:5px;">✓ Prêt</p>`;
             if (fileInput) zoneElement.appendChild(fileInput);
         };
         img.src = event.target.result;
@@ -201,8 +180,6 @@ setupDropZone('drop-zone-nav', 'nav-upload', 'nav');
 setupDropZone('drop-zone-hero', 'hero-upload', 'hero');
 setupDropZone('drop-zone-srv', 'srv-upload', 'service');
 
-
-// B. Cropper Avancé pour les Joueurs
 let cropState = { img: null, zoom: 1, x: 0, y: 0, baseScale: 1 };
 const playerDropZone = document.getElementById('drop-zone');
 const playerInput = document.getElementById('media-upload');
@@ -213,15 +190,14 @@ if(playerDropZone && playerInput) {
     playerDropZone.addEventListener('dragover', (e) => { e.preventDefault(); playerDropZone.classList.add('dragover'); });
     playerDropZone.addEventListener('dragleave', () => playerDropZone.classList.remove('dragover'));
     playerDropZone.addEventListener('drop', (e) => { 
-        e.preventDefault(); 
-        playerDropZone.classList.remove('dragover'); 
+        e.preventDefault(); playerDropZone.classList.remove('dragover'); 
         loadPlayerImage(e.dataTransfer.files[0]); 
     });
     playerInput.addEventListener('change', (e) => loadPlayerImage(e.target.files[0]));
 }
 
 function loadPlayerImage(file) {
-    if (!file || !file.type.startsWith('image/')) return alert("Veuillez utiliser une image.");
+    if (!file || !file.type.startsWith('image/')) return;
     const reader = new FileReader();
     reader.onload = (e) => {
         const img = new Image();
@@ -343,14 +319,13 @@ function updateCropUI() {
 function getCroppedWebP() {
     if(!cropState.img) return null;
     const off = document.createElement('canvas');
-    off.width = 600; off.height = 800; // Format 3:4 HD
+    off.width = 600; off.height = 800;
     const ctx = off.getContext('2d');
     ctx.translate(300, 400); 
-    ctx.scale(cropState.zoom * 2.5, cropState.zoom * 2.5); // (600 / 240) = 2.5
+    ctx.scale(cropState.zoom * 2.5, cropState.zoom * 2.5); 
     ctx.drawImage(cropState.img, -cropState.img.width/2 + cropState.x, -cropState.img.height/2 + cropState.y);
     return off.toDataURL('image/webp', 0.9);
 }
-
 
 /* ================= 4. GESTION DU ROSTER (JOUEURS) ================= */
 let allAdminPlayers = []; 
@@ -608,7 +583,7 @@ async function loadAdminServices() {
         querySnapshot.forEach((docSnap) => allAdminServices.push({ id: docSnap.id, ...docSnap.data() })); 
         renderAdminServicesTable();
     } catch (e) {
-        list.innerHTML = '<tr><td colspan="3" style="color:red;">Erreur.</td></tr>';
+        list.innerHTML = '<tr><td colspan="3" style="color:red;">Erreur de chargement.</td></tr>';
     }
 }
 
@@ -664,6 +639,14 @@ if(btnAddSrv) {
         if(secFS) secFS.classList.remove('hidden');
     });
 }
+
+document.querySelectorAll('.btn-cancel-service').forEach(btn => {
+    btn.addEventListener('click', () => { 
+        hideAllSections(); 
+        const sec = document.getElementById('manage-services-section');
+        if(sec) sec.classList.remove('hidden'); 
+    });
+});
 
 function editService(id) {
     const srv = allAdminServices.find(s => s.id === id); 
@@ -758,6 +741,7 @@ if(srvForm) {
     });
 }
 
+
 /* ================= 6. SAUVEGARDE DES PARAMÈTRES GLOBAUX ================= */
 const settingsForm = document.getElementById('settings-form');
 if(settingsForm) {
@@ -851,8 +835,3 @@ document.querySelectorAll('.lang-tab-srv').forEach(tab => {
         if(content) content.classList.remove('hidden');
     });
 });
-
-/* ==========================================================================
-   FIN DU FICHIER - NE RIEN AJOUTER EN DESSOUS
-   ========================================================================== */
-
