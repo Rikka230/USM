@@ -1,5 +1,5 @@
 /* ==========================================================================
-   USM FOOTBALL - ADMIN JAVASCRIPT (CMS COMPLET AVEC 4 STATS)
+   USM FOOTBALL - ADMIN JAVASCRIPT (CMS COMPLET AVEC LOGOS & 4 STATS)
    ========================================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -48,38 +48,32 @@ const secManage = document.getElementById('manage-players-section');
 const secForm = document.getElementById('form-player-section');
 const secSettings = document.getElementById('settings-section');
 
-// Onglet Gérer le Roster
 document.getElementById('nav-manage').addEventListener('click', (e) => {
     document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
     e.target.classList.add('active');
     secManage.classList.remove('hidden'); secForm.classList.add('hidden'); secSettings.classList.add('hidden');
 });
 
-// Onglet Paramètres du Site (4 STATS)
 document.getElementById('nav-settings').addEventListener('click', async (e) => {
     document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
     e.target.classList.add('active');
     secSettings.classList.remove('hidden'); secManage.classList.add('hidden'); secForm.classList.add('hidden');
     
-    // CHARGEMENT DES 4 STATS DEPUIS FIREBASE
     const docSnap = await getDoc(doc(db, "settings", "general"));
-if (docSnap.exists()) {
-    const data = docSnap.data();
-    // Logos
-    document.getElementById('set-logo-nav').value = data.logoNav || '';
-    document.getElementById('set-logo-hero').value = data.logoHero || '';
-    // Fondateur
-    document.getElementById('set-founder-img').value = data.founderImg || '';
-    document.getElementById('set-founder-quote').value = data.founderQuote || '';
-    document.getElementById('set-founder-desc').value = data.founderDesc || '';
-    // Stats
-    document.getElementById('set-stat1').value = data.stat1 || '';
-    document.getElementById('set-stat2').value = data.stat2 || '';
-    document.getElementById('set-stat3').value = data.stat3 || '';
-    document.getElementById('set-stat4').value = data.stat4 || '';
-}
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        document.getElementById('set-logo-nav').value = data.logoNav || '';
+        document.getElementById('set-logo-hero').value = data.logoHero || '';
+        document.getElementById('set-founder-img').value = data.founderImg || '';
+        document.getElementById('set-founder-quote').value = data.founderQuote || '';
+        document.getElementById('set-founder-desc').value = data.founderDesc || '';
+        document.getElementById('set-stat1').value = data.stat1 || '';
+        document.getElementById('set-stat2').value = data.stat2 || '';
+        document.getElementById('set-stat3').value = data.stat3 || '';
+        document.getElementById('set-stat4').value = data.stat4 || '';
+    }
+}); // <-- VOILÀ L'ACCOLADE QUI MANQUAIT ET QUI A TOUT FAIT PLANTER !
 
-// Boutons d'ajout et annulation
 document.getElementById('btn-show-add-form').addEventListener('click', () => {
     document.getElementById('content-form').reset();
     document.getElementById('edit-player-id').value = '';
@@ -128,7 +122,7 @@ function handleImage(file) {
     reader.readAsDataURL(file);
 }
 
-/* ================= 4. GESTION DU ROSTER (MOTEUR DE RECHERCHE) ================= */
+/* ================= 4. GESTION DU ROSTER ================= */
 let allAdminPlayers = []; 
 let adminCurrentCat = 'gardien';
 let adminSearchQuery = '';
@@ -223,13 +217,11 @@ function renderAdminTable() {
         `;
     });
 
-    // Event listeners
     document.querySelectorAll('.btn-edit').forEach(btn => btn.addEventListener('click', (e) => editPlayer(e.target.dataset.id)));
     document.querySelectorAll('.btn-delete').forEach(btn => btn.addEventListener('click', (e) => deletePlayer(e.target.dataset.id)));
     document.querySelectorAll('.btn-move-up').forEach(btn => btn.addEventListener('click', (e) => movePlayer(parseInt(e.target.dataset.index), -1)));
     document.querySelectorAll('.btn-move-down').forEach(btn => btn.addEventListener('click', (e) => movePlayer(parseInt(e.target.dataset.index), 1)));
 
-    // Pagination
     paginationContainer.innerHTML = '';
     for(let i = 1; i <= totalPages; i++) {
         const btn = document.createElement('button');
@@ -320,7 +312,7 @@ document.getElementById('content-form').addEventListener('submit', async (e) => 
     finally { btn.disabled = false; }
 });
 
-/* ================= 7. PARAMÈTRES DU SITE (4 STATS) ================= */
+/* ================= 7. PARAMÈTRES DU SITE ================= */
 document.getElementById('settings-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector('button[type="submit"]');
@@ -328,19 +320,17 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
     
     try {
         await setDoc(doc(db, "settings", "general"), {
-    logoNav: document.getElementById('set-logo-nav').value,
-    logoHero: document.getElementById('set-logo-hero').value,
-    founderImg: document.getElementById('set-founder-img').value,
-    founderQuote: document.getElementById('set-founder-quote').value,
-    founderDesc: document.getElementById('set-founder-desc').value,
-    stat1: document.getElementById('set-stat1').value,
-    stat2: document.getElementById('set-stat2').value,
-    stat3: document.getElementById('set-stat3').value,
-    stat4: document.getElementById('set-stat4').value
-}, { merge: true });
-        alert("Statistiques mises à jour !");
+            logoNav: document.getElementById('set-logo-nav').value,
+            logoHero: document.getElementById('set-logo-hero').value,
+            founderImg: document.getElementById('set-founder-img').value,
+            founderQuote: document.getElementById('set-founder-quote').value,
+            founderDesc: document.getElementById('set-founder-desc').value,
+            stat1: document.getElementById('set-stat1').value,
+            stat2: document.getElementById('set-stat2').value,
+            stat3: document.getElementById('set-stat3').value,
+            stat4: document.getElementById('set-stat4').value
+        }, { merge: true });
+        alert("Paramètres mis à jour avec succès !");
     } catch(err) { alert("Erreur : " + err.message); } 
-    finally { btn.textContent = "Mettre à jour le site"; }
+    finally { btn.textContent = "Enregistrer les modifications"; }
 });
-
-
