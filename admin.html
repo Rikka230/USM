@@ -126,11 +126,30 @@
                         </div>
                     </div>
 
-                    <h3 class="pink-accent" style="margin-top:20px;">Section Fondateur</h3>
+                    <h3 class="pink-accent" style="margin-top:20px;">Section Fondateur (Multilingue)</h3>
+                    
                     <label style="color:#aaa; font-size:0.85rem;">Photo du Fondateur</label>
                     <div id="drop-zone-founder" class="drop-zone">
                         <p>Glissez la photo du fondateur ici</p>
                         <input type="file" id="founder-upload" accept="image/*" hidden>
+                    </div>
+                    <input type="hidden" id="existing-founder-img">
+                    
+                    <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Citation (affichée dans toutes les langues)</label>
+                    <input type="text" id="set-founder-quote" placeholder='Ex: "Le conseiller aux 3000 numéros."'>
+
+                    <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid #333;">
+                        <label style="color:var(--usm-pink); font-size:0.85rem; font-weight:bold;">🇫🇷 Description (FR)</label>
+                        <textarea id="set-founder-desc-fr" rows="3" style="width:100%; background:#111; border:1px solid #444; color:white; border-radius:8px; padding:10px; margin-bottom:15px;"></textarea>
+
+                        <label style="color:var(--usm-pink); font-size:0.85rem; font-weight:bold;">🇬🇧 Description (EN)</label>
+                        <textarea id="set-founder-desc-en" rows="3" style="width:100%; background:#111; border:1px solid #444; color:white; border-radius:8px; padding:10px; margin-bottom:15px;"></textarea>
+
+                        <label style="color:var(--usm-pink); font-size:0.85rem; font-weight:bold;">🇪🇸 Description (ES)</label>
+                        <textarea id="set-founder-desc-es" rows="3" style="width:100%; background:#111; border:1px solid #444; color:white; border-radius:8px; padding:10px; margin-bottom:15px;"></textarea>
+
+                        <label style="color:var(--usm-pink); font-size:0.85rem; font-weight:bold;">🇵🇹 Description (PT)</label>
+                        <textarea id="set-founder-desc-pt" rows="3" style="width:100%; background:#111; border:1px solid #444; color:white; border-radius:8px; padding:10px;"></textarea>
                     </div>
                     <input type="hidden" id="existing-founder-img">
                     <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Citation</label>
@@ -155,3 +174,4 @@
     <script type="module" src="admin.js"></script>
 </body>
 </html>
+
