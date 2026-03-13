@@ -1,5 +1,5 @@
 /* ==========================================================================
-   USM FOOTBALL - ADMIN JAVASCRIPT (CMS COMPLET AVEC LOGOS & 4 STATS)
+   USM FOOTBALL - ADMIN JAVASCRIPT (CMS COMPLET AVEC DRAG & DROP FONDATEUR)
    ========================================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -64,15 +64,24 @@ document.getElementById('nav-settings').addEventListener('click', async (e) => {
         const data = docSnap.data();
         document.getElementById('set-logo-nav').value = data.logoNav || '';
         document.getElementById('set-logo-hero').value = data.logoHero || '';
-        document.getElementById('set-founder-img').value = data.founderImg || '';
         document.getElementById('set-founder-quote').value = data.founderQuote || '';
         document.getElementById('set-founder-desc').value = data.founderDesc || '';
         document.getElementById('set-stat1').value = data.stat1 || '';
         document.getElementById('set-stat2').value = data.stat2 || '';
         document.getElementById('set-stat3').value = data.stat3 || '';
         document.getElementById('set-stat4').value = data.stat4 || '';
+
+        // Chargement Image Fondateur Existante
+        document.getElementById('existing-founder-img').value = data.founderImg || '';
+        const dzFounder = document.getElementById('drop-zone-founder');
+        if(data.founderImg) {
+            dzFounder.innerHTML = `<img src="${data.founderImg}" style="max-height: 150px; border-radius: 8px;"> <p style="font-size:12px; color:#aaa; margin-top:10px;">(Glissez une nouvelle photo pour remplacer)</p>`;
+        } else {
+            dzFounder.innerHTML = `<p>Glissez la photo du fondateur ici</p>`;
+        }
+        optimizedFounderMedia = null;
     }
-}); // <-- VOILÀ L'ACCOLADE QUI MANQUAIT ET QUI A TOUT FAIT PLANTER !
+});
 
 document.getElementById('btn-show-add-form').addEventListener('click', () => {
     document.getElementById('content-form').reset();
@@ -91,7 +100,8 @@ document.querySelectorAll('.btn-cancel').forEach(btn => {
     });
 });
 
-/* ================= 3. IMAGE CANVAS (WEBP) ================= */
+/* ================= 3. IMAGE CANVAS (DRAG & DROP JOUEURS & FONDATEUR) ================= */
+// A. Pour les Joueurs
 const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('media-upload');
 let optimizedWebMedia = null;
@@ -99,10 +109,22 @@ let optimizedWebMedia = null;
 dropZone.addEventListener('click', () => fileInput.click());
 dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', (e) => { e.preventDefault(); handleImage(e.dataTransfer.files[0]); });
-fileInput.addEventListener('change', (e) => { handleImage(e.target.files[0]); });
+dropZone.addEventListener('drop', (e) => { e.preventDefault(); handleImage(e.dataTransfer.files[0], dropZone, true); });
+fileInput.addEventListener('change', (e) => { handleImage(e.target.files[0], dropZone, true); });
 
-function handleImage(file) {
+// B. Pour le Fondateur
+const dropZoneFounder = document.getElementById('drop-zone-founder');
+const fileInputFounder = document.getElementById('founder-upload');
+let optimizedFounderMedia = null;
+
+dropZoneFounder.addEventListener('click', () => fileInputFounder.click());
+dropZoneFounder.addEventListener('dragover', (e) => { e.preventDefault(); dropZoneFounder.classList.add('dragover'); });
+dropZoneFounder.addEventListener('dragleave', () => dropZoneFounder.classList.remove('dragover'));
+dropZoneFounder.addEventListener('drop', (e) => { e.preventDefault(); handleImage(e.dataTransfer.files[0], dropZoneFounder, false); });
+fileInputFounder.addEventListener('change', (e) => { handleImage(e.target.files[0], dropZoneFounder, false); });
+
+// Moteur de traitement d'image commun
+function handleImage(file, zoneElement, isPlayer) {
     if (!file.type.startsWith('image/')) return alert("Image uniquement.");
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -114,8 +136,14 @@ function handleImage(file) {
             if (wWidth > 1200) { wHeight = Math.round((wHeight * 1200) / wWidth); wWidth = 1200; }
             webCanvas.width = wWidth; webCanvas.height = wHeight;
             webCtx.drawImage(img, 0, 0, wWidth, wHeight);
-            optimizedWebMedia = webCanvas.toDataURL('image/webp', 0.8);
-            dropZone.innerHTML = `<img src="${optimizedWebMedia}" style="max-height: 150px; border-radius: 8px;"> <p style="color:var(--usm-pink); font-size:12px; margin-top:10px;">Prêt pour l'envoi</p>`;
+            
+            if(isPlayer) {
+                optimizedWebMedia = webCanvas.toDataURL('image/webp', 0.8);
+            } else {
+                optimizedFounderMedia = webCanvas.toDataURL('image/webp', 0.8);
+            }
+            
+            zoneElement.innerHTML = `<img src="${isPlayer ? optimizedWebMedia : optimizedFounderMedia}" style="max-height: 150px; border-radius: 8px;"> <p style="color:var(--usm-pink); font-size:12px; margin-top:10px;">Prêt pour l'envoi</p>`;
         };
         img.src = event.target.result;
     };
@@ -319,10 +347,20 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
     btn.textContent = "Sauvegarde...";
     
     try {
+        // Gestion de la nouvelle image fondateur si uploadée
+        let finalFounderImgUrl = document.getElementById('existing-founder-img').value || "";
+        
+        if (optimizedFounderMedia) {
+            const imageName = `site/founder_${Date.now()}.webp`;
+            const storageReference = ref(storage, imageName);
+            await uploadString(storageReference, optimizedFounderMedia, 'data_url');
+            finalFounderImgUrl = await getDownloadURL(storageReference);
+        }
+
         await setDoc(doc(db, "settings", "general"), {
             logoNav: document.getElementById('set-logo-nav').value,
             logoHero: document.getElementById('set-logo-hero').value,
-            founderImg: document.getElementById('set-founder-img').value,
+            founderImg: finalFounderImgUrl,
             founderQuote: document.getElementById('set-founder-quote').value,
             founderDesc: document.getElementById('set-founder-desc').value,
             stat1: document.getElementById('set-stat1').value,
@@ -330,6 +368,11 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
             stat3: document.getElementById('set-stat3').value,
             stat4: document.getElementById('set-stat4').value
         }, { merge: true });
+        
+        // Met à jour le champ caché pour éviter un double upload si on resauvegarde
+        document.getElementById('existing-founder-img').value = finalFounderImgUrl;
+        optimizedFounderMedia = null;
+
         alert("Paramètres mis à jour avec succès !");
     } catch(err) { alert("Erreur : " + err.message); } 
     finally { btn.textContent = "Enregistrer les modifications"; }
