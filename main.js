@@ -18,7 +18,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const analytics = getAnalytics(app); 
 
-/* ================= 3. TRADUCTION i18n ================= */
+/* ================= TRADUCTION i18n ================= */
 const translations = {
     fr: {
         nav_agency: "L'Agence", nav_services: "Services", nav_talents: "Les Talents", nav_button: "Contact",
@@ -102,7 +102,9 @@ const translations = {
     }
 };
 
-/* ================= 4. LOGIQUE GLOBALE ================= */
+window.currentServiceData = null; // Mémoire de la page service
+
+/* ================= 3. LOGIQUE GLOBALE ================= */
 document.addEventListener("DOMContentLoaded", () => {
     const langSelect = document.getElementById('lang-select');
     let currentLang = localStorage.getItem('usm_lang') || 'fr';
@@ -110,185 +112,120 @@ document.addEventListener("DOMContentLoaded", () => {
     if(langSelect) langSelect.value = currentLang;
 
     const updateContent = (lang) => {
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (translations[lang] && translations[lang][key]) el.textContent = translations[lang][key];
-        });
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-            const key = el.getAttribute('data-i18n-placeholder');
-            if (translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key];
-        });
+        document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (translations[lang] && translations[lang][key]) el.textContent = translations[lang][key]; });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { const key = el.getAttribute('data-i18n-placeholder'); if (translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key]; });
         document.documentElement.lang = lang;
-        renderServices(); // Met à jour la liste des services selon la langue sélectionnée !
+        
+        // Rafraîchissement des textes dynamiques
+        renderServices(); 
+        
+        // Rafraîchissement du texte Service Dynamique (Si on est sur la page Service)
+        if(window.currentServiceData) {
+            const srv = window.currentServiceData;
+            const titleEl = document.getElementById('srv-page-title'); const descEl = document.getElementById('srv-page-desc');
+            if(titleEl) titleEl.textContent = srv[`title_${lang}`] || srv.title_fr;
+            if(descEl) descEl.textContent = srv[`desc_${lang}`] || srv.desc_fr;
+        }
     };
     
-    if(langSelect) {
-        langSelect.addEventListener('change', (e) => {
-            const newLang = e.target.value;
-            localStorage.setItem('usm_lang', newLang);
-            updateContent(newLang);
-        });
-    }
+    if(langSelect) langSelect.addEventListener('change', (e) => { localStorage.setItem('usm_lang', e.target.value); updateContent(e.target.value); });
     updateContent(currentLang);
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
-    }, { threshold: 0.1 });
+    const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { threshold: 0.1 });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-    loadSettings();
-    loadServices(); // On appelle la base de données des services
-    loadPlayers();
+    loadSettings(); loadServices(); loadPlayers(); loadSingleServicePage(); // <- Lancement de la nouvelle fonction
 });
 
-/* ================= 5. CHARGEMENT PARAMÈTRES ================= */
+/* ================= 4. CHARGEMENT PARAMÈTRES ================= */
 async function loadSettings() {
     try {
-        const docSnap = await getDoc(doc(db, "settings", "general"));
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            if(data.stat1 && document.getElementById('stat-1')) document.getElementById('stat-1').textContent = data.stat1;
-            if(data.stat2 && document.getElementById('stat-2')) document.getElementById('stat-2').textContent = data.stat2;
-            if(data.stat3 && document.getElementById('stat-3')) document.getElementById('stat-3').textContent = data.stat3;
-            if(data.stat4 && document.getElementById('stat-4')) document.getElementById('stat-4').textContent = data.stat4;
+        const d = await getDoc(doc(db, "settings", "general"));
+        if (d.exists()) {
+            const data = d.data();
+            ['stat1', 'stat2', 'stat3', 'stat4'].forEach(s => { if(data[s] && document.getElementById(`stat-${s.replace('stat','')}`)) document.getElementById(`stat-${s.replace('stat','')}`).textContent = data[s]; });
             if(data.logoNav && document.querySelector('.logo-nav img')) document.querySelector('.logo-nav img').src = data.logoNav;
             if(data.logoHero && document.querySelector('.massive-eagle-wrapper img')) document.querySelector('.massive-eagle-wrapper img').src = data.logoHero;
             if(data.founderImg && document.querySelector('.vip-photo-wrapper img')) document.querySelector('.vip-photo-wrapper img').src = data.founderImg;
 
-            if(data.founderQuote_fr) translations.fr.vip_quote = data.founderQuote_fr; if(data.founderDesc_fr) translations.fr.vip_desc = data.founderDesc_fr;
-            if(data.founderQuote_en) translations.en.vip_quote = data.founderQuote_en; if(data.founderDesc_en) translations.en.vip_desc = data.founderDesc_en;
-            if(data.founderQuote_es) translations.es.vip_quote = data.founderQuote_es; if(data.founderDesc_es) translations.es.vip_desc = data.founderDesc_es;
-            if(data.founderQuote_pt) translations.pt.vip_quote = data.founderQuote_pt; if(data.founderDesc_pt) translations.pt.vip_desc = data.founderDesc_pt;
-
-            const langSelect = document.getElementById('lang-select');
-            const currentLang = langSelect ? langSelect.value : 'fr';
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (translations[currentLang] && translations[currentLang][key]) el.textContent = translations[currentLang][key];
-            });
+            ['fr', 'en', 'es', 'pt'].forEach(lang => { if(data[`founderQuote_${lang}`]) translations[lang].vip_quote = data[`founderQuote_${lang}`]; if(data[`founderDesc_${lang}`]) translations[lang].vip_desc = data[`founderDesc_${lang}`]; });
+            const currentLang = localStorage.getItem('usm_lang') || 'fr';
+            document.querySelectorAll('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); if (translations[currentLang] && translations[currentLang][key]) el.textContent = translations[currentLang][key]; });
         }
-    } catch (e) { console.error("Erreur param :", e); }
+    } catch (e) {}
 }
 
-/* ================= 6. CHARGEMENT DYNAMIQUE DES SERVICES ================= */
+/* ================= 5. CHARGEMENT DES SERVICES DYNAMIQUES ================= */
 let allServicesData = [];
-
 async function loadServices() {
-    const container = document.getElementById('services-container');
-    if(!container) return;
+    const container = document.getElementById('services-container'); if(!container) return;
     try {
-        const querySnapshot = await getDocs(collection(db, "services"));
-        allServicesData = [];
-        querySnapshot.forEach((docSnap) => allServicesData.push(docSnap.data()));
-        allServicesData.sort((a, b) => (a.order || 999) - (b.order || 999));
-        renderServices();
-    } catch (error) { console.error("Erreur services :", error); container.innerHTML = '<p style="color:red;">Erreur de chargement des services.</p>'; }
+        const querySnapshot = await getDocs(collection(db, "services")); allServicesData = [];
+        querySnapshot.forEach((docSnap) => allServicesData.push({ id: docSnap.id, ...docSnap.data() }));
+        allServicesData.sort((a, b) => (a.order || 999) - (b.order || 999)); renderServices();
+    } catch (error) { container.innerHTML = '<p style="color:red;">Erreur de chargement.</p>'; }
 }
 
 function renderServices() {
-    const container = document.getElementById('services-container');
-    if(!container) return;
-    if(allServicesData.length === 0) {
-        container.innerHTML = '<p style="color:#aaa;">Aucun service disponible pour le moment.</p>';
-        return;
-    }
+    const container = document.getElementById('services-container'); if(!container) return;
+    if(allServicesData.length === 0) { container.innerHTML = '<p style="color:#aaa;">Aucun service disponible.</p>'; return; }
+    const currentLang = localStorage.getItem('usm_lang') || 'fr'; let html = '';
     
-    // Détecte la langue en cours
-    const langSelect = document.getElementById('lang-select');
-    const currentLang = langSelect ? langSelect.value : 'fr';
-    
-    let html = '';
+    // NOUVEAU LIEN DYNAMIQUE
     allServicesData.forEach(srv => {
-        // Sélectionne le titre dans la bonne langue, ou revient au FR par défaut si vide
-        const title = srv[`title_${currentLang}`] || srv.title_fr || 'Service USM';
-        const link = srv.link || '#';
-        html += `<a href="${link}" class="service-mini-card"><span>${title}</span> <span>➔</span></a>`;
+        const title = srv[`title_${currentLang}`] || srv.title_fr || 'Service';
+        html += `<a href="service.html?id=${srv.id}" class="service-mini-card"><span>${title}</span> <span>➔</span></a>`;
     });
-    
     container.innerHTML = html;
 }
 
-/* ================= 7. CHARGEMENT DYNAMIQUE DU ROSTER ================= */
-let allPlayersData = []; 
-let currentFrontCat = 'gardien';
-let currentFrontSearch = '';
-
-async function loadPlayers() {
-    const container = document.getElementById('roster-categories-container');
-    if (!container) return;
+/* ================= 6. NOUVEAU : CHARGEMENT DE LA PAGE SERVICE UNIQUE ================= */
+async function loadSingleServicePage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const srvId = urlParams.get('id');
+    if(!srvId) return;
 
     try {
-        const q = collection(db, "players");
-        const querySnapshot = await getDocs(q);
-        
-        allPlayersData = [];
-        querySnapshot.forEach((docSnap) => allPlayersData.push(docSnap.data()));
-        allPlayersData.sort((a, b) => (a.order || 999) - (b.order || 999));
-
-        renderCategorySlider();
-        setupTabs();
-
-        const frontSearch = document.getElementById('front-search');
-        if(frontSearch) {
-            frontSearch.addEventListener('input', (e) => {
-                currentFrontSearch = e.target.value.toLowerCase();
-                if(currentFrontSearch.length > 0) {
-                    document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active'));
-                } else {
-                    document.querySelector(`.filter-btn[data-tab="${currentFrontCat}"]`).classList.add('active');
-                }
-                renderCategorySlider();
-            });
+        const docSnap = await getDoc(doc(db, "services", srvId));
+        if(docSnap.exists()) {
+            window.currentServiceData = docSnap.data();
+            const srv = window.currentServiceData;
+            
+            // Image
+            const imgEl = document.getElementById('srv-hero-img');
+            if(imgEl && srv.image_url) imgEl.src = srv.image_url;
+            
+            // Textes
+            const currentLang = localStorage.getItem('usm_lang') || 'fr';
+            const titleEl = document.getElementById('srv-page-title');
+            const descEl = document.getElementById('srv-page-desc');
+            if(titleEl) titleEl.textContent = srv[`title_${currentLang}`] || srv.title_fr;
+            if(descEl) descEl.textContent = srv[`desc_${currentLang}`] || srv.desc_fr;
         }
-    } catch (error) { console.error(error); container.innerHTML = '<p style="color:red; text-align:center;">Erreur base de données.</p>'; }
+    } catch(e) { console.error("Erreur Service: ", e); }
 }
 
+/* ================= 7. CHARGEMENT DU ROSTER ================= */
+let allPlayersData = []; let currentFrontCat = 'gardien'; let currentFrontSearch = '';
+async function loadPlayers() {
+    const container = document.getElementById('roster-categories-container'); if (!container) return;
+    try {
+        const querySnapshot = await getDocs(collection(db, "players")); allPlayersData = [];
+        querySnapshot.forEach((docSnap) => allPlayersData.push(docSnap.data())); allPlayersData.sort((a, b) => (a.order || 999) - (b.order || 999));
+        renderCategorySlider(); setupTabs();
+        const searchInput = document.getElementById('front-search');
+        if(searchInput) searchInput.addEventListener('input', (e) => { currentFrontSearch = e.target.value.toLowerCase(); if(currentFrontSearch.length > 0) document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); else document.querySelector(`.filter-btn[data-tab="${currentFrontCat}"]`).classList.add('active'); renderCategorySlider(); });
+    } catch (error) { container.innerHTML = '<p style="color:red; text-align:center;">Erreur base de données.</p>'; }
+}
 function renderCategorySlider() {
-    const container = document.getElementById('roster-categories-container');
-    if(!container) return;
+    const container = document.getElementById('roster-categories-container'); if(!container) return;
     let filteredPlayers = currentFrontSearch.length > 0 ? allPlayersData.filter(p => p.name.toLowerCase().includes(currentFrontSearch)) : allPlayersData.filter(p => p.category === currentFrontCat);
-
-    if (filteredPlayers.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#888; padding: 40px;">Aucun joueur trouvé.</p>'; return;
-    }
-
-    let titleText = currentFrontSearch.length > 0 ? `Résultats pour "${currentFrontSearch}"` : `✦ <span style="color:var(--usm-pink)">${filteredPlayers.length}</span> Profils`;
-    let sliderHTML = `
-        <div class="category-block reveal visible">
-            <div class="category-header">
-                <h3 class="category-title" style="color: #fff; text-transform:none;">${titleText}</h3>
-                <div class="slider-controls">
-                    <button class="slider-btn prev-btn">❮</button><button class="slider-btn next-btn">❯</button>
-                </div>
-            </div>
-            <div class="slider-container"><div class="horizontal-scroller" id="active-scroller">`;
-
-    filteredPlayers.forEach(player => {
-        const tmLink = player.transfermarkt ? `<a href="${player.transfermarkt}" target="_blank" style="color:var(--usm-pink); font-size:0.8rem; text-decoration:none; display:inline-block; margin-top:5px;">🔗 Transfermarkt</a>` : '';
-        const catLabel = currentFrontSearch.length > 0 ? `<p style="color:#888; font-size:0.75rem; text-transform:uppercase; margin-top:2px;">${player.category}</p>` : '';
-        sliderHTML += `
-            <div class="player-card">
-                <div class="player-img-container"><img src="${player.image_url}" alt="${player.name}" loading="lazy"></div>
-                <div class="player-info"><div><h3>${player.name}</h3>${catLabel}${tmLink}</div></div>
-                <div style="padding: 0 15px 15px;"><div class="player-stat">${player.stat || ''}</div></div>
-            </div>`;
-    });
-
-    sliderHTML += `</div></div></div>`;
-    container.innerHTML = sliderHTML;
-
+    if (filteredPlayers.length === 0) { container.innerHTML = '<p style="text-align:center; color:#888; padding: 40px;">Aucun joueur trouvé.</p>'; return; }
+    let sliderHTML = `<div class="category-block reveal visible"><div class="category-header"><h3 class="category-title" style="color: #fff; text-transform:none;">${currentFrontSearch.length > 0 ? `Résultats pour "${currentFrontSearch}"` : `✦ <span style="color:var(--usm-pink)">${filteredPlayers.length}</span> Profils`}</h3><div class="slider-controls"><button class="slider-btn prev-btn">❮</button><button class="slider-btn next-btn">❯</button></div></div><div class="slider-container"><div class="horizontal-scroller" id="active-scroller">`;
+    filteredPlayers.forEach(player => { sliderHTML += `<div class="player-card"><div class="player-img-container"><img src="${player.image_url}" alt="${player.name}" loading="lazy"></div><div class="player-info"><div><h3>${player.name}</h3>${currentFrontSearch.length > 0 ? `<p style="color:#888; font-size:0.75rem; text-transform:uppercase; margin-top:2px;">${player.category}</p>` : ''}${player.transfermarkt ? `<a href="${player.transfermarkt}" target="_blank" style="color:var(--usm-pink); font-size:0.8rem; text-decoration:none; display:inline-block; margin-top:5px;">🔗 Transfermarkt</a>` : ''}</div></div><div style="padding: 0 15px 15px;"><div class="player-stat">${player.stat || ''}</div></div></div>`; });
+    container.innerHTML = sliderHTML + `</div></div></div>`;
     const scroller = document.getElementById('active-scroller');
-    document.querySelector('.prev-btn').addEventListener('click', () => scroller.scrollBy({ left: -(scroller.clientWidth * 0.8), behavior: 'smooth' }));
-    document.querySelector('.next-btn').addEventListener('click', () => scroller.scrollBy({ left: (scroller.clientWidth * 0.8), behavior: 'smooth' }));
+    document.querySelector('.prev-btn').addEventListener('click', () => scroller.scrollBy({ left: -(scroller.clientWidth * 0.8), behavior: 'smooth' })); document.querySelector('.next-btn').addEventListener('click', () => scroller.scrollBy({ left: (scroller.clientWidth * 0.8), behavior: 'smooth' }));
 }
+function setupTabs() { document.querySelectorAll('.filter-btn').forEach(tab => { tab.addEventListener('click', (e) => { document.getElementById('front-search').value = ''; currentFrontSearch = ''; document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); e.target.classList.add('active'); currentFrontCat = e.target.getAttribute('data-tab'); renderCategorySlider(); }); }); }
 
-function setupTabs() {
-    const tabs = document.querySelectorAll('.filter-btn');
-    tabs.forEach(tab => {
-        tab.addEventListener('click', (e) => {
-            document.getElementById('front-search').value = ''; currentFrontSearch = '';
-            tabs.forEach(t => t.classList.remove('active')); e.target.classList.add('active');
-            currentFrontCat = e.target.getAttribute('data-tab'); renderCategorySlider();
-        });
-    });
-}
