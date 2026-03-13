@@ -36,7 +36,7 @@ body {
     background-color: var(--bg-dark);
     background-image: 
         radial-gradient(circle at 50% 0%, var(--usm-pink-glow) 0%, transparent 60%),
-        url('assets/leather-texture.png');
+        url('Assets/leather-texture.png');
     background-attachment: fixed; 
     color: var(--text-light); 
     line-height: 1.4; 
