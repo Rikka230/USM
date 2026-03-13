@@ -631,6 +631,26 @@ body {
     color: var(--usm-pink); 
 }
 
+/* ================= 10. PAGE CONTACT ================= */
+.contact-section { padding: var(--spacing-main); max-width: 1200px; margin: 0 auto 80px; }
+.contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; }
+.contact-info { align-items: flex-start; text-align: left; justify-content: flex-start; }
+.contact-form-box { align-items: stretch; text-align: left; justify-content: flex-start; }
+
+.contact-info-item { margin-top: 25px; }
+.contact-info-item h3 { color: var(--usm-pink); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+.contact-info-item p { color: #fff; font-size: 1.2rem; font-weight: bold; }
+
+.public-form { display: flex; flex-direction: column; gap: 15px; width: 100%; margin-top: 20px; }
+.public-form input, .public-form select, .public-form textarea { 
+    width: 100%; padding: 15px; border-radius: 8px; 
+    background: rgba(0,0,0,0.4); border: 1px solid var(--surface-border); 
+    color: white; font-size: 1rem; transition: 0.3s; font-family: inherit;
+}
+.public-form input:focus, .public-form select:focus, .public-form textarea:focus { 
+    border-color: var(--usm-pink); outline: none; background: rgba(216, 0, 86, 0.05); box-shadow: 0 0 15px rgba(216,0,86,0.2);
+}
+.public-form select option { background: var(--bg-dark); color: white; }
 
 
 
