@@ -595,7 +595,7 @@ if(contentForm) {
     });
 }
 
-/* ================= 5. GESTION DES SERVICES ================= */
+/* ================= 5. GESTION DES SERVICES (AVEC SEO) ================= */
 let allAdminServices = [];
 
 async function loadAdminServices() {
@@ -680,6 +680,8 @@ function editService(id) {
         if(t) t.value = srv[`title_${l}`] || ''; 
         const d = document.getElementById(`srv-desc-${l}`);
         if(d) d.value = srv[`desc_${l}`] || ''; 
+        const s = document.getElementById(`srv-seo-${l}`);
+        if(s) s.value = srv[`seo_${l}`] || ''; 
     });
     
     const title = document.getElementById('service-form-title');
@@ -733,6 +735,8 @@ if(srvForm) {
                 if(t) payload[`title_${l}`] = t.value; 
                 const d = document.getElementById(`srv-desc-${l}`);
                 if(d) payload[`desc_${l}`] = d.value; 
+                const s = document.getElementById(`srv-seo-${l}`);
+                if(s) payload[`seo_${l}`] = s.value; 
             });
             
             if (editId) { 
@@ -753,7 +757,6 @@ if(srvForm) {
         }
     });
 }
-
 
 /* ================= 6. SAUVEGARDE DES PARAMÈTRES GLOBAUX ================= */
 const settingsForm = document.getElementById('settings-form');
@@ -852,3 +855,4 @@ document.querySelectorAll('.lang-tab-srv').forEach(tab => {
 /* ==========================================================================
    FIN DU FICHIER - NE RIEN AJOUTER EN DESSOUS
    ========================================================================== */
+
