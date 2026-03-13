@@ -126,20 +126,21 @@ document.addEventListener("DOMContentLoaded", () => {
         
         if(window.currentServiceData) {
             const srv = window.currentServiceData;
-            
             const titleText = srv[`title_${lang}`] || srv.title_fr;
+            const subText = srv[`subtitle_${lang}`] || srv.subtitle_fr;
             const descText = srv[`desc_${lang}`] || srv.desc_fr;
             const seoText = srv[`seo_${lang}`] || srv.seo_fr;
             
             const titleEl = document.getElementById('srv-page-title'); 
+            const subEl = document.getElementById('srv-page-subtitle');
             const descEl = document.getElementById('srv-page-desc');
             const imgEl = document.getElementById('srv-hero-img');
             
             if(titleEl) titleEl.textContent = titleText;
+            if(subEl) subEl.textContent = subText;
             if(descEl) descEl.textContent = descText;
             if(imgEl) imgEl.alt = titleText;
             
-            // Mise à jour SEO en direct lors du changement de langue
             document.title = `${titleText} | USM Football`;
             
             if (descText) {
@@ -150,8 +151,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 let metaKeys = document.querySelector('meta[name="keywords"]');
                 if (metaKeys) metaKeys.content = seoText;
             }
+            
+            renderOtherServices(window.currentServiceId, lang);
         }
-    };
     
     if(langSelect) {
         langSelect.addEventListener('change', (e) => { 
@@ -210,33 +212,37 @@ async function loadSettings() {
 let allServicesData = [];
 async function loadServices() {
     const container = document.getElementById('services-container'); 
-    if(!container) return;
     try {
-        const querySnapshot = await getDocs(collection(db, "services")); 
-        allServicesData = [];
+        const querySnapshot = await getDocs(collection(db, "services")); allServicesData = [];
         querySnapshot.forEach((docSnap) => allServicesData.push({ id: docSnap.id, ...docSnap.data() }));
         allServicesData.sort((a, b) => (a.order || 999) - (b.order || 999)); 
         renderServices();
-    } catch (error) { 
-        container.innerHTML = '<p style="color:red;">Erreur de chargement.</p>'; 
-    }
+        if(window.currentServiceId) renderOtherServices(window.currentServiceId, localStorage.getItem('usm_lang') || 'fr');
+    } catch (error) { if(container) container.innerHTML = '<p style="color:red;">Erreur de chargement.</p>'; }
 }
 
 function renderServices() {
-    const container = document.getElementById('services-container'); 
-    if(!container) return;
+    const container = document.getElementById('services-container'); if(!container) return;
+    if(allServicesData.length === 0) { container.innerHTML = '<p style="color:#aaa;">Aucun service disponible.</p>'; return; }
     
-    if(allServicesData.length === 0) { 
-        container.innerHTML = '<p style="color:#aaa;">Aucun service disponible.</p>'; 
-        return; 
-    }
-    
-    const currentLang = localStorage.getItem('usm_lang') || 'fr'; 
-    let html = '';
-    
+    const currentLang = localStorage.getItem('usm_lang') || 'fr'; let html = '';
     allServicesData.forEach(srv => {
         const title = srv[`title_${currentLang}`] || srv.title_fr || 'Service';
-        html += `<a href="service.html?id=${srv.id}" class="service-mini-card"><span>${title}</span> <span>➔</span></a>`;
+        const sub = srv[`subtitle_${currentLang}`] || srv.subtitle_fr || '';
+        html += `<a href="service.html?id=${srv.id}" class="bento-service-card"><div class="srv-card-content"><h3>${title}</h3><p>${sub}</p></div><div class="srv-card-arrow">En savoir plus ➔</div></a>`;
+    });
+    container.innerHTML = html;
+}
+
+function renderOtherServices(excludeId, lang) {
+    const container = document.getElementById('other-services-container'); if(!container) return;
+    let html = '';
+    allServicesData.forEach(srv => {
+        if(srv.id !== excludeId) {
+            const title = srv[`title_${lang}`] || srv.title_fr || 'Service';
+            const sub = srv[`subtitle_${lang}`] || srv.subtitle_fr || '';
+            html += `<a href="service.html?id=${srv.id}" class="bento-service-card"><div class="srv-card-content"><h3>${title}</h3><p>${sub}</p></div><div class="srv-card-arrow">En savoir plus ➔</div></a>`;
+        }
     });
     container.innerHTML = html;
 }
@@ -250,54 +256,46 @@ async function loadSingleServicePage() {
     try {
         const docSnap = await getDoc(doc(db, "services", srvId));
         if(docSnap.exists()) {
+            window.currentServiceId = srvId;
             window.currentServiceData = docSnap.data();
             const srv = window.currentServiceData;
             
             const currentLang = localStorage.getItem('usm_lang') || 'fr';
             const titleText = srv[`title_${currentLang}`] || srv.title_fr || "Service";
+            const subText = srv[`subtitle_${currentLang}`] || srv.subtitle_fr || "";
             const descText = srv[`desc_${currentLang}`] || srv.desc_fr || "";
             const seoText = srv[`seo_${currentLang}`] || srv.seo_fr || "";
             
-            // Image + Alt SEO
             const imgEl = document.getElementById('srv-hero-img');
-            if(imgEl && srv.image_url) {
-                imgEl.src = srv.image_url;
-                imgEl.alt = titleText;
-            }
+            if(imgEl && srv.image_url) { imgEl.src = srv.image_url; imgEl.alt = titleText; }
             
-            // Textes
             const titleEl = document.getElementById('srv-page-title');
+            const subEl = document.getElementById('srv-page-subtitle');
             const descEl = document.getElementById('srv-page-desc');
+            
             if(titleEl) titleEl.textContent = titleText;
+            if(subEl) subEl.textContent = subText;
             if(descEl) descEl.textContent = descText;
 
-            // Méta SEO Google
+            // INJECTION AUTO-SEO GOOGLE
             document.title = `${titleText} | USM Football`;
 
             if (descText) {
                 let metaDesc = document.querySelector('meta[name="description"]');
-                if (!metaDesc) {
-                    metaDesc = document.createElement('meta');
-                    metaDesc.name = "description";
-                    document.head.appendChild(metaDesc);
-                }
+                if (!metaDesc) { metaDesc = document.createElement('meta'); metaDesc.name = "description"; document.head.appendChild(metaDesc); }
                 metaDesc.content = descText.length > 155 ? descText.substring(0, 155) + "..." : descText;
             }
-
             if (seoText) {
                 let metaKeys = document.querySelector('meta[name="keywords"]');
-                if (!metaKeys) {
-                    metaKeys = document.createElement('meta');
-                    metaKeys.name = "keywords";
-                    document.head.appendChild(metaKeys);
-                }
+                if (!metaKeys) { metaKeys = document.createElement('meta'); metaKeys.name = "keywords"; document.head.appendChild(metaKeys); }
                 metaKeys.content = seoText;
             }
+            
+            renderOtherServices(srvId, currentLang);
 
         } else {
             if(document.getElementById('srv-page-title')) document.getElementById('srv-page-title').textContent = "Service Introuvable";
-            if(document.getElementById('srv-page-desc')) document.getElementById('srv-page-desc').textContent = "Ce service n'existe pas ou a été supprimé.";
-            document.title = "Service Introuvable | USM Football";
+            if(document.getElementById('srv-page-desc')) document.getElementById('srv-page-desc').textContent = "Ce service n'existe pas.";
         }
     } catch(e) { console.error("Erreur Service: ", e); }
 }
@@ -380,3 +378,4 @@ function setupTabs() {
         }); 
     }); 
 }
+
