@@ -1,5 +1,5 @@
 /* ==========================================================================
-   USM FOOTBALL - ADMIN JAVASCRIPT (CORRIGÉ : ONGLETS & SERVICES)
+   USM FOOTBALL - ADMIN JAVASCRIPT (COMPLET ET 100% FONCTIONNEL)
    ========================================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -47,7 +47,7 @@ function prefillImageZone(zoneId, inputId, url, text) {
 document.querySelectorAll('.btn-cancel').forEach(btn => btn.addEventListener('click', () => { hideAllSections(); secManage.classList.remove('hidden'); }));
 document.querySelectorAll('.btn-cancel-service').forEach(btn => btn.addEventListener('click', () => { hideAllSections(); secServices.classList.remove('hidden'); }));
 
-/* ================= 2. UPLOADS & CROPPER JOUEURS ================= */
+/* ================= 2. UPLOADS & CROPPER ================= */
 let optimizedImages = { founder: null, nav: null, hero: null, service: null };
 function setupDropZone(zoneId, inputId, targetKey) {
     const zone = document.getElementById(zoneId); const input = document.getElementById(inputId);
@@ -115,7 +115,7 @@ function getCroppedWebP() {
     if(!cropState.img) return null; const off = document.createElement('canvas'); off.width = 600; off.height = 800; const ctx = off.getContext('2d'); ctx.translate(300, 400); ctx.scale(cropState.zoom * 2.5, cropState.zoom * 2.5); ctx.drawImage(cropState.img, -cropState.img.width/2 + cropState.x, -cropState.img.height/2 + cropState.y); return off.toDataURL('image/webp', 0.9);
 }
 
-/* ================= 3. GESTION DES SERVICES (AVEC CORRECTION DES ONGLETS) ================= */
+/* ================= 3. GESTION DES SERVICES ================= */
 let allAdminServices = [];
 async function loadAdminServices() {
     try {
@@ -174,7 +174,6 @@ document.getElementById('service-form').addEventListener('submit', async (e) => 
     } catch (err) { alert("Erreur: " + err.message); } finally { btn.disabled = false; btn.textContent = "Enregistrer le Service"; }
 });
 
-// LE CORRECTIF EST ICI : LES ONGLETS DES SERVICES FONCTIONNENT !
 document.querySelectorAll('.lang-tab-srv').forEach(tab => {
     tab.addEventListener('click', (e) => {
         e.preventDefault(); 
@@ -192,3 +191,118 @@ document.querySelectorAll('.admin-tab:not(.lang-tab):not(.lang-tab-srv)').forEac
         document.querySelectorAll('.admin-tab:not(.lang-tab):not(.lang-tab-srv)').forEach(t => t.classList.remove('active'));
         e.target.classList.add('active'); adminCurrentCat = e.target.getAttribute('data-cat');
         adminSearchQuery = ''; document.getElementById('search-bar').value = ''; adminCurrentPage = 1; renderAdminTable();
+    });
+});
+
+document.getElementById('search-bar').addEventListener('input', (e) => {
+    adminSearchQuery = e.target.value.toLowerCase(); adminCurrentPage = 1;
+    if(adminSearchQuery.length > 0) document.querySelectorAll('.admin-tab:not(.lang-tab):not(.lang-tab-srv)').forEach(t => t.classList.remove('active'));
+    renderAdminTable();
+});
+
+async function loadAdminPlayers() {
+    document.getElementById('admin-players-list').innerHTML = '<tr><td colspan="4" style="text-align:center;">Chargement...</td></tr>';
+    try {
+        const querySnapshot = await getDocs(collection(db, "players"));
+        allAdminPlayers = []; querySnapshot.forEach((docSnap) => allAdminPlayers.push({ id: docSnap.id, ...docSnap.data() }));
+        renderAdminTable();
+    } catch (error) { document.getElementById('admin-players-list').innerHTML = `<tr><td colspan="4" style="color:red;">Erreur.</td></tr>`; }
+}
+
+function renderAdminTable() {
+    const listContainer = document.getElementById('admin-players-list');
+    let filtered = adminSearchQuery.length > 0 ? allAdminPlayers.filter(p => p.name.toLowerCase().includes(adminSearchQuery)) : allAdminPlayers.filter(p => p.category === adminCurrentCat);
+    filtered.sort((a, b) => (a.order || 999) - (b.order || 999));
+    const startIndex = (adminCurrentPage - 1) * ITEMS_PER_PAGE; const paginated = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+    listContainer.innerHTML = '';
+    if (paginated.length === 0) { listContainer.innerHTML = '<tr><td colspan="4" style="text-align:center;">Aucun joueur trouvé.</td></tr>'; document.getElementById('pagination-controls').innerHTML = ''; return; }
+
+    paginated.forEach((player, indexOnPage) => {
+        const globalIndex = startIndex + indexOnPage;
+        const upBtn = (adminSearchQuery === '' && globalIndex !== 0) ? `<button class="btn-order btn-move-up" data-index="${globalIndex}">▲</button>` : `<div style="width: 30px; height: 30px;"></div>`; 
+        const downBtn = (adminSearchQuery === '' && globalIndex !== filtered.length - 1) ? `<button class="btn-order btn-move-down" data-index="${globalIndex}">▼</button>` : `<div style="width: 30px; height: 30px;"></div>`;
+        listContainer.innerHTML += `<tr><td style="font-weight:900; color:var(--usm-pink);">#${player.order || '-'}</td><td><img src="${player.image_url}" class="player-list-img"></td><td style="font-weight:bold;">${player.name}</td>
+                <td><div style="display:flex; gap:8px;">${upBtn} ${downBtn}<button class="btn-edit" data-id="${player.id}">Éditer</button><button class="btn-delete" data-id="${player.id}">Supprimer</button></div></td></tr>`;
+    });
+
+    document.querySelectorAll('.btn-edit').forEach(btn => btn.addEventListener('click', (e) => editPlayer(e.target.dataset.id)));
+    document.querySelectorAll('.btn-delete').forEach(btn => btn.addEventListener('click', (e) => deletePlayer(e.target.dataset.id)));
+    document.querySelectorAll('.btn-move-up').forEach(btn => btn.addEventListener('click', (e) => movePlayer(parseInt(e.target.dataset.index), -1)));
+    document.querySelectorAll('.btn-move-down').forEach(btn => btn.addEventListener('click', (e) => movePlayer(parseInt(e.target.dataset.index), 1)));
+
+    const paginationContainer = document.getElementById('pagination-controls'); paginationContainer.innerHTML = '';
+    for(let i = 1; i <= Math.ceil(filtered.length / ITEMS_PER_PAGE); i++) {
+        const btn = document.createElement('button'); btn.textContent = i; btn.className = `pag-btn ${i === adminCurrentPage ? 'active' : ''}`;
+        btn.addEventListener('click', () => { adminCurrentPage = i; renderAdminTable(); }); paginationContainer.appendChild(btn);
+    }
+}
+
+function editPlayer(id) {
+    const player = allAdminPlayers.find(p => p.id === id); if(!player) return;
+    document.getElementById('edit-player-id').value = player.id; document.getElementById('player-name').value = player.name;
+    document.getElementById('player-stat').value = player.stat || ''; document.getElementById('player-tm').value = player.transfermarkt || '';
+    document.getElementById('player-category').value = player.category; document.getElementById('form-title').textContent = "Modifier : " + player.name;
+    document.getElementById('publish-btn').textContent = "Mettre à jour";
+    document.getElementById('cropper-ui').classList.add('hidden'); document.getElementById('drop-zone').classList.remove('hidden');
+    prefillImageZone('drop-zone', 'existing-image-url', player.image_url, 'Glissez la photo du joueur ici');
+    cropState.img = null; hideAllSections(); secForm.classList.remove('hidden');
+}
+
+async function deletePlayer(id) { if(confirm("Supprimer ce profil ?")) { await deleteDoc(doc(db, "players", id)); loadAdminPlayers(); } }
+async function movePlayer(currentIndex, direction) {
+    let categoryPlayers = allAdminPlayers.filter(p => p.category === adminCurrentCat).sort((a, b) => (a.order || 999) - (b.order || 999));
+    const targetIndex = currentIndex + direction; if(targetIndex < 0 || targetIndex >= categoryPlayers.length) return;
+    const temp = categoryPlayers[currentIndex]; categoryPlayers[currentIndex] = categoryPlayers[targetIndex]; categoryPlayers[targetIndex] = temp;
+    const batch = writeBatch(db); categoryPlayers.forEach((player, index) => batch.update(doc(db, "players", player.id), { order: index + 1 }));
+    await batch.commit(); loadAdminPlayers();
+}
+
+document.getElementById('content-form').addEventListener('submit', async (e) => {
+    e.preventDefault(); const btn = document.getElementById('publish-btn'); btn.disabled = true; btn.textContent = "Génération...";
+    try {
+        const editId = document.getElementById('edit-player-id').value; const cat = document.getElementById('player-category').value;
+        let finalImageUrl = document.getElementById('existing-image-url').value || "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png";
+        const croppedData = getCroppedWebP();
+        if (croppedData) { const r = ref(storage, `players/${Date.now()}.webp`); await uploadString(r, croppedData, 'data_url'); finalImageUrl = await getDownloadURL(r); }
+        const payload = { name: document.getElementById('player-name').value, category: cat, stat: document.getElementById('player-stat').value, transfermarkt: document.getElementById('player-tm').value, image_url: finalImageUrl, timestamp: new Date() };
+        if (editId) { await updateDoc(doc(db, "players", editId), payload); } 
+        else { const snap = await getDocs(query(collection(db, "players"), where("category", "==", cat))); payload.order = snap.size + 1; await addDoc(collection(db, "players"), payload); }
+        hideAllSections(); secManage.classList.remove('hidden'); loadAdminPlayers();
+    } catch (err) { alert("Erreur: " + err.message); } finally { btn.disabled = false; }
+});
+
+/* ================= 5. SAUVEGARDE DES PARAMÈTRES (FONDATEUR) ================= */
+document.getElementById('settings-form').addEventListener('submit', async (e) => {
+    e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); btn.textContent = "Sauvegarde en cours...";
+    try {
+        let finalFounderUrl = document.getElementById('existing-founder-img').value || "";
+        if (optimizedImages.founder) { const r = ref(storage, `site/founder_${Date.now()}.webp`); await uploadString(r, optimizedImages.founder, 'data_url'); finalFounderUrl = await getDownloadURL(r); }
+        let finalNavUrl = document.getElementById('existing-logo-nav').value || "";
+        if (optimizedImages.nav) { const r = ref(storage, `site/logo_nav_${Date.now()}.webp`); await uploadString(r, optimizedImages.nav, 'data_url'); finalNavUrl = await getDownloadURL(r); }
+        let finalHeroUrl = document.getElementById('existing-logo-hero').value || "";
+        if (optimizedImages.hero) { const r = ref(storage, `site/logo_hero_${Date.now()}.webp`); await uploadString(r, optimizedImages.hero, 'data_url'); finalHeroUrl = await getDownloadURL(r); }
+
+        await setDoc(doc(db, "settings", "general"), {
+            logoNav: finalNavUrl, logoHero: finalHeroUrl, founderImg: finalFounderUrl,
+            founderQuote_fr: document.getElementById('set-founder-quote-fr').value, founderDesc_fr: document.getElementById('set-founder-desc-fr').value,
+            founderQuote_en: document.getElementById('set-founder-quote-en').value, founderDesc_en: document.getElementById('set-founder-desc-en').value,
+            founderQuote_es: document.getElementById('set-founder-quote-es').value, founderDesc_es: document.getElementById('set-founder-desc-es').value,
+            founderQuote_pt: document.getElementById('set-founder-quote-pt').value, founderDesc_pt: document.getElementById('set-founder-desc-pt').value,
+            stat1: document.getElementById('set-stat1').value, stat2: document.getElementById('set-stat2').value, stat3: document.getElementById('set-stat3').value, stat4: document.getElementById('set-stat4').value
+        }, { merge: true });
+        
+        document.getElementById('existing-founder-img').value = finalFounderUrl; document.getElementById('existing-logo-nav').value = finalNavUrl; document.getElementById('existing-logo-hero').value = finalHeroUrl;
+        optimizedImages = { founder: null, nav: null, hero: null };
+        alert("Identité et Paramètres mis à jour avec succès !");
+    } catch(err) { alert("Erreur : " + err.message); } finally { btn.textContent = "Enregistrer les modifications"; }
+});
+
+document.querySelectorAll('.lang-tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+        e.preventDefault(); 
+        document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active')); e.target.classList.add('active');
+        document.querySelectorAll('.lang-content').forEach(c => c.classList.add('hidden'));
+        document.getElementById(`lang-${e.target.getAttribute('data-lang')}`).classList.remove('hidden');
+    });
+});
