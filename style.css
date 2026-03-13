@@ -656,44 +656,48 @@ body {
 }
 .public-form select option { background: var(--bg-dark); color: white; }
 
-/* ================= 11. PAGE SERVICE DYNAMIQUE ================= */
+/* ================= 11. CARTES SERVICES & PAGE DYNAMIQUE ================= */
+.services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 30px; }
+
+.bento-service-card {
+    display: flex; flex-direction: column; justify-content: space-between;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 3px solid var(--usm-pink);
+    padding: 30px; border-radius: 16px;
+    text-decoration: none; transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+.bento-service-card:hover {
+    background: rgba(216, 0, 86, 0.05);
+    border-color: rgba(216, 0, 86, 0.3);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+}
+.srv-card-content h3 { font-size: 1.4rem; color: #fff; margin-bottom: 10px; }
+.srv-card-content p { 
+    font-size: 0.95rem; color: #aaa; line-height: 1.5; 
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; 
+}
+.srv-card-arrow { 
+    align-self: flex-end; margin-top: 25px; color: var(--usm-pink); font-weight: bold; 
+    font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; 
+}
+.bento-service-card:hover .srv-card-arrow { transform: translateX(8px); }
+
 .service-hero {
-    position: relative;
-    height: 50vh;
-    min-height: 400px;
-    display: flex;
-    align-items: flex-end;
-    padding: var(--spacing-main);
-    background: #050507;
-    margin-top: 80px; /* Espace pour la navbar */
-    overflow: hidden;
+    position: relative; height: 50vh; min-height: 400px; display: flex; align-items: flex-end;
+    padding: var(--spacing-main); background: #050507; margin-top: 80px; overflow: hidden;
 }
-.service-hero img {
-    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.4;
-    transition: 0.5s;
-}
-.service-hero::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(to top, var(--bg-dark) 0%, transparent 100%);
-}
-.service-hero-content {
-    position: relative; z-index: 2; width: 100%; max-width: 1200px; margin: 0 auto;
-}
-.service-hero h1 {
-    font-size: clamp(2rem, 5vw, 4rem); text-transform: uppercase; margin-bottom: 0; color: #fff;
-    text-shadow: 0 4px 20px rgba(0,0,0,0.8);
-}
-.service-content-wrapper {
-    max-width: 900px; margin: 50px auto 100px; padding: 0 var(--spacing-main);
-}
-.service-desc {
-    font-size: 1.15rem; line-height: 1.8; color: #ccc; white-space: pre-line; /* Conserve les paragraphes ! */
-}
-.btn-back {
-    display: inline-block; margin-bottom: 20px; color: var(--usm-pink); text-decoration: none; 
-    font-weight: bold; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
-}
+.service-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.4; transition: 0.5s; }
+.service-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-dark) 0%, transparent 100%); }
+.service-hero-content { position: relative; z-index: 2; width: 100%; max-width: 1200px; margin: 0 auto; }
+.service-hero h1 { font-size: clamp(2.5rem, 5vw, 4.5rem); text-transform: uppercase; margin-bottom: 0; color: #fff; text-shadow: 0 4px 20px rgba(0,0,0,0.8); }
+
+.service-content-wrapper { max-width: 900px; margin: 50px auto 100px; padding: 0 var(--spacing-main); }
+.service-desc { font-size: 1.15rem; line-height: 1.8; color: #ccc; white-space: pre-line; }
+.btn-back { display: inline-block; margin-bottom: 20px; color: var(--usm-pink); text-decoration: none; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
 .btn-back:hover { color: #fff; transform: translateX(-5px); }
+
 
 
 
