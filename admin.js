@@ -392,3 +392,15 @@ document.getElementById('settings-form').addEventListener('submit', async (e) =>
     finally { btn.textContent = "Enregistrer les modifications"; }
 });
 
+/* ================= 8. GESTION DES ONGLETS DE LANGUE ================= */
+document.querySelectorAll('.lang-tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+        e.preventDefault(); // Empêche le formulaire de s'envoyer
+        document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        document.querySelectorAll('.lang-content').forEach(c => c.classList.add('hidden'));
+        const lang = e.target.getAttribute('data-lang');
+        document.getElementById(`lang-${lang}`).classList.remove('hidden');
+    });
+});
