@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USM Football | Service</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo-nav">
+            <a href="index.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Eagle_white_icon.svg/1024px-Eagle_white_icon.svg.png" alt="Aigle">
+                <div>USM F<span>OO</span>TBALL</div>
+            </a>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html#agence" data-i18n="nav_agency">L'Agence</a>
+            <a href="index.html#services" data-i18n="nav_services">Services</a>
+            <a href="index.html#joueurs" data-i18n="nav_talents">Les Talents</a>
+            <div class="lang-switcher">
+                <select id="lang-select" aria-label="Changer de langue">
+                    <option value="fr">FR</option><option value="en">EN</option><option value="es">ES</option><option value="pt">PT</option>
+                </select>
+            </div>
+            <a href="contact.html" style="text-decoration: none;"><button class="btn-premium" data-i18n="nav_button">Contact</button></a>
+        </nav>
+    </header>
+
+    <section class="service-hero">
+        <img id="srv-hero-img" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Service USM">
+        <div class="service-hero-content">
+            <a href="index.html#services" class="btn-back">❮ Retour aux services</a>
+            <h1 id="srv-page-title">Chargement...</h1>
+        </div>
+    </section>
+
+    <main class="service-content-wrapper">
+        <p id="srv-page-desc" class="service-desc">Veuillez patienter pendant le chargement des informations.</p>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <a href="#mentions-legales" class="legal-link" data-i18n="legal_mentions">Mentions Légales</a>
+            <span class="footer-separator">•</span>
+            <p class="copyright">&copy; 2026. USM Football.</p>
+            <span class="footer-separator">•</span>
+            <p class="powered-by">Powered by <a href="admin.html" class="admin-secret-link">NOCX WEB</a></p>
+        </div>
+    </footer>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
