@@ -22,7 +22,6 @@
     </div>
 
     <div id="dashboard" class="hidden">
-        
         <aside class="sidebar">
             <h2 class="pink-accent">USM Admin</h2>
             <nav>
@@ -92,13 +91,43 @@
                         <option value="feminine">Féminine</option>
                         <option value="coach">Coach & Staff</option>
                     </select>
+
                     <div id="drop-zone" class="drop-zone">
                         <p>Glissez une photo ici</p>
                         <input type="file" id="media-upload" accept="image/*" hidden>
                     </div>
+
+                    <div id="cropper-ui" class="hidden" style="background: rgba(25,25,30,0.6); padding: 25px; border-radius: 12px; border: 1px solid var(--surface-border);">
+                        <h3 class="pink-accent" style="font-size: 1rem; margin-bottom: 20px;">Cadrage de la carte (Format 3:4)</h3>
+                        <div style="display: flex; gap: 30px; flex-wrap: wrap; align-items: center;">
+                            <div style="flex: 0 0 auto; margin: 0 auto;">
+                                <canvas id="crop-canvas" width="240" height="320" style="border-radius: 12px; background: #000; border: 1px solid #444; box-shadow: 0 10px 30px rgba(0,0,0,0.5); cursor: grab;"></canvas>
+                                <p style="text-align: center; color: #888; font-size: 0.75rem; margin-top: 10px;">💡 Glissez l'image avec la souris</p>
+                            </div>
+                            <div style="flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 250px;">
+                                <div>
+                                    <label style="color:#aaa; font-size:0.85rem; display:flex; justify-content:space-between; margin-bottom: 8px;">Zoom <span id="val-zoom" style="color:var(--usm-pink); font-weight:bold;">100%</span></label>
+                                    <input type="range" id="crop-zoom" min="0.1" max="3" step="0.01" value="1" style="width: 100%; padding: 0; background: transparent; border: none; margin:0;">
+                                </div>
+                                <div>
+                                    <label style="color:#aaa; font-size:0.85rem; display:flex; justify-content:space-between; margin-bottom: 8px;">Axe Horizontal <span id="val-x" style="color:var(--usm-pink); font-weight:bold;">0</span></label>
+                                    <input type="range" id="crop-x" min="-1000" max="1000" step="1" value="0" style="width: 100%; padding: 0; background: transparent; border: none; margin:0;">
+                                </div>
+                                <div>
+                                    <label style="color:#aaa; font-size:0.85rem; display:flex; justify-content:space-between; margin-bottom: 8px;">Axe Vertical <span id="val-y" style="color:var(--usm-pink); font-weight:bold;">0</span></label>
+                                    <input type="range" id="crop-y" min="-1000" max="1000" step="1" value="0" style="width: 100%; padding: 0; background: transparent; border: none; margin:0;">
+                                </div>
+                                <div style="display:flex; gap: 10px; margin-top: 10px;">
+                                    <button type="button" id="btn-reset-crop" style="flex:1; background: #333; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight:bold; transition: 0.3s;">Centrer</button>
+                                    <button type="button" id="btn-cancel-crop" style="flex:1; background: rgba(255,0,0,0.1); color: #ff4444; border: 1px solid #ff4444; padding: 12px; border-radius: 8px; cursor: pointer; font-weight:bold; transition: 0.3s;">Annuler</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div style="display: flex; gap: 15px; margin-top: 20px;">
                         <button type="button" class="btn-cancel" style="flex:1; background:#333; color:white; border:none; padding:20px; border-radius:8px; font-weight:bold; cursor:pointer;">Annuler</button>
-                        <button type="submit" id="publish-btn" class="btn-publish" style="flex:2;">Enregistrer</button>
+                        <button type="submit" id="publish-btn" class="btn-publish" style="flex:2;">Enregistrer le Joueur</button>
                     </div>
                 </form>
             </section>
@@ -149,21 +178,18 @@
                         <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (FR)</label>
                         <textarea id="set-founder-desc-fr" rows="5" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
                     </div>
-
                     <div class="lang-content hidden" id="lang-en">
                         <label style="color:#aaa; font-size:0.85rem;">Citation (EN)</label>
                         <input type="text" id="set-founder-quote-en" placeholder='Ex: "The advisor with 3000 contacts."'>
                         <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (EN)</label>
                         <textarea id="set-founder-desc-en" rows="5" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
                     </div>
-
                     <div class="lang-content hidden" id="lang-es">
                         <label style="color:#aaa; font-size:0.85rem;">Citation (ES)</label>
                         <input type="text" id="set-founder-quote-es" placeholder='Ex: "El asesor de los 3.000 contactos."'>
                         <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (ES)</label>
                         <textarea id="set-founder-desc-es" rows="5" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
                     </div>
-
                     <div class="lang-content hidden" id="lang-pt">
                         <label style="color:#aaa; font-size:0.85rem;">Citation (PT)</label>
                         <input type="text" id="set-founder-quote-pt" placeholder='Ex: "O conselheiro de 3.000 contatos."'>
