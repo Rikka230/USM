@@ -22,13 +22,11 @@
     </div>
 
     <div id="dashboard" class="hidden">
-        
         <aside class="sidebar">
             <h2 class="pink-accent">USM Admin</h2>
             <nav>
                 <button id="nav-manage" class="active">Gérer le Roster</button>
                 <button id="nav-settings">Paramètres du Site</button>
-                
                 <div style="margin-top: 50px; display: flex; flex-direction: column; gap: 10px;">
                     <a href="index.html" class="btn-return">🔙 Retour au site</a>
                     <button id="logout-btn" class="danger">Déconnexion</button>
@@ -39,22 +37,24 @@
         <main class="admin-content">
             
             <section id="manage-players-section">
-                <header style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px; flex-wrap: wrap; gap: 15px;">
-                    <div>
-                        <h1>Gérer le Roster</h1>
+                <header style="margin-bottom: 25px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                        <h1 style="margin: 0;">Gérer le Roster</h1>
                         <button id="btn-show-add-form" style="background:var(--usm-pink); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold; transition:0.3s;">➕ Ajouter un profil</button>
                     </div>
-                    <input type="text" id="search-bar" placeholder="🔍 Rechercher un joueur..." style="padding:12px 20px; border-radius:30px; border:1px solid #444; background:#1e1e1e; color:#fff; min-width: 250px;">
+                    
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; background: rgba(255,255,255,0.02); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--surface-border);">
+                        <div class="admin-tabs" style="margin:0; gap:8px;">
+                            <button class="admin-tab active" data-cat="gardien">Gardiens</button>
+                            <button class="admin-tab" data-cat="defenseur">Défenseurs</button>
+                            <button class="admin-tab" data-cat="milieu">Milieux</button>
+                            <button class="admin-tab" data-cat="attaquant">Attaquants</button>
+                            <button class="admin-tab" data-cat="feminine">Féminines</button>
+                            <button class="admin-tab" data-cat="coach">Coachs</button>
+                        </div>
+                        <input type="text" id="search-bar" placeholder="🔍 Rechercher un joueur..." style="padding:10px 20px; border-radius:30px; border:1px solid #444; background:#111; color:#fff; width: 250px;">
+                    </div>
                 </header>
-
-                <div class="admin-tabs">
-                    <button class="admin-tab active" data-cat="gardien">Gardiens</button>
-                    <button class="admin-tab" data-cat="defenseur">Défenseurs</button>
-                    <button class="admin-tab" data-cat="milieu">Milieux</button>
-                    <button class="admin-tab" data-cat="attaquant">Attaquants</button>
-                    <button class="admin-tab" data-cat="feminine">Féminines</button>
-                    <button class="admin-tab" data-cat="coach">Coachs</button>
-                </div>
 
                 <div class="table-container">
                     <table class="admin-table">
@@ -66,8 +66,7 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody id="admin-players-list">
-                            </tbody>
+                        <tbody id="admin-players-list"></tbody>
                     </table>
                 </div>
                 <div id="pagination-controls" style="display:flex; gap:10px; margin-top:20px; justify-content:center;"></div>
@@ -78,15 +77,12 @@
                     <h1 id="form-title">Créer un Profil</h1>
                     <button class="btn-cancel" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">❌ Annuler</button>
                 </header>
-                
                 <form id="content-form" class="bento-form">
                     <input type="hidden" id="edit-player-id">
                     <input type="hidden" id="existing-image-url">
-                    
                     <input type="text" id="player-name" placeholder="Nom du Joueur" required>
                     <input type="text" id="player-stat" placeholder="Statistique (ex: 150 Sélections)">
                     <input type="url" id="player-tm" placeholder="Lien Transfermarkt (Optionnel)">
-                    
                     <select id="player-category">
                         <option value="gardien">Gardien</option>
                         <option value="defenseur">Défenseur</option>
@@ -95,12 +91,10 @@
                         <option value="feminine">Féminine</option>
                         <option value="coach">Coach & Staff</option>
                     </select>
-                    
                     <div id="drop-zone" class="drop-zone">
-                        <p>Glissez une photo ici (laissez vide pour conserver l'actuelle)</p>
+                        <p>Glissez une photo ici</p>
                         <input type="file" id="media-upload" accept="image/*" hidden>
                     </div>
-                    
                     <div style="display: flex; gap: 15px; margin-top: 20px;">
                         <button type="button" class="btn-cancel" style="flex:1; background:#333; color:white; border:none; padding:20px; border-radius:8px; font-weight:bold; cursor:pointer;">Annuler</button>
                         <button type="submit" id="publish-btn" class="btn-publish" style="flex:2;">Enregistrer</button>
@@ -113,48 +107,44 @@
                 <form id="settings-form" class="bento-form">
                     
                     <h3 class="pink-accent">Logos du Site</h3>
-                    <div>
-                        <label style="color:#aaa; font-size:0.85rem;">URL Logo Header (Petit)</label>
-                        <input type="url" id="set-logo-nav" placeholder="Lien du logo menu" style="margin-top:5px;">
-                    </div>
-                    <div>
-                        <label style="color:#aaa; font-size:0.85rem;">URL Logo Central (Gros Aigle)</label>
-                        <input type="url" id="set-logo-hero" placeholder="Lien du logo central" style="margin-top:5px;">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                        <div>
+                            <label style="color:#aaa; font-size:0.85rem;">Logo Menu (Header)</label>
+                            <div id="drop-zone-nav" class="drop-zone" style="padding: 20px; margin-top:5px;">
+                                <p style="font-size: 0.9rem;">Glissez le logo</p>
+                                <input type="file" id="nav-upload" accept="image/*" hidden>
+                            </div>
+                            <input type="hidden" id="existing-logo-nav">
+                        </div>
+                        <div>
+                            <label style="color:#aaa; font-size:0.85rem;">Logo Central (Aigle géant)</label>
+                            <div id="drop-zone-hero" class="drop-zone" style="padding: 20px; margin-top:5px;">
+                                <p style="font-size: 0.9rem;">Glissez le logo</p>
+                                <input type="file" id="hero-upload" accept="image/*" hidden>
+                            </div>
+                            <input type="hidden" id="existing-logo-hero">
+                        </div>
                     </div>
 
                     <h3 class="pink-accent" style="margin-top:20px;">Section Fondateur</h3>
-                    
-                    <label style="color:#aaa; font-size:0.85rem;">Photo du Fondateur (Drag & Drop)</label>
+                    <label style="color:#aaa; font-size:0.85rem;">Photo du Fondateur</label>
                     <div id="drop-zone-founder" class="drop-zone">
                         <p>Glissez la photo du fondateur ici</p>
                         <input type="file" id="founder-upload" accept="image/*" hidden>
                     </div>
-                    <input type="hidden" id="existing-founder-img"> <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Citation</label>
+                    <input type="hidden" id="existing-founder-img">
+                    <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Citation</label>
                     <input type="text" id="set-founder-quote" placeholder="Ex: Le conseiller aux 3000 numéros">
-                    
                     <label style="color:#aaa; font-size:0.85rem;">Description</label>
                     <textarea id="set-founder-desc" rows="4" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;" placeholder="Description du fondateur..."></textarea>
 
                     <h3 class="pink-accent" style="margin-top:20px;">Statistiques</h3>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                        <div>
-                            <label style="color:#aaa; font-size:0.85rem; margin-bottom:5px; display:block;">Activité & Transactions</label>
-                            <input type="text" id="set-stat1" placeholder="Ex: 1 600+">
-                        </div>
-                        <div>
-                            <label style="color:#aaa; font-size:0.85rem; margin-bottom:5px; display:block;">Réseau Mondial</label>
-                            <input type="text" id="set-stat4" placeholder="Ex: 25 000+">
-                        </div>
-                        <div>
-                            <label style="color:#aaa; font-size:0.85rem; margin-bottom:5px; display:block;">Confiance & Roster</label>
-                            <input type="text" id="set-stat2" placeholder="Ex: 1 000+">
-                        </div>
-                        <div>
-                            <label style="color:#aaa; font-size:0.85rem; margin-bottom:5px; display:block;">Impact Digital (Abonnés)</label>
-                            <input type="text" id="set-stat3" placeholder="Ex: 68 260">
-                        </div>
+                        <div><label style="color:#aaa; font-size:0.85rem;">Activité & Transactions</label><input type="text" id="set-stat1" style="margin-top:5px;"></div>
+                        <div><label style="color:#aaa; font-size:0.85rem;">Réseau Mondial</label><input type="text" id="set-stat4" style="margin-top:5px;"></div>
+                        <div><label style="color:#aaa; font-size:0.85rem;">Confiance & Roster</label><input type="text" id="set-stat2" style="margin-top:5px;"></div>
+                        <div><label style="color:#aaa; font-size:0.85rem;">Impact Digital (Abonnés)</label><input type="text" id="set-stat3" style="margin-top:5px;"></div>
                     </div>
-                    
                     <button type="submit" class="btn-publish" style="margin-top:20px;">Enregistrer les modifications</button>
                 </form>
             </section>
@@ -165,6 +155,3 @@
     <script type="module" src="admin.js"></script>
 </body>
 </html>
-
-
-
