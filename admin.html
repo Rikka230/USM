@@ -109,33 +109,55 @@
             </section>
 
             <section id="settings-section" class="hidden">
-    <header><h1>Identité & Paramètres</h1></header>
-    <form id="settings-form" class="bento-form">
-        
-        <h3 class="pink-accent">Logos du Site</h3>
-        <label>URL Logo Header (Petit)</label>
-        <input type="url" id="set-logo-nav" placeholder="Lien du logo menu">
-        <label>URL Logo Central (Gros Aigle)</label>
-        <input type="url" id="set-logo-hero" placeholder="Lien du logo central">
+                <header><h1>Identité & Paramètres</h1></header>
+                <form id="settings-form" class="bento-form">
+                    
+                    <h3 class="pink-accent">Logos du Site</h3>
+                    <div>
+                        <label style="color:#aaa; font-size:0.85rem;">URL Logo Header (Petit)</label>
+                        <input type="url" id="set-logo-nav" placeholder="Lien du logo menu" style="margin-top:5px;">
+                    </div>
+                    <div>
+                        <label style="color:#aaa; font-size:0.85rem;">URL Logo Central (Gros Aigle)</label>
+                        <input type="url" id="set-logo-hero" placeholder="Lien du logo central" style="margin-top:5px;">
+                    </div>
 
-        <h3 class="pink-accent">Section Fondateur</h3>
-        <label>Photo Fondateur (URL)</label>
-        <input type="url" id="set-founder-img" placeholder="Lien de la photo">
-        <label>Citation</label>
-        <input type="text" id="set-founder-quote" placeholder="Ex: Le conseiller aux 3000 numéros">
-        <textarea id="set-founder-desc" rows="4" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;" placeholder="Description du fondateur..."></textarea>
+                    <h3 class="pink-accent" style="margin-top:20px;">Section Fondateur</h3>
+                    
+                    <label style="color:#aaa; font-size:0.85rem;">Photo du Fondateur (Drag & Drop)</label>
+                    <div id="drop-zone-founder" class="drop-zone">
+                        <p>Glissez la photo du fondateur ici</p>
+                        <input type="file" id="founder-upload" accept="image/*" hidden>
+                    </div>
+                    <input type="hidden" id="existing-founder-img"> <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Citation</label>
+                    <input type="text" id="set-founder-quote" placeholder="Ex: Le conseiller aux 3000 numéros">
+                    
+                    <label style="color:#aaa; font-size:0.85rem;">Description</label>
+                    <textarea id="set-founder-desc" rows="4" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;" placeholder="Description du fondateur..."></textarea>
 
-        <h3 class="pink-accent">Statistiques</h3>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <input type="text" id="set-stat1" placeholder="Stat 1">
-            <input type="text" id="set-stat4" placeholder="Stat 4">
-            <input type="text" id="set-stat2" placeholder="Stat 2">
-            <input type="text" id="set-stat3" placeholder="Stat 3">
-        </div>
-        
-        <button type="submit" class="btn-publish">Enregistrer les modifications</button>
-    </form>
-</section>
+                    <h3 class="pink-accent" style="margin-top:20px;">Statistiques</h3>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                        <div>
+                            <label style="color:#aaa; font-size:0.85rem; margin-bottom:5px; display:block;">Activité & Transactions</label>
+                            <input type="text" id="set-stat1" placeholder="Ex: 1 600+">
+                        </div>
+                        <div>
+                            <label style="color:#aaa; font-size:0.85rem; margin-bottom:5px; display:block;">Réseau Mondial</label>
+                            <input type="text" id="set-stat4" placeholder="Ex: 25 000+">
+                        </div>
+                        <div>
+                            <label style="color:#aaa; font-size:0.85rem; margin-bottom:5px; display:block;">Confiance & Roster</label>
+                            <input type="text" id="set-stat2" placeholder="Ex: 1 000+">
+                        </div>
+                        <div>
+                            <label style="color:#aaa; font-size:0.85rem; margin-bottom:5px; display:block;">Impact Digital (Abonnés)</label>
+                            <input type="text" id="set-stat3" placeholder="Ex: 68 260">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-publish" style="margin-top:20px;">Enregistrer les modifications</button>
+                </form>
+            </section>
 
         </main>
     </div>
@@ -143,5 +165,6 @@
     <script type="module" src="admin.js"></script>
 </body>
 </html>
+
 
 
