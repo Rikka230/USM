@@ -2,24 +2,33 @@
    USM FOOTBALL - ADMIN JAVASCRIPT (OPTIMISÉ FIREBASE LECTURES + CACHE CLEAR)
    ========================================================================== */
 
+/* ================= 1. IMPORTS FIREBASE ================= */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, query, where, writeBatch, getDoc, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+import { getFirestore, collection, getDocs, doc, getDoc, query, where, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
+/* ================= 2. CONFIGURATION FIREBASE ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyDd7OvBbX35PaQPlm6saccOGTQyvI3UEoU",
   authDomain: "usm-football-b56ba.firebaseapp.com",
   projectId: "usm-football-b56ba",
   storageBucket: "usm-football-b56ba.firebasestorage.app",
   messagingSenderId: "1004955626049",
-  appId: "1:1004955626049:web:1982ac82e68599946f74c0"
+  appId: "1:1004955626049:web:1982ac82e68599946f74c0",
+  measurementId: "G-5FCYP7CMQD"
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+
+// --- BOUCLIER ANTI-DDOS (APP CHECK + RECAPTCHA V3) ---
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LdF2rUsAAAAAOUCVKJt2DCDKWQIEQXHyBkYETT1'),
+  isTokenAutoRefreshEnabled: true // Firebase renouvelle le jeton de sécurité tout seul
+});
+
 const db = getFirestore(app);
-const storage = getStorage(app);
+const analytics = getAnalytics(app);
 
 let optimizedImages = { founder: null, nav: null, hero: null, service: null };
 
