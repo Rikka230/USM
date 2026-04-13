@@ -2,7 +2,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, getDoc, query, where, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
+/* ================= 2. CONFIGURATION FIREBASE ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyDd7OvBbX35PaQPlm6saccOGTQyvI3UEoU",
   authDomain: "usm-football-b56ba.firebaseapp.com",
@@ -14,8 +16,15 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+// --- BOUCLIER ANTI-DDOS (APP CHECK + RECAPTCHA V3) ---
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LdF2rUsAAAAAOUCVKJt2DCDKWQIEQXHyBkYETT1'),
+  isTokenAutoRefreshEnabled: true // Firebase renouvelle le jeton de sécurité tout seul
+});
+
 const db = getFirestore(app);
-const analytics = getAnalytics(app); 
+const analytics = getAnalytics(app);
 
 /* ================= 2. SYSTEME DE CACHE ANTI-COÛT (LIMITE LÉGALE 13 MOIS) ================= */
 // La CNIL autorise une conservation technique maximale de 13 mois.
