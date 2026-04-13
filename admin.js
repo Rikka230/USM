@@ -1,10 +1,10 @@
 /* ==========================================================================
-   USM FOOTBALL - ADMIN JAVASCRIPT (CORRIGÉ ET SANS DOUBLONS)
+   USM FOOTBALL - ADMIN JAVASCRIPT (OPTIMISÉ FIREBASE LECTURES + CACHE CLEAR)
    ========================================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, query, where, writeBatch, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, query, where, writeBatch, getDoc, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
@@ -23,6 +23,9 @@ const storage = getStorage(app);
 
 let optimizedImages = { founder: null, nav: null, hero: null, service: null };
 
+// Fonction vitale : quand l'admin modifie quelque chose, on vide le cache local
+function clearPublicCache() { localStorage.clear(); }
+
 /* ================= 1. AUTHENTIFICATION ================= */
 onAuthStateChanged(auth, (user) => {
     const loader = document.getElementById('auth-loader');
@@ -34,7 +37,7 @@ onAuthStateChanged(auth, (user) => {
         const dash = document.getElementById('dashboard');
         if(dash) dash.classList.remove('hidden');
         
-        loadAdminPlayers(); 
+        loadAdminPlayers('gardien'); 
         loadAdminServices();
     } else {
         const dash = document.getElementById('dashboard');
@@ -333,7 +336,7 @@ let allAdminPlayers = [];
 let adminCurrentCat = 'gardien';
 let adminSearchQuery = '';
 let adminCurrentPage = 1;
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 20; // 20 joueurs par page dans l'administration
 
 document.querySelectorAll('.admin-tab:not(.lang-tab):not(.lang-tab-srv)').forEach(tab => {
     tab.addEventListener('click', (e) => {
@@ -344,7 +347,7 @@ document.querySelectorAll('.admin-tab:not(.lang-tab):not(.lang-tab-srv)').forEac
         const searchBar = document.getElementById('search-bar');
         if(searchBar) searchBar.value = '';
         adminCurrentPage = 1;
-        renderAdminTable();
+        loadAdminPlayers(adminCurrentCat);
     });
 });
 
@@ -360,17 +363,18 @@ if(searchBar) {
     });
 }
 
-async function loadAdminPlayers() {
+async function loadAdminPlayers(category) {
     const listContainer = document.getElementById('admin-players-list');
     if(!listContainer) return;
-    listContainer.innerHTML = '<tr><td colspan="4" style="text-align:center;">Chargement...</td></tr>';
+    listContainer.innerHTML = '<tr><td colspan=\"4\" style=\"text-align:center;\">Chargement...</td></tr>';
     try {
-        const querySnapshot = await getDocs(collection(db, "players"));
+        const q = query(collection(db, "players"), where("category", "==", category));
+        const querySnapshot = await getDocs(q);
         allAdminPlayers = [];
         querySnapshot.forEach((docSnap) => allAdminPlayers.push({ id: docSnap.id, ...docSnap.data() }));
         renderAdminTable();
     } catch (error) { 
-        listContainer.innerHTML = `<tr><td colspan="4" style="color:red;">Erreur base de données.</td></tr>`; 
+        listContainer.innerHTML = `<tr><td colspan=\"4\" style=\"color:red;\">Erreur base de données.</td></tr>`; 
     }
 }
 
@@ -381,7 +385,7 @@ function renderAdminTable() {
     
     let filtered = adminSearchQuery.length > 0 
         ? allAdminPlayers.filter(p => p.name.toLowerCase().includes(adminSearchQuery))
-        : allAdminPlayers.filter(p => p.category === adminCurrentCat);
+        : allAdminPlayers;
     
     filtered.sort((a, b) => (a.order || 999) - (b.order || 999));
     
@@ -391,7 +395,7 @@ function renderAdminTable() {
 
     listContainer.innerHTML = '';
     if (paginated.length === 0) {
-        listContainer.innerHTML = '<tr><td colspan="4" style="text-align:center;">Aucun joueur trouvé.</td></tr>';
+        listContainer.innerHTML = '<tr><td colspan=\"4\" style=\"text-align:center;\">Aucun joueur trouvé.</td></tr>';
         if(paginationContainer) paginationContainer.innerHTML = '';
         return;
     }
@@ -504,12 +508,13 @@ function editPlayer(id) {
 async function deletePlayer(id) {
     if(confirm("Supprimer ce profil ?")) {
         await deleteDoc(doc(db, "players", id));
-        loadAdminPlayers();
+        clearPublicCache();
+        loadAdminPlayers(adminCurrentCat);
     }
 }
 
 async function movePlayer(currentIndex, direction) {
-    let categoryPlayers = allAdminPlayers.filter(p => p.category === adminCurrentCat).sort((a, b) => (a.order || 999) - (b.order || 999));
+    let categoryPlayers = allAdminPlayers.sort((a, b) => (a.order || 999) - (b.order || 999));
     const targetIndex = currentIndex + direction;
     if(targetIndex < 0 || targetIndex >= categoryPlayers.length) return;
 
@@ -520,7 +525,8 @@ async function movePlayer(currentIndex, direction) {
     const batch = writeBatch(db);
     categoryPlayers.forEach((player, index) => batch.update(doc(db, "players", player.id), { order: index + 1 }));
     await batch.commit();
-    loadAdminPlayers();
+    clearPublicCache();
+    loadAdminPlayers(adminCurrentCat);
 }
 
 const contentForm = document.getElementById('content-form');
@@ -559,10 +565,11 @@ if(contentForm) {
                 payload.order = snap.size + 1;
                 await addDoc(collection(db, "players"), payload);
             }
+            clearPublicCache();
             hideAllSections(); 
             const secM = document.getElementById('manage-players-section');
             if(secM) secM.classList.remove('hidden');
-            loadAdminPlayers();
+            loadAdminPlayers(cat);
         } catch (err) { 
             alert("Erreur: " + err.message); 
         } finally { 
@@ -577,14 +584,14 @@ let allAdminServices = [];
 async function loadAdminServices() {
     const list = document.getElementById('admin-services-list');
     if(!list) return;
-    list.innerHTML = '<tr><td colspan="3" style="text-align:center;">Chargement...</td></tr>';
+    list.innerHTML = '<tr><td colspan=\"3\" style=\"text-align:center;\">Chargement...</td></tr>';
     try {
         const querySnapshot = await getDocs(collection(db, "services")); 
         allAdminServices = [];
         querySnapshot.forEach((docSnap) => allAdminServices.push({ id: docSnap.id, ...docSnap.data() })); 
         renderAdminServicesTable();
     } catch (e) {
-        list.innerHTML = '<tr><td colspan="3" style="color:red;">Erreur de chargement.</td></tr>';
+        list.innerHTML = '<tr><td colspan=\"3\" style=\"color:red;\">Erreur de chargement.</td></tr>';
     }
 }
 
@@ -596,22 +603,22 @@ function renderAdminServicesTable() {
     listContainer.innerHTML = '';
     
     if (allAdminServices.length === 0) { 
-        listContainer.innerHTML = '<tr><td colspan="3" style="text-align:center;">Aucun service trouvé.</td></tr>'; 
+        listContainer.innerHTML = '<tr><td colspan=\"3\" style=\"text-align:center;\">Aucun service trouvé.</td></tr>'; 
         return; 
     }
     
     allAdminServices.forEach((srv, index) => {
-        const upBtn = (index !== 0) ? `<button class="btn-order btn-move-srv-up" data-index="${index}">▲</button>` : `<div style="width:30px; height:30px;"></div>`; 
-        const downBtn = (index !== allAdminServices.length - 1) ? `<button class="btn-order btn-move-srv-down" data-index="${index}">▼</button>` : `<div style="width:30px; height:30px;"></div>`;
+        const upBtn = (index !== 0) ? `<button class="btn-order btn-move-srv-up" data-index="${index}">▲</button>` : `<div style=\"width:30px; height:30px;\"></div>`; 
+        const downBtn = (index !== allAdminServices.length - 1) ? `<button class="btn-order btn-move-srv-down" data-index="${index}">▼</button>` : `<div style=\"width:30px; height:30px;\"></div>`;
         listContainer.innerHTML += `
             <tr>
-                <td style="color:var(--usm-pink); font-weight:bold;">#${srv.order||'-'}</td>
-                <td style="font-weight:bold;">${srv.title_fr||'-'}</td>
+                <td style=\"color:var(--usm-pink); font-weight:bold;\">#${srv.order||'-'}</td>
+                <td style=\"font-weight:bold;\">${srv.title_fr||'-'}</td>
                 <td>
-                    <div style="display:flex;gap:8px;">
+                    <div style=\"display:flex;gap:8px;\">
                         ${upBtn} ${downBtn}
-                        <button class="btn-edit btn-edit-srv" data-id="${srv.id}">Éditer</button>
-                        <button class="btn-delete btn-delete-srv" data-id="${srv.id}">Supprimer</button>
+                        <button class=\"btn-edit btn-edit-srv\" data-id=\"${srv.id}\">Éditer</button>
+                        <button class=\"btn-delete btn-delete-srv\" data-id=\"${srv.id}\">Supprimer</button>
                     </div>
                 </td>
             </tr>`;
@@ -680,6 +687,7 @@ function editService(id) {
 async function deleteService(id) { 
     if(confirm("Supprimer ce service ?")) { 
         await deleteDoc(doc(db, "services", id)); 
+        clearPublicCache();
         loadAdminServices(); 
     } 
 }
@@ -695,6 +703,7 @@ async function moveService(currentIndex, direction) {
     const batch = writeBatch(db); 
     allAdminServices.forEach((srv, index) => batch.update(doc(db, "services", srv.id), { order: index + 1 })); 
     await batch.commit(); 
+    clearPublicCache();
     loadAdminServices();
 }
 
@@ -734,6 +743,7 @@ if(srvForm) {
                 await addDoc(collection(db, "services"), payload); 
             }
             
+            clearPublicCache();
             hideAllSections(); 
             const secM = document.getElementById('manage-services-section');
             if(secM) secM.classList.remove('hidden'); 
@@ -745,7 +755,6 @@ if(srvForm) {
         }
     });
 }
-
 
 /* ================= 6. SAUVEGARDE DES PARAMÈTRES GLOBAUX ================= */
 const settingsForm = document.getElementById('settings-form');
@@ -805,6 +814,7 @@ if(settingsForm) {
             if(eHero) eHero.value = finalHeroUrl;
             
             optimizedImages = { founder: null, nav: null, hero: null, service: null };
+            clearPublicCache();
             alert("Identité et Paramètres mis à jour avec succès !");
         } catch(err) { 
             alert("Erreur : " + err.message); 
