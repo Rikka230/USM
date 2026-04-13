@@ -26,16 +26,16 @@ const appCheck = initializeAppCheck(app, {
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
 
-/* ================= 2. SYSTEME DE CACHE ANTI-COÛT (LIMITE LÉGALE 13 MOIS) ================= */
-// La CNIL autorise une conservation technique maximale de 13 mois.
-// Utilisation de localStorage : le cache reste même si l'utilisateur ferme le navigateur.
-const CACHE_TIME_13_MONTHS = 1000 * 60 * 60 * 24 * 395; 
+/* ================= 2. SYSTEME DE CACHE ANTI-COÛT ================= */
+// Le cache expire après 24 heures (équilibre parfait entre budget Firebase et mise à jour du site)
+const CACHE_TIME_24H = 1000 * 60 * 60 * 24; 
+
 const Cache = {
     get: (key) => {
         const item = localStorage.getItem(key);
         if (!item) return null;
         const parsed = JSON.parse(item);
-        if (Date.now() - parsed.timestamp > CACHE_TIME_13_MONTHS) {
+        if (Date.now() - parsed.timestamp > CACHE_TIME_24H) { // <-- Modifié ici
             localStorage.removeItem(key);
             return null;
         }
