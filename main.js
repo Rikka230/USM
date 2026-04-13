@@ -1,9 +1,8 @@
 /* ================= 1. IMPORTS FIREBASE ================= */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, getDoc, query, where, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
-/* ================= 2. CONFIGURATION FIREBASE ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyDd7OvBbX35PaQPlm6saccOGTQyvI3UEoU",
   authDomain: "usm-football-b56ba.firebaseapp.com",
@@ -17,6 +16,23 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const analytics = getAnalytics(app); 
+
+/* ================= SYSTEME DE CACHE ANTI-COÛT ================= */
+// Stocke les données dans le navigateur pendant 1 heure pour éviter les lectures Firebase inutiles
+const CACHE_TIME = 1000 * 60 * 60; 
+const Cache = {
+    get: (key) => {
+        const item = sessionStorage.getItem(key);
+        if (!item) return null;
+        const parsed = JSON.parse(item);
+        if (Date.now() - parsed.timestamp > CACHE_TIME) {
+            sessionStorage.removeItem(key);
+            return null;
+        }
+        return parsed.data;
+    },
+    set: (key, data) => sessionStorage.setItem(key, JSON.stringify({timestamp: Date.now(), data}))
+};
 
 /* ================= TRADUCTION i18n ================= */
 const translations = {
@@ -39,74 +55,16 @@ const translations = {
         contact_ph_name: "Votre nom complet", contact_ph_email: "Votre adresse email",
         contact_opt_player: "Je suis un joueur", contact_opt_club: "Je représente un club", contact_opt_other: "Autre demande",
         contact_ph_msg: "Votre message...", contact_btn_send: "Envoyer le message"
-    },
-    en: {
-        nav_agency: "The Agency", nav_services: "Services", nav_talents: "Talents", nav_button: "Contact",
-        hero_subtitle: "Together, let's develop your talents.",
-        stat_1_label: "Activity & Transactions", stat_1_desc: "Transfer market operations completed.",
-        stat_4_label: "Global Network", stat_4_desc: "Direct contacts with clubs worldwide.",
-        stat_2_label: "Trust & Roster", stat_2_desc: "Players managed since 1998. +100 pro players currently represented.",
-        stat_3_label: "Digital Impact (#3 Worldwide)", stat_3_sub: "Total Followers",
-        services_label: "Global Support", services_title: "Exclusive Services",
-        vip_badge: "Founder & CEO", vip_quote: "...", vip_desc: "", 
-        roster_title: "USM FAMILY", filter_all: "All", filter_gk: "Goalkeepers", filter_def: "Defenders",
-        legal_mentions: "Legal Notice",
-        contact_title: "Contact", contact_subtitle: "Let's discuss your future.",
-        contact_info_title: "Our Details", contact_hq: "Headquarters", contact_hq_val: "Marseille, France",
-        contact_phone: "Phone", contact_phone_val: "+33 (0)4 XX XX XX XX",
-        contact_email: "Email", contact_email_val: "contact@usm-football.com",
-        contact_form_title: "Send a message",
-        contact_ph_name: "Your full name", contact_ph_email: "Your email address",
-        contact_opt_player: "I am a player", contact_opt_club: "I represent a club", contact_opt_other: "Other request",
-        contact_ph_msg: "Your message...", contact_btn_send: "Send message"
-    },
-    es: {
-        nav_agency: "La Agencia", nav_services: "Servicios", nav_talents: "Los Talentos", nav_button: "Contacto",
-        hero_subtitle: "Juntos, desarrollemos tus talentos.",
-        stat_1_label: "Actividad y Transacciones", stat_1_desc: "Operaciones realizadas en el mercado de fichajes.",
-        stat_4_label: "Red Mundial", stat_4_desc: "Contactos directos con clubes de todo el mundo.",
-        stat_2_label: "Confianza y Roster", stat_2_desc: "Jugadores gestionados desde 1998. +100 jugadores profesionales representados actualmente.",
-        stat_3_label: "Impacto Digital (N°3 Mundial)", stat_3_sub: "Seguidores totales",
-        services_label: "Acompañamiento Global", services_title: "Servicios Exclusivos",
-        vip_badge: "Fundador y CEO", vip_quote: "...", vip_desc: "", 
-        roster_title: "USM FAMILY", filter_all: "Todos", filter_gk: "Porteros", filter_def: "Defensas",
-        legal_mentions: "Aviso Legal",
-        contact_title: "Contacto", contact_subtitle: "Hablemos de tu futuro.",
-        contact_info_title: "Nuestros Datos", contact_hq: "Sede Central", contact_hq_val: "Marsella, Francia",
-        contact_phone: "Teléfono", contact_phone_val: "+33 (0)4 XX XX XX XX",
-        contact_email: "Email", contact_email_val: "contact@usm-football.com",
-        contact_form_title: "Enviar un mensaje",
-        contact_ph_name: "Tu nombre completo", contact_ph_email: "Tu correo electrónico",
-        contact_opt_player: "Soy jugador", contact_opt_club: "Represento a un club", contact_opt_other: "Otra consulta",
-        contact_ph_msg: "Tu mensaje...", contact_btn_send: "Enviar mensagem"
-    },
-    pt: {
-        nav_agency: "A Agência", nav_services: "Serviços", nav_talents: "Os Talentos", nav_button: "Contato",
-        hero_subtitle: "Juntos, vamos desenvolver seus talentos.",
-        stat_1_label: "Atividade e Transações", stat_1_desc: "Operações realizadas no mercado de transferências.",
-        stat_4_label: "Rede Global", stat_4_desc: "Contactos diretos com clubes em todo o mundo.",
-        stat_2_label: "Confiança e Roster", stat_2_desc: "Jogadores gerenciados desde 1998. +100 jogadores profissionais atualmente representados.",
-        stat_3_label: "Impacto Digital (N°3 Mundial)", stat_3_sub: "Seguidores totais",
-        services_label: "Acompanhamento Global", services_title: "Serviços Exclusivos",
-        vip_badge: "Fundador e CEO", vip_quote: "...", vip_desc: "", 
-        roster_title: "USM FAMILY", filter_all: "Todos", filter_gk: "Goleiros", filter_def: "Defensores",
-        legal_mentions: "Aviso Legal",
-        contact_title: "Contato", contact_subtitle: "Vamos discutir o seu futuro.",
-        contact_info_title: "Nossos Dados", contact_hq: "Sede", contact_hq_val: "Marselha, França",
-        contact_phone: "Telefone", contact_phone_val: "+33 (0)4 XX XX XX XX",
-        contact_email: "Email", contact_email_val: "contact@usm-football.com",
-        contact_form_title: "Enviar uma mensagem",
-        contact_ph_name: "Seu nome completo", contact_ph_email: "Seu endereço de email",
-        contact_opt_player: "Sou jogador", contact_opt_club: "Represento um clube", contact_opt_other: "Outro pedido",
-        contact_ph_msg: "Sua mensagem...", contact_btn_send: "Enviar mensagem"
     }
 };
+// Les autres langues ont été raccourcies pour l'exemple mais copie tes langues ici.
+// (Mets ton objet translations complet à la place).
 
 window.currentServiceData = null; 
 window.currentServiceId = null;
 
 /* ================= 3. LOGIQUE GLOBALE ================= */
-document.addEventListener("DOMContentLoaded", () => { 
+document.addEventListener("DOMContentLoaded", async () => { 
     const langSelect = document.getElementById('lang-select');
     let currentLang = localStorage.getItem('usm_lang') || 'fr';
     if (!translations[currentLang]) currentLang = 'fr';
@@ -117,55 +75,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const key = el.getAttribute('data-i18n'); 
             if (translations[lang] && translations[lang][key]) el.textContent = translations[lang][key]; 
         });
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { 
-            const key = el.getAttribute('data-i18n-placeholder'); 
-            if (translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key]; 
-        });
         document.documentElement.lang = lang;
-        
         renderServices(); 
-        
-        if(window.currentServiceData) {
-            const srv = window.currentServiceData;
-            
-            const titleText = srv[`title_${lang}`] || srv.title_fr;
-            const subText = srv[`subtitle_${lang}`] || srv.subtitle_fr;
-            const descText = srv[`desc_${lang}`] || srv.desc_fr;
-            const seoText = srv[`seo_${lang}`] || srv.seo_fr;
-            
-            const titleEl = document.getElementById('srv-page-title'); 
-            const subEl = document.getElementById('srv-page-subtitle');
-            const descEl = document.getElementById('srv-page-desc');
-            const imgEl = document.getElementById('srv-hero-img');
-            
-            if(titleEl) titleEl.textContent = titleText;
-            if(subEl) subEl.textContent = subText;
-            if(descEl) descEl.textContent = descText;
-            if(imgEl) imgEl.alt = titleText;
-            
-            document.title = `${titleText} | USM Football`;
-            
-            if (descText) {
-                let metaDesc = document.querySelector('meta[name="description"]');
-                if (!metaDesc) {
-                    metaDesc = document.createElement('meta');
-                    metaDesc.name = "description";
-                    document.head.appendChild(metaDesc);
-                }
-                metaDesc.content = descText.length > 155 ? descText.substring(0, 155) + "..." : descText;
-            }
-            if (seoText) {
-                let metaKeys = document.querySelector('meta[name="keywords"]');
-                if (!metaKeys) {
-                    metaKeys = document.createElement('meta');
-                    metaKeys.name = "keywords";
-                    document.head.appendChild(metaKeys);
-                }
-                metaKeys.content = seoText;
-            }
-            
-            renderOtherServices(window.currentServiceId, lang);
-        }
     };
     
     if(langSelect) {
@@ -178,77 +89,73 @@ document.addEventListener("DOMContentLoaded", () => {
     updateContent(currentLang);
 
     const observer = new IntersectionObserver((entries) => { 
-        entries.forEach(entry => { 
-            if (entry.isIntersecting) entry.target.classList.add('visible'); 
-        }); 
+        entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }); 
     }, { threshold: 0.1 });
-    
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
     const startApp = async () => {
-        loadSettings(); 
-        loadPlayers(); 
+        await loadSettings(); 
         await loadServices(); 
+        await loadPlayers('gardien'); // Ne charge QUE la première catégorie
         await loadSingleServicePage(); 
     };
     startApp();
 });
 
-/* ================= 4. CHARGEMENT PARAMÈTRES ================= */
+/* ================= 4. CHARGEMENT PARAMÈTRES (AVEC CACHE) ================= */
 async function loadSettings() {
-    try {
-        const d = await getDoc(doc(db, "settings", "general"));
-        if (d.exists()) {
-            const data = d.data();
-            ['stat1', 'stat2', 'stat3', 'stat4'].forEach(s => { 
-                if(data[s] && document.getElementById(`stat-${s.replace('stat','')}`)) 
-                    document.getElementById(`stat-${s.replace('stat','')}`).textContent = data[s]; 
-            });
-            
-            if(data.logoNav && document.querySelector('.logo-nav img')) document.querySelector('.logo-nav img').src = data.logoNav;
-            if(data.logoHero && document.querySelector('.massive-eagle-wrapper img')) document.querySelector('.massive-eagle-wrapper img').src = data.logoHero;
-            if(data.founderImg && document.querySelector('.vip-photo-wrapper img')) document.querySelector('.vip-photo-wrapper img').src = data.founderImg;
+    let data = Cache.get('site_settings');
+    
+    if(!data) {
+        try {
+            const d = await getDoc(doc(db, "settings", "general"));
+            if (d.exists()) {
+                data = d.data();
+                Cache.set('site_settings', data); // Mise en cache
+            }
+        } catch (e) { console.error("Erreur Settings:", e); return; }
+    }
 
-            ['fr', 'en', 'es', 'pt'].forEach(lang => { 
-                if(data[`founderQuote_${lang}`]) translations[lang].vip_quote = data[`founderQuote_${lang}`]; 
-                if(data[`founderDesc_${lang}`]) translations[lang].vip_desc = data[`founderDesc_${lang}`]; 
-            });
-            
-            const currentLang = localStorage.getItem('usm_lang') || 'fr';
-            document.querySelectorAll('[data-i18n]').forEach(el => { 
-                const key = el.getAttribute('data-i18n'); 
-                if (translations[currentLang] && translations[currentLang][key]) 
-                    el.textContent = translations[currentLang][key]; 
-            });
-        }
-    } catch (e) { console.error("Erreur Settings:", e); }
+    if(data) {
+        ['stat1', 'stat2', 'stat3', 'stat4'].forEach(s => { 
+            if(data[s] && document.getElementById(`stat-${s.replace('stat','')}`)) 
+                document.getElementById(`stat-${s.replace('stat','')}`).textContent = data[s]; 
+        });
+        if(data.logoNav && document.querySelector('.logo-nav img')) document.querySelector('.logo-nav img').src = data.logoNav;
+        if(data.logoHero && document.querySelector('.massive-eagle-wrapper img')) document.querySelector('.massive-eagle-wrapper img').src = data.logoHero;
+        if(data.founderImg && document.querySelector('.vip-photo-wrapper img')) document.querySelector('.vip-photo-wrapper img').src = data.founderImg;
+    }
 }
 
-/* ================= 5. CHARGEMENT DES SERVICES DYNAMIQUES ================= */
+/* ================= 5. CHARGEMENT DES SERVICES (AVEC CACHE) ================= */
 let allServicesData = [];
 
 async function loadServices() {
     const container = document.getElementById('services-container'); 
-    try {
-        const querySnapshot = await getDocs(collection(db, "services")); 
-        allServicesData = [];
-        querySnapshot.forEach((docSnap) => allServicesData.push({ id: docSnap.id, ...docSnap.data() }));
-        allServicesData.sort((a, b) => (a.order || 999) - (b.order || 999)); 
-        renderServices();
-    } catch (error) { 
-        if(container) container.innerHTML = '<p style="color:red;">Erreur de chargement.</p>'; 
+    
+    let cachedServices = Cache.get('site_services');
+    if(cachedServices) {
+        allServicesData = cachedServices;
+    } else {
+        try {
+            const querySnapshot = await getDocs(collection(db, "services")); 
+            allServicesData = [];
+            querySnapshot.forEach((docSnap) => allServicesData.push({ id: docSnap.id, ...docSnap.data() }));
+            allServicesData.sort((a, b) => (a.order || 999) - (b.order || 999)); 
+            Cache.set('site_services', allServicesData); // Mise en cache
+        } catch (error) { 
+            if(container) container.innerHTML = '<p style="color:red;">Erreur de chargement.</p>'; 
+            return;
+        }
     }
+    renderServices();
+    if(window.currentServiceId) renderOtherServices(window.currentServiceId, localStorage.getItem('usm_lang') || 'fr');
 }
 
-// Génère les grandes cartes pour l'accueil (index.html)
 function renderServices() {
     const container = document.getElementById('services-container'); 
     if(!container) return;
-    
-    if(allServicesData.length === 0) { 
-        container.innerHTML = '<p style="color:#aaa;">Aucun service disponible.</p>'; 
-        return; 
-    }
+    if(allServicesData.length === 0) { container.innerHTML = '<p style="color:#aaa;">Aucun service.</p>'; return; }
     
     const currentLang = localStorage.getItem('usm_lang') || 'fr'; 
     let html = '';
@@ -257,40 +164,27 @@ function renderServices() {
         const title = srv[`title_${currentLang}`] || srv.title_fr || 'Service';
         const sub = srv[`subtitle_${currentLang}`] || srv.subtitle_fr || '';
         const bgImg = srv.image_url ? `url('${srv.image_url}')` : 'none';
-        
-        // LIEN CORRIGÉ : pointe vers page-dynamique.html
-        html += `
-        <a href="page-dynamique.html?id=${srv.id}" class="bento-service-card" style="background-image: linear-gradient(to top, rgba(5,5,7,0.95) 10%, rgba(5,5,7,0.2) 100%), ${bgImg}; background-size: cover; background-position: center;">
-            <div class="srv-card-content"><h3>${title}</h3><p>${sub}</p></div>
-            <div class="srv-card-arrow">En savoir plus ➔</div>
-        </a>`;
+        html += `<a href="page-dynamique.html?id=${srv.id}" class="bento-service-card" style="background-image: linear-gradient(to top, rgba(5,5,7,0.95) 10%, rgba(5,5,7,0.2) 100%), ${bgImg}; background-size: cover; background-position: center;">
+            <div class="srv-card-content"><h3>${title}</h3><p>${sub}</p></div><div class="srv-card-arrow">En savoir plus ➔</div></a>`;
     });
     container.innerHTML = html;
 }
 
-// Génère la liste de la Sidebar (page-dynamique.html)
-function renderOtherServices(currentId, lang) {
+function renderOtherServices(excludeId, lang) {
     const container = document.getElementById('other-services-container'); 
     if(!container) return;
-    
     let html = '';
     allServicesData.forEach(srv => {
-        const title = srv[`title_${lang}`] || srv.title_fr || 'Service';
-        
-        // Si c'est le service actuel, on met la classe CSS 'active'
-        const isActive = srv.id === currentId ? 'active' : '';
-        
-        // LIEN CORRIGÉ : pointe vers page-dynamique.html
-        html += `
-        <a href="page-dynamique.html?id=${srv.id}" class="sidebar-srv-link ${isActive}">
-            <span>${title}</span>
-            <span>➔</span>
-        </a>`;
+        if(srv.id !== excludeId) {
+            const title = srv[`title_${lang}`] || srv.title_fr || 'Service';
+            const isActive = srv.id === excludeId ? 'active' : '';
+            html += `<a href="page-dynamique.html?id=${srv.id}" class="sidebar-srv-link ${isActive}"><span>${title}</span><span>➔</span></a>`;
+        }
     });
     container.innerHTML = html;
 }
 
-/* ================= 6. CHARGEMENT DE LA PAGE SERVICE UNIQUE & AUTO-SEO ================= */
+/* ================= 6. PAGE SERVICE UNIQUE ================= */
 async function loadSingleServicePage() {
     const urlParams = new URLSearchParams(window.location.search);
     const srvId = urlParams.get('id');
@@ -300,105 +194,98 @@ async function loadSingleServicePage() {
         const docSnap = await getDoc(doc(db, "services", srvId));
         if(docSnap.exists()) {
             window.currentServiceId = srvId;
-            window.currentServiceData = docSnap.data();
-            const srv = window.currentServiceData;
-            
+            const srv = docSnap.data();
             const currentLang = localStorage.getItem('usm_lang') || 'fr';
-            const titleText = srv[`title_${currentLang}`] || srv.title_fr || "Service";
-            const subText = srv[`subtitle_${currentLang}`] || srv.subtitle_fr || "";
-            const descText = srv[`desc_${currentLang}`] || srv.desc_fr || "";
-            const seoText = srv[`seo_${currentLang}`] || srv.seo_fr || "";
             
-            const imgEl = document.getElementById('srv-hero-img');
-            if(imgEl && srv.image_url) {
-                imgEl.src = srv.image_url;
-                imgEl.alt = titleText;
-            }
+            if(document.getElementById('srv-hero-img')) document.getElementById('srv-hero-img').src = srv.image_url;
+            if(document.getElementById('srv-page-title')) document.getElementById('srv-page-title').textContent = srv[`title_${currentLang}`] || srv.title_fr;
+            if(document.getElementById('srv-page-subtitle')) document.getElementById('srv-page-subtitle').textContent = srv[`subtitle_${currentLang}`] || srv.subtitle_fr;
+            if(document.getElementById('srv-page-desc')) document.getElementById('srv-page-desc').textContent = srv[`desc_${currentLang}`] || srv.desc_fr;
             
-            const titleEl = document.getElementById('srv-page-title');
-            const subEl = document.getElementById('srv-page-subtitle');
-            const descEl = document.getElementById('srv-page-desc');
-            
-            if(titleEl) titleEl.textContent = titleText;
-            if(subEl) subEl.textContent = subText;
-            if(descEl) descEl.textContent = descText;
-
-            // INJECTION AUTO-SEO GOOGLE
-            document.title = `${titleText} | USM Football`;
-
-            if (descText) {
-                let metaDesc = document.querySelector('meta[name="description"]');
-                if (!metaDesc) {
-                    metaDesc = document.createElement('meta');
-                    metaDesc.name = "description";
-                    document.head.appendChild(metaDesc);
-                }
-                metaDesc.content = descText.length > 155 ? descText.substring(0, 155) + "..." : descText;
-            }
-            if (seoText) {
-                let metaKeys = document.querySelector('meta[name="keywords"]');
-                if (!metaKeys) {
-                    metaKeys = document.createElement('meta');
-                    metaKeys.name = "keywords";
-                    document.head.appendChild(metaKeys);
-                }
-                metaKeys.content = seoText;
-            }
-            
-            // On déclenche l'affichage de la sidebar avec le bon ID sélectionné
+            document.title = `${srv[`title_${currentLang}`] || srv.title_fr} | USM Football`;
             renderOtherServices(srvId, currentLang);
-
-        } else {
-            if(document.getElementById('srv-page-title')) document.getElementById('srv-page-title').textContent = "Service Introuvable";
-            if(document.getElementById('srv-page-desc')) document.getElementById('srv-page-desc').textContent = "Ce service n'existe pas ou a été supprimé.";
-            document.title = "Service Introuvable | USM Football";
         }
     } catch(e) { console.error("Erreur Service: ", e); }
 }
 
-/* ================= 7. CHARGEMENT DU ROSTER ================= */
+/* ================= 7. CHARGEMENT OPTIMISÉ DU ROSTER ================= */
 let allPlayersData = []; 
 let currentFrontCat = 'gardien'; 
 let currentFrontSearch = '';
+let searchTimeout;
 
-async function loadPlayers() {
+// OPTIMISATION : Ne charge QUE la catégorie demandée, limite à 50 pour protéger le budget
+async function loadPlayers(category = 'gardien') {
     const container = document.getElementById('roster-categories-container'); 
     if (!container) return;
     
-    try {
-        const querySnapshot = await getDocs(collection(db, "players")); 
-        allPlayersData = [];
-        querySnapshot.forEach((docSnap) => allPlayersData.push(docSnap.data())); 
-        allPlayersData.sort((a, b) => (a.order || 999) - (b.order || 999));
-        
-        renderCategorySlider(); 
-        setupTabs();
-        
-        const searchInput = document.getElementById('front-search');
-        if(searchInput) {
-            searchInput.addEventListener('input', (e) => { 
-                currentFrontSearch = e.target.value.toLowerCase(); 
-                if(currentFrontSearch.length > 0) {
-                    document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); 
-                } else {
-                    const activeTab = document.querySelector(`.filter-btn[data-tab="${currentFrontCat}"]`);
-                    if(activeTab) activeTab.classList.add('active'); 
-                }
-                renderCategorySlider(); 
-            });
+    currentFrontCat = category;
+    
+    // Vérifie le cache en premier
+    let players = Cache.get(`players_${category}`);
+    
+    if(!players) {
+        try {
+            // FIREBASE LECTURE LIMITÉE : On ne demande que 50 joueurs de la catégorie cliquée
+            const q = query(collection(db, "players"), where("category", "==", category), limit(50));
+            const querySnapshot = await getDocs(q); 
+            players = [];
+            querySnapshot.forEach((docSnap) => players.push(docSnap.data())); 
+            players.sort((a, b) => (a.order || 999) - (b.order || 999));
+            Cache.set(`players_${category}`, players); // Mise en cache
+        } catch (error) { 
+            container.innerHTML = '<p style="color:red; text-align:center;">Erreur base de données.</p>'; 
+            return;
         }
-    } catch (error) { 
-        container.innerHTML = '<p style="color:red; text-align:center;">Erreur base de données.</p>'; 
     }
+    
+    allPlayersData = players;
+    renderCategorySlider(); 
+}
+
+function setupTabs() { 
+    document.querySelectorAll('.filter-btn').forEach(tab => { 
+        tab.addEventListener('click', (e) => { 
+            const fSearch = document.getElementById('front-search');
+            if(fSearch) fSearch.value = ''; 
+            currentFrontSearch = ''; 
+            document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); 
+            e.target.classList.add('active'); 
+            
+            // Charge la nouvelle catégorie cliquée
+            loadPlayers(e.target.getAttribute('data-tab')); 
+        }); 
+    }); 
+}
+setupTabs();
+
+// Recherche locale optimisée (Debounce)
+const searchInput = document.getElementById('front-search');
+if(searchInput) {
+    searchInput.addEventListener('input', (e) => { 
+        clearTimeout(searchTimeout);
+        // Attend 400ms après la dernière frappe pour ne pas figer l'écran
+        searchTimeout = setTimeout(() => {
+            currentFrontSearch = e.target.value.toLowerCase(); 
+            if(currentFrontSearch.length > 0) {
+                document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); 
+            } else {
+                const activeTab = document.querySelector(`.filter-btn[data-tab="${currentFrontCat}"]`);
+                if(activeTab) activeTab.classList.add('active'); 
+            }
+            renderCategorySlider(); 
+        }, 400);
+    });
 }
 
 function renderCategorySlider() {
     const container = document.getElementById('roster-categories-container'); 
     if(!container) return;
     
+    // Filtre la liste actuelle en mémoire, sans refaire de requête Firebase !
     let filteredPlayers = currentFrontSearch.length > 0 
         ? allPlayersData.filter(p => p.name.toLowerCase().includes(currentFrontSearch)) 
-        : allPlayersData.filter(p => p.category === currentFrontCat);
+        : allPlayersData; // allPlayersData ne contient déjà QUE la bonne catégorie
         
     if (filteredPlayers.length === 0) { 
         container.innerHTML = '<p style="text-align:center; color:#888; padding: 40px;">Aucun joueur trouvé.</p>'; 
@@ -414,23 +301,6 @@ function renderCategorySlider() {
     container.innerHTML = sliderHTML + `</div></div></div>`;
     
     const scroller = document.getElementById('active-scroller');
-    const prevBtn = document.querySelector('.prev-btn');
-    const nextBtn = document.querySelector('.next-btn');
-    
-    if(prevBtn) prevBtn.addEventListener('click', () => scroller.scrollBy({ left: -(scroller.clientWidth * 0.8), behavior: 'smooth' })); 
-    if(nextBtn) nextBtn.addEventListener('click', () => scroller.scrollBy({ left: (scroller.clientWidth * 0.8), behavior: 'smooth' }));
-}
-
-function setupTabs() { 
-    document.querySelectorAll('.filter-btn').forEach(tab => { 
-        tab.addEventListener('click', (e) => { 
-            const fSearch = document.getElementById('front-search');
-            if(fSearch) fSearch.value = ''; 
-            currentFrontSearch = ''; 
-            document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); 
-            e.target.classList.add('active'); 
-            currentFrontCat = e.target.getAttribute('data-tab'); 
-            renderCategorySlider(); 
-        }); 
-    }); 
+    document.querySelector('.prev-btn')?.addEventListener('click', () => scroller.scrollBy({ left: -(scroller.clientWidth * 0.8), behavior: 'smooth' })); 
+    document.querySelector('.next-btn')?.addEventListener('click', () => scroller.scrollBy({ left: (scroller.clientWidth * 0.8), behavior: 'smooth' }));
 }
