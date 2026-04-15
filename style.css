@@ -23,6 +23,7 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; font-family: 'Helvetica Neue', Arial, sans-serif; }
+
 body {
     background-color: var(--bg-dark);
     background-image: 
@@ -34,6 +35,7 @@ body {
     line-height: 1.4; 
     overflow-x: hidden;
 }
+
 .pink-accent { color: var(--usm-pink); font-weight: bold; }
 .text-white { color: #fff; }
 
@@ -43,8 +45,10 @@ body {
     text-transform: uppercase; color: rgba(255, 255, 255, 0.02);
     z-index: -1; line-height: 0.8; pointer-events: none; white-space: nowrap;
 }
+
 .text-1 { top: 20%; left: -5%; } 
 .text-2 { top: 60%; right: -5%; text-align: right; }
+
 .reveal { opacity: 0; transform: translateY(40px); transition: 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
 .reveal.visible { opacity: 1; transform: translateY(0); }
 
@@ -55,19 +59,27 @@ body {
     backdrop-filter: blur(20px); position: fixed; top: 0; width: 100%; 
     z-index: 100; border-bottom: 1px solid var(--surface-border);
 }
+
 .logo-nav { 
     font-family: 'Moglan', sans-serif; font-size: 1.5rem; font-weight: 900; 
     letter-spacing: 2px; display: flex; align-items: center; gap: 12px; 
 }
-/* Retour au design originel parfait du header */
+
+/* 🪄 VERROUILLAGE DU LOGO : Une boîte fixe empêche le texte USM de bouger */
 .logo-nav img {
-    height: 38px; width: auto; transform: translateY(-5px); 
+    height: 38px; 
+    width: 150px; 
+    object-fit: contain;
+    object-position: left center;
+    transform: translateY(-5px); 
 }
+
 .logo-nav span { color: var(--usm-pink); }
 .nav-links { display: flex; align-items: center; gap: 30px; }
 .nav-links a { color: white; text-decoration: none; font-size: 0.9rem; text-transform: uppercase; font-weight: bold; transition: 0.3s; }
 .nav-links a:hover { color: var(--usm-pink); }
 .btn-premium { background: var(--usm-pink); color: white; padding: 10px 24px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; }
+
 .lang-switcher select {
     background: transparent; color: var(--text-light); border: 1px solid var(--surface-border); 
     padding: 5px 10px; border-radius: 20px; font-weight: bold; cursor: pointer; 
@@ -81,17 +93,20 @@ body {
     min-height: 80vh; display: flex; flex-direction: column; align-items: center; 
     justify-content: center; text-align: center; padding: 120px 20px 40px; position: relative;
 }
+
+/* 🪄 VERROUILLAGE DE L'AIGLE : La boîte est fixe (320px), ça ne peut plus s'écraser */
 .massive-eagle-wrapper {
-    width: clamp(300px, 60vw, 800px); margin-bottom: 20px;
+    width: clamp(250px, 50vw, 700px); 
+    height: 320px; 
+    margin-bottom: 20px;
     filter: drop-shadow(0 0 50px rgba(216,0,86,0.3)); 
     animation: float 6s ease-in-out infinite;
-    min-height: 250px; /* Amortisseur discret sans bloquer la vraie image */
     display: flex; justify-content: center; align-items: center;
 }
-/* Retour au comportement originel de l'aigle géant */
-.massive-eagle-wrapper img { width: 100%; height: auto; }
 
+.massive-eagle-wrapper img { width: 100%; height: 100%; object-fit: contain; }
 .hero-massive h1 { font-size: clamp(1.5rem, 4vw, 3rem); text-transform: uppercase; letter-spacing: 4px; font-weight: 900; margin-bottom: 15px; }
+
 @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
 
 /* ================= 5. BENTO GRID (STATISTIQUES) ================= */
@@ -111,7 +126,7 @@ body {
 }
 .data-desc { color: #aaa; font-size: 0.95rem; margin: 0; min-height: 70px; display: flex; align-items: center; justify-content: center; }
 
-/* ================= 6. SERVICES (TUILES) & PAGE DYNAMIQUE ================= */
+/* ================= 6. SERVICES (TUILES) ================= */
 .services-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; margin-top: 30px; }
 .bento-service-card {
     flex: 0 1 320px; width: 100%; aspect-ratio: 1 / 1; 
@@ -151,9 +166,24 @@ body {
 
 /* ================= 7. SECTION VIP (FONDATEUR) ================= */
 .founder-vip-section { display: flex; flex-wrap: wrap; margin: 20px auto 80px; max-width: 1360px; background: var(--surface); border: 1px solid rgba(216, 0, 86, 0.3); border-radius: var(--card-radius); overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.6); }
-.vip-photo-wrapper { flex: 1 1 400px; position: relative; min-height: 500px; }
-.vip-photo-wrapper img { width: 100%; height: 100%; object-fit: cover; object-position: top center; filter: contrast(1.1) brightness(0.9); }
+
+/* 🪄 VERROUILLAGE DU FONDATEUR : La photo est posée de manière absolue. Elle s'adapte au cadre, et non l'inverse. */
+.vip-photo-wrapper { 
+    flex: 1 1 400px; 
+    position: relative; 
+    min-height: 500px; 
+}
+.vip-photo-wrapper img { 
+    position: absolute; 
+    inset: 0; 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    object-position: top center; 
+    filter: contrast(1.1) brightness(0.9); 
+}
 .vip-photo-wrapper::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to right, transparent 60%, rgba(25, 25, 30, 0.8) 100%), linear-gradient(to top, rgba(5, 5, 7, 0.9) 0%, transparent 30%); }
+
 .vip-content { flex: 1 1 500px; padding: 60px; display: flex; flex-direction: column; justify-content: center; background: linear-gradient(135deg, rgba(25, 25, 30, 0.9), rgba(216, 0, 86, 0.05)); }
 .vip-badge { align-self: flex-start; background: var(--usm-pink); color: white; padding: 8px 16px; border-radius: 20px; font-weight: 900; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 20px; }
 .vip-name { font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 900; line-height: 1; text-transform: uppercase; margin-bottom: 10px; }
@@ -183,8 +213,25 @@ body {
 .horizontal-scroller::-webkit-scrollbar-thumb:hover { background: var(--usm-pink); }
 .player-card { background: var(--surface); border: 1px solid var(--surface-border); border-radius: 24px; overflow: hidden; padding: 15px; transition: 0.4s; flex: 0 0 280px; scroll-snap-align: start; margin: 0; }
 .player-card:hover { border-color: var(--usm-pink); transform: translateY(-10px); background: rgba(25, 25, 30, 0.8); }
-.player-img-container { width: 100%; height: 320px; border-radius: 16px; overflow: hidden; background: #111; }
-.player-img-container img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.4s; }
+
+/* 🪄 VERROUILLAGE DES JOUEURS : La boîte est relative, l'image absolue, aucun saut possible */
+.player-img-container { 
+    width: 100%; 
+    height: 320px; 
+    border-radius: 16px; 
+    overflow: hidden; 
+    background: #111; 
+    position: relative;
+}
+.player-img-container img { 
+    position: absolute; 
+    inset: 0; 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    opacity: 0.8; 
+    transition: 0.4s ease-in-out; 
+}
 .player-card:hover img { opacity: 1; transform: scale(1.05); }
 .player-info { padding: 15px 5px 5px; display: flex; justify-content: space-between; align-items: center; }
 .player-info h3 { font-size: 1.2rem; text-transform: uppercase; margin-bottom: 5px; }
@@ -213,17 +260,15 @@ body {
 .public-form input:focus, .public-form select:focus, .public-form textarea:focus { border-color: var(--usm-pink); outline: none; background: rgba(216, 0, 86, 0.05); box-shadow: 0 0 15px rgba(216,0,86,0.2); }
 .public-form select option { background: var(--bg-dark); color: white; }
 
-/* ================= 11. FIX ANTI-STRETCHING ABSOLU ================= */
-/* On sort totalement le pixel de chargement (le .gif transparent) du calcul de la page. 
-   Ainsi, tes logos gardent leurs belles proportions et ne sautent jamais au F5. */
+/* ================= 11. FIX ANTI-STRETCHING & TRANSITION DOUCE ================= */
+
+/* 1. On rend le pixel de Firebase transparent (il garde la taille du cadre) */
 img[src*="data:image/gif"] {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
     opacity: 0 !important;
-    pointer-events: none !important;
+    filter: blur(10px); /* Ajoute un micro-flou pour que l'arrivée de l'image soit très "smooth" */
 }
 
+/* 2. Quand la vraie image arrive, elle s'allume en douceur sur plus d'1 seconde */
 img {
-    transition: opacity 0.5s ease-in-out;
+    transition: opacity 1.2s ease-in-out, filter 1.2s ease-in-out;
 }
