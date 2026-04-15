@@ -107,11 +107,15 @@ body {
     gap: 12px; 
 }
 
+/* 🪄 FIX : Réservation stricte de la place du logo pour empêcher le texte de bouger */
 .logo-nav img {
     height: 38px; 
-    width: auto;
+    width: 150px; 
+    object-fit: contain;
+    object-position: left center;
     transform: translateY(-5px); 
 }
+
 .logo-nav span { color: var(--usm-pink); }
 
 .nav-links { 
@@ -179,9 +183,14 @@ body {
     position: relative;
 }
 
+/* 🪄 FIX : Un amortisseur de 250px maintient la page ouverte pour l'aigle en attendant Firebase */
 .massive-eagle-wrapper {
     width: clamp(300px, 60vw, 800px); 
     margin-bottom: 20px;
+    min-height: 250px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
     filter: drop-shadow(0 0 50px rgba(216,0,86,0.3)); 
     animation: float 6s ease-in-out infinite;
 }
@@ -189,6 +198,7 @@ body {
 .massive-eagle-wrapper img { 
     width: 100%; 
     height: auto; 
+    object-fit: contain;
 }
 
 .hero-massive h1 { 
@@ -664,7 +674,7 @@ body {
 .services-grid { 
     display: flex; 
     flex-wrap: wrap; 
-    justify-content: center; /* 🪄 Magie : centre la ligne de 2 cartes en bas ! */
+    justify-content: center; 
     gap: 30px; 
     margin-top: 30px; 
 }
@@ -778,7 +788,6 @@ body {
     white-space: pre-line; 
 }
 
-/* Le design des boutons de la liste à droite */
 .sidebar-srv-link {
     display: flex;
     justify-content: space-between;
@@ -803,16 +812,16 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-/* ================= 13. FIX ANTI-STRETCHING & APPARITION DOUCE ================= */
+/* ================= 13. APPARITION DOUCE & FIX ANTI-STRETCHING ================= */
 
-/* On empêche le faux pixel transparent (gif 1x1) de s'étirer en carré géant */
+/* 1. On limite le faux pixel de Firebase à 1px pour qu'il n'étire jamais tes boîtes. */
 img[src*="data:image/gif"] {
+    max-width: 1px !important;
+    max-height: 1px !important;
     opacity: 0 !important;
-    max-width: 0px !important;
-    max-height: 0px !important;
 }
 
-/* Apparition douce des images quand la base de données les injecte */
+/* 2. Transition cinématographique : l'image s'allume en fondu sur 1.5s à son arrivée. */
 img {
-    transition: opacity 1s ease-in-out;
+    transition: opacity 1.5s ease-in-out;
 }
