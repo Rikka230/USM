@@ -810,19 +810,31 @@ body {
 
 /* ================= 13. FIX ANTI-STRETCHING & APPARITION DOUCE ================= */
 
-/* 🪄 LA MAGIE : On empêche UNIQUEMENT le faux pixel de s'étirer (il reste à 0 de hauteur) */
+/* 1. Amortisseur de saut : On donne une base stable à la zone d'animation */
+.massive-eagle-wrapper {
+    min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 2. Interdiction stricte de déformer ou d'étirer les vrais logos */
+.massive-eagle-wrapper img, .logo-nav img {
+    object-fit: contain;
+}
+
+/* 3. Le faux pixel est littéralement réduit à néant pendant la demi-seconde de chargement */
 img[src^="data:image/gif"] {
-    max-height: 0 !important; 
-    opacity: 0 !important; 
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
     visibility: hidden;
 }
 
-/* Transition douce pour toutes les images quand elles chargent leur vraie source */
+/* 4. Apparition élégante en fondu */
 img {
-    transition: opacity 0.4s ease-in-out;
+    transition: opacity 0.5s ease-in-out;
 }
-
-
 
 
 
