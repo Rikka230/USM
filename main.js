@@ -237,13 +237,16 @@ async function loadSettings() {
             if(data[s] && document.getElementById(`stat-${s.replace('stat','')}`)) 
                 document.getElementById(`stat-${s.replace('stat','')}`).textContent = data[s]; 
         });
-        if(data.logoNav && document.querySelector('.logo-nav img')) document.querySelector('.logo-nav img').src = data.logoNav;
-        if(data.logoHero && document.querySelector('.massive-eagle-wrapper img')) document.querySelector('.massive-eagle-wrapper img').src = data.logoHero;
-        if(data.founderImg && document.querySelector('.vip-photo-wrapper img')) document.querySelector('.vip-photo-wrapper img').src = data.founderImg;
+        
+        if(data.logoNav) loadSmoothImage('.logo-nav img', data.logoNav);
+        if(data.logoHero) loadSmoothImage('.massive-eagle-wrapper img', data.logoHero);
+        if(data.founderImg) loadSmoothImage('.vip-photo-wrapper img', data.founderImg);
+
         ['fr', 'en', 'es', 'pt'].forEach(lang => { 
             if(data[`founderQuote_${lang}`]) translations[lang].vip_quote = data[`founderQuote_${lang}`]; 
             if(data[`founderDesc_${lang}`]) translations[lang].vip_desc = data[`founderDesc_${lang}`]; 
         });
+        
         const currentLang = localStorage.getItem('usm_lang') || 'fr';
         document.querySelectorAll('[data-i18n]').forEach(el => { 
             const key = el.getAttribute('data-i18n'); 
@@ -333,7 +336,10 @@ async function loadSingleServicePage() {
             const seoText = srv[`seo_${currentLang}`] || srv.seo_fr || "";
             
             const imgEl = document.getElementById('srv-hero-img');
-            if(imgEl && srv.image_url) { imgEl.src = srv.image_url; imgEl.alt = titleText; }
+            if(imgEl && srv.image_url) { 
+                loadSmoothImage('#srv-hero-img', srv.image_url, '0.4');
+                imgEl.alt = titleText; 
+            }
             
             const titleEl = document.getElementById('srv-page-title'); if(titleEl) titleEl.textContent = titleText;
             const subEl = document.getElementById('srv-page-subtitle'); if(subEl) subEl.textContent = subText;
