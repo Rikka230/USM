@@ -669,7 +669,7 @@ body {
 .services-grid { 
     display: flex; 
     flex-wrap: wrap; 
-    justify-content: center; /* 🪄 Magie : centre la ligne de 2 cartes en bas ! */
+    justify-content: center; /* Centre la ligne de 2 cartes en bas ! */
     gap: 30px; 
     margin-top: 30px; 
 }
@@ -689,11 +689,16 @@ body {
     text-decoration: none; 
     transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     position: relative;
+    
+    /* 🛠️ BLOC DE CORRECTION BORDURE (WEBKIT BUG) */
     overflow: hidden;
     background-color: var(--bg-dark);
     transform: translateZ(0); 
     -webkit-mask-image: -webkit-radial-gradient(white, black); 
+    isolation: isolate; /* Crée un nouveau contexte d'empilement strict */
+    background-clip: padding-box; /* Coupe le fond pile avant la bordure */
 }
+
 .bento-service-card:hover {
     border-color: rgba(216, 0, 86, 0.8);
     transform: translateY(-5px);
@@ -715,7 +720,7 @@ body {
     color: #eee; 
     line-height: 1.5; 
     display: -webkit-box; 
-    -webkit-line-clamp: 3; /* Limite à 3 lignes pour ne pas déborder du carré */
+    -webkit-line-clamp: 3; 
     -webkit-box-orient: vertical; 
     overflow: hidden; 
     text-shadow: 0 2px 15px rgba(0,0,0,0.9);
