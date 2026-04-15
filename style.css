@@ -181,19 +181,14 @@ body {
 
 .massive-eagle-wrapper {
     width: clamp(300px, 60vw, 800px); 
-    height: clamp(200px, 35vh, 400px); /* 🪄 LE CADRE EST DÉFINITIVEMENT VERROUILLÉ */
     margin-bottom: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     filter: drop-shadow(0 0 50px rgba(216,0,86,0.3)); 
     animation: float 6s ease-in-out infinite;
 }
 
 .massive-eagle-wrapper img { 
     width: 100%; 
-    height: 100%; 
-    object-fit: contain; /* L'aigle se glisse dans le cadre sans jamais l'étirer */
+    height: auto; 
 }
 
 .hero-massive h1 { 
@@ -331,6 +326,7 @@ body {
 .vip-photo-wrapper { 
     flex: 1 1 400px; 
     position: relative; 
+    height: 500px; 
     min-height: 500px; 
 }
 
