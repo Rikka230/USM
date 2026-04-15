@@ -820,84 +820,134 @@ img {
 
 /* ================= 14. OPTIMISATION MOBILE (ULTRA RESPONSIVE) ================= */
 
+/* 1. RÈGLE D'OR : Verrouillage absolu anti-débordement horizontal */
+html, body {
+    overflow-x: hidden !important;
+    width: 100%;
+    max-width: 100vw;
+    position: relative;
+}
+
 @media (max-width: 850px) {
-    /* 1. HEADER & HERO : On passe le menu sur deux lignes pour qu'il respire */
+    /* 2. HEADER STRICTEMENT CADRÉ */
     .navbar {
         flex-direction: column;
-        padding: 15px;
+        padding: 15px 10px;
         gap: 15px;
+        width: 100%;
+        left: 0; /* Plaque le menu à gauche */
+        box-sizing: border-box;
     }
     .nav-links {
         width: 100%;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 15px;
-    }
-    .hero-massive {
-        padding-top: 160px; /* Compense la hauteur du nouveau menu */
+        gap: 10px;
     }
 
-    /* 2. BENTO GRID & SERVICES : On passe sur 1 seule colonne (100% de la largeur) */
+    /* 3. TEXTES GÉANTS EN ARRIÈRE-PLAN (Source n°1 de dépassement) */
+    .giant-bg-text {
+        font-size: 4rem; /* Réduit pour ne pas faire exploser la largeur de la page */
+    }
+
+    /* 4. HERO SECTION */
+    .hero-massive {
+        padding-top: 160px; 
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .massive-eagle-wrapper {
+        width: 90%; /* Évite que l'aigle touche les bords de l'écran */
+    }
+
+    /* 5. BENTO GRID & SERVICES */
     .bento-grid {
         grid-template-columns: 1fr;
         padding: 15px;
+        width: 100%;
+        box-sizing: border-box;
     }
     .bento-card {
-        min-height: auto; /* Enlève la contrainte de hauteur sur mobile */
+        min-height: auto;
         padding: 25px;
+        width: 100%;
     }
     .services-grid {
         gap: 15px;
+        width: 100%;
     }
     .bento-service-card {
-        flex: 1 1 100%; /* La carte prend toute la largeur */
+        flex: 1 1 100%;
         aspect-ratio: auto;
         min-height: 280px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
-    /* 3. SECTION FONDATEUR : On empile la photo et le texte */
+    /* 6. SECTION FONDATEUR */
     .founder-vip-section {
         flex-direction: column;
-        margin: 20px 15px 60px; /* Donne des marges sur les côtés */
+        margin: 20px 15px 60px;
+        width: calc(100% - 30px); /* 100% moins les marges */
     }
     .vip-photo-wrapper, .vip-content {
-        flex: 1 1 100%; /* Occupe 100% au lieu de 400px/500px */
+        flex: 1 1 100%;
+        width: 100%;
     }
     .vip-photo-wrapper {
-        height: 350px; /* Image moins haute sur mobile */
+        height: 350px; 
         min-height: 350px;
     }
     .vip-content {
-        padding: 30px 20px; /* Moins de padding intérieur */
+        padding: 30px 20px;
     }
     .vip-name {
-        font-size: 2.5rem; /* Ajuste la taille du nom */
+        font-size: 2.5rem;
     }
 
-    /* 4. ROSTER & SLIDER : On réduit légèrement la taille des cartes joueurs */
+    /* 7. ROSTER & SLIDER JOUEURS (Sécurisation anti-débordement) */
     .players-section {
         padding: 15px;
+        width: 100%;
+        max-width: 100vw;
+        overflow: hidden; /* Empêche le slider de faire scroller toute la page */
+        box-sizing: border-box;
     }
     .player-filters {
-        justify-content: center; /* Centre les boutons de filtres */
+        justify-content: center; 
+    }
+    .category-block {
+        width: 100%;
+        max-width: 100%;
+    }
+    .slider-container {
+        width: 100%;
+        max-width: 100%;
+    }
+    .horizontal-scroller {
+        width: 100%;
+        padding-bottom: 20px;
+        /* Le scroll se fait UNIQUEMENT à l'intérieur de cette boîte, pas sur le site */
     }
     .player-card {
-        flex: 0 0 240px; /* Carte plus étroite pour les petits écrans */
+        flex: 0 0 240px; 
     }
     .player-img-container {
         height: 280px;
     }
 
-    /* 5. PAGES INTERNES (Contact & Services Dynamiques) */
+    /* 8. PAGES INTERNES */
     .contact-grid {
         grid-template-columns: 1fr;
     }
     .service-page-layout {
         flex-direction: column;
         padding: 15px;
+        width: 100%;
+        box-sizing: border-box;
     }
     .service-sidebar {
-        flex: 1 1 100%; /* La sidebar passe sous le texte principal */
+        flex: 1 1 100%; 
     }
     .service-hero h1 {
         font-size: 2rem;
@@ -907,13 +957,13 @@ img {
 /* Optimisation extrême pour les très petits téléphones (iPhone SE, etc.) */
 @media (max-width: 480px) {
     .nav-links a {
-        font-size: 0.8rem;
+        font-size: 0.75rem; /* Menu plus fin pour que tous les liens rentrent */
     }
     .btn-premium {
         padding: 8px 16px;
         font-size: 0.8rem;
     }
     .data-huge {
-        font-size: 2.5rem; /* Ajuste la taille des très gros chiffres */
+        font-size: 2.5rem; 
     }
 }
