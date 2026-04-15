@@ -818,3 +818,102 @@ img {
     transition: opacity 1.2s ease-in-out;
 }
 
+/* ================= 14. OPTIMISATION MOBILE (ULTRA RESPONSIVE) ================= */
+
+@media (max-width: 850px) {
+    /* 1. HEADER & HERO : On passe le menu sur deux lignes pour qu'il respire */
+    .navbar {
+        flex-direction: column;
+        padding: 15px;
+        gap: 15px;
+    }
+    .nav-links {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+    .hero-massive {
+        padding-top: 160px; /* Compense la hauteur du nouveau menu */
+    }
+
+    /* 2. BENTO GRID & SERVICES : On passe sur 1 seule colonne (100% de la largeur) */
+    .bento-grid {
+        grid-template-columns: 1fr;
+        padding: 15px;
+    }
+    .bento-card {
+        min-height: auto; /* Enlève la contrainte de hauteur sur mobile */
+        padding: 25px;
+    }
+    .services-grid {
+        gap: 15px;
+    }
+    .bento-service-card {
+        flex: 1 1 100%; /* La carte prend toute la largeur */
+        aspect-ratio: auto;
+        min-height: 280px;
+    }
+
+    /* 3. SECTION FONDATEUR : On empile la photo et le texte */
+    .founder-vip-section {
+        flex-direction: column;
+        margin: 20px 15px 60px; /* Donne des marges sur les côtés */
+    }
+    .vip-photo-wrapper, .vip-content {
+        flex: 1 1 100%; /* Occupe 100% au lieu de 400px/500px */
+    }
+    .vip-photo-wrapper {
+        height: 350px; /* Image moins haute sur mobile */
+        min-height: 350px;
+    }
+    .vip-content {
+        padding: 30px 20px; /* Moins de padding intérieur */
+    }
+    .vip-name {
+        font-size: 2.5rem; /* Ajuste la taille du nom */
+    }
+
+    /* 4. ROSTER & SLIDER : On réduit légèrement la taille des cartes joueurs */
+    .players-section {
+        padding: 15px;
+    }
+    .player-filters {
+        justify-content: center; /* Centre les boutons de filtres */
+    }
+    .player-card {
+        flex: 0 0 240px; /* Carte plus étroite pour les petits écrans */
+    }
+    .player-img-container {
+        height: 280px;
+    }
+
+    /* 5. PAGES INTERNES (Contact & Services Dynamiques) */
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+    .service-page-layout {
+        flex-direction: column;
+        padding: 15px;
+    }
+    .service-sidebar {
+        flex: 1 1 100%; /* La sidebar passe sous le texte principal */
+    }
+    .service-hero h1 {
+        font-size: 2rem;
+    }
+}
+
+/* Optimisation extrême pour les très petits téléphones (iPhone SE, etc.) */
+@media (max-width: 480px) {
+    .nav-links a {
+        font-size: 0.8rem;
+    }
+    .btn-premium {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+    }
+    .data-huge {
+        font-size: 2.5rem; /* Ajuste la taille des très gros chiffres */
+    }
+}
