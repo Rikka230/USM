@@ -803,28 +803,31 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-/* ================= 13. FIX ANTI-STRETCHING & APPARITION DOUCE ================= */
+/* ================= 13. FIX ANTI-STRETCHING ABSOLU & FONDU F5 ================= */
 
-/* On empêche le faux pixel transparent (gif 1x1) de s'étirer en carré géant */
+/* 1. On retire complètement le faux pixel du flux de la page (position: absolute).
+      Il ne pourra plus JAMAIS étirer tes boîtes, même pendant 1 milliseconde au F5. */
 img[src*="data:image/gif"] {
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
     opacity: 0 !important;
-    max-width: 0px !important;
-    max-height: 0px !important;
+    pointer-events: none;
 }
 
-/* Apparition douce des images quand la base de données les injecte */
-img {
-    transition: opacity 1s ease-in-out;
+/* 2. On crée une véritable animation de cinéma (Fondu + léger défloutage) */
+@keyframes smoothReveal {
+    0% { 
+        opacity: 0; 
+        filter: blur(5px); 
+    }
+    100% { 
+        opacity: 1; 
+        filter: blur(0); 
+    }
 }
 
-/* ================= FIX : APPARITION DOUCE (FONDU) ================= */
-
-/* 1. On rend le faux pixel de chargement (le gif) totalement transparent */
-img[src*="data:image/gif"] {
-    opacity: 0 !important;
-}
-
-/* 2. Quand Firebase injecte la vraie photo, elle apparaît en douceur sur 1.5 seconde */
-img {
-    transition: opacity 1.5s ease-in-out;
+/* 3. Dès que Firebase remplace le faux pixel par la vraie image, on FORCE l'animation à se jouer, même au F5 */
+img:not([src*="data:image/gif"]) {
+    animation: smoothReveal 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
