@@ -808,7 +808,33 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
+/* ================= 13. FIX ANTI-STRETCHING & APPARITION DOUCE ================= */
 
+/* Bloque l'expansion monstrueuse des placeholders 1x1 */
+.massive-eagle-wrapper img {
+    width: 100%;
+    height: auto;
+    max-height: 400px; 
+    object-fit: contain;
+}
+
+.logo-nav img {
+    height: 38px;
+    width: auto;
+    min-width: 38px; 
+    object-fit: contain;
+}
+
+/* 🪄 LA MAGIE : Cache le faux pixel de chargement */
+img[src^="data:image/gif"] {
+    opacity: 0 !important; 
+    visibility: hidden;
+}
+
+/* Transition douce pour toutes les images quand elles chargent leur vraie source */
+img {
+    transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+}
 
 
 
