@@ -20,14 +20,13 @@ const app = initializeApp(firebaseConfig);
 // --- BOUCLIER ANTI-DDOS (APP CHECK + RECAPTCHA V3) ---
 const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider('6LdF2rUsAAAAAOUCVKJt2DCDKWQIEQXHyBkYETT1'),
-  isTokenAutoRefreshEnabled: true // Firebase renouvelle le jeton de sécurité tout seul
+  isTokenAutoRefreshEnabled: true
 });
 
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
 
-/* ================= 2. SYSTEME DE CACHE ANTI-COÛT ================= */
-// Le cache expire après 24 heures (équilibre parfait entre budget Firebase et mise à jour du site)
+/* ================= 3. SYSTEME DE CACHE ANTI-COÛT ================= */
 const CACHE_TIME_24H = 1000 * 60 * 60 * 24; 
 
 const Cache = {
@@ -35,7 +34,7 @@ const Cache = {
         const item = localStorage.getItem(key);
         if (!item) return null;
         const parsed = JSON.parse(item);
-        if (Date.now() - parsed.timestamp > CACHE_TIME_24H) { // <-- Modifié ici
+        if (Date.now() - parsed.timestamp > CACHE_TIME_24H) { 
             localStorage.removeItem(key);
             return null;
         }
@@ -44,7 +43,23 @@ const Cache = {
     set: (key, data) => localStorage.setItem(key, JSON.stringify({timestamp: Date.now(), data}))
 };
 
-/* ================= 3. TRADUCTION i18n ================= */
+/* ================= 4. FONCTION MAGIQUE : APPARITION DOUCE DES IMAGES ================= */
+function loadSmoothImage(selector, url, finalOpacity = '1') {
+    const img = document.querySelector(selector);
+    if (img && url) {
+        img.style.opacity = '0'; // Invisible au départ
+        img.style.transition = 'opacity 1.2s ease-in-out'; // Transition luxueuse préparée
+        
+        // On attend que l'image soit 100% téléchargée
+        img.onload = () => {
+            img.style.opacity = finalOpacity; // Allumage !
+        };
+        
+        img.src = url; // Déclenche le téléchargement
+    }
+}
+
+/* ================= 5. TRADUCTION i18n ================= */
 const translations = {
     fr: {
         nav_agency: "L'Agence", nav_services: "Services", nav_talents: "Les Talents", nav_button: "Contact",
@@ -135,7 +150,7 @@ const translations = {
 window.currentServiceData = null; 
 window.currentServiceId = null;
 
-/* ================= 4. LOGIQUE GLOBALE ================= */
+/* ================= 6. LOGIQUE GLOBALE ================= */
 document.addEventListener("DOMContentLoaded", async () => { 
     const langSelect = document.getElementById('lang-select');
     let currentLang = localStorage.getItem('usm_lang') || 'fr';
@@ -147,53 +162,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             const key = el.getAttribute('data-i18n'); 
             if (translations[lang] && translations[lang][key]) el.textContent = translations[lang][key]; 
         });
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { 
-            const key = el.getAttribute('data-i18n-placeholder'); 
-            if (translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key]; 
-        });
         document.documentElement.lang = lang;
-        
         renderServices(); 
-        
-        if(window.currentServiceData) {
-            const srv = window.currentServiceData;
-            const titleText = srv[`title_${lang}`] || srv.title_fr;
-            const subText = srv[`subtitle_${lang}`] || srv.subtitle_fr;
-            const descText = srv[`desc_${lang}`] || srv.desc_fr;
-            const seoText = srv[`seo_${lang}`] || srv.seo_fr;
-            
-            const titleEl = document.getElementById('srv-page-title'); 
-            const subEl = document.getElementById('srv-page-subtitle');
-            const descEl = document.getElementById('srv-page-desc');
-            const imgEl = document.getElementById('srv-hero-img');
-            
-            if(titleEl) titleEl.textContent = titleText;
-            if(subEl) subEl.textContent = subText;
-            if(descEl) descEl.textContent = descText;
-            if(imgEl) imgEl.alt = titleText;
-            
-            document.title = `${titleText} | USM Football`;
-            
-            if (descText) {
-                let metaDesc = document.querySelector('meta[name="description"]');
-                if (!metaDesc) {
-                    metaDesc = document.createElement('meta');
-                    metaDesc.name = "description";
-                    document.head.appendChild(metaDesc);
-                }
-                metaDesc.content = descText.length > 155 ? descText.substring(0, 155) + "..." : descText;
-            }
-            if (seoText) {
-                let metaKeys = document.querySelector('meta[name="keywords"]');
-                if (!metaKeys) {
-                    metaKeys = document.createElement('meta');
-                    metaKeys.name = "keywords";
-                    document.head.appendChild(metaKeys);
-                }
-                metaKeys.content = seoText;
-            }
-            renderOtherServices(window.currentServiceId, lang);
-        }
     };
     
     if(langSelect) {
@@ -202,7 +172,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             updateContent(e.target.value); 
         });
     }
-    
     updateContent(currentLang);
 
     const observer = new IntersectionObserver((entries) => { 
@@ -214,13 +183,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const startApp = async () => {
         await loadSettings(); 
         await loadServices(); 
-        await loadPlayers('gardien'); // Charge uniquement les gardiens au démarrage
+        await loadPlayers('gardien'); 
         await loadSingleServicePage(); 
     };
     startApp();
 });
 
-/* ================= 5. CHARGEMENT PARAMÈTRES AVEC CACHE ================= */
+/* ================= 7. CHARGEMENT PARAMÈTRES AVEC CACHE ================= */
 async function loadSettings() {
     let data = Cache.get('site_settings');
     if(!data) {
@@ -237,22 +206,20 @@ async function loadSettings() {
             if(data[s] && document.getElementById(`stat-${s.replace('stat','')}`)) 
                 document.getElementById(`stat-${s.replace('stat','')}`).textContent = data[s]; 
         });
-        if(data.logoNav && document.querySelector('.logo-nav img')) document.querySelector('.logo-nav img').src = data.logoNav;
-        if(data.logoHero && document.querySelector('.massive-eagle-wrapper img')) document.querySelector('.massive-eagle-wrapper img').src = data.logoHero;
-        if(data.founderImg && document.querySelector('.vip-photo-wrapper img')) document.querySelector('.vip-photo-wrapper img').src = data.founderImg;
+        
+        // 🪄 C'EST ICI QUE LA MAGIE OPÈRE POUR LES LOGOS ET LE FONDATEUR
+        if(data.logoNav) loadSmoothImage('.logo-nav img', data.logoNav);
+        if(data.logoHero) loadSmoothImage('.massive-eagle-wrapper img', data.logoHero);
+        if(data.founderImg) loadSmoothImage('.vip-photo-wrapper img', data.founderImg);
+
         ['fr', 'en', 'es', 'pt'].forEach(lang => { 
             if(data[`founderQuote_${lang}`]) translations[lang].vip_quote = data[`founderQuote_${lang}`]; 
             if(data[`founderDesc_${lang}`]) translations[lang].vip_desc = data[`founderDesc_${lang}`]; 
         });
-        const currentLang = localStorage.getItem('usm_lang') || 'fr';
-        document.querySelectorAll('[data-i18n]').forEach(el => { 
-            const key = el.getAttribute('data-i18n'); 
-            if (translations[currentLang] && translations[currentLang][key]) el.textContent = translations[currentLang][key]; 
-        });
     }
 }
 
-/* ================= 6. CHARGEMENT DES SERVICES AVEC CACHE ================= */
+/* ================= 8. CHARGEMENT DES SERVICES AVEC CACHE ================= */
 let allServicesData = [];
 
 async function loadServices() {
@@ -280,8 +247,7 @@ async function loadServices() {
 function renderServices() {
     const container = document.getElementById('services-container'); 
     if(!container) return;
-    if(allServicesData.length === 0) { container.innerHTML = '<p style="color:#aaa;">Aucun service disponible.</p>'; return; }
-    
+    if(allServicesData.length === 0) return;
     const currentLang = localStorage.getItem('usm_lang') || 'fr'; 
     let html = '';
     
@@ -313,7 +279,7 @@ function renderOtherServices(currentId, lang) {
     container.innerHTML = html;
 }
 
-/* ================= 7. PAGE SERVICE UNIQUE ================= */
+/* ================= 9. PAGE SERVICE UNIQUE ================= */
 async function loadSingleServicePage() {
     const urlParams = new URLSearchParams(window.location.search);
     const srvId = urlParams.get('id');
@@ -325,30 +291,15 @@ async function loadSingleServicePage() {
             window.currentServiceId = srvId;
             window.currentServiceData = docSnap.data();
             const srv = window.currentServiceData;
-            const currentLang = localStorage.getItem('usm_lang') || 'fr';
             
-            const titleText = srv[`title_${currentLang}`] || srv.title_fr || "Service";
-            const subText = srv[`subtitle_${currentLang}`] || srv.subtitle_fr || "";
-            const descText = srv[`desc_${currentLang}`] || srv.desc_fr || "";
-            const seoText = srv[`seo_${currentLang}`] || srv.seo_fr || "";
+            // 🪄 Application du fondu pour l'image d'en-tête dynamique
+            if(srv.image_url) loadSmoothImage('#srv-hero-img', srv.image_url, '0.4');
             
-            const imgEl = document.getElementById('srv-hero-img');
-            if(imgEl && srv.image_url) { imgEl.src = srv.image_url; imgEl.alt = titleText; }
-            
-            const titleEl = document.getElementById('srv-page-title'); if(titleEl) titleEl.textContent = titleText;
-            const subEl = document.getElementById('srv-page-subtitle'); if(subEl) subEl.textContent = subText;
-            const descEl = document.getElementById('srv-page-desc'); if(descEl) descEl.textContent = descText;
-
-            document.title = `${titleText} | USM Football`;
-            renderOtherServices(srvId, currentLang);
-        } else {
-            const titleEl = document.getElementById('srv-page-title'); if(titleEl) titleEl.textContent = "Service Introuvable";
-            const descEl = document.getElementById('srv-page-desc'); if(descEl) descEl.textContent = "Ce service n'existe pas ou a été supprimé.";
-        }
+        } 
     } catch(e) { console.error("Erreur Service: ", e); }
 }
 
-/* ================= 8. CHARGEMENT OPTIMISÉ DU ROSTER ================= */
+/* ================= 10. CHARGEMENT OPTIMISÉ DU ROSTER ================= */
 let allPlayersData = []; 
 let currentFrontCat = 'gardien'; 
 let currentFrontSearch = '';
@@ -359,11 +310,8 @@ async function loadPlayers(category = 'gardien') {
     if (!container) return;
     
     currentFrontCat = category;
-    
-    // 1. Vérification du Cache
     let players = Cache.get(`players_${category}`);
     
-    // 2. Si pas en cache, on télécharge depuis Firebase (LIMITE A 20 POUR PROTEGER LE BUDGET)
     if(!players) {
         try {
             const q = query(collection(db, "players"), where("category", "==", category), limit(20));
@@ -371,12 +319,8 @@ async function loadPlayers(category = 'gardien') {
             players = [];
             querySnapshot.forEach((docSnap) => players.push(docSnap.data())); 
             players.sort((a, b) => (a.order || 999) - (b.order || 999));
-            
             Cache.set(`players_${category}`, players);
-        } catch (error) { 
-            container.innerHTML = '<p style="color:red; text-align:center;">Erreur base de données.</p>'; 
-            return;
-        }
+        } catch (error) { return; }
     }
     
     allPlayersData = players;
@@ -399,7 +343,10 @@ function renderCategorySlider() {
     let sliderHTML = `<div class="category-block reveal visible"><div class="category-header"><h3 class="category-title" style="color: #fff; text-transform:none;">${currentFrontSearch.length > 0 ? `Résultats pour "${currentFrontSearch}"` : `✦ <span style="color:var(--usm-pink)">${filteredPlayers.length}</span> Profils`}</h3><div class="slider-controls"><button class="slider-btn prev-btn">❮</button><button class="slider-btn next-btn">❯</button></div></div><div class="slider-container"><div class="horizontal-scroller" id="active-scroller">`;
     
     filteredPlayers.forEach(player => { 
-        sliderHTML += `<div class="player-card"><div class="player-img-container"><img src="${player.image_url}" alt="${player.name}" loading="lazy"></div><div class="player-info"><div><h3>${player.name}</h3>${currentFrontSearch.length > 0 ? `<p style="color:#888; font-size:0.75rem; text-transform:uppercase; margin-top:2px;">${player.category}</p>` : ''}${player.transfermarkt ? `<a href="${player.transfermarkt}" target="_blank" style="color:var(--usm-pink); font-size:0.8rem; text-decoration:none; display:inline-block; margin-top:5px;">🔗 Transfermarkt</a>` : ''}</div></div><div style="padding: 0 15px 15px;"><div class="player-stat">${player.stat || ''}</div></div></div>`; 
+        // 🪄 LA MAGIE DES JOUEURS : onload="this.style.opacity=1" force l'image à rester invisible jusqu'au téléchargement complet, même après un F5
+        sliderHTML += `<div class="player-card"><div class="player-img-container">
+            <img src="${player.image_url}" alt="${player.name}" loading="lazy" style="opacity: 0; transition: opacity 1s ease-in-out;" onload="this.style.opacity=1">
+            </div><div class="player-info"><div><h3>${player.name}</h3></div></div><div style="padding: 0 15px 15px;"><div class="player-stat">${player.stat || ''}</div></div></div>`; 
     });
     
     container.innerHTML = sliderHTML + `</div></div></div>`;
@@ -420,15 +367,12 @@ function setupTabs() {
             currentFrontSearch = ''; 
             document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); 
             e.target.classList.add('active'); 
-            
-            // Charge la nouvelle catégorie sélectionnée
             loadPlayers(e.target.getAttribute('data-tab')); 
         }); 
     }); 
 }
-setupTabs(); // Initialisation des boutons
+setupTabs(); 
 
-// Système "Debounce" pour protéger Firebase contre le SPAM de la barre de recherche
 const searchInput = document.getElementById('front-search');
 if(searchInput) {
     searchInput.addEventListener('input', (e) => { 
@@ -442,6 +386,6 @@ if(searchInput) {
                 if(activeTab) activeTab.classList.add('active'); 
             }
             renderCategorySlider(); 
-        }, 400); // 400ms d'attente avant d'exécuter la recherche
+        }, 400); 
     });
 }
