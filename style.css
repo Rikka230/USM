@@ -690,6 +690,9 @@ body {
     transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     position: relative;
     overflow: hidden;
+    background-color: var(--bg-dark); /* Sécurité anti-trous au fond */
+    transform: translateZ(0); /* Force la carte à calculer un rendu matériel parfait */
+    -webkit-mask-image: -webkit-radial-gradient(white, black); /* Coupe l'image pile sur l'arrondi au scalpel */
 }
 
 .bento-service-card:hover {
