@@ -860,28 +860,43 @@ html, body {
         width: 90%; /* Évite que l'aigle touche les bords de l'écran */
     }
 
-    /* 5. BENTO GRID & SERVICES */
+    /* 5. BENTO GRID & SERVICES (2 COLONNES SUR MOBILE) */
     .bento-grid {
-        grid-template-columns: 1fr;
-        padding: 15px;
+        grid-template-columns: repeat(2, 1fr); 
+        padding: 10px;
+        gap: 10px; 
         width: 100%;
         box-sizing: border-box;
     }
     .bento-card {
         min-height: auto;
-        padding: 25px;
+        padding: 15px 10px; 
         width: 100%;
     }
+    .card-full {
+        grid-column: 1 / -1; 
+    }
+    
     .services-grid {
-        gap: 15px;
+        gap: 10px;
         width: 100%;
     }
     .bento-service-card {
-        flex: 1 1 100%;
+        flex: 0 1 calc(50% - 5px); 
         aspect-ratio: auto;
-        min-height: 280px;
+        min-height: 200px;
+        padding: 15px;
         width: 100%;
         box-sizing: border-box;
+    }
+    .srv-card-content h3 {
+        font-size: 1.1rem; 
+    }
+    .srv-card-content p {
+        font-size: 0.85rem; 
+    }
+    .srv-card-arrow {
+        font-size: 0.7rem;
     }
 
     /* 6. SECTION FONDATEUR */
@@ -957,13 +972,16 @@ html, body {
 /* Optimisation extrême pour les très petits téléphones (iPhone SE, etc.) */
 @media (max-width: 480px) {
     .nav-links a {
-        font-size: 0.75rem; /* Menu plus fin pour que tous les liens rentrent */
+        font-size: 0.75rem; 
     }
     .btn-premium {
         padding: 8px 16px;
         font-size: 0.8rem;
     }
     .data-huge {
-        font-size: 2.5rem; 
+        font-size: 1.8rem; /* 🪄 Plus petit pour que "25 000+" rentre dans une demi-colonne */
+    }
+    .data-label {
+        font-size: 0.75rem;
     }
 }
