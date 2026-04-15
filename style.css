@@ -816,3 +816,15 @@ img[src*="data:image/gif"] {
 img {
     transition: opacity 1s ease-in-out;
 }
+
+/* ================= FIX : APPARITION DOUCE (FONDU) ================= */
+
+/* 1. On rend le faux pixel de chargement (le gif) totalement transparent */
+img[src*="data:image/gif"] {
+    opacity: 0 !important;
+}
+
+/* 2. Quand Firebase injecte la vraie photo, elle apparaît en douceur sur 1.5 seconde */
+img {
+    transition: opacity 1.5s ease-in-out;
+}
