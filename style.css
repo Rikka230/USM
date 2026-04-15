@@ -205,86 +205,88 @@ body {
 }
 
 
-/* ================= 5. BENTO GRID (STATISTIQUES) ================= */
-.bento-grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-    gap: 24px; 
-    padding: var(--spacing-main); 
-    max-width: 1400px; 
-    margin: 0 auto; 
-}
+/* 5. BENTO GRID & STATISTIQUES (Textes 100% lisibles) */
+    .bento-grid {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 10px;
+        gap: 10px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .bento-card {
+        min-height: auto;
+        padding: 15px 10px;
+        width: 100%;
+    }
+    .data-label {
+        height: auto;
+        min-height: 35px;
+        font-size: 0.75rem;
+        line-height: 1.2;
+    }
+    .data-huge {
+        font-size: 1.8rem;
+        margin: 5px 0;
+    }
+    .data-desc {
+        height: auto;
+        -webkit-line-clamp: 4; /* Autorise jusqu'à 4 lignes pour ne plus couper le texte */
+        font-size: 0.75rem;
+        line-height: 1.3;
+    }
 
-.bento-card {
-    background: var(--surface); border: 1px solid var(--surface-border); border-radius: var(--card-radius); padding: 40px;
-    backdrop-filter: blur(15px); 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: space-between; 
-    align-items: center;     
-    text-align: center;      
-    transition: 0.4s;
-    min-height: 340px; 
-}
+    /* CENTRAGE DU GRAND TITRE SERVICES */
+    .card-full {
+        grid-column: 1 / -1;
+        align-items: center; /* Centre le titre "Accompagnement Global" */
+        text-align: center;
+    }
+    .card-full .data-label {
+        justify-content: center;
+    }
 
-.bento-card:hover { 
-    transform: translateY(-5px); 
-    border-color: var(--usm-pink); 
-    background: rgba(40, 30, 40, 0.6); 
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5); 
-}
-
-.highlight-card { 
-    background: linear-gradient(145deg, rgba(25,25,30,0.8), rgba(216,0,86,0.15)); 
-}
-
-.card-full { 
-    grid-column: 1 / -1; 
-    align-items: flex-start; 
-    text-align: left; 
-}
-
-.data-label { 
-    font-size: 1rem; 
-    text-transform: uppercase; 
-    letter-spacing: 2px; 
-    color: #888; 
-    font-weight: bold;
-    height: 48px; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.card-full .data-label {
-    height: auto;
-    justify-content: flex-start;
-}
-
-.data-huge {
-    font-size: clamp(1.8rem, 2.8vw, 3.4rem); 
-    font-weight: 900;
-    line-height: 1.2; 
-    white-space: nowrap; 
-    letter-spacing: -1px; 
-    margin: auto 0; 
-    background: linear-gradient(135deg, #fff, var(--usm-pink));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    padding-right: 15px; 
-}
-
-.data-desc { 
-    color: #aaa; 
-    font-size: 0.95rem; 
-    margin: 0;
-    height: 48px; 
-    line-height: 24px; 
-    display: -webkit-box;
-    -webkit-line-clamp: 2; 
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
+    /* TUILES SERVICES (Assombries et alignées) */
+    .services-grid { 
+        gap: 10px; 
+        width: 100%; 
+    }
+    .bento-service-card {
+        flex: 0 1 calc(50% - 5px);
+        aspect-ratio: auto;
+        min-height: 260px;
+        padding: 15px 10px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Filtre sombre ajouté par-dessus l'image de fond */
+    .bento-service-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        z-index: 1;
+    }
+    
+    .srv-card-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        height: 100%;
+    }
+    .srv-card-content h3 {
+        font-size: 1rem;
+        min-height: 45px; /* Verrouille la hauteur du titre pour aligner les textes en dessous */
+        margin-bottom: 5px;
+    }
+    .srv-card-content p {
+        font-size: 0.75rem;
+        line-height: 1.4;
+        -webkit-line-clamp: 4; /* Texte plus long autorisé */
+    }
+    .srv-card-arrow { 
+        font-size: 0.7rem; 
+    }
 
 
 /* ================= 6. SERVICES (TUILES) ================= */
