@@ -5,7 +5,7 @@
 /* ================= 1. VARIABLES & RESET ================= */
 @font-face {
     font-family: 'Moglan';
-    src: url('Assets/Moglan.ttf') format('ttf'), 
+    src: url('Assets/Moglan.ttf') format('ttf'), /* Ajuste le chemin selon ton dossier */
          url('Assets/Moglan.woff') format('woff');
     font-weight: normal;
     font-style: normal;
@@ -34,11 +34,15 @@ html {
 
 body {
     background-color: var(--bg-dark);
+    
+    /* Le secret est ici : on combine ton halo rose avec un motif Seamless en ligne */
     background-image: 
         radial-gradient(circle at 50% 0%, var(--usm-pink-glow) 0%, transparent 60%),
         url('https://www.transparenttextures.com/patterns/black-scales.png');
+        
     background-attachment: fixed; 
-    background-repeat: repeat; 
+    background-repeat: repeat; /* Force le petit carré à se répéter à l'infini */
+    
     color: var(--text-light); 
     line-height: 1.4; 
     overflow-x: hidden;
@@ -52,6 +56,7 @@ body {
 .text-white { 
     color: #fff; 
 }
+
 
 /* ================= 2. TYPO GÉANTE & ANIMATIONS ================= */
 .giant-bg-text {
@@ -80,6 +85,7 @@ body {
     transform: translateY(0); 
 }
 
+
 /* ================= 3. NAVBAR & LANGUES ================= */
 .navbar {
     display: flex; 
@@ -101,19 +107,15 @@ body {
     font-weight: 900; 
     letter-spacing: 2px; 
     display: flex; 
-    align-items: center; 
+    align-items: center; /* Centre la ligne de base */
     gap: 12px; 
 }
 
-/* FIX 1 : On fixe la largeur du logo pour bloquer le décalage du texte USM */
 .logo-nav img {
-    height: 38px; 
-    width: 150px; 
-    object-fit: contain;
-    object-position: left center;
-    transform: translateY(-5px); 
+    height: 38px; /* On lui donne un peu plus de prestance */
+    width: auto;
+    transform: translateY(-5px); /* 🪄 Valeur NÉGATIVE pour faire monter l'aigle au niveau du serif */
 }
-
 .logo-nav span { color: var(--usm-pink); }
 
 .nav-links { 
@@ -168,6 +170,7 @@ body {
     color: white; 
 }
 
+
 /* ================= 4. HERO SECTION ================= */
 .hero-massive {
     min-height: 80vh; 
@@ -180,23 +183,16 @@ body {
     position: relative;
 }
 
-/* FIX 2 : On fige la hauteur de la boîte de l'aigle. Le F5 ne peut plus écraser la page */
 .massive-eagle-wrapper {
     width: clamp(300px, 60vw, 800px); 
-    height: 35vh;
-    min-height: 250px;
     margin-bottom: 20px;
     filter: drop-shadow(0 0 50px rgba(216,0,86,0.3)); 
     animation: float 6s ease-in-out infinite;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .massive-eagle-wrapper img { 
     width: 100%; 
-    height: 100%; 
-    object-fit: contain;
+    height: auto; 
 }
 
 .hero-massive h1 { 
@@ -211,6 +207,7 @@ body {
     0%, 100% { transform: translateY(0px); } 
     50% { transform: translateY(-20px); } 
 }
+
 
 /* ================= 5. BENTO GRID (STATISTIQUES) ================= */
 .bento-grid { 
@@ -227,11 +224,11 @@ body {
     backdrop-filter: blur(15px); 
     display: flex; 
     flex-direction: column; 
-    justify-content: space-between; 
+    justify-content: space-between; /* Force l'étirement haut/bas */
     align-items: center;     
     text-align: center;      
     transition: 0.4s;
-    min-height: 340px; 
+    min-height: 340px; /* Hauteur fixe pour toutes les cartes */
 }
 
 .bento-card:hover { 
@@ -257,7 +254,7 @@ body {
     letter-spacing: 2px; 
     color: #888; 
     font-weight: bold;
-    min-height: 24px; 
+    min-height: 24px; /* Verrouille la hauteur du titre */
 }
 
 .data-huge {
@@ -266,7 +263,7 @@ body {
     line-height: 1.2; 
     white-space: nowrap; 
     letter-spacing: -1px; 
-    margin: auto 0; 
+    margin: auto 0; /* Centre magiquement le chiffre dans l'espace restant */
     background: linear-gradient(135deg, #fff, var(--usm-pink));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -277,23 +274,19 @@ body {
     color: #aaa; 
     font-size: 0.95rem; 
     margin: 0;
-    min-height: 70px; 
+    min-height: 70px; /* Verrouille la zone de texte du bas */
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* ================= 6. SERVICES (TUILES ACCUEIL) ================= */
-.services-grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-    gap: 25px; 
-    margin-top: 30px; 
-}
+
+/* ================= 6. SERVICES (TUILES) ================= */
+.services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 30px; }
 
 .bento-service-card {
     display: flex; flex-direction: column; justify-content: flex-end;
-    min-height: 280px; 
+    min-height: 280px; /* Donne de la hauteur pour bien voir la photo */
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-top: 3px solid var(--usm-pink);
     padding: 30px; border-radius: 16px;
@@ -306,6 +299,7 @@ body {
     transform: translateY(-5px);
     box-shadow: 0 15px 35px rgba(0,0,0,0.6);
 }
+/* Force le texte à passer au-dessus de l'image de fond */
 .srv-card-content, .srv-card-arrow { position: relative; z-index: 2; }
 
 .srv-card-content h3 { font-size: 1.6rem; color: #fff; margin-bottom: 10px; text-shadow: 0 2px 15px rgba(0,0,0,0.9); }
@@ -320,6 +314,7 @@ body {
 }
 .bento-service-card:hover .srv-card-arrow { transform: translateX(8px); color: #fff; }
 
+
 /* ================= 7. SECTION VIP (FONDATEUR) ================= */
 .founder-vip-section {
     display: flex; 
@@ -333,7 +328,6 @@ body {
     box-shadow: 0 30px 60px rgba(0,0,0,0.6);
 }
 
-/* FIX 3 : On met l'image du fondateur en position absolue pour ne pas déformer la grille */
 .vip-photo-wrapper { 
     flex: 1 1 400px; 
     position: relative; 
@@ -341,8 +335,6 @@ body {
 }
 
 .vip-photo-wrapper img { 
-    position: absolute;
-    inset: 0;
     width: 100%; 
     height: 100%; 
     object-fit: cover; 
@@ -420,6 +412,7 @@ body {
     font-weight: bold; 
     font-size: 1rem; 
 }
+
 
 /* ================= 8. ROSTER & SLIDER (NETFLIX STYLE) ================= */
 .players-section { 
@@ -565,25 +558,20 @@ body {
     background: rgba(25, 25, 30, 0.8);
 }
 
-/* FIX 4 : On verrouille le cadre du joueur. L'image se glisse en absolu sans déformer le F5 */
 .player-img-container { 
     width: 100%; 
     height: 320px; 
     border-radius: 16px; 
     overflow: hidden; 
     background: #111;
-    position: relative; 
 }
 
 .player-img-container img { 
-    position: absolute;
-    inset: 0;
     width: 100%; 
     height: 100%; 
     object-fit: cover; 
     opacity: 0.8; 
-    /* Apparition fondue sur 1.5s, et zoom rapide au survol de la souris */
-    transition: opacity 1.5s ease-in-out, transform 0.4s; 
+    transition: 0.4s;
 }
 
 .player-card:hover img { 
@@ -611,6 +599,7 @@ body {
     font-size: 0.8rem; 
     font-weight: bold;
 }
+
 
 /* ================= 9. FOOTER & LIENS ================= */
 .site-footer {
@@ -674,19 +663,19 @@ body {
 }
 .public-form select option { background: var(--bg-dark); color: white; }
 
-/* ================= 11. CARTES SERVICES (PAGE DYNAMIQUE & DETAILS) ================= */
+/* ================= 11. CARTES SERVICES & PAGE DYNAMIQUE ================= */
 
 /* La grille devient un affichage flexible centré */
-.services-grid-dynamic { 
+.services-grid { 
     display: flex; 
     flex-wrap: wrap; 
-    justify-content: center;
+    justify-content: center; /* Centre la ligne de 2 cartes en bas ! */
     gap: 30px; 
     margin-top: 30px; 
 }
 
-/* Format carré parfait pour les tuiles dynamiques */
-.bento-service-card-dyn {
+/* Format carré parfait pour les tuiles */
+.bento-service-card {
     flex: 0 1 320px; 
     width: 100%;
     aspect-ratio: 1 / 1; 
@@ -706,14 +695,51 @@ body {
     background-color: var(--bg-dark);
     transform: translateZ(0); 
     -webkit-mask-image: -webkit-radial-gradient(white, black); 
-    isolation: isolate; 
-    background-clip: padding-box; 
+    isolation: isolate; /* Crée un nouveau contexte d'empilement strict */
+    background-clip: padding-box; /* Coupe le fond pile avant la bordure */
 }
 
-.bento-service-card-dyn:hover {
+.bento-service-card:hover {
     border-color: rgba(216, 0, 86, 0.8);
     transform: translateY(-5px);
     box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+}
+
+/* Force le texte à passer au-dessus de l'image de fond */
+.srv-card-content, .srv-card-arrow { position: relative; z-index: 2; }
+
+.srv-card-content h3 { 
+    font-size: 1.5rem; 
+    color: #fff; 
+    margin-bottom: 10px; 
+    text-shadow: 0 2px 15px rgba(0,0,0,0.9); 
+}
+
+.srv-card-content p { 
+    font-size: 0.95rem; 
+    color: #eee; 
+    line-height: 1.5; 
+    display: -webkit-box; 
+    -webkit-line-clamp: 3; 
+    -webkit-box-orient: vertical; 
+    overflow: hidden; 
+    text-shadow: 0 2px 15px rgba(0,0,0,0.9);
+}
+
+.srv-card-arrow { 
+    align-self: flex-end; 
+    margin-top: 15px; 
+    color: var(--usm-pink); 
+    font-weight: bold; 
+    font-size: 0.85rem; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    transition: 0.3s; 
+}
+
+.bento-service-card:hover .srv-card-arrow { 
+    transform: translateX(8px); 
+    color: #fff; 
 }
 
 /* Header de la page service unique */
@@ -742,14 +768,22 @@ body {
 }
 
 .service-main-content {
-    flex: 1 1 600px; 
+    flex: 1 1 600px; /* Le texte prend la majorité de l'espace à gauche */
 }
 
 .service-sidebar {
-    flex: 0 0 350px; 
+    flex: 0 0 350px; /* La colonne fixe à droite pour la liste des services */
     width: 100%;
 }
 
+.service-desc { 
+    font-size: 1.15rem; 
+    line-height: 1.8; 
+    color: #ccc; 
+    white-space: pre-line; 
+}
+
+/* Le design des boutons de la liste à droite */
 .sidebar-srv-link {
     display: flex;
     justify-content: space-between;
@@ -769,19 +803,41 @@ body {
 .sidebar-srv-link:hover, .sidebar-srv-link.active {
     border-color: var(--usm-pink);
     background: rgba(216, 0, 86, 0.1);
-    transform: translateX(8px); 
+    transform: translateX(8px); /* Animation au survol */
     color: var(--usm-pink);
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
 /* ================= 13. FIX ANTI-STRETCHING & APPARITION DOUCE ================= */
 
-/* On masque le faux pixel transparent envoyé par Firebase sans casser les cadres */
-img[src*="data:image/gif"] {
-    opacity: 0 !important;
+/* 1. Amortisseur de saut : On donne une base stable à la zone d'animation */
+.massive-eagle-wrapper {
+    min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* Apparition cinématographique ultra-douce sur 1.5 seconde quand la vraie image charge */
-img {
-    transition: opacity 1.5s ease-in-out;
+/* 2. Interdiction stricte de déformer ou d'étirer les vrais logos */
+.massive-eagle-wrapper img, .logo-nav img {
+    object-fit: contain;
 }
+
+/* 3. Le faux pixel est littéralement réduit à néant pendant la demi-seconde de chargement */
+img[src^="data:image/gif"] {
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    visibility: hidden;
+}
+
+/* 4. Apparition élégante en fondu */
+img {
+    transition: opacity 0.5s ease-in-out;
+}
+
+
+
+
+
+
