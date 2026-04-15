@@ -5,7 +5,7 @@
 /* ================= 1. VARIABLES & RESET ================= */
 @font-face {
     font-family: 'Moglan';
-    src: url('Assets/Moglan.ttf') format('ttf'), /* Ajuste le chemin selon ton dossier */
+    src: url('Assets/Moglan.ttf') format('ttf'), 
          url('Assets/Moglan.woff') format('woff');
     font-weight: normal;
     font-style: normal;
@@ -34,15 +34,11 @@ html {
 
 body {
     background-color: var(--bg-dark);
-    
-    /* Le secret est ici : on combine ton halo rose avec un motif Seamless en ligne */
     background-image: 
         radial-gradient(circle at 50% 0%, var(--usm-pink-glow) 0%, transparent 60%),
         url('https://www.transparenttextures.com/patterns/black-scales.png');
-        
     background-attachment: fixed; 
-    background-repeat: repeat; /* Force le petit carré à se répéter à l'infini */
-    
+    background-repeat: repeat; 
     color: var(--text-light); 
     line-height: 1.4; 
     overflow-x: hidden;
@@ -107,14 +103,14 @@ body {
     font-weight: 900; 
     letter-spacing: 2px; 
     display: flex; 
-    align-items: center; /* Centre la ligne de base */
+    align-items: center; 
     gap: 12px; 
 }
 
 .logo-nav img {
-    height: 38px; /* On lui donne un peu plus de prestance */
+    height: 38px; 
     width: auto;
-    transform: translateY(-5px); /* 🪄 Valeur NÉGATIVE pour faire monter l'aigle au niveau du serif */
+    transform: translateY(-5px); 
 }
 .logo-nav span { color: var(--usm-pink); }
 
@@ -224,11 +220,11 @@ body {
     backdrop-filter: blur(15px); 
     display: flex; 
     flex-direction: column; 
-    justify-content: space-between; /* Force l'étirement haut/bas */
+    justify-content: space-between; 
     align-items: center;     
     text-align: center;      
     transition: 0.4s;
-    min-height: 340px; /* Hauteur fixe pour toutes les cartes */
+    min-height: 340px; 
 }
 
 .bento-card:hover { 
@@ -254,7 +250,7 @@ body {
     letter-spacing: 2px; 
     color: #888; 
     font-weight: bold;
-    min-height: 24px; /* Verrouille la hauteur du titre */
+    min-height: 24px; 
 }
 
 .data-huge {
@@ -263,7 +259,7 @@ body {
     line-height: 1.2; 
     white-space: nowrap; 
     letter-spacing: -1px; 
-    margin: auto 0; /* Centre magiquement le chiffre dans l'espace restant */
+    margin: auto 0; 
     background: linear-gradient(135deg, #fff, var(--usm-pink));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -274,7 +270,7 @@ body {
     color: #aaa; 
     font-size: 0.95rem; 
     margin: 0;
-    min-height: 70px; /* Verrouille la zone de texte du bas */
+    min-height: 70px; 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -286,7 +282,7 @@ body {
 
 .bento-service-card {
     display: flex; flex-direction: column; justify-content: flex-end;
-    min-height: 280px; /* Donne de la hauteur pour bien voir la photo */
+    min-height: 280px; 
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-top: 3px solid var(--usm-pink);
     padding: 30px; border-radius: 16px;
@@ -299,7 +295,6 @@ body {
     transform: translateY(-5px);
     box-shadow: 0 15px 35px rgba(0,0,0,0.6);
 }
-/* Force le texte à passer au-dessus de l'image de fond */
 .srv-card-content, .srv-card-arrow { position: relative; z-index: 2; }
 
 .srv-card-content h3 { font-size: 1.6rem; color: #fff; margin-bottom: 10px; text-shadow: 0 2px 15px rgba(0,0,0,0.9); }
@@ -669,7 +664,7 @@ body {
 .services-grid { 
     display: flex; 
     flex-wrap: wrap; 
-    justify-content: center; /* Centre la ligne de 2 cartes en bas ! */
+    justify-content: center; /* 🪄 Magie : centre la ligne de 2 cartes en bas ! */
     gap: 30px; 
     margin-top: 30px; 
 }
@@ -695,8 +690,8 @@ body {
     background-color: var(--bg-dark);
     transform: translateZ(0); 
     -webkit-mask-image: -webkit-radial-gradient(white, black); 
-    isolation: isolate; /* Crée un nouveau contexte d'empilement strict */
-    background-clip: padding-box; /* Coupe le fond pile avant la bordure */
+    isolation: isolate; 
+    background-clip: padding-box; 
 }
 
 .bento-service-card:hover {
@@ -768,11 +763,11 @@ body {
 }
 
 .service-main-content {
-    flex: 1 1 600px; /* Le texte prend la majorité de l'espace à gauche */
+    flex: 1 1 600px; 
 }
 
 .service-sidebar {
-    flex: 0 0 350px; /* La colonne fixe à droite pour la liste des services */
+    flex: 0 0 350px; 
     width: 100%;
 }
 
@@ -803,41 +798,21 @@ body {
 .sidebar-srv-link:hover, .sidebar-srv-link.active {
     border-color: var(--usm-pink);
     background: rgba(216, 0, 86, 0.1);
-    transform: translateX(8px); /* Animation au survol */
+    transform: translateX(8px); 
     color: var(--usm-pink);
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
 /* ================= 13. FIX ANTI-STRETCHING & APPARITION DOUCE ================= */
 
-/* 1. Amortisseur de saut : On donne une base stable à la zone d'animation */
-.massive-eagle-wrapper {
-    min-height: 300px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* 2. Interdiction stricte de déformer ou d'étirer les vrais logos */
-.massive-eagle-wrapper img, .logo-nav img {
-    object-fit: contain;
-}
-
-/* 3. Le faux pixel est littéralement réduit à néant pendant la demi-seconde de chargement */
-img[src^="data:image/gif"] {
-    width: 0 !important;
-    height: 0 !important;
+/* On empêche le faux pixel transparent (gif 1x1) de s'étirer en carré géant */
+img[src*="data:image/gif"] {
     opacity: 0 !important;
-    visibility: hidden;
+    max-width: 0px !important;
+    max-height: 0px !important;
 }
 
-/* 4. Apparition élégante en fondu */
+/* Apparition douce des images quand la base de données les injecte */
 img {
-    transition: opacity 0.5s ease-in-out;
+    transition: opacity 1s ease-in-out;
 }
-
-
-
-
-
-
