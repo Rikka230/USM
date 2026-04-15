@@ -676,9 +676,9 @@ body {
 
 /* Format carré parfait pour les tuiles */
 .bento-service-card {
-    flex: 0 1 320px; /* Taille optimale des carrés */
+    flex: 0 1 320px; 
     width: 100%;
-    aspect-ratio: 1 / 1; /* 🪄 Force un format 100% carré */
+    aspect-ratio: 1 / 1; 
     display: flex; 
     flex-direction: column; 
     justify-content: flex-end;
@@ -690,11 +690,10 @@ body {
     transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     position: relative;
     overflow: hidden;
-    background-color: var(--bg-dark); /* Sécurité anti-trous au fond */
-    transform: translateZ(0); /* Force la carte à calculer un rendu matériel parfait */
-    -webkit-mask-image: -webkit-radial-gradient(white, black); /* Coupe l'image pile sur l'arrondi au scalpel */
+    background-color: var(--bg-dark);
+    transform: translateZ(0); 
+    -webkit-mask-image: -webkit-radial-gradient(white, black); 
 }
-
 .bento-service-card:hover {
     border-color: rgba(216, 0, 86, 0.8);
     transform: translateY(-5px);
