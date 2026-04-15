@@ -221,6 +221,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /* ================= 5. CHARGEMENT PARAMÈTRES AVEC CACHE ================= */
+
+// La fonction magique qui manquait et qui faisait planter tout le site !
+function loadSmoothImage(selector, url, finalOpacity = '1') {
+    const img = document.querySelector(selector);
+    if (img && url) {
+        img.style.opacity = '0'; 
+        img.style.transition = 'opacity 1.2s ease-in-out'; 
+        img.onload = () => { img.style.opacity = finalOpacity; };
+        img.src = url; 
+    }
+}
+
 async function loadSettings() {
     let data = Cache.get('site_settings');
     if(!data) {
