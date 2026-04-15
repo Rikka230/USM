@@ -67,8 +67,8 @@ body {
     white-space: nowrap;
 }
 
-.text-1 { top: 20%; left: -5%; } 
-.text-2 { top: 60%; right: -5%; text-align: right; }
+.text-1 { top: 15vh; left: -5%; } 
+.text-2 { top: 55vh; right: -5%; text-align: right; }
 
 .reveal { 
     opacity: 0; 
