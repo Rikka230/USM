@@ -181,14 +181,19 @@ body {
 
 .massive-eagle-wrapper {
     width: clamp(300px, 60vw, 800px); 
+    height: clamp(200px, 35vh, 400px); /* 🪄 LE CADRE EST DÉFINITIVEMENT VERROUILLÉ */
     margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     filter: drop-shadow(0 0 50px rgba(216,0,86,0.3)); 
     animation: float 6s ease-in-out infinite;
 }
 
 .massive-eagle-wrapper img { 
     width: 100%; 
-    height: auto; 
+    height: 100%; 
+    object-fit: contain; /* L'aigle se glisse dans le cadre sans jamais l'étirer */
 }
 
 .hero-massive h1 { 
@@ -803,31 +808,4 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-/* ================= 13. FIX ANTI-STRETCHING ABSOLU & FONDU F5 ================= */
 
-/* 1. On retire complètement le faux pixel du flux de la page (position: absolute).
-      Il ne pourra plus JAMAIS étirer tes boîtes, même pendant 1 milliseconde au F5. */
-img[src*="data:image/gif"] {
-    position: absolute !important;
-    width: 0 !important;
-    height: 0 !important;
-    opacity: 0 !important;
-    pointer-events: none;
-}
-
-/* 2. On crée une véritable animation de cinéma (Fondu + léger défloutage) */
-@keyframes smoothReveal {
-    0% { 
-        opacity: 0; 
-        filter: blur(5px); 
-    }
-    100% { 
-        opacity: 1; 
-        filter: blur(0); 
-    }
-}
-
-/* 3. Dès que Firebase remplace le faux pixel par la vraie image, on FORCE l'animation à se jouer, même au F5 */
-img:not([src*="data:image/gif"]) {
-    animation: smoothReveal 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-}
