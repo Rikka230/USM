@@ -71,9 +71,20 @@ if(logoutBtn) {
 
 /* ================= 2. NAVIGATION ET CHARGEMENT SETTINGS ================= */
 function hideAllSections() {
-    ['manage-players-section', 'form-player-section', 'settings-section', 'manage-services-section', 'form-service-section'].forEach(id => {
+    ['manage-players-section', 'form-player-section', 'settings-section', 'manage-services-section', 'form-service-section', 'manage-presse-section', 'form-video-section', 'form-article-section'].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.classList.add('hidden');
+    });
+}
+
+const navPresse = document.getElementById('nav-presse');
+if(navPresse) {
+    navPresse.addEventListener('click', (e) => {
+        document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        hideAllSections();
+        document.getElementById('manage-presse-section').classList.remove('hidden');
+        loadAdminPresse(); // Lance le téléchargement de la presse
     });
 }
 
@@ -191,6 +202,7 @@ setupDropZone('drop-zone-founder', 'founder-upload', 'founder');
 setupDropZone('drop-zone-nav', 'nav-upload', 'nav');
 setupDropZone('drop-zone-hero', 'hero-upload', 'hero');
 setupDropZone('drop-zone-srv', 'srv-upload', 'service');
+setupDropZone('drop-zone-article', 'article-upload', 'article');
 
 let cropState = { img: null, zoom: 1, x: 0, y: 0, baseScale: 1 };
 const playerDropZone = document.getElementById('drop-zone');
@@ -858,3 +870,199 @@ document.querySelectorAll('.lang-tab-srv').forEach(tab => {
         if(content) content.classList.remove('hidden');
     });
 });
+
+/* ================= 8. GESTION DE LA PRESSE (VIDÉOS & ARTICLES) ================= */
+let allAdminVideos = [];
+let allAdminArticles = [];
+
+window.loadAdminPresse = async () => {
+    loadAdminVideos();
+    loadAdminArticles();
+}
+
+// --- GESTION DES VIDÉOS ---
+async function loadAdminVideos() {
+    const list = document.getElementById('admin-videos-list');
+    if(!list) return;
+    list.innerHTML = '<tr><td colspan="2" style="text-align:center;">Chargement...</td></tr>';
+    try {
+        const snap = await getDocs(collection(db, "presse_videos"));
+        allAdminVideos = [];
+        snap.forEach(docSnap => allAdminVideos.push({ id: docSnap.id, ...docSnap.data() }));
+        renderAdminVideos();
+    } catch(e) { list.innerHTML = '<tr><td colspan="2" style="color:red;">Erreur.</td></tr>'; }
+}
+
+function renderAdminVideos() {
+    const list = document.getElementById('admin-videos-list');
+    if(!list) return;
+    allAdminVideos.sort((a, b) => (a.order || 999) - (b.order || 999));
+    list.innerHTML = '';
+    if(allAdminVideos.length === 0) { list.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#aaa;">Aucune vidéo.</td></tr>'; return; }
+    
+    allAdminVideos.forEach((v, index) => {
+        const upBtn = index !== 0 ? `<button class="btn-order" onclick="movePresseItem('presse_videos', ${index}, -1)">▲</button>` : `<div style="width:34px;height:34px;"></div>`;
+        const downBtn = index !== allAdminVideos.length - 1 ? `<button class="btn-order" onclick="movePresseItem('presse_videos', ${index}, 1)">▼</button>` : `<div style="width:34px;height:34px;"></div>`;
+        list.innerHTML += `
+            <tr>
+                <td style="font-weight:bold;">${v.title}</td>
+                <td>
+                    <div style="display:flex;gap:8px;">
+                        ${upBtn} ${downBtn}
+                        <button class="btn-delete" onclick="deletePresseItem('presse_videos', '${v.id}')">Supprimer</button>
+                    </div>
+                </td>
+            </tr>`;
+    });
+}
+
+// --- GESTION DES ARTICLES ---
+async function loadAdminArticles() {
+    const list = document.getElementById('admin-articles-list');
+    if(!list) return;
+    list.innerHTML = '<tr><td colspan="2" style="text-align:center;">Chargement...</td></tr>';
+    try {
+        const snap = await getDocs(collection(db, "presse_articles"));
+        allAdminArticles = [];
+        snap.forEach(docSnap => allAdminArticles.push({ id: docSnap.id, ...docSnap.data() }));
+        renderAdminArticles();
+    } catch(e) { list.innerHTML = '<tr><td colspan="2" style="color:red;">Erreur.</td></tr>'; }
+}
+
+function renderAdminArticles() {
+    const list = document.getElementById('admin-articles-list');
+    if(!list) return;
+    allAdminArticles.sort((a, b) => (a.order || 999) - (b.order || 999));
+    list.innerHTML = '';
+    if(allAdminArticles.length === 0) { list.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#aaa;">Aucun article.</td></tr>'; return; }
+    
+    allAdminArticles.forEach((a, index) => {
+        const upBtn = index !== 0 ? `<button class="btn-order" onclick="movePresseItem('presse_articles', ${index}, -1)">▲</button>` : `<div style="width:34px;height:34px;"></div>`;
+        const downBtn = index !== allAdminArticles.length - 1 ? `<button class="btn-order" onclick="movePresseItem('presse_articles', ${index}, 1)">▼</button>` : `<div style="width:34px;height:34px;"></div>`;
+        list.innerHTML += `
+            <tr>
+                <td><img src="${a.image_url}" style="height:60px; width: 45px; border-radius:4px; object-fit:cover;"></td>
+                <td>
+                    <div style="display:flex;gap:8px;">
+                        ${upBtn} ${downBtn}
+                        <button class="btn-delete" onclick="deletePresseItem('presse_articles', '${a.id}')">Supprimer</button>
+                    </div>
+                </td>
+            </tr>`;
+    });
+}
+
+// --- ACTIONS GLOBALES PRESSE (SUPPRIMER / ORDONNER) ---
+window.deletePresseItem = async (collectionName, id) => {
+    if(confirm("Supprimer cet élément définitivement ?")) {
+        await deleteDoc(doc(db, collectionName, id));
+        clearPublicCache();
+        if(collectionName === 'presse_videos') loadAdminVideos();
+        else loadAdminArticles();
+    }
+};
+
+window.movePresseItem = async (collectionName, currentIndex, direction) => {
+    let items = collectionName === 'presse_videos' ? allAdminVideos : allAdminArticles;
+    const targetIndex = currentIndex + direction;
+    if(targetIndex < 0 || targetIndex >= items.length) return;
+
+    const temp = items[currentIndex];
+    items[currentIndex] = items[targetIndex];
+    items[targetIndex] = temp;
+
+    const batch = writeBatch(db);
+    items.forEach((item, index) => batch.update(doc(db, collectionName, item.id), { order: index + 1 }));
+    await batch.commit();
+    clearPublicCache();
+    if(collectionName === 'presse_videos') loadAdminVideos();
+    else loadAdminArticles();
+};
+
+// --- LOGIQUE DES FORMULAIRES ---
+const btnAddVid = document.getElementById('btn-add-video');
+if(btnAddVid) {
+    btnAddVid.addEventListener('click', () => {
+        document.getElementById('video-form').reset();
+        hideAllSections();
+        document.getElementById('form-video-section').classList.remove('hidden');
+    });
+}
+
+const btnAddArt = document.getElementById('btn-add-article');
+if(btnAddArt) {
+    btnAddArt.addEventListener('click', () => {
+        document.getElementById('article-form').reset();
+        optimizedImages.article = null; // Réinitialise l'image
+        prefillImageZone('drop-zone-article', 'existing-article-img', '', 'Glissez la photo de l\'article ici');
+        hideAllSections();
+        document.getElementById('form-article-section').classList.remove('hidden');
+    });
+}
+
+document.querySelectorAll('.btn-cancel-presse').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        hideAllSections();
+        document.getElementById('manage-presse-section').classList.remove('hidden');
+    });
+});
+
+const vidForm = document.getElementById('video-form');
+if(vidForm) {
+    vidForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('save-video-btn');
+        btn.disabled = true; btn.textContent = "Enregistrement...";
+        try {
+            let url = document.getElementById('video-url').value;
+            // Transformation auto de l'URL YouTube en iframe
+            if(url.includes('watch?v=')) {
+                url = url.replace('watch?v=', 'embed/');
+                const ampersandPos = url.indexOf('&');
+                if(ampersandPos !== -1) url = url.substring(0, ampersandPos);
+            }
+            const payload = {
+                title: document.getElementById('video-title').value,
+                url: url,
+                order: allAdminVideos.length + 1,
+                timestamp: new Date()
+            };
+            await addDoc(collection(db, "presse_videos"), payload);
+            clearPublicCache(); // Vide le cache pour mise à jour immédiate côté client
+            hideAllSections();
+            document.getElementById('manage-presse-section').classList.remove('hidden');
+            loadAdminVideos();
+        } catch(err) { alert("Erreur: " + err.message); }
+        finally { btn.disabled = false; btn.textContent = "Enregistrer la vidéo"; }
+    });
+}
+
+const artForm = document.getElementById('article-form');
+if(artForm) {
+    artForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if(!optimizedImages.article) { alert("Veuillez glisser une image pour l'article."); return; }
+        
+        const btn = document.getElementById('save-article-btn');
+        btn.disabled = true; btn.textContent = "Upload en cours...";
+        try {
+            const r = ref(storage, `presse/${Date.now()}.webp`);
+            await uploadString(r, optimizedImages.article, 'data_url');
+            const finalUrl = await getDownloadURL(r);
+            
+            await addDoc(collection(db, "presse_articles"), {
+                image_url: finalUrl,
+                order: allAdminArticles.length + 1,
+                timestamp: new Date()
+            });
+            
+            clearPublicCache(); // Vide le cache
+            hideAllSections();
+            document.getElementById('manage-presse-section').classList.remove('hidden');
+            loadAdminArticles();
+        } catch(err) { alert("Erreur: " + err.message); }
+        finally { btn.disabled = false; btn.textContent = "Enregistrer l'article"; }
+    });
+}
+
