@@ -905,7 +905,7 @@ function renderAdminVideos() {
         const downBtn = index !== allAdminVideos.length - 1 ? `<button class="btn-order" onclick="movePresseItem('presse_videos', ${index}, 1)">▼</button>` : `<div style="width:34px;height:34px;"></div>`;
         list.innerHTML += `
             <tr>
-                <td style="font-weight:bold;">${v.title}</td>
+                <td style="font-weight:bold;">${v.title || 'Vidéo sans titre'}</td>
                 <td>
                     <div style="display:flex;gap:8px;">
                         ${upBtn} ${downBtn}
@@ -941,7 +941,12 @@ function renderAdminArticles() {
         const downBtn = index !== allAdminArticles.length - 1 ? `<button class="btn-order" onclick="movePresseItem('presse_articles', ${index}, 1)">▼</button>` : `<div style="width:34px;height:34px;"></div>`;
         list.innerHTML += `
             <tr>
-                <td><img src="${a.image_url}" style="height:60px; width: 45px; border-radius:4px; object-fit:cover;"></td>
+                <td>
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <img src="${a.image_url}" style="height:50px; width: 40px; border-radius:4px; object-fit:cover; border: 1px solid #333;">
+                        <span style="font-weight:bold;">${a.title || 'Article de Presse'}</span>
+                    </div>
+                </td>
                 <td>
                     <div style="display:flex;gap:8px;">
                         ${upBtn} ${downBtn}
@@ -979,7 +984,7 @@ window.movePresseItem = async (collectionName, currentIndex, direction) => {
     else loadAdminArticles();
 };
 
-// --- LOGIQUE DES FORMULAIRES ---
+// --- LOGIQUE D'AFFICHAGE DES FORMULAIRES ---
 const btnAddVid = document.getElementById('btn-add-video');
 if(btnAddVid) {
     btnAddVid.addEventListener('click', () => {
@@ -993,7 +998,7 @@ const btnAddArt = document.getElementById('btn-add-article');
 if(btnAddArt) {
     btnAddArt.addEventListener('click', () => {
         document.getElementById('article-form').reset();
-        optimizedImages.article = null; // Réinitialise l'image
+        optimizedImages.article = null; 
         prefillImageZone('drop-zone-article', 'existing-article-img', '', 'Glissez la photo de l\'article ici');
         hideAllSections();
         document.getElementById('form-article-section').classList.remove('hidden');
@@ -1008,6 +1013,7 @@ document.querySelectorAll('.btn-cancel-presse').forEach(btn => {
     });
 });
 
+// --- SAUVEGARDE VIDÉO ---
 const vidForm = document.getElementById('video-form');
 if(vidForm) {
     vidForm.addEventListener('submit', async (e) => {
@@ -1016,20 +1022,27 @@ if(vidForm) {
         btn.disabled = true; btn.textContent = "Enregistrement...";
         try {
             let url = document.getElementById('video-url').value;
-            // Transformation auto de l'URL YouTube en iframe
+            // Transformation intelligente du lien YouTube en version Iframe lisible
             if(url.includes('watch?v=')) {
                 url = url.replace('watch?v=', 'embed/');
                 const ampersandPos = url.indexOf('&');
                 if(ampersandPos !== -1) url = url.substring(0, ampersandPos);
+            } else if(url.includes('youtu.be/')) {
+                url = url.replace('youtu.be/', 'youtube.com/embed/');
+                const qPos = url.indexOf('?');
+                if(qPos !== -1) url = url.substring(0, qPos);
             }
+
             const payload = {
                 title: document.getElementById('video-title').value,
+                description: document.getElementById('video-desc').value || "", 
                 url: url,
                 order: allAdminVideos.length + 1,
                 timestamp: new Date()
             };
+            
             await addDoc(collection(db, "presse_videos"), payload);
-            clearPublicCache(); // Vide le cache pour mise à jour immédiate côté client
+            clearPublicCache(); 
             hideAllSections();
             document.getElementById('manage-presse-section').classList.remove('hidden');
             loadAdminVideos();
@@ -1038,6 +1051,7 @@ if(vidForm) {
     });
 }
 
+// --- SAUVEGARDE ARTICLE ---
 const artForm = document.getElementById('article-form');
 if(artForm) {
     artForm.addEventListener('submit', async (e) => {
@@ -1047,17 +1061,20 @@ if(artForm) {
         const btn = document.getElementById('save-article-btn');
         btn.disabled = true; btn.textContent = "Upload en cours...";
         try {
-            const r = ref(storage, `presse/${Date.now()}.webp`);
+            const r = ref(storage, `presse/article_${Date.now()}.webp`);
             await uploadString(r, optimizedImages.article, 'data_url');
             const finalUrl = await getDownloadURL(r);
             
-            await addDoc(collection(db, "presse_articles"), {
+            const payload = {
+                title: document.getElementById('article-title').value,
+                description: document.getElementById('article-desc').value || "", 
                 image_url: finalUrl,
                 order: allAdminArticles.length + 1,
                 timestamp: new Date()
-            });
-            
-            clearPublicCache(); // Vide le cache
+            };
+
+            await addDoc(collection(db, "presse_articles"), payload);
+            clearPublicCache(); 
             hideAllSections();
             document.getElementById('manage-presse-section').classList.remove('hidden');
             loadAdminArticles();
