@@ -473,12 +473,6 @@ function getYouTubeId(url) {
     return (match && match[2].length === 11) ? match[2] : null;
 }
 
-// 🪄 FONCTION BOUCLIER : Empêche les apostrophes et guillemets de casser le clic
-function escapeHTML(str) {
-    if (!str) return '';
-    return str.replace(/'/g, "&apos;").replace(/"/g, "&quot;").replace(/\n/g, " ");
-}
-
 window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl) => {
     const lb = document.getElementById('presse-lightbox');
     const mediaContainer = document.getElementById('lightbox-media');
@@ -488,14 +482,21 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl) => {
     
     if(lb && mediaContainer) {
         if(type === 'video') {
-            mediaContainer.innerHTML = `<iframe src="${mediaUrl}?autoplay=1" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+            // Conversion automatique d'un lien classique en Iframe jouable
+            let embedUrl = mediaUrl;
+            if(embedUrl.includes('watch?v=')) {
+                embedUrl = embedUrl.replace('watch?v=', 'embed/');
+                const amp = embedUrl.indexOf('&');
+                if(amp !== -1) embedUrl = embedUrl.substring(0, amp);
+            }
+            mediaContainer.innerHTML = `<iframe src="${embedUrl}?autoplay=1" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
         } else {
-            mediaContainer.innerHTML = `<img src="${mediaUrl}" alt="${title}">`;
+            mediaContainer.innerHTML = `<img src="${mediaUrl}" alt="Presse">`;
         }
+        
         titleEl.textContent = title;
         descEl.textContent = desc || '';
         
-        // Affichage du bouton de lien si existant
         if(linkUrl && linkUrl.length > 5) {
             linkContainer.innerHTML = `<a href="${linkUrl}" target="_blank" class="btn-premium" style="display:inline-block; margin-top:20px; text-decoration:none; text-align:center; width:100%;">Lire l'article complet ➔</a>`;
         } else {
@@ -516,6 +517,19 @@ window.closeLightbox = () => {
     }
 };
 
+// 🪄 ÉCOUTEUR GLOBAL ANTI-BUG : Protège les clics contre les erreurs d'apostrophes
+document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('.presse-trigger');
+    if (trigger) {
+        const type = trigger.getAttribute('data-type');
+        const url = trigger.getAttribute('data-url');
+        const title = decodeURIComponent(trigger.getAttribute('data-title'));
+        const desc = decodeURIComponent(trigger.getAttribute('data-desc'));
+        const link = decodeURIComponent(trigger.getAttribute('data-link'));
+        openPresseLightbox(type, url, title, desc, link);
+    }
+});
+
 async function loadPresseData() {
     const vidContainer = document.getElementById('presse-video-container');
     const mosContainer = document.getElementById('presse-mosaic-container');
@@ -525,6 +539,7 @@ async function loadPresseData() {
     let videos = Cache.get('site_presse_videos');
     if(!videos || videos.length === 0) {
         try {
+            const { query, collection, getDocs, limit } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
             const q = query(collection(db, "presse_videos"), limit(50));
             const snap = await getDocs(q);
             videos = [];
@@ -539,7 +554,7 @@ async function loadPresseData() {
             const ytId = getYouTubeId(v.url);
             const thumbUrl = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '';
             return `
-            <div class="video-card" style="cursor:pointer;" onclick="openPresseLightbox('video', '${v.url}', '${escapeHTML(v.title)}', '${escapeHTML(v.description)}', '')">
+            <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${v.url}" data-title="${encodeURIComponent(v.title || '')}" data-desc="${encodeURIComponent(v.description || '')}" data-link="">
                 <div class="video-container">
                     <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
                     <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
@@ -557,6 +572,7 @@ async function loadPresseData() {
     let articles = Cache.get('site_presse_articles');
     if(!articles || articles.length === 0) {
         try {
+            const { query, collection, getDocs, limit } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
             const q = query(collection(db, "presse_articles"), limit(50));
             const snap = await getDocs(q);
             articles = [];
@@ -569,23 +585,19 @@ async function loadPresseData() {
     if(articles && articles.length > 0) {
         mosContainer.innerHTML = articles.map(a => {
             return `
-            <div class="mosaic-item" onclick="openPresseLightbox('image', '${a.image_url}', '${escapeHTML(a.title)}', '${escapeHTML(a.description)}', '${escapeHTML(a.link)}')">
-                <img src="${a.image_url}" loading="lazy" alt="${escapeHTML(a.title)}">
+            <div class="mosaic-item presse-trigger" data-type="image" data-url="${a.image_url}" data-title="${encodeURIComponent(a.title || '')}" data-desc="${encodeURIComponent(a.description || '')}" data-link="${encodeURIComponent(a.link || '')}">
+                <img src="${a.image_url}" loading="lazy" alt="Presse">
             </div>`;
         }).join('');
     } else {
         mosContainer.innerHTML = '<p style="color:#888; grid-column: 1/-1;">Aucun article pour le moment.</p>';
     }
+
     const btnPrev = document.getElementById('btn-vid-prev');
     const btnNext = document.getElementById('btn-vid-next');
     if(btnPrev) btnPrev.addEventListener('click', () => vidContainer.scrollBy({ left: -400, behavior: 'smooth' }));
     if(btnNext) btnNext.addEventListener('click', () => vidContainer.scrollBy({ left: 400, behavior: 'smooth' }));
 }
 
-// Lancement direct et sécurisé
 const startPresse = () => { if(document.getElementById('presse-video-container')) loadPresseData(); };
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', startPresse);
-} else {
-    startPresse();
-}
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', startPresse); } else { startPresse(); }
