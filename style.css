@@ -1236,30 +1236,31 @@ html, body {
     .lightbox-media iframe { width: 100%; height: 100%; }
 }
 
-/* 🪄 Masquage manuel précis du Watermark Instagram - AJUSTÉ */
+/* 🪄 Masquage manuel du Watermark Instagram - VERSION LARGE */
 #instagram-feed {
     position: relative;
-    /* On augmente l'espace en haut pour plus de respiration */
-    padding-top: 40px; 
+    /* On augmente encore l'espace en haut pour une respiration maximale */
+    padding-top: 60px; 
     padding-bottom: 20px;
     
-    /* On augmente la hauteur pour ne plus couper les photos de moitié */
-    /* Passe à 600px ou plus si tu as deux lignes de photos */
-    max-height: 650px; 
+    /* On pousse la hauteur pour s'assurer que les photos ne sont plus serrées */
+    /* Si vous avez beaucoup de photos, vous pouvez monter jusqu'à 750px ou 800px */
+    max-height: 700px; 
     
     overflow: hidden; 
-    /* Ombre interne plus diffuse pour un passage au noir plus fluide */
-    box-shadow: inset 0 -40px 30px var(--bg-dark);
+    /* Ombre interne plus profonde pour une transition invisible vers le noir */
+    box-shadow: inset 0 -50px 40px var(--bg-dark);
     border-bottom: 2px solid var(--surface-border);
 }
 
-/* 🪄 Le Badge de recouvrement (plus large pour bien boucher le coin) */
+/* 🪄 Badge de recouvrement large pour boucher le coin du logo */
 .insta-overlay-fix {
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 180px; 
-    height: 50px; 
+    /* On augmente la surface pour être sûr de couvrir les badges "Free" */
+    width: 220px; 
+    height: 60px; 
     background: var(--bg-dark); 
     z-index: 100; 
     pointer-events: none; 
