@@ -77,6 +77,14 @@ function hideAllSections() {
     });
 }
 
+const btnForceCache = document.getElementById('btn-force-cache');
+if(btnForceCache) {
+    btnForceCache.addEventListener('click', () => {
+        localStorage.clear();
+        alert("✅ Cache de votre navigateur vidé avec succès !\n\nAllez sur le site public et actualisez la page (F5) pour voir vos derniers ajouts.");
+    });
+}
+
 const navPresse = document.getElementById('nav-presse');
 if(navPresse) {
     navPresse.addEventListener('click', (e) => {
