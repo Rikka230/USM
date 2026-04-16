@@ -51,13 +51,24 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 .table-container { 
     background: var(--surface); 
     border-radius: 12px; 
-    overflow: hidden; 
+    overflow-y: auto; 
+    max-height: 60vh; 
     border: 1px solid var(--surface-border); 
     margin-top: 20px; 
     width: 100%; 
 }
 .admin-table { width: 100%; border-collapse: collapse; text-align: left; }
-.admin-table th { background: #111; padding: 15px 20px; color: #888; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;}
+.admin-table th { 
+    background: #111; 
+    padding: 15px 20px; 
+    color: #888; 
+    text-transform: uppercase; 
+    font-size: 0.85rem; 
+    letter-spacing: 1px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
 .admin-table td { padding: 15px 20px; border-bottom: 1px solid var(--surface-border); vertical-align: middle;}
 .admin-table tr:hover { background: rgba(255,255,255,0.02); }
 .player-list-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #555;}
