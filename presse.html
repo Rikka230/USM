@@ -72,7 +72,14 @@
         </section>
 
         <section class="mosaic-wrapper">
-            <h2 style="font-size: 1.8rem; text-transform: uppercase; margin-bottom: 20px;">Articles & Parutions</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-size: 1.8rem; text-transform: uppercase;">Articles & Parutions</h2>
+                <div class="slider-controls" style="display: flex; align-items: center; gap: 15px;">
+                    <button class="slider-btn" id="btn-art-prev">❮</button>
+                    <span id="art-page-info" style="color: #aaa; font-weight: bold; font-size: 1.1rem; min-width: 50px; text-align: center;"></span>
+                    <button class="slider-btn" id="btn-art-next">❯</button>
+                </div>
+            </div>
             <div class="mosaic-grid" id="presse-mosaic-container">
                 <div class="loader-spinner" style="margin: 50px auto; grid-column: 1 / -1;"></div>
             </div>
