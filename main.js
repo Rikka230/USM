@@ -560,11 +560,12 @@ function getYouTubeId(url) {
     return (match && match[2].length === 11) ? match[2] : null;
 }
 
-window.openPresseLightbox = (type, mediaUrl, title, desc) => {
+window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl) => {
     const lb = document.getElementById('presse-lightbox');
     const mediaContainer = document.getElementById('lightbox-media');
     const titleEl = document.getElementById('lightbox-title');
     const descEl = document.getElementById('lightbox-desc');
+    const linkContainer = document.getElementById('lightbox-link-container');
     
     if(lb && mediaContainer) {
         if(type === 'video') {
@@ -574,6 +575,13 @@ window.openPresseLightbox = (type, mediaUrl, title, desc) => {
         }
         titleEl.textContent = title;
         descEl.textContent = desc || '';
+        
+        // 🪄 Si un lien a été renseigné, on affiche le bouton rose
+        if(linkUrl && linkUrl.length > 5) {
+            linkContainer.innerHTML = `<a href="${linkUrl}" target="_blank" class="btn-premium" style="display:inline-block; margin-top:20px; text-decoration:none; text-align:center; width:100%;">Lire l'article complet ➔</a>`;
+        } else {
+            linkContainer.innerHTML = '';
+        }
         
         lb.classList.add('active'); 
         document.body.style.overflow = 'hidden'; 
@@ -593,6 +601,10 @@ async function loadPresseData() {
     const vidContainer = document.getElementById('presse-video-container');
     const mosContainer = document.getElementById('presse-mosaic-container');
     if(!vidContainer || !mosContainer) return; 
+
+    // 🪄 FIX ABSOLU : On force le vidage du cache Presse à chaque rechargement de page pour être sûr d'afficher les nouveautés !
+    localStorage.removeItem('site_presse_videos');
+    localStorage.removeItem('site_presse_articles');
 
     // --- 1. Vidéos ---
     let videos = Cache.get('site_presse_videos');
@@ -615,7 +627,7 @@ async function loadPresseData() {
             const safeDesc = v.description ? v.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
             
             return `
-            <div class="video-card" style="cursor:pointer;" onclick="openPresseLightbox('video', '${v.url}', '${safeTitle}', '${safeDesc}')">
+            <div class="video-card" style="cursor:pointer;" onclick="openPresseLightbox('video', '${v.url}', '${safeTitle}', '${safeDesc}', '')">
                 <div class="video-container">
                     <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
                     <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
@@ -646,8 +658,10 @@ async function loadPresseData() {
         mosContainer.innerHTML = articles.map(a => {
             const safeTitle = a.title ? a.title.replace(/'/g, "\\'") : '';
             const safeDesc = a.description ? a.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
+            const safeLink = a.link ? a.link.replace(/'/g, "\\'") : ''; // Récupère le lien
+            
             return `
-            <div class="mosaic-item" onclick="openPresseLightbox('image', '${a.image_url}', '${safeTitle}', '${safeDesc}')">
+            <div class="mosaic-item" onclick="openPresseLightbox('image', '${a.image_url}', '${safeTitle}', '${safeDesc}', '${safeLink}')">
                 <img src="${a.image_url}" loading="lazy" alt="${a.title}">
                 <div style="position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent, rgba(0,0,0,0.9)); padding:20px 15px 15px;">
                     <h4 style="color:white; font-size:1rem; margin:0;">${a.title || 'Article'}</h4>
