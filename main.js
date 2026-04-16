@@ -466,95 +466,8 @@ if(searchInput) {
 
 /* ================= 9. PAGE PRESSE (VIDEOS & ARTICLES) ================= */
 
-// Fonctions globales pour la Lightbox (doivent être accessibles depuis le HTML)
-window.openLightbox = (url) => {
-    const lb = document.getElementById('presse-lightbox');
-    const img = document.getElementById('lightbox-img');
-    if(lb && img) { 
-        img.src = url; 
-        lb.classList.add('active'); 
-        document.body.style.overflow = 'hidden'; // Bloque le scroll du site derrière
-    }
-};
-window.closeLightbox = () => {
-    const lb = document.getElementById('presse-lightbox');
-    if(lb) {
-        lb.classList.remove('active');
-        document.body.style.overflow = ''; // Rétablit le scroll
-    }
-};
-
-async function loadPresseData() {
-    const vidContainer = document.getElementById('presse-video-container');
-    const mosContainer = document.getElementById('presse-mosaic-container');
-    
-    // Si on n'est pas sur la page presse, on arrête ici
-    if(!vidContainer || !mosContainer) return;
-
-    // --- 1. Chargement des Vidéos (Avec Cache) ---
-    let videos = Cache.get('site_presse_videos');
-    if(!videos) {
-        try {
-            const q = query(collection(db, "presse_videos"), orderBy("order", "asc"), limit(15));
-            const snap = await getDocs(q);
-            videos = [];
-            snap.forEach(d => videos.push({id: d.id, ...d.data()}));
-            Cache.set('site_presse_videos', videos);
-        } catch(e) { console.error("Erreur Vidéos:", e); }
-    }
-    
-    if(videos && videos.length > 0) {
-        vidContainer.innerHTML = videos.map(v => `
-            <div class="video-card">
-                <div class="video-container">
-                    <iframe src="${v.url}" loading="lazy" allowfullscreen></iframe>
-                </div>
-                <div class="video-title">${v.title}</div>
-            </div>
-        `).join('');
-    } else {
-        vidContainer.innerHTML = '<p style="color:#888;">Aucune vidéo pour le moment.</p>';
-    }
-
-    // --- 2. Chargement des Articles (Avec Cache) ---
-    let articles = Cache.get('site_presse_articles');
-    if(!articles) {
-        try {
-            const q = query(collection(db, "presse_articles"), orderBy("order", "asc"), limit(30));
-            const snap = await getDocs(q);
-            articles = [];
-            snap.forEach(d => articles.push({id: d.id, ...d.data()}));
-            Cache.set('site_presse_articles', articles);
-        } catch(e) { console.error("Erreur Articles:", e); }
-    }
-    
-    if(articles && articles.length > 0) {
-        mosContainer.innerHTML = articles.map(a => `
-            <div class="mosaic-item" onclick="openLightbox('${a.image_url}')">
-                <img src="${a.image_url}" loading="lazy" alt="Article de presse">
-            </div>
-        `).join('');
-    } else {
-        mosContainer.innerHTML = '<p style="color:#888; grid-column: 1/-1;">Aucun article pour le moment.</p>';
-    }
-
-    // --- 3. Logique des flèches du Slider Vidéo ---
-    const btnPrev = document.getElementById('btn-vid-prev');
-    const btnNext = document.getElementById('btn-vid-next');
-    if(btnPrev) btnPrev.addEventListener('click', () => vidContainer.scrollBy({ left: -400, behavior: 'smooth' }));
-    if(btnNext) btnNext.addEventListener('click', () => vidContainer.scrollBy({ left: 400, behavior: 'smooth' }));
-}
-
-// Ajout du déclencheur dans la logique de démarrage
-document.addEventListener("DOMContentLoaded", () => {
-    // ... [Ton code existant dans DOMContentLoaded] ...
-    // Vérifie qu'à la fin de DOMContentLoaded, tu ajoutes bien l'appel à loadPresseData() :
-    setTimeout(loadPresseData, 500); 
-});
-
-/* ================= 9. PAGE PRESSE (VIDEOS & ARTICLES) ================= */
-
 function getYouTubeId(url) {
+    if (!url) return null;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
@@ -576,7 +489,7 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl) => {
         titleEl.textContent = title;
         descEl.textContent = desc || '';
         
-        // Affichage du bouton de lien
+        // Affichage du bouton de lien si existant
         if(linkUrl && linkUrl.length > 5) {
             linkContainer.innerHTML = `<a href="${linkUrl}" target="_blank" class="btn-premium" style="display:inline-block; margin-top:20px; text-decoration:none; text-align:center; width:100%;">Lire l'article complet ➔</a>`;
         } else {
@@ -604,11 +517,10 @@ async function loadPresseData() {
 
     // --- 1. Vidéos ---
     let videos = Cache.get('site_presse_videos');
-    
-    // 🪄 ANTI-PIÈGE : Si le cache contient 0 vidéo, on interroge Firebase par sécurité
     if(!videos || videos.length === 0) {
         try {
-            const q = query(collection(db, "presse_videos"), limit(15));
+            const { query, collection, getDocs, limit } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+            const q = query(collection(db, "presse_videos"), limit(50));
             const snap = await getDocs(q);
             videos = [];
             snap.forEach(d => videos.push({id: d.id, ...d.data()}));
@@ -641,11 +553,10 @@ async function loadPresseData() {
 
     // --- 2. Articles ---
     let articles = Cache.get('site_presse_articles');
-    
-    // 🪄 ANTI-PIÈGE : Même chose pour les articles
     if(!articles || articles.length === 0) {
         try {
-            const q = query(collection(db, "presse_articles"), limit(30));
+            const { query, collection, getDocs, limit } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+            const q = query(collection(db, "presse_articles"), limit(50));
             const snap = await getDocs(q);
             articles = [];
             snap.forEach(d => articles.push({id: d.id, ...d.data()}));
@@ -662,7 +573,7 @@ async function loadPresseData() {
             
             return `
             <div class="mosaic-item" onclick="openPresseLightbox('image', '${a.image_url}', '${safeTitle}', '${safeDesc}', '${safeLink}')">
-                <img src="${a.image_url}" loading="lazy" alt="${a.title}">
+                <img src="${a.image_url}" loading="lazy" alt="${safeTitle}">
                 <div style="position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent, rgba(0,0,0,0.9)); padding:20px 15px 15px;">
                     <h4 style="color:white; font-size:1rem; margin:0;">${a.title || 'Article'}</h4>
                 </div>
