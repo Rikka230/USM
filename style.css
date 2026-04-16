@@ -1029,3 +1029,121 @@ html, body {
         font-size: 0.75rem;
     }
 }
+
+/* ================= 15. PAGE PRESSE ================= */
+.presse-hero { 
+    padding: 160px 20px 60px; 
+    text-align: center; 
+}
+.presse-hero h1 { 
+    font-size: clamp(2.5rem, 5vw, 4rem); 
+    text-transform: uppercase; 
+}
+
+/* Slider Vidéos */
+.video-slider-wrapper { 
+    max-width: 1400px; 
+    margin: 0 auto 80px; 
+    padding: 0 var(--spacing-main); 
+}
+.video-slider { 
+    display: flex; 
+    gap: 20px; 
+    overflow-x: auto; 
+    scroll-snap-type: x mandatory; 
+    scrollbar-width: none; /* Cache la barre de scroll moche sur Firefox */
+    padding-bottom: 20px; 
+    scroll-behavior: smooth;
+}
+.video-slider::-webkit-scrollbar { 
+    display: none; /* Cache la barre sur Chrome/Safari */
+}
+.video-card { 
+    flex: 0 0 clamp(280px, 40vw, 500px); 
+    scroll-snap-align: start; 
+    background: var(--surface); 
+    border: 1px solid var(--surface-border); 
+    border-radius: 16px; 
+    overflow: hidden; 
+    transition: 0.3s;
+}
+.video-card:hover { border-color: var(--usm-pink); transform: translateY(-5px); }
+.video-container { 
+    position: relative; 
+    padding-bottom: 56.25%; /* Ratio 16:9 parfait pour YouTube */
+    height: 0; 
+}
+.video-container iframe { 
+    position: absolute; 
+    top: 0; left: 0; 
+    width: 100%; height: 100%; 
+    border: 0; 
+}
+.video-title { padding: 15px; font-size: 1rem; font-weight: bold; color: white; }
+
+/* Mosaïque Articles */
+.mosaic-wrapper { 
+    max-width: 1400px; 
+    margin: 0 auto 100px; 
+    padding: 0 var(--spacing-main); 
+}
+.mosaic-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+    gap: 20px; 
+}
+.mosaic-item { 
+    border-radius: 12px; 
+    overflow: hidden; 
+    cursor: pointer; /* Curseur qui indique qu'on peut cliquer */
+    border: 1px solid rgba(255,255,255,0.1); 
+    transition: 0.3s; 
+    aspect-ratio: 3/4; /* Format portrait type page de journal */
+    background: #111;
+}
+.mosaic-item img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    object-position: top; 
+    transition: transform 0.5s ease; 
+}
+.mosaic-item:hover { border-color: var(--usm-pink); box-shadow: 0 10px 30px rgba(216,0,86,0.3); }
+.mosaic-item:hover img { transform: scale(1.05); }
+
+/* Modale (Lightbox) */
+.lightbox { 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0,0,0,0.95); 
+    z-index: 9999; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    opacity: 0; 
+    pointer-events: none; 
+    transition: opacity 0.3s ease; 
+}
+.lightbox.active { 
+    opacity: 1; 
+    pointer-events: all; 
+}
+.lightbox-content { 
+    max-width: 90vw; 
+    max-height: 90vh; 
+    border-radius: 8px; 
+    box-shadow: 0 0 50px rgba(0,0,0,0.8); 
+    object-fit: contain; 
+}
+.lightbox-close { 
+    position: absolute; 
+    top: 20px; 
+    right: 30px; 
+    color: white; 
+    font-size: 3rem; 
+    cursor: pointer; 
+    background: transparent; 
+    border: none; 
+    transition: 0.3s; 
+}
+.lightbox-close:hover { color: var(--usm-pink); transform: scale(1.1); }
