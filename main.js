@@ -482,7 +482,6 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
     const miniSlider = document.getElementById('lightbox-mini-slider');
     
     if(lb && mediaContainer) {
-        // 1. Injection du Média
         if(type === 'video') {
             let embedUrl = mediaUrl;
             if(embedUrl.includes('watch?v=')) {
@@ -495,7 +494,6 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
             mediaContainer.innerHTML = `<img src="${mediaUrl}" alt="Presse">`;
         }
         
-        // 2. Injection du Texte
         titleEl.textContent = title;
         descEl.textContent = desc || '';
         if(linkUrl && linkUrl.length > 5) {
@@ -504,7 +502,7 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
             linkContainer.innerHTML = '';
         }
         
-        // 3. GENERATION DU MINI-SLIDER EN DESSOUS
+        // 🪄 FIX BUG LIGHTBOX : On utilise les Data-Attributes pour un clic sécurisé
         if (miniSlider && source && source !== 'null') {
             let items = [];
             if (source === 'tv') items = Cache.get('site_presse_videos') || [];
@@ -529,13 +527,16 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
                 
                 const isActive = i === currentIndex ? 'active' : '';
                 return `
-                <div class="mini-slider-item ${extraClass} ${isActive}" 
-                     onclick="openPresseLightbox('${itemType}', '${itemUrl}', '${encodeURIComponent(itemTitle || '')}', '${encodeURIComponent(itemDesc || '')}', '${encodeURIComponent(itemLink || '')}', '${source}', ${i})">
+                <div class="mini-slider-item ${extraClass} ${isActive} presse-trigger" 
+                     data-type="${itemType}" data-url="${itemUrl}" 
+                     data-title="${encodeURIComponent(itemTitle || '')}" 
+                     data-desc="${encodeURIComponent(itemDesc || '')}" 
+                     data-link="${encodeURIComponent(itemLink || '')}" 
+                     data-source="${source}" data-index="${i}">
                     <img src="${thumb}">
                 </div>`;
             }).join('');
             
-            // Centre automatiquement la miniature
             setTimeout(() => {
                 const activeItem = miniSlider.querySelector('.active');
                 if(activeItem) {
@@ -561,7 +562,6 @@ window.closeLightbox = () => {
     }
 };
 
-// 🪄 ÉCOUTEUR GLOBAL 
 document.addEventListener('click', (e) => {
     const trigger = e.target.closest('.presse-trigger');
     if (trigger) {
@@ -626,7 +626,6 @@ async function loadPresseData() {
             const data = await response.json();
             
             if(data.status === 'ok' && data.items && data.items.length > 0) {
-                // Sauvegarde globale pour le mini-slider
                 window.site_presse_yt = data.items; 
                 
                 ytContainer.innerHTML = data.items.map((item, index) => {
@@ -648,9 +647,7 @@ async function loadPresseData() {
             } else {
                 ytContainer.innerHTML = '<p style="color:#888; margin-left:20px;">Aucune vidéo récente sur la chaîne.</p>';
             }
-        } catch(e) {
-            console.error("Erreur YouTube:", e);
-        }
+        } catch(e) { console.error("Erreur YouTube:", e); }
 
         const btnYtPrev = document.getElementById('btn-yt-prev');
         const btnYtNext = document.getElementById('btn-yt-next');
@@ -658,12 +655,12 @@ async function loadPresseData() {
         if(btnYtNext) btnYtNext.addEventListener('click', () => ytContainer.scrollBy({ left: 400, behavior: 'smooth' }));
     }
 
-    // --- 2. Articles ---
+    // --- 2. Articles (🪄 FIX PAGINATION : 16 Par Page) ---
     let articles = Cache.get('site_presse_articles');
     if(!articles || articles.length === 0) {
         try {
             const { query, collection, getDocs, limit } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-            const q = query(collection(db, "presse_articles"), limit(50));
+            const q = query(collection(db, "presse_articles"), limit(80)); // On charge jusqu'à 80 articles max pour la mémoire
             const snap = await getDocs(q);
             articles = [];
             snap.forEach(d => articles.push({id: d.id, ...d.data()}));
@@ -672,16 +669,56 @@ async function loadPresseData() {
         } catch(e) { console.error(e); }
     }
     
-    if(articles && articles.length > 0) {
-        mosContainer.innerHTML = articles.map((a, index) => {
+    window.presseArticles = articles || [];
+    window.currentArtPage = 1;
+
+    window.renderArticlesPage = () => {
+        if(!mosContainer) return;
+        const pageInfo = document.getElementById('art-page-info');
+        
+        if(window.presseArticles.length === 0) {
+            mosContainer.innerHTML = '<p style="color:#888; grid-column: 1/-1;">Aucun article pour le moment.</p>';
+            if(pageInfo) pageInfo.textContent = '0 / 0';
+            return;
+        }
+
+        const ART_PER_PAGE = 16;
+        const totalPages = Math.ceil(window.presseArticles.length / ART_PER_PAGE);
+        if(window.currentArtPage > totalPages) window.currentArtPage = totalPages;
+        
+        const start = (window.currentArtPage - 1) * ART_PER_PAGE;
+        // On ne sélectionne QUE les 16 articles de la page courante
+        const pageItems = window.presseArticles.slice(start, start + ART_PER_PAGE);
+
+        mosContainer.innerHTML = pageItems.map((a, i) => {
+            const globalIndex = start + i;
             return `
-            <div class="mosaic-item presse-trigger" data-type="image" data-url="${a.image_url}" data-title="${encodeURIComponent(a.title || '')}" data-desc="${encodeURIComponent(a.description || '')}" data-link="${encodeURIComponent(a.link || '')}" data-source="articles" data-index="${index}">
+            <div class="mosaic-item presse-trigger" data-type="image" data-url="${a.image_url}" data-title="${encodeURIComponent(a.title || '')}" data-desc="${encodeURIComponent(a.description || '')}" data-link="${encodeURIComponent(a.link || '')}" data-source="articles" data-index="${globalIndex}">
                 <img src="${a.image_url}" loading="lazy" alt="Presse">
             </div>`;
         }).join('');
-    } else {
-        mosContainer.innerHTML = '<p style="color:#888; grid-column: 1/-1;">Aucun article pour le moment.</p>';
-    }
+
+        if(pageInfo) pageInfo.textContent = `${window.currentArtPage} / ${totalPages}`;
+    };
+
+    window.renderArticlesPage(); // Premier affichage
+
+    // Branchement des boutons "Page Suivante / Précédente"
+    const btnArtPrev = document.getElementById('btn-art-prev');
+    const btnArtNext = document.getElementById('btn-art-next');
+    if(btnArtPrev) btnArtPrev.addEventListener('click', () => { 
+        if(window.currentArtPage > 1) { 
+            window.currentArtPage--; 
+            window.renderArticlesPage(); 
+        } 
+    });
+    if(btnArtNext) btnArtNext.addEventListener('click', () => { 
+        const maxP = Math.ceil(window.presseArticles.length / 16); 
+        if(window.currentArtPage < maxP) { 
+            window.currentArtPage++; 
+            window.renderArticlesPage(); 
+        } 
+    });
 
     const btnPrev = document.getElementById('btn-vid-prev');
     const btnNext = document.getElementById('btn-vid-next');
