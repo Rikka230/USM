@@ -28,7 +28,7 @@
                 <button id="nav-manage" class="active">Gérer le Roster</button>
                 <button id="nav-services">Gérer les Services</button>
                 <button id="nav-settings">Paramètres du Site</button>
-                <div style="margin-top: 50px; display: flex; flex-direction: column; gap: 10px;">
+                <button id="nav-presse">Gérer la Presse</button> <div style="margin-top: 50px; display: flex; flex-direction: column; gap: 10px;">
                     <a href="index.html" class="btn-return">🔙 Retour au site</a>
                     <button id="logout-btn" class="danger">Déconnexion</button>
                 </div>
@@ -227,6 +227,78 @@
                     <button type="submit" class="btn-publish" style="margin-top:20px;">Enregistrer les modifications</button>
                 </form>
             </section>
+
+            <section id="manage-presse-section" class="hidden">
+                <header style="margin-bottom: 25px;">
+                    <h1 style="margin: 0;">Gérer la Presse</h1>
+                </header>
+
+                <div style="display: flex; gap: 40px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                            <h2 class="pink-accent" style="margin:0; font-size: 1.2rem;">Vidéos (Passages TV)</h2>
+                            <button id="btn-add-video" style="background:var(--usm-pink); color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer; font-weight:bold;">➕ Ajouter</button>
+                        </div>
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead><tr><th>Titre</th><th>Action</th></tr></thead>
+                                <tbody id="admin-videos-list"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="flex: 1; min-width: 300px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                            <h2 class="pink-accent" style="margin:0; font-size: 1.2rem;">Articles (Images)</h2>
+                            <button id="btn-add-article" style="background:var(--usm-pink); color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer; font-weight:bold;">➕ Ajouter</button>
+                        </div>
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead><tr><th>Aperçu</th><th>Action</th></tr></thead>
+                                <tbody id="admin-articles-list"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="form-video-section" class="hidden">
+                <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h1>Ajouter une Vidéo</h1>
+                    <button class="btn-cancel-presse" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">❌ Annuler</button>
+                </header>
+                <form id="video-form" class="bento-form">
+                    <input type="hidden" id="edit-video-id">
+                    <label style="color:#aaa; font-size:0.85rem;">Titre de la vidéo (ex: Interview BFM)</label>
+                    <input type="text" id="video-title" required>
+                    <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Lien YouTube (URL classique)</label>
+                    <input type="url" id="video-url" placeholder="https://www.youtube.com/watch?v=..." required>
+                    
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button type="submit" id="save-video-btn" class="btn-publish" style="flex:1;">Enregistrer la vidéo</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="form-article-section" class="hidden">
+                <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h1>Ajouter un Article</h1>
+                    <button class="btn-cancel-presse" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">❌ Annuler</button>
+                </header>
+                <form id="article-form" class="bento-form">
+                    <input type="hidden" id="existing-article-img">
+                    <label style="color:#aaa; font-size:0.85rem;">Page du journal (Format portrait recommandé)</label>
+                    <div id="drop-zone-article" class="drop-zone">
+                        <p>Glissez la photo de l'article ici</p>
+                        <input type="file" id="article-upload" accept="image/*" hidden>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button type="submit" id="save-article-btn" class="btn-publish" style="flex:1;">Enregistrer l'article</button>
+                    </div>
+                </form>
+            </section>
+            
         </main>
     </div>
 
