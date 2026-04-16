@@ -575,20 +575,33 @@ window.closeLightbox = () => {
     }
 };
 
+// 🪄 ÉCOUTEUR GLOBAL SÉCURISÉ (Gère la fermeture ET les clics du mini-slider)
 document.addEventListener('click', (e) => {
+    // 1. Fermeture si on clique dans le vide (fond noir)
+    if (e.target.id === 'presse-lightbox') {
+        closeLightbox();
+        return;
+    }
+
+    // 2. Détection des clics sur les éléments de presse (Mosaïque ou Mini-slider)
     const trigger = e.target.closest('.presse-trigger');
     if (trigger) {
         const type = trigger.getAttribute('data-type');
         const url = trigger.getAttribute('data-url');
-        const title = decodeURIComponent(trigger.getAttribute('data-title') || '');
-        const desc = decodeURIComponent(trigger.getAttribute('data-desc') || '');
-        const link = decodeURIComponent(trigger.getAttribute('data-link') || '');
+        
+        const safeDecode = (str) => { try { return decodeURIComponent(str || ''); } catch(err) { return str || ''; } };
+        
+        const decodeHTML = (html) => { const txt = document.createElement("textarea"); txt.innerHTML = html; return txt.value; };
+
+        const title = decodeHTML(safeDecode(trigger.getAttribute('data-title')));
+        const desc = decodeHTML(safeDecode(trigger.getAttribute('data-desc')));
+        const link = safeDecode(trigger.getAttribute('data-link'));
         const source = trigger.getAttribute('data-source');
         const index = parseInt(trigger.getAttribute('data-index'), 10);
+        
         openPresseLightbox(type, url, title, desc, link, source, index);
     }
 });
-
 async function loadPresseData() {
     const vidContainer = document.getElementById('presse-video-container');
     const mosContainer = document.getElementById('presse-mosaic-container');
