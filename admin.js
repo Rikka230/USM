@@ -909,7 +909,7 @@ function renderAdminVideos() {
                 <td>
                     <div style="display:flex;gap:8px;">
                         ${upBtn} ${downBtn}
-                        <button class="btn-delete" onclick="deletePresseItem('presse_videos', '${v.id}')">Supprimer</button>
+                        <button class="btn-edit" onclick="editVideo('${v.id}')">Éditer</button> <button class="btn-delete" onclick="deletePresseItem('presse_videos', '${v.id}')">Supprimer</button>
                     </div>
                 </td>
             </tr>`;
@@ -950,14 +950,14 @@ function renderAdminArticles() {
                 <td>
                     <div style="display:flex;gap:8px;">
                         ${upBtn} ${downBtn}
-                        <button class="btn-delete" onclick="deletePresseItem('presse_articles', '${a.id}')">Supprimer</button>
+                        <button class="btn-edit" onclick="editArticle('${a.id}')">Éditer</button> <button class="btn-delete" onclick="deletePresseItem('presse_articles', '${a.id}')">Supprimer</button>
                     </div>
                 </td>
             </tr>`;
     });
 }
 
-// --- ACTIONS GLOBALES PRESSE (SUPPRIMER / ORDONNER) ---
+// --- ACTIONS GLOBALES PRESSE ---
 window.deletePresseItem = async (collectionName, id) => {
     if(confirm("Supprimer cet élément définitivement ?")) {
         await deleteDoc(doc(db, collectionName, id));
@@ -984,26 +984,55 @@ window.movePresseItem = async (collectionName, currentIndex, direction) => {
     else loadAdminArticles();
 };
 
-// --- LOGIQUE D'AFFICHAGE DES FORMULAIRES ---
+// --- LOGIQUE D'AFFICHAGE ET D'ÉDITION ---
 const btnAddVid = document.getElementById('btn-add-video');
 if(btnAddVid) {
     btnAddVid.addEventListener('click', () => {
         document.getElementById('video-form').reset();
+        document.getElementById('edit-video-id').value = '';
+        document.getElementById('form-video-title').textContent = "Ajouter une Vidéo";
         hideAllSections();
         document.getElementById('form-video-section').classList.remove('hidden');
     });
 }
 
+window.editVideo = (id) => {
+    const v = allAdminVideos.find(x => x.id === id);
+    if(!v) return;
+    document.getElementById('edit-video-id').value = v.id;
+    document.getElementById('video-title').value = v.title || '';
+    document.getElementById('video-url').value = v.url || '';
+    document.getElementById('video-desc').value = v.description || '';
+    document.getElementById('form-video-title').textContent = "Modifier la Vidéo";
+    hideAllSections();
+    document.getElementById('form-video-section').classList.remove('hidden');
+};
+
 const btnAddArt = document.getElementById('btn-add-article');
 if(btnAddArt) {
     btnAddArt.addEventListener('click', () => {
         document.getElementById('article-form').reset();
+        document.getElementById('edit-article-id').value = '';
+        document.getElementById('form-article-title').textContent = "Ajouter un Article";
         optimizedImages.article = null; 
         prefillImageZone('drop-zone-article', 'existing-article-img', '', 'Glissez la photo de l\'article ici');
         hideAllSections();
         document.getElementById('form-article-section').classList.remove('hidden');
     });
 }
+
+window.editArticle = (id) => {
+    const a = allAdminArticles.find(x => x.id === id);
+    if(!a) return;
+    document.getElementById('edit-article-id').value = a.id;
+    document.getElementById('article-title').value = a.title || '';
+    document.getElementById('article-desc').value = a.description || '';
+    document.getElementById('form-article-title').textContent = "Modifier l'Article";
+    optimizedImages.article = null; 
+    prefillImageZone('drop-zone-article', 'existing-article-img', a.image_url, 'Glissez la photo de l\'article ici');
+    hideAllSections();
+    document.getElementById('form-article-section').classList.remove('hidden');
+};
 
 document.querySelectorAll('.btn-cancel-presse').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -1021,8 +1050,9 @@ if(vidForm) {
         const btn = document.getElementById('save-video-btn');
         btn.disabled = true; btn.textContent = "Enregistrement...";
         try {
+            const editId = document.getElementById('edit-video-id').value;
             let url = document.getElementById('video-url').value;
-            // Transformation intelligente du lien YouTube en version Iframe lisible
+            
             if(url.includes('watch?v=')) {
                 url = url.replace('watch?v=', 'embed/');
                 const ampersandPos = url.indexOf('&');
@@ -1037,11 +1067,16 @@ if(vidForm) {
                 title: document.getElementById('video-title').value,
                 description: document.getElementById('video-desc').value || "", 
                 url: url,
-                order: allAdminVideos.length + 1,
                 timestamp: new Date()
             };
             
-            await addDoc(collection(db, "presse_videos"), payload);
+            if(editId) {
+                await updateDoc(doc(db, "presse_videos", editId), payload);
+            } else {
+                payload.order = allAdminVideos.length + 1;
+                await addDoc(collection(db, "presse_videos"), payload);
+            }
+            
             clearPublicCache(); 
             hideAllSections();
             document.getElementById('manage-presse-section').classList.remove('hidden');
@@ -1056,24 +1091,34 @@ const artForm = document.getElementById('article-form');
 if(artForm) {
     artForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if(!optimizedImages.article) { alert("Veuillez glisser une image pour l'article."); return; }
+        const editId = document.getElementById('edit-article-id').value;
+        let finalUrl = document.getElementById('existing-article-img').value;
+        
+        if(!optimizedImages.article && !finalUrl) { alert("Veuillez glisser une image pour l'article."); return; }
         
         const btn = document.getElementById('save-article-btn');
         btn.disabled = true; btn.textContent = "Upload en cours...";
         try {
-            const r = ref(storage, `presse/article_${Date.now()}.webp`);
-            await uploadString(r, optimizedImages.article, 'data_url');
-            const finalUrl = await getDownloadURL(r);
+            if(optimizedImages.article) {
+                const r = ref(storage, `presse/article_${Date.now()}.webp`);
+                await uploadString(r, optimizedImages.article, 'data_url');
+                finalUrl = await getDownloadURL(r);
+            }
             
             const payload = {
                 title: document.getElementById('article-title').value,
                 description: document.getElementById('article-desc').value || "", 
                 image_url: finalUrl,
-                order: allAdminArticles.length + 1,
                 timestamp: new Date()
             };
 
-            await addDoc(collection(db, "presse_articles"), payload);
+            if(editId) {
+                await updateDoc(doc(db, "presse_articles", editId), payload);
+            } else {
+                payload.order = allAdminArticles.length + 1;
+                await addDoc(collection(db, "presse_articles"), payload);
+            }
+            
             clearPublicCache(); 
             hideAllSections();
             document.getElementById('manage-presse-section').classList.remove('hidden');
@@ -1082,4 +1127,3 @@ if(artForm) {
         finally { btn.disabled = false; btn.textContent = "Enregistrer l'article"; }
     });
 }
-
