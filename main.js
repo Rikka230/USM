@@ -47,7 +47,7 @@ const Cache = {
 /* ================= 3. TRADUCTION i18n ================= */
 const translations = {
     fr: {
-        nav_agency: "L'Agence", nav_services: "Services", nav_talents: "Les Talents", nav_button: "Contact",
+        nav_agency: "L'Agence", nav_services: "Services", nav_talents: "Les Talents", nav_press: "Presse", nav_button: "Contact",
         hero_subtitle: "Ensemble, développons vos talents.",
         stat_1_label: "Activité & Transactions", stat_1_desc: "Opérations réalisées sur le marché des transferts.",
         stat_4_label: "Réseau Mondial", stat_4_desc: "Contacts directs avec des clubs à travers le monde.",
@@ -68,7 +68,7 @@ const translations = {
         back_services: "❮ Retour à l'accueil", other_services: "Naviguer"
     },
     en: {
-        nav_agency: "The Agency", nav_services: "Services", nav_talents: "Talents", nav_button: "Contact",
+        nav_agency: "The Agency", nav_services: "Services", nav_talents: "Talents", nav_press: "Press", nav_button: "Contact",
         hero_subtitle: "Together, let's develop your talents.",
         stat_1_label: "Activity & Transactions", stat_1_desc: "Transfer market operations completed.",
         stat_4_label: "Global Network", stat_4_desc: "Direct contacts with clubs worldwide.",
@@ -89,7 +89,7 @@ const translations = {
         back_services: "❮ Back to Home", other_services: "Navigate"
     },
     es: {
-        nav_agency: "La Agencia", nav_services: "Servicios", nav_talents: "Los Talentos", nav_button: "Contacto",
+        nav_agency: "La Agencia", nav_services: "Servicios", nav_talents: "Los Talentos", nav_press: "Prensa", nav_button: "Contacto",
         hero_subtitle: "Juntos, desarrollemos tus talentos.",
         stat_1_label: "Actividad y Transacciones", stat_1_desc: "Operaciones realizadas en el mercado de fichajes.",
         stat_4_label: "Red Mundial", stat_4_desc: "Contactos directos con clubes de todo el mundo.",
@@ -110,7 +110,7 @@ const translations = {
         back_services: "❮ Volver al inicio", other_services: "Navegar"
     },
     pt: {
-        nav_agency: "A Agência", nav_services: "Serviços", nav_talents: "Os Talentos", nav_button: "Contato",
+        nav_agency: "A Agência", nav_services: "Serviços", nav_talents: "Os Talentos", nav_press: "Imprensa", nav_button: "Contato",
         hero_subtitle: "Juntos, vamos desenvolver seus talentos.",
         stat_1_label: "Atividade e Transações", stat_1_desc: "Operações realizadas no mercado de transferências.",
         stat_4_label: "Rede Global", stat_4_desc: "Contactos diretos com clubes em todo o mundo.",
