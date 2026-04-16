@@ -504,8 +504,8 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
             linkContainer.innerHTML = '';
         }
         
-        // 3. 🪄 GENERATION DU MINI-SLIDER EN DESSOUS
-        if (miniSlider && source !== null) {
+        // 3. GENERATION DU MINI-SLIDER EN DESSOUS
+        if (miniSlider && source && source !== 'null') {
             let items = [];
             if (source === 'tv') items = Cache.get('site_presse_videos') || [];
             if (source === 'yt') items = window.site_presse_yt || [];
@@ -528,7 +528,6 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
                 }
                 
                 const isActive = i === currentIndex ? 'active' : '';
-                // Au clic sur une miniature, on relance la Lightbox avec le nouvel item
                 return `
                 <div class="mini-slider-item ${extraClass} ${isActive}" 
                      onclick="openPresseLightbox('${itemType}', '${itemUrl}', '${encodeURIComponent(itemTitle || '')}', '${encodeURIComponent(itemDesc || '')}', '${encodeURIComponent(itemLink || '')}', '${source}', ${i})">
@@ -536,7 +535,7 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
                 </div>`;
             }).join('');
             
-            // Auto-scroll pour centrer la miniature cliquée
+            // Centre automatiquement la miniature
             setTimeout(() => {
                 const activeItem = miniSlider.querySelector('.active');
                 if(activeItem) {
@@ -544,6 +543,8 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
                     miniSlider.scrollTo({ left: scrollPos, behavior: 'smooth' });
                 }
             }, 50);
+        } else if (miniSlider) {
+             miniSlider.innerHTML = '';
         }
 
         lb.classList.add('active'); 
@@ -560,15 +561,15 @@ window.closeLightbox = () => {
     }
 };
 
-// 🪄 Écouteur global mis à jour (récupère la 'source' et l''index')
+// 🪄 ÉCOUTEUR GLOBAL 
 document.addEventListener('click', (e) => {
     const trigger = e.target.closest('.presse-trigger');
     if (trigger) {
         const type = trigger.getAttribute('data-type');
         const url = trigger.getAttribute('data-url');
-        const title = decodeURIComponent(trigger.getAttribute('data-title'));
-        const desc = decodeURIComponent(trigger.getAttribute('data-desc'));
-        const link = decodeURIComponent(trigger.getAttribute('data-link'));
+        const title = decodeURIComponent(trigger.getAttribute('data-title') || '');
+        const desc = decodeURIComponent(trigger.getAttribute('data-desc') || '');
+        const link = decodeURIComponent(trigger.getAttribute('data-link') || '');
         const source = trigger.getAttribute('data-source');
         const index = parseInt(trigger.getAttribute('data-index'), 10);
         openPresseLightbox(type, url, title, desc, link, source, index);
@@ -675,40 +676,6 @@ async function loadPresseData() {
         mosContainer.innerHTML = articles.map((a, index) => {
             return `
             <div class="mosaic-item presse-trigger" data-type="image" data-url="${a.image_url}" data-title="${encodeURIComponent(a.title || '')}" data-desc="${encodeURIComponent(a.description || '')}" data-link="${encodeURIComponent(a.link || '')}" data-source="articles" data-index="${index}">
-                <img src="${a.image_url}" loading=\"lazy\" alt=\"Presse\">
-            </div>`;
-        }).join('');
-    } else {
-        mosContainer.innerHTML = '<p style="color:#888; grid-column: 1/-1;">Aucun article pour le moment.</p>';
-    }
-
-    const btnPrev = document.getElementById('btn-vid-prev');
-    const btnNext = document.getElementById('btn-vid-next');
-    if(btnPrev) btnPrev.addEventListener('click', () => vidContainer.scrollBy({ left: -400, behavior: 'smooth' }));
-    if(btnNext) btnNext.addEventListener('click', () => vidContainer.scrollBy({ left: 400, behavior: 'smooth' }));
-}
-
-const startPresse = () => { if(document.getElementById('presse-video-container')) loadPresseData(); };
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', startPresse); } else { startPresse(); }
-
-    // --- 2. Articles ---
-    let articles = Cache.get('site_presse_articles');
-    if(!articles || articles.length === 0) {
-        try {
-            const { query, collection, getDocs, limit } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-            const q = query(collection(db, "presse_articles"), limit(50));
-            const snap = await getDocs(q);
-            articles = [];
-            snap.forEach(d => articles.push({id: d.id, ...d.data()}));
-            articles.sort((a, b) => (a.order || 999) - (b.order || 999));
-            if(articles.length > 0) Cache.set('site_presse_articles', articles);
-        } catch(e) { console.error(e); }
-    }
-    
-    if(articles && articles.length > 0) {
-        mosContainer.innerHTML = articles.map(a => {
-            return `
-            <div class="mosaic-item presse-trigger" data-type="image" data-url="${a.image_url}" data-title="${encodeURIComponent(a.title || '')}" data-desc="${encodeURIComponent(a.description || '')}" data-link="${encodeURIComponent(a.link || '')}">
                 <img src="${a.image_url}" loading="lazy" alt="Presse">
             </div>`;
         }).join('');
