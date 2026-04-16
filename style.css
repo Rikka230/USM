@@ -1236,27 +1236,34 @@ html, body {
     .lightbox-media iframe { width: 100%; height: 100%; }
 }
 
-/* 🪄 Masquage manuel précis du Watermark Instagram - RÉGLAGE FINAL USM */
+/* 🪄 Masquage manuel précis du Watermark Instagram - AJUSTEMENT RAS-DU-BORD */
 #instagram-feed {
     position: relative;
-    /* 🪄 RÉDUCTION DU HAUT : On passe de 40px à 10px pour remonter le flux */
-    padding-top: 10px; 
+    /* On supprime le padding qui créait le vide en haut */
+    padding-top: 0; 
     
-    /* On maintient la hauteur pour libérer la ligne du bas */
+    /* On maintient la hauteur totale pour le bas */
     max-height: 780px; 
-    
     overflow: hidden; 
-    /* Ombre interne haute pour une transition invisible vers le noir du site */
+    
+    /* Ombre interne haute pour le bas */
     box-shadow: inset 0 -70px 60px var(--bg-dark);
     border-bottom: 2px solid var(--surface-border);
 }
 
-/* 🪄 Badge de recouvrement (Zone de sécurité pour le bas) */
+/* 🪄 AJUSTEMENT DU CONTENU INTERNE (Pour coller au haut) */
+#instagram-feed iframe, 
+#instagram-feed .elfsight-app-wrapper {
+    /* On applique une marge négative pour remonter les photos au ras du bord haut */
+    /* Ajuste de -40px à -60px selon le widget pour un collage parfait */
+    margin-top: -55px !important; 
+}
+
+/* 🪄 Badge de recouvrement pour le bas */
 .insta-overlay-fix {
     position: absolute;
     bottom: 0;
     right: 0;
-    /* On garde la largeur et hauteur pour bloquer le watermark */
     width: 260px; 
     height: 80px; 
     background: var(--bg-dark); 
