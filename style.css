@@ -1164,80 +1164,74 @@ html, body {
 .mosaic-item:hover img { transform: scale(1.02); }
 
 
-/* Modale (Lightbox Responsive & Connectée) */
+/* Modale (Lightbox Responsive & Mini-Slider) */
 .lightbox { 
     position: fixed; inset: 0; background: rgba(0,0,0,0.92); 
-    z-index: 9999; display: none; /* Caché par défaut */
-    align-items: center; justify-content: center; /* Centre le conteneur global */
+    z-index: 9999; display: none; align-items: center; justify-content: center; 
 }
-.lightbox.active { display: flex; } /* Flex permet un centrage parfait */
+.lightbox.active { display: flex; }
 
-/* 🪄 LE CONTENEUR FIXE : Bloque l'écartement des éléments sur grand écran */
 .lightbox-container { 
-    display: flex; 
-    flex-direction: row; 
-    align-items: center; 
-    justify-content: center; 
-    gap: 40px; /* L'écart entre le média et le texte ne bougera jamais ! */
-    width: 95vw; 
-    max-width: 1400px; /* Bloque l'écartement au-delà de 1400px */
-    height: 90vh; 
-    position: relative; 
+    display: flex; flex-direction: row; align-items: center; justify-content: center; 
+    gap: 40px; width: 95vw; max-width: 1400px; height: 90vh; position: relative; 
+}
+
+/* 🪄 NOUVEAU : La colonne qui gère le média + le slider */
+.lightbox-left-col {
+    flex: 1 1 auto; display: flex; flex-direction: column; 
+    height: 100%; max-width: calc(100% - 390px); gap: 15px;
 }
 
 .lightbox-media { 
-    flex: 1 1 auto; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; /* Centre le média dans sa propre moitié */
-    height: 100%; 
-    max-width: calc(100% - 390px); /* Laisse toujours exactement la place pour le texte */
+    flex: 1 1 auto; height: calc(100% - 135px); /* Laisse 135px pour le slider en bas */
+    display: flex; align-items: center; justify-content: center; 
 }
+.lightbox-media img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
+.lightbox-media iframe { width: 100%; max-width: 1000px; aspect-ratio: 16 / 9; height: auto; max-height: 100%; border: none; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); }
 
-.lightbox-media img { 
-    max-width: 100%; max-height: 100%; 
-    object-fit: contain; 
-    border-radius: 8px; /* Adoucit les bords de la photo affichée */
+/* 🪄 NOUVEAU : Le bloc du Mini-Slider */
+.lightbox-slider-wrapper {
+    flex: 0 0 120px; display: flex; align-items: center; gap: 15px;
+    background: rgba(25, 25, 30, 0.85); border-radius: 16px; padding: 10px 15px;
+    border: 1px solid rgba(255,255,255,0.1);
 }
+.lightbox-slider-btn { background: transparent; color: white; border: none; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
+.lightbox-slider-btn:hover { color: var(--usm-pink); }
 
-.lightbox-media iframe { 
-    width: 100%; max-width: 1000px; 
-    aspect-ratio: 16 / 9; height: auto; max-height: 100%; 
-    border: none; border-radius: 12px; 
-    box-shadow: 0 20px 60px rgba(0,0,0,0.9); 
+.lightbox-mini-slider {
+    display: flex; gap: 15px; overflow-x: auto; scroll-behavior: smooth;
+    flex: 1; height: 100%; scrollbar-width: none; align-items: center;
 }
+.lightbox-mini-slider::-webkit-scrollbar { display: none; }
 
-/* Le Panneau Latéral (Ne part plus sur le bord de l'écran) */
+.mini-slider-item {
+    flex: 0 0 140px; height: 90px; border-radius: 8px; cursor: pointer;
+    opacity: 0.4; transition: 0.3s; overflow: hidden; border: 2px solid transparent;
+}
+.mini-slider-item.active, .mini-slider-item:hover { opacity: 1; border-color: var(--usm-pink); }
+.mini-slider-item img { width: 100%; height: 100%; object-fit: cover; }
+
+/* 🪄 L'effet Journal conservé pour le mini-slider */
+.mini-slider-item.is-article { background: #eaeaea; padding: 4px; border-radius: 8px 2px 2px 8px; }
+.mini-slider-item.is-article img { object-fit: cover !important; object-position: top center; border-radius: 2px; }
+
+/* La Sidebar (Inchangée) */
 .lightbox-sidebar { 
-    flex: 0 0 350px; /* Reste toujours à 350px de large */
-    max-height: 80vh; overflow-y: auto; 
-    background: rgba(25, 25, 30, 0.85); 
+    flex: 0 0 350px; max-height: 80vh; overflow-y: auto; background: rgba(25, 25, 30, 0.85); 
     backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; 
-    box-shadow: -10px 0 40px rgba(0,0,0,0.5); 
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; box-shadow: -10px 0 40px rgba(0,0,0,0.5); 
 }
 .lightbox-sidebar::-webkit-scrollbar { width: 4px; }
 .lightbox-sidebar::-webkit-scrollbar-thumb { background: var(--usm-pink); border-radius: 4px; }
 
-.lightbox-close { 
-    position: absolute; top: 20px; right: 30px; color: white; font-size: 3rem; 
-    cursor: pointer; background: transparent; border: none; transition: 0.3s; z-index: 10000; 
-}
+.lightbox-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 3rem; cursor: pointer; background: transparent; border: none; transition: 0.3s; z-index: 10000; }
 .lightbox-close:hover { color: var(--usm-pink); transform: scale(1.1); }
 
-/* Adaptabilité Tablette & Mobile (Le texte passe en dessous au lieu de chevaucher) */
 @media (max-width: 950px) {
-    .lightbox-container { 
-        flex-direction: column; 
-        gap: 20px; 
-        padding-top: 60px; /* Laisse la place pour la croix de fermeture */
-    }
-    .lightbox-media { 
-        flex: 0 1 auto; max-width: 100%; height: 50vh; 
-    }
-    .lightbox-sidebar { 
-        flex: 1 1 auto; width: 100%; max-height: 40vh; 
-        border-radius: 20px 20px 0 0; padding: 20px; 
-    }
+    .lightbox-container { flex-direction: column; gap: 20px; padding-top: 60px; }
+    .lightbox-left-col { max-width: 100%; height: 45vh; }
+    .lightbox-media { height: 100%; }
+    .lightbox-slider-wrapper { display: none; /* Cache le mini slider sur mobile pour gagner de la place */ }
+    .lightbox-sidebar { flex: 1 1 auto; width: 100%; max-height: 40vh; border-radius: 20px 20px 0 0; padding: 20px; }
     .lightbox-media iframe { width: 100%; height: 100%; }
 }
