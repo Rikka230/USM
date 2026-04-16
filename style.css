@@ -832,20 +832,15 @@ html, body {
 }
 
 @media (max-width: 850px) {
-    /* 2. HEADER STRICTEMENT CADRÉ */
+    /* 2. HEADER STRICTEMENT CADRÉ (CORRIGÉ POUR LE BURGER) */
     .navbar {
-        flex-direction: column;
-        padding: 15px 10px;
-        gap: 15px;
+        flex-direction: row !important; 
+        justify-content: space-between !important; 
+        align-items: center;
+        padding: 15px 20px;
         width: 100%;
-        left: 0; /* Plaque le menu à gauche */
+        left: 0; 
         box-sizing: border-box;
-    }
-    .nav-links {
-        width: 100%;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
     }
 
     /* 3. TEXTES GÉANTS EN ARRIÈRE-PLAN (Source n°1 de dépassement) */
@@ -1278,10 +1273,10 @@ html, body {
 @media (max-width: 950px) {
     #mobile-menu-btn { display: block !important; }
     .nav-links {
-        position: fixed; top: 0; right: -100%; width: 100%; height: 100vh;
-        background: rgba(5, 5, 7, 0.98); backdrop-filter: blur(15px);
-        flex-direction: column; align-items: center; justify-content: center;
-        gap: 30px; font-size: 1.5rem; transition: 0.4s ease-in-out; z-index: 10000;
+        position: fixed !important; top: 0; right: -100%; width: 100%; height: 100vh;
+        background: rgba(5, 5, 7, 0.98) !important; backdrop-filter: blur(15px);
+        flex-direction: column !important; align-items: center !important; justify-content: center !important;
+        gap: 30px !important; font-size: 1.5rem; transition: 0.4s ease-in-out; z-index: 10000;
     }
     .nav-links.active { right: 0; }
     #close-menu-btn { display: block !important; }
