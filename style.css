@@ -1095,11 +1095,12 @@ html, body {
 .mosaic-item { 
     border-radius: 12px; 
     overflow: hidden; 
-    cursor: pointer; /* Curseur qui indique qu'on peut cliquer */
+    cursor: pointer; 
     border: 1px solid rgba(255,255,255,0.1); 
     transition: 0.3s; 
-    aspect-ratio: 3/4; /* Format portrait type page de journal */
+    aspect-ratio: 1 / 1;
     background: #111;
+    position: relative; 
 }
 .mosaic-item img { 
     width: 100%; 
