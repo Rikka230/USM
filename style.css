@@ -1082,30 +1082,31 @@ html, body {
 .video-title { padding: 15px; font-size: 1rem; font-weight: bold; color: white; }
 
 /* Mosaïque Articles */
-.mosaic-wrapper { 
-    max-width: 1400px; 
-    margin: 0 auto 100px; 
-    padding: 0 var(--spacing-main); 
+.mosaic-wrapper { max-width: 1400px; margin: 0 auto 100px; padding: 0 var(--spacing-main); }
+.mosaic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+
+.mosaic-item { 
+    border-radius: 12px; 
+    overflow: hidden; 
+    cursor: pointer; 
+    border: 1px solid rgba(255,255,255,0.1); 
+    aspect-ratio: 1 / 1; 
+    background: #111;
+    position: relative; 
+    display: flex; 
+    align-items: center;
+    justify-content: center;
 }
-.mosaic-grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
-    gap: 20px; 
-}
+
 .mosaic-item img { 
     width: 100%; 
     height: 100%; 
-    object-fit: contain; 
+    object-fit: contain !important; 
     object-position: center; 
+    display: block;
     transition: transform 0.5s ease; 
 }
-.mosaic-item img { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
-    object-position: top; 
-    transition: transform 0.5s ease; 
-}
+
 .mosaic-item:hover { border-color: var(--usm-pink); box-shadow: 0 10px 30px rgba(216,0,86,0.3); }
 .mosaic-item:hover img { transform: scale(1.05); }
 
