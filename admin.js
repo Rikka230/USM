@@ -1013,6 +1013,7 @@ if(btnAddArt) {
     btnAddArt.addEventListener('click', () => {
         document.getElementById('article-form').reset();
         document.getElementById('edit-article-id').value = '';
+        document.getElementById('article-link').value = '';
         document.getElementById('form-article-title').textContent = "Ajouter un Article";
         optimizedImages.article = null; 
         prefillImageZone('drop-zone-article', 'existing-article-img', '', 'Glissez la photo de l\'article ici');
@@ -1026,6 +1027,7 @@ window.editArticle = (id) => {
     if(!a) return;
     document.getElementById('edit-article-id').value = a.id;
     document.getElementById('article-title').value = a.title || '';
+    document.getElementById('article-link').value = a.link || '';
     document.getElementById('article-desc').value = a.description || '';
     document.getElementById('form-article-title').textContent = "Modifier l'Article";
     optimizedImages.article = null; 
@@ -1107,6 +1109,7 @@ if(artForm) {
             
             const payload = {
                 title: document.getElementById('article-title').value,
+                link: document.getElementById('article-link').value || "", 
                 description: document.getElementById('article-desc').value || "", 
                 image_url: finalUrl,
                 timestamp: new Date()
