@@ -551,3 +551,127 @@ document.addEventListener("DOMContentLoaded", () => {
     // Vérifie qu'à la fin de DOMContentLoaded, tu ajoutes bien l'appel à loadPresseData() :
     setTimeout(loadPresseData, 500); 
 });
+
+/* ================= 9. PAGE PRESSE (VIDEOS & ARTICLES) ================= */
+
+// Extraction de l'ID YouTube pour générer la miniature (évite de charger 20 iframes d'un coup)
+function getYouTubeId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
+
+// Fonction globale d'ouverture de la Lightbox
+window.openPresseLightbox = (type, mediaUrl, title, desc) => {
+    const lb = document.getElementById('presse-lightbox');
+    const mediaContainer = document.getElementById('lightbox-media');
+    const titleEl = document.getElementById('lightbox-title');
+    const descEl = document.getElementById('lightbox-desc');
+    
+    if(lb && mediaContainer) {
+        // Injection du média (Iframe ou Image)
+        if(type === 'video') {
+            mediaContainer.innerHTML = `<iframe src="${mediaUrl}?autoplay=1" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+        } else {
+            mediaContainer.innerHTML = `<img src="${mediaUrl}" alt="${title}">`;
+        }
+        
+        // Injection du texte
+        titleEl.textContent = title;
+        descEl.textContent = desc || '';
+        
+        lb.classList.add('active'); 
+        document.body.style.overflow = 'hidden'; 
+    }
+};
+
+window.closeLightbox = () => {
+    const lb = document.getElementById('presse-lightbox');
+    if(lb) {
+        lb.classList.remove('active');
+        document.body.style.overflow = ''; 
+        document.getElementById('lightbox-media').innerHTML = ''; // Coupe la vidéo en fermant
+    }
+};
+
+async function loadPresseData() {
+    const vidContainer = document.getElementById('presse-video-container');
+    const mosContainer = document.getElementById('presse-mosaic-container');
+    if(!vidContainer || !mosContainer) return; // Stoppe si on n'est pas sur presse.html
+
+    // --- 1. Vidéos ---
+    let videos = Cache.get('site_presse_videos');
+    if(!videos) {
+        try {
+            const q = query(collection(db, "presse_videos"), limit(15));
+            const snap = await getDocs(q);
+            videos = [];
+            snap.forEach(d => videos.push({id: d.id, ...d.data()}));
+            videos.sort((a, b) => (a.order || 999) - (b.order || 999));
+            Cache.set('site_presse_videos', videos);
+        } catch(e) { console.error(e); }
+    }
+    
+    if(videos && videos.length > 0) {
+        vidContainer.innerHTML = videos.map(v => {
+            const ytId = getYouTubeId(v.url);
+            const thumbUrl = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '';
+            // On encode les quotes pour ne pas casser le HTML
+            const safeTitle = v.title ? v.title.replace(/'/g, "\\'") : '';
+            const safeDesc = v.description ? v.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
+            
+            return `
+            <div class="video-card" style="cursor:pointer;" onclick="openPresseLightbox('video', '${v.url}', '${safeTitle}', '${safeDesc}')">
+                <div class="video-container">
+                    <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
+                    <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
+                        <div style="width:50px; height:50px; background:var(--usm-pink); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; padding-left:4px;">▶</div>
+                    </div>
+                </div>
+                <div class="video-title">${v.title}</div>
+            </div>`;
+        }).join('');
+    } else {
+        vidContainer.innerHTML = '<p style="color:#888; margin-left:20px;">Aucune vidéo pour le moment.</p>';
+    }
+
+    // --- 2. Articles ---
+    let articles = Cache.get('site_presse_articles');
+    if(!articles) {
+        try {
+            const q = query(collection(db, "presse_articles"), limit(30));
+            const snap = await getDocs(q);
+            articles = [];
+            snap.forEach(d => articles.push({id: d.id, ...d.data()}));
+            articles.sort((a, b) => (a.order || 999) - (b.order || 999));
+            Cache.set('site_presse_articles', articles);
+        } catch(e) { console.error(e); }
+    }
+    
+    if(articles && articles.length > 0) {
+        mosContainer.innerHTML = articles.map(a => {
+            const safeTitle = a.title ? a.title.replace(/'/g, "\\'") : '';
+            const safeDesc = a.description ? a.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
+            return `
+            <div class="mosaic-item" onclick="openPresseLightbox('image', '${a.image_url}', '${safeTitle}', '${safeDesc}')">
+                <img src="${a.image_url}" loading="lazy" alt="${a.title}">
+                <div style="position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent, rgba(0,0,0,0.9)); padding:20px 15px 15px;">
+                    <h4 style="color:white; font-size:1rem; margin:0;">${a.title || 'Article'}</h4>
+                </div>
+            </div>`;
+        }).join('');
+    } else {
+        mosContainer.innerHTML = '<p style="color:#888; grid-column: 1/-1;">Aucun article pour le moment.</p>';
+    }
+
+    // Flèches du Slider Vidéo
+    const btnPrev = document.getElementById('btn-vid-prev');
+    const btnNext = document.getElementById('btn-vid-next');
+    if(btnPrev) btnPrev.addEventListener('click', () => vidContainer.scrollBy({ left: -400, behavior: 'smooth' }));
+    if(btnNext) btnNext.addEventListener('click', () => vidContainer.scrollBy({ left: 400, behavior: 'smooth' }));
+}
+
+// 🪄 Déclencheur automatique quand on charge la page
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(loadPresseData, 300); 
+});
