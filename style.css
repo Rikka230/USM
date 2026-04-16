@@ -1256,7 +1256,7 @@ html, body {
 #instagram-feed .elfsight-app-wrapper {
     /* On applique une marge négative pour remonter les photos au ras du bord haut */
     /* Ajuste de -40px à -60px selon le widget pour un collage parfait */
-    margin-top: -55px !important; 
+    margin-top: -90px !important; 
 }
 
 /* 🪄 Badge de recouvrement pour le bas */
