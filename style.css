@@ -1243,7 +1243,7 @@ html, body {
     padding-top: 0; 
     
     /* On maintient la hauteur totale pour le bas */
-    max-height: 780px; 
+    max-height: 80px; 
     overflow: hidden; 
     
     /* Ombre interne haute pour le bas */
