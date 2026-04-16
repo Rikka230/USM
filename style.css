@@ -1236,22 +1236,31 @@ html, body {
     .lightbox-media iframe { width: 100%; height: 100%; }
 }
 
-/* 🪄 Masquage manuel du Watermark Instagram */
+/* 🪄 Masquage manuel précis du Watermark Instagram */
 #instagram-feed {
     position: relative;
-    max-height: 500px; /* Ajuste selon la taille de ton widget */
-    overflow: hidden; /* Coupe tout ce qui dépasse, dont le logo en bas */
-    border-bottom: 5px solid var(--bg-dark); /* Rajoute une bordure pour bien finir la coupe */
+    /* 1. On donne de l'air en haut pour éviter que ça soit collé */
+    padding-top: 20px; 
+    
+    /* 2. On ajuste la hauteur pour voir les photos entières */
+    /* Si tes photos sont coupées de moitié, augmente ce chiffre (ex: 550px ou 600px) */
+    max-height: 520px; 
+    
+    overflow: hidden; 
+    /* 3. On remplace la bordure par une ombre interne qui "noie" le logo dans le noir */
+    box-shadow: inset 0 -30px 20px var(--bg-dark);
+    border-bottom: 2px solid var(--surface-border);
 }
 
-/* Optionnel : On peut venir superposer un petit badge USM dans un coin */
+/* 🪄 Le Badge de recouvrement (pour boucher le trou du logo) */
 .insta-overlay-fix {
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 100px;
-    height: 30px;
-    background: var(--bg-dark); /* On recouvre avec la couleur du site */
-    z-index: 10;
-    pointer-events: none; /* Laisse passer le clic vers Instagram quand même */
+    /* On agrandit un peu la zone de masquage pour être sûr de couvrir le logo */
+    width: 150px; 
+    height: 45px; 
+    background: var(--bg-dark); 
+    z-index: 100; /* On le passe devant tout */
+    pointer-events: none; 
 }
