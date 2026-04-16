@@ -269,10 +269,12 @@
                 </header>
                 <form id="video-form" class="bento-form">
                     <input type="hidden" id="edit-video-id">
-                    <label style="color:#aaa; font-size:0.85rem;">Titre de la vidéo (ex: Interview BFM)</label>
+                    <label style="color:#aaa; font-size:0.85rem;">Titre de la vidéo</label>
                     <input type="text" id="video-title" required>
-                    <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Lien YouTube (URL classique)</label>
+                    <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Lien YouTube</label>
                     <input type="url" id="video-url" placeholder="https://www.youtube.com/watch?v=..." required>
+                    <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Description (Optionnel)</label>
+                    <textarea id="video-desc" rows="4" placeholder="Description affichée à côté de la vidéo..."></textarea>
                     
                     <div style="display: flex; gap: 15px; margin-top: 20px;">
                         <button type="submit" id="save-video-btn" class="btn-publish" style="flex:1;">Enregistrer la vidéo</button>
@@ -287,7 +289,11 @@
                 </header>
                 <form id="article-form" class="bento-form">
                     <input type="hidden" id="existing-article-img">
-                    <label style="color:#aaa; font-size:0.85rem;">Page du journal (Format portrait recommandé)</label>
+                    <label style="color:#aaa; font-size:0.85rem;">Titre de l'article</label>
+                    <input type="text" id="article-title" required>
+                    <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Description ou Extrait</label>
+                    <textarea id="article-desc" rows="4" placeholder="Extrait de l'article..."></textarea>
+                    <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Page du journal (Format portrait recommandé)</label>
                     <div id="drop-zone-article" class="drop-zone">
                         <p>Glissez la photo de l'article ici</p>
                         <input type="file" id="article-upload" accept="image/*" hidden>
