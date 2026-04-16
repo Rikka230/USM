@@ -11,14 +11,27 @@
     <header class="navbar">
         <div class="logo-nav">
             <a href="index.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px;">
-                <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" class="nav-logo-dyn">
+                <img src="" alt="USM Logo" class="nav-logo-dyn" id="nav-logo-dyn">
                 <div>USM F<span>OO</span>TBALL</div>
             </a>
         </div>
-        <nav class="nav-links">
-            <a href="index.html">❮ Retour Accueil</a>
+        
+        <button class="mobile-menu-btn" id="mobile-menu-btn" style="background:none; border:none; color:white; font-size:2rem; cursor:pointer; display:none;">☰</button>
+        
+        <nav class="nav-links" id="nav-links">
+            <button class="close-menu-btn" id="close-menu-btn" style="background:none; border:none; color:white; font-size:2.5rem; position:absolute; top:20px; right:30px; cursor:pointer; display:none;">×</button>
+            <a href="index.html#agence" data-i18n="nav_agency">L'Agence</a>
+            <a href="index.html#services" data-i18n="nav_services">Services</a>
+            <a href="index.html#roster" data-i18n="nav_talents">Les Talents</a>
+            <a href="presse.html" data-i18n="nav_press" style="color: var(--usm-pink);">Presse</a> <select id="lang-select" class="lang-switcher" style="background:transparent; color:white; border:1px solid rgba(255,255,255,0.2); border-radius:4px; padding:4px; cursor:pointer;">
+                <option value="fr" style="color:black;">FR</option>
+                <option value="en" style="color:black;">EN</option>
+                <option value="es" style="color:black;">ES</option>
+                <option value="pt" style="color:black;">PT</option>
+            </select>
+            
             <a href="contact.html" style="text-decoration: none;">
-                <button class="btn-premium">Contact</button>
+                <button class="btn-premium" data-i18n="nav_button">Contact</button>
             </a>
         </nav>
     </header>
@@ -85,7 +98,22 @@
             </div>
         </section>
     </main>
-
+<footer style="background: var(--bg-dark); border-top: 1px solid var(--surface-border); padding: 60px 20px 30px; text-align: center; margin-top: 60px;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 15px;">USM F<span style="color: var(--usm-pink);">OO</span>TBALL</div>
+            <p style="color: #aaa; margin-bottom: 30px;">Management & Développement de carrière depuis 1998.</p>
+            
+            <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 40px;">
+                <a href="https://www.instagram.com/usmgroup/" target="_blank" style="color: white; text-decoration: none; font-weight: bold; transition: 0.3s;" onmouseover="this.style.color='var(--usm-pink)'" onmouseout="this.style.color='white'">Instagram</a>
+                <a href="https://www.youtube.com/channel/UCuaiYfKTeTWvQyz4tJXMlug" target="_blank" style="color: white; text-decoration: none; font-weight: bold; transition: 0.3s;" onmouseover="this.style.color='var(--usm-pink)'" onmouseout="this.style.color='white'">YouTube</a>
+            </div>
+            
+            <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; color: #666; font-size: 0.85rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
+                <span>© 2025 USM Football. Tous droits réservés.</span>
+                <a href="mentions.html" style="color: #888; text-decoration: none;" data-i18n="legal_mentions">Mentions Légales</a>
+            </div>
+        </div>
+    </footer>
  <div class="lightbox" id="presse-lightbox">
         <button class="lightbox-close" onclick="closeLightbox()">×</button>
         <div class="lightbox-container">
