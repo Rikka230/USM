@@ -202,6 +202,20 @@ document.addEventListener("DOMContentLoaded", async () => {
             updateContent(e.target.value); 
         });
     }
+
+  // Gestion du menu mobile
+    const mobileBtn = document.getElementById('mobile-menu-btn');
+    const closeBtn = document.getElementById('close-menu-btn');
+    const navLinks = document.getElementById('nav-links');
+    
+    if (mobileBtn && navLinks) {
+        mobileBtn.addEventListener('click', () => navLinks.classList.add('active'));
+        closeBtn.addEventListener('click', () => navLinks.classList.remove('active'));
+        // Ferme le menu si on clique sur un lien (sur mobile)
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => navLinks.classList.remove('active'));
+        });
+    }
     
     updateContent(currentLang);
 
