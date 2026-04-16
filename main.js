@@ -568,6 +568,47 @@ async function loadPresseData() {
         vidContainer.innerHTML = '<p style="color:#888; margin-left:20px;">Aucune vidéo pour le moment.</p>';
     }
 
+  // --- 1.5 Flux Automatique YouTube ---
+    const ytContainer = document.getElementById('youtube-feed-container');
+    if (ytContainer) {
+        const YOUTUBE_CHANNEL_ID = "UCuaiYfKTeTWvQyz4tJXMlug"; 
+        
+        const rssUrl = encodeURIComponent(`https://www.youtube.com/feeds/videos.xml?channel_id=${YOUTUBE_CHANNEL_ID}`);
+        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            
+            if(data.items && data.items.length > 0) {
+                ytContainer.innerHTML = data.items.map(item => {
+                    const safeTitle = escapeHTML(item.title);
+                    return `
+                    <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${item.link}" data-title="${safeTitle}" data-desc="" data-link="">
+                        <div class="video-container">
+                            <img src="${item.thumbnail}" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
+                            <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
+                                <div style="width:50px; height:50px; background:#ff0000; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; padding-left:4px; box-shadow: 0 4px 15px rgba(255,0,0,0.4);">▶</div>
+                            </div>
+                        </div>
+                        <div class="video-title">${item.title}</div>
+                    </div>`;
+                }).join('');
+            } else {
+                ytContainer.innerHTML = '<p style="color:#888; margin-left:20px;">Aucune vidéo récente sur la chaîne.</p>';
+            }
+        } catch(e) {
+            console.error("Erreur YouTube:", e);
+            ytContainer.innerHTML = '<p style="color:red; margin-left:20px;">Impossible de charger la chaîne YouTube.</p>';
+        }
+
+        // Connexion des flèches du nouveau slider
+        const btnYtPrev = document.getElementById('btn-yt-prev');
+        const btnYtNext = document.getElementById('btn-yt-next');
+        if(btnYtPrev) btnYtPrev.addEventListener('click', () => ytContainer.scrollBy({ left: -400, behavior: 'smooth' }));
+        if(btnYtNext) btnYtNext.addEventListener('click', () => ytContainer.scrollBy({ left: 400, behavior: 'smooth' }));
+    }
+
     // --- 2. Articles ---
     let articles = Cache.get('site_presse_articles');
     if(!articles || articles.length === 0) {
