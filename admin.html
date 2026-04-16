@@ -264,12 +264,11 @@
 
             <section id="form-video-section" class="hidden">
                 <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-                    <h1>Ajouter une Vidéo</h1>
+                    <h1 id="form-video-title">Ajouter une Vidéo</h1>
                     <button class="btn-cancel-presse" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">❌ Annuler</button>
                 </header>
                 <form id="video-form" class="bento-form">
-                    <input type="hidden" id="edit-video-id">
-                    <label style="color:#aaa; font-size:0.85rem;">Titre de la vidéo</label>
+                    <input type="hidden" id="edit-video-id"> <label style="color:#aaa; font-size:0.85rem;">Titre de la vidéo</label>
                     <input type="text" id="video-title" required>
                     <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Lien YouTube</label>
                     <input type="url" id="video-url" placeholder="https://www.youtube.com/watch?v=..." required>
@@ -284,11 +283,11 @@
 
             <section id="form-article-section" class="hidden">
                 <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-                    <h1>Ajouter un Article</h1>
+                    <h1 id="form-article-title">Ajouter un Article</h1>
                     <button class="btn-cancel-presse" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">❌ Annuler</button>
                 </header>
                 <form id="article-form" class="bento-form">
-                    <input type="hidden" id="existing-article-img">
+                    <input type="hidden" id="edit-article-id"> <input type="hidden" id="existing-article-img">
                     <label style="color:#aaa; font-size:0.85rem;">Titre de l'article</label>
                     <input type="text" id="article-title" required>
                     <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Description ou Extrait</label>
