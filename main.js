@@ -473,6 +473,12 @@ function getYouTubeId(url) {
     return (match && match[2].length === 11) ? match[2] : null;
 }
 
+// 🪄 FONCTION BOUCLIER : Empêche les apostrophes et guillemets de casser le clic
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/'/g, "&apos;").replace(/"/g, "&quot;").replace(/\n/g, " ");
+}
+
 window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl) => {
     const lb = document.getElementById('presse-lightbox');
     const mediaContainer = document.getElementById('lightbox-media');
@@ -519,7 +525,6 @@ async function loadPresseData() {
     let videos = Cache.get('site_presse_videos');
     if(!videos || videos.length === 0) {
         try {
-            const { query, collection, getDocs, limit } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
             const q = query(collection(db, "presse_videos"), limit(50));
             const snap = await getDocs(q);
             videos = [];
@@ -533,18 +538,15 @@ async function loadPresseData() {
         vidContainer.innerHTML = videos.map(v => {
             const ytId = getYouTubeId(v.url);
             const thumbUrl = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '';
-            const safeTitle = v.title ? v.title.replace(/'/g, "\\'") : '';
-            const safeDesc = v.description ? v.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
-            
             return `
-            <div class="video-card" style="cursor:pointer;" onclick="openPresseLightbox('video', '${v.url}', '${safeTitle}', '${safeDesc}', '')">
+            <div class="video-card" style="cursor:pointer;" onclick="openPresseLightbox('video', '${v.url}', '${escapeHTML(v.title)}', '${escapeHTML(v.description)}', '')">
                 <div class="video-container">
                     <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
                     <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
                         <div style="width:50px; height:50px; background:var(--usm-pink); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; padding-left:4px;">▶</div>
                     </div>
                 </div>
-                <div class="video-title">${v.title}</div>
+                <div class="video-title">${v.title || ''}</div>
             </div>`;
         }).join('');
     } else {
@@ -555,7 +557,6 @@ async function loadPresseData() {
     let articles = Cache.get('site_presse_articles');
     if(!articles || articles.length === 0) {
         try {
-            const { query, collection, getDocs, limit } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
             const q = query(collection(db, "presse_articles"), limit(50));
             const snap = await getDocs(q);
             articles = [];
@@ -567,13 +568,9 @@ async function loadPresseData() {
     
     if(articles && articles.length > 0) {
         mosContainer.innerHTML = articles.map(a => {
-            const safeTitle = a.title ? a.title.replace(/'/g, "\\'") : '';
-            const safeDesc = a.description ? a.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
-            const safeLink = a.link ? a.link.replace(/'/g, "\\'") : '';
-            
             return `
-            <div class="mosaic-item" onclick="openPresseLightbox('image', '${a.image_url}', '${safeTitle}', '${safeDesc}', '${safeLink}')">
-                <img src="${a.image_url}" loading="lazy" alt="${safeTitle}">
+            <div class="mosaic-item" onclick="openPresseLightbox('image', '${a.image_url}', '${escapeHTML(a.title)}', '${escapeHTML(a.description)}', '${escapeHTML(a.link)}')">
+                <img src="${a.image_url}" loading="lazy" alt="${escapeHTML(a.title)}">
                 <div style="position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent, rgba(0,0,0,0.9)); padding:20px 15px 15px;">
                     <h4 style="color:white; font-size:1rem; margin:0;">${a.title || 'Article'}</h4>
                 </div>
