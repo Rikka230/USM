@@ -1083,7 +1083,7 @@ if(vidForm) {
             if(editId) {
                 await updateDoc(doc(db, "presse_videos", editId), payload);
             } else {
-                payload.order = allAdminVideos.length + 1;
+                payload.order = -Date.now(); 
                 await addDoc(collection(db, "presse_videos"), payload);
             }
             
@@ -1123,10 +1123,10 @@ if(artForm) {
                 timestamp: new Date()
             };
 
-            if(editId) {
+         if(editId) {
                 await updateDoc(doc(db, "presse_articles", editId), payload);
             } else {
-                payload.order = allAdminArticles.length + 1;
+                payload.order = -Date.now(); 
                 await addDoc(collection(db, "presse_articles"), payload);
             }
             
