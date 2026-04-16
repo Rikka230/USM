@@ -1138,3 +1138,33 @@ if(artForm) {
         finally { btn.disabled = false; btn.textContent = "Enregistrer l'article"; }
     });
 }
+
+/* ==========================================================================
+   🪄 FIX : MÉMORISATION DE L'ONGLET ACTIF (RÉSISTANCE AU F5)
+   ========================================================================== */
+const navBtnIds = ['nav-manage', 'nav-services', 'nav-settings', 'nav-presse'];
+
+navBtnIds.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+        btn.addEventListener('click', () => {
+            localStorage.setItem('admin_active_tab', id);
+        });
+    }
+});
+
+const dashboardAdmin = document.getElementById('dashboard');
+if (dashboardAdmin) {
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class' && !dashboardAdmin.classList.contains('hidden')) {
+                const savedTab = localStorage.getItem('admin_active_tab');
+                if (savedTab && document.getElementById(savedTab)) {
+                    document.getElementById(savedTab).click();
+                }
+                observer.disconnect(); 
+            }
+        });
+    });
+    observer.observe(dashboardAdmin, { attributes: true });
+}
