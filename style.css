@@ -1236,27 +1236,31 @@ html, body {
     .lightbox-media iframe { width: 100%; height: 100%; }
 }
 
-/* 🪄 Masquage manuel précis du Watermark Instagram - AJUSTEMENT RAS-DU-BORD */
+/* 🪄 Masquage manuel précis du Watermark Instagram - FIX TOTAL */
 #instagram-feed {
     position: relative;
-    /* On supprime le padding qui créait le vide en haut */
     padding-top: 0; 
     
-    /* On maintient la hauteur totale pour le bas */
-    max-height: 720px; 
-    overflow: hidden; 
+    /* 1. La hauteur du CADRE (ce que l'utilisateur voit) */
+    /* Ajuste cette valeur pour voir plus ou moins de rangées de photos */
+    height: 720px; 
     
-    /* Ombre interne haute pour le bas */
+    overflow: hidden; 
     box-shadow: inset 0 -70px 60px var(--bg-dark);
     border-bottom: 2px solid var(--surface-border);
 }
 
-/* 🪄 AJUSTEMENT DU CONTENU INTERNE (Pour coller au haut) */
+/* 🪄 AJUSTEMENT DU CONTENU INTERNE */
 #instagram-feed iframe, 
-#instagram-feed .elfsight-app-wrapper {
-    /* On applique une marge négative pour remonter les photos au ras du bord haut */
-    /* Ajuste de -40px à -60px selon le widget pour un collage parfait */
+#instagram-feed [class*="elfsight-app"] {
+    /* 2. On remonte le contenu pour cacher le bandeau Instagram du haut */
     margin-top: -90px !important; 
+    
+    /* 3. LA CLÉ : On force l'iframe à être plus haute que le cadre */
+    /* On ajoute au moins la valeur de la marge négative à la hauteur totale */
+    height: calc(100% + 150px) !important; 
+    width: 100% !important;
+    display: block;
 }
 
 /* 🪄 Badge de recouvrement pour le bas */
