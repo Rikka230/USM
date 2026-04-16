@@ -482,6 +482,7 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
     const miniSlider = document.getElementById('lightbox-mini-slider');
     
     if(lb && mediaContainer) {
+        // 1. Injection du Média
         if(type === 'video') {
             let embedUrl = mediaUrl;
             if(embedUrl.includes('watch?v=')) {
@@ -494,6 +495,7 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
             mediaContainer.innerHTML = `<img src="${mediaUrl}" alt="Presse">`;
         }
         
+        // 2. Injection du Texte
         titleEl.textContent = title;
         descEl.textContent = desc || '';
         if(linkUrl && linkUrl.length > 5) {
@@ -502,50 +504,61 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
             linkContainer.innerHTML = '';
         }
         
-        // 🪄 FIX BUG LIGHTBOX : On utilise les Data-Attributes pour un clic sécurisé
+        // 3. 🪄 FIX DU MINI-SLIDER (Rechargement intelligent)
         if (miniSlider && source && source !== 'null') {
-            let items = [];
-            if (source === 'tv') items = Cache.get('site_presse_videos') || [];
-            if (source === 'yt') items = window.site_presse_yt || [];
-            if (source === 'articles') items = Cache.get('site_presse_articles') || [];
-            
-            miniSlider.innerHTML = items.map((item, i) => {
-                let thumb = '', itemType = 'video', itemUrl = '', itemTitle = '', itemDesc = '', itemLink = '', extraClass = '';
+            // Si la source a changé (ex: passage de YouTube à TV), on génère le slider
+            if (miniSlider.getAttribute('data-current-source') !== source) {
+                let items = [];
+                if (source === 'tv') items = Cache.get('site_presse_videos') || [];
+                if (source === 'yt') items = window.site_presse_yt || [];
+                if (source === 'articles') items = Cache.get('site_presse_articles') || [];
                 
-                if (source === 'tv') {
-                    const ytId = getYouTubeId(item.url);
-                    thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '';
-                    itemUrl = item.url; itemTitle = item.title; itemDesc = item.description;
-                } else if (source === 'yt') {
-                    const ytId = getYouTubeId(item.link);
-                    thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : item.thumbnail;
-                    itemUrl = item.link; itemTitle = item.title;
-                } else if (source === 'articles') {
-                    itemType = 'image'; thumb = item.image_url; itemUrl = item.image_url;
-                    itemTitle = item.title; itemDesc = item.description; itemLink = item.link; extraClass = 'is-article';
-                }
+                miniSlider.innerHTML = items.map((item, i) => {
+                    let thumb = '', itemType = 'video', itemUrl = '', itemTitle = '', itemDesc = '', itemLink = '', extraClass = '';
+                    
+                    if (source === 'tv') {
+                        const ytId = getYouTubeId(item.url);
+                        thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '';
+                        itemUrl = item.url; itemTitle = item.title; itemDesc = item.description;
+                    } else if (source === 'yt') {
+                        const ytId = getYouTubeId(item.link);
+                        thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : item.thumbnail;
+                        itemUrl = item.link; itemTitle = item.title;
+                    } else if (source === 'articles') {
+                        itemType = 'image'; thumb = item.image_url; itemUrl = item.image_url;
+                        itemTitle = item.title; itemDesc = item.description; itemLink = item.link; extraClass = 'is-article';
+                    }
+                    
+                    return `
+                    <div class="mini-slider-item ${extraClass} presse-trigger" 
+                         id="mini-item-${i}"
+                         data-type="${itemType}" data-url="${itemUrl}" 
+                         data-title="${encodeURIComponent(itemTitle || '')}" 
+                         data-desc="${encodeURIComponent(itemDesc || '')}" 
+                         data-link="${encodeURIComponent(itemLink || '')}" 
+                         data-source="${source}" data-index="${i}">
+                        <img src="${thumb}">
+                    </div>`;
+                }).join('');
                 
-                const isActive = i === currentIndex ? 'active' : '';
-                return `
-                <div class="mini-slider-item ${extraClass} ${isActive} presse-trigger" 
-                     data-type="${itemType}" data-url="${itemUrl}" 
-                     data-title="${encodeURIComponent(itemTitle || '')}" 
-                     data-desc="${encodeURIComponent(itemDesc || '')}" 
-                     data-link="${encodeURIComponent(itemLink || '')}" 
-                     data-source="${source}" data-index="${i}">
-                    <img src="${thumb}">
-                </div>`;
-            }).join('');
-            
-            setTimeout(() => {
-                const activeItem = miniSlider.querySelector('.active');
-                if(activeItem) {
+                // On mémorise la source actuelle pour ne pas la recréer au prochain clic
+                miniSlider.setAttribute('data-current-source', source);
+            }
+
+            // 🪄 MISE À JOUR DOUCE : On change juste la bordure rose sans casser le HTML
+            document.querySelectorAll('.mini-slider-item').forEach(el => el.classList.remove('active'));
+            const activeItem = document.getElementById(`mini-item-${currentIndex}`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+                // Scroll fluide automatique
+                setTimeout(() => {
                     const scrollPos = activeItem.offsetLeft - (miniSlider.clientWidth / 2) + (activeItem.clientWidth / 2);
                     miniSlider.scrollTo({ left: scrollPos, behavior: 'smooth' });
-                }
-            }, 50);
+                }, 50);
+            }
         } else if (miniSlider) {
              miniSlider.innerHTML = '';
+             miniSlider.removeAttribute('data-current-source');
         }
 
         lb.classList.add('active'); 
