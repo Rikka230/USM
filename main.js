@@ -554,14 +554,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ================= 9. PAGE PRESSE (VIDEOS & ARTICLES) ================= */
 
-// Extraction de l'ID YouTube pour générer la miniature (évite de charger 20 iframes d'un coup)
 function getYouTubeId(url) {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
 }
 
-// Fonction globale d'ouverture de la Lightbox
 window.openPresseLightbox = (type, mediaUrl, title, desc) => {
     const lb = document.getElementById('presse-lightbox');
     const mediaContainer = document.getElementById('lightbox-media');
@@ -569,14 +567,11 @@ window.openPresseLightbox = (type, mediaUrl, title, desc) => {
     const descEl = document.getElementById('lightbox-desc');
     
     if(lb && mediaContainer) {
-        // Injection du média (Iframe ou Image)
         if(type === 'video') {
             mediaContainer.innerHTML = `<iframe src="${mediaUrl}?autoplay=1" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
         } else {
             mediaContainer.innerHTML = `<img src="${mediaUrl}" alt="${title}">`;
         }
-        
-        // Injection du texte
         titleEl.textContent = title;
         descEl.textContent = desc || '';
         
@@ -590,14 +585,14 @@ window.closeLightbox = () => {
     if(lb) {
         lb.classList.remove('active');
         document.body.style.overflow = ''; 
-        document.getElementById('lightbox-media').innerHTML = ''; // Coupe la vidéo en fermant
+        document.getElementById('lightbox-media').innerHTML = ''; 
     }
 };
 
 async function loadPresseData() {
     const vidContainer = document.getElementById('presse-video-container');
     const mosContainer = document.getElementById('presse-mosaic-container');
-    if(!vidContainer || !mosContainer) return; // Stoppe si on n'est pas sur presse.html
+    if(!vidContainer || !mosContainer) return; 
 
     // --- 1. Vidéos ---
     let videos = Cache.get('site_presse_videos');
@@ -616,7 +611,6 @@ async function loadPresseData() {
         vidContainer.innerHTML = videos.map(v => {
             const ytId = getYouTubeId(v.url);
             const thumbUrl = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '';
-            // On encode les quotes pour ne pas casser le HTML
             const safeTitle = v.title ? v.title.replace(/'/g, "\\'") : '';
             const safeDesc = v.description ? v.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
             
@@ -664,14 +658,12 @@ async function loadPresseData() {
         mosContainer.innerHTML = '<p style="color:#888; grid-column: 1/-1;">Aucun article pour le moment.</p>';
     }
 
-    // Flèches du Slider Vidéo
     const btnPrev = document.getElementById('btn-vid-prev');
     const btnNext = document.getElementById('btn-vid-next');
     if(btnPrev) btnPrev.addEventListener('click', () => vidContainer.scrollBy({ left: -400, behavior: 'smooth' }));
     if(btnNext) btnNext.addEventListener('click', () => vidContainer.scrollBy({ left: 400, behavior: 'smooth' }));
 }
 
-// 🪄 Déclencheur automatique quand on charge la page
 document.addEventListener("DOMContentLoaded", () => {
     setTimeout(loadPresseData, 300); 
 });
