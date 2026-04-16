@@ -576,7 +576,7 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl) => {
         titleEl.textContent = title;
         descEl.textContent = desc || '';
         
-        // 🪄 Si un lien a été renseigné, on affiche le bouton rose
+        // Affichage du bouton de lien
         if(linkUrl && linkUrl.length > 5) {
             linkContainer.innerHTML = `<a href="${linkUrl}" target="_blank" class="btn-premium" style="display:inline-block; margin-top:20px; text-decoration:none; text-align:center; width:100%;">Lire l'article complet ➔</a>`;
         } else {
@@ -602,20 +602,18 @@ async function loadPresseData() {
     const mosContainer = document.getElementById('presse-mosaic-container');
     if(!vidContainer || !mosContainer) return; 
 
-    // 🪄 FIX ABSOLU : On force le vidage du cache Presse à chaque rechargement de page pour être sûr d'afficher les nouveautés !
-    localStorage.removeItem('site_presse_videos');
-    localStorage.removeItem('site_presse_articles');
-
     // --- 1. Vidéos ---
     let videos = Cache.get('site_presse_videos');
-    if(!videos) {
+    
+    // 🪄 ANTI-PIÈGE : Si le cache contient 0 vidéo, on interroge Firebase par sécurité
+    if(!videos || videos.length === 0) {
         try {
             const q = query(collection(db, "presse_videos"), limit(15));
             const snap = await getDocs(q);
             videos = [];
             snap.forEach(d => videos.push({id: d.id, ...d.data()}));
             videos.sort((a, b) => (a.order || 999) - (b.order || 999));
-            Cache.set('site_presse_videos', videos);
+            if(videos.length > 0) Cache.set('site_presse_videos', videos);
         } catch(e) { console.error(e); }
     }
     
@@ -643,14 +641,16 @@ async function loadPresseData() {
 
     // --- 2. Articles ---
     let articles = Cache.get('site_presse_articles');
-    if(!articles) {
+    
+    // 🪄 ANTI-PIÈGE : Même chose pour les articles
+    if(!articles || articles.length === 0) {
         try {
             const q = query(collection(db, "presse_articles"), limit(30));
             const snap = await getDocs(q);
             articles = [];
             snap.forEach(d => articles.push({id: d.id, ...d.data()}));
             articles.sort((a, b) => (a.order || 999) - (b.order || 999));
-            Cache.set('site_presse_articles', articles);
+            if(articles.length > 0) Cache.set('site_presse_articles', articles);
         } catch(e) { console.error(e); }
     }
     
@@ -658,7 +658,7 @@ async function loadPresseData() {
         mosContainer.innerHTML = articles.map(a => {
             const safeTitle = a.title ? a.title.replace(/'/g, "\\'") : '';
             const safeDesc = a.description ? a.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
-            const safeLink = a.link ? a.link.replace(/'/g, "\\'") : ''; // Récupère le lien
+            const safeLink = a.link ? a.link.replace(/'/g, "\\'") : '';
             
             return `
             <div class="mosaic-item" onclick="openPresseLightbox('image', '${a.image_url}', '${safeTitle}', '${safeDesc}', '${safeLink}')">
@@ -678,6 +678,10 @@ async function loadPresseData() {
     if(btnNext) btnNext.addEventListener('click', () => vidContainer.scrollBy({ left: 400, behavior: 'smooth' }));
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    setTimeout(loadPresseData, 300); 
-});
+// Lancement direct et sécurisé
+const startPresse = () => { if(document.getElementById('presse-video-container')) loadPresseData(); };
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startPresse);
+} else {
+    startPresse();
+}
