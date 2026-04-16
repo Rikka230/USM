@@ -571,15 +571,11 @@ async function loadPresseData() {
             return `
             <div class="mosaic-item" onclick="openPresseLightbox('image', '${a.image_url}', '${escapeHTML(a.title)}', '${escapeHTML(a.description)}', '${escapeHTML(a.link)}')">
                 <img src="${a.image_url}" loading="lazy" alt="${escapeHTML(a.title)}">
-                <div style="position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent, rgba(0,0,0,0.9)); padding:20px 15px 15px;">
-                    <h4 style="color:white; font-size:1rem; margin:0;">${a.title || 'Article'}</h4>
-                </div>
             </div>`;
         }).join('');
     } else {
         mosContainer.innerHTML = '<p style="color:#888; grid-column: 1/-1;">Aucun article pour le moment.</p>';
     }
-
     const btnPrev = document.getElementById('btn-vid-prev');
     const btnNext = document.getElementById('btn-vid-next');
     if(btnPrev) btnPrev.addEventListener('click', () => vidContainer.scrollBy({ left: -400, behavior: 'smooth' }));
