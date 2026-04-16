@@ -473,16 +473,17 @@ function getYouTubeId(url) {
     return (match && match[2].length === 11) ? match[2] : null;
 }
 
-window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl) => {
+window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, currentIndex) => {
     const lb = document.getElementById('presse-lightbox');
     const mediaContainer = document.getElementById('lightbox-media');
     const titleEl = document.getElementById('lightbox-title');
     const descEl = document.getElementById('lightbox-desc');
     const linkContainer = document.getElementById('lightbox-link-container');
+    const miniSlider = document.getElementById('lightbox-mini-slider');
     
     if(lb && mediaContainer) {
+        // 1. Injection du Média
         if(type === 'video') {
-            // Conversion automatique d'un lien classique en Iframe jouable
             let embedUrl = mediaUrl;
             if(embedUrl.includes('watch?v=')) {
                 embedUrl = embedUrl.replace('watch?v=', 'embed/');
@@ -494,15 +495,57 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl) => {
             mediaContainer.innerHTML = `<img src="${mediaUrl}" alt="Presse">`;
         }
         
+        // 2. Injection du Texte
         titleEl.textContent = title;
         descEl.textContent = desc || '';
-        
         if(linkUrl && linkUrl.length > 5) {
             linkContainer.innerHTML = `<a href="${linkUrl}" target="_blank" class="btn-premium" style="display:inline-block; margin-top:20px; text-decoration:none; text-align:center; width:100%;">Lire l'article complet ➔</a>`;
         } else {
             linkContainer.innerHTML = '';
         }
         
+        // 3. 🪄 GENERATION DU MINI-SLIDER EN DESSOUS
+        if (miniSlider && source !== null) {
+            let items = [];
+            if (source === 'tv') items = Cache.get('site_presse_videos') || [];
+            if (source === 'yt') items = window.site_presse_yt || [];
+            if (source === 'articles') items = Cache.get('site_presse_articles') || [];
+            
+            miniSlider.innerHTML = items.map((item, i) => {
+                let thumb = '', itemType = 'video', itemUrl = '', itemTitle = '', itemDesc = '', itemLink = '', extraClass = '';
+                
+                if (source === 'tv') {
+                    const ytId = getYouTubeId(item.url);
+                    thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '';
+                    itemUrl = item.url; itemTitle = item.title; itemDesc = item.description;
+                } else if (source === 'yt') {
+                    const ytId = getYouTubeId(item.link);
+                    thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : item.thumbnail;
+                    itemUrl = item.link; itemTitle = item.title;
+                } else if (source === 'articles') {
+                    itemType = 'image'; thumb = item.image_url; itemUrl = item.image_url;
+                    itemTitle = item.title; itemDesc = item.description; itemLink = item.link; extraClass = 'is-article';
+                }
+                
+                const isActive = i === currentIndex ? 'active' : '';
+                // Au clic sur une miniature, on relance la Lightbox avec le nouvel item
+                return `
+                <div class="mini-slider-item ${extraClass} ${isActive}" 
+                     onclick="openPresseLightbox('${itemType}', '${itemUrl}', '${encodeURIComponent(itemTitle || '')}', '${encodeURIComponent(itemDesc || '')}', '${encodeURIComponent(itemLink || '')}', '${source}', ${i})">
+                    <img src="${thumb}">
+                </div>`;
+            }).join('');
+            
+            // Auto-scroll pour centrer la miniature cliquée
+            setTimeout(() => {
+                const activeItem = miniSlider.querySelector('.active');
+                if(activeItem) {
+                    const scrollPos = activeItem.offsetLeft - (miniSlider.clientWidth / 2) + (activeItem.clientWidth / 2);
+                    miniSlider.scrollTo({ left: scrollPos, behavior: 'smooth' });
+                }
+            }, 50);
+        }
+
         lb.classList.add('active'); 
         document.body.style.overflow = 'hidden'; 
     }
@@ -517,7 +560,7 @@ window.closeLightbox = () => {
     }
 };
 
-// 🪄 ÉCOUTEUR GLOBAL ANTI-BUG : Protège les clics contre les erreurs d'apostrophes
+// 🪄 Écouteur global mis à jour (récupère la 'source' et l''index')
 document.addEventListener('click', (e) => {
     const trigger = e.target.closest('.presse-trigger');
     if (trigger) {
@@ -526,7 +569,9 @@ document.addEventListener('click', (e) => {
         const title = decodeURIComponent(trigger.getAttribute('data-title'));
         const desc = decodeURIComponent(trigger.getAttribute('data-desc'));
         const link = decodeURIComponent(trigger.getAttribute('data-link'));
-        openPresseLightbox(type, url, title, desc, link);
+        const source = trigger.getAttribute('data-source');
+        const index = parseInt(trigger.getAttribute('data-index'), 10);
+        openPresseLightbox(type, url, title, desc, link, source, index);
     }
 });
 
@@ -535,7 +580,7 @@ async function loadPresseData() {
     const mosContainer = document.getElementById('presse-mosaic-container');
     if(!vidContainer || !mosContainer) return; 
 
-    // --- 1. Vidéos ---
+    // --- 1. Passages TV ---
     let videos = Cache.get('site_presse_videos');
     if(!videos || videos.length === 0) {
         try {
@@ -550,11 +595,11 @@ async function loadPresseData() {
     }
     
     if(videos && videos.length > 0) {
-        vidContainer.innerHTML = videos.map(v => {
+        vidContainer.innerHTML = videos.map((v, index) => {
             const ytId = getYouTubeId(v.url);
             const thumbUrl = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '';
             return `
-            <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${v.url}" data-title="${encodeURIComponent(v.title || '')}" data-desc="${encodeURIComponent(v.description || '')}" data-link="">
+            <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${v.url}" data-title="${encodeURIComponent(v.title || '')}" data-desc="${encodeURIComponent(v.description || '')}" data-link="" data-source="tv" data-index="${index}">
                 <div class="video-container">
                     <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
                     <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
@@ -568,46 +613,35 @@ async function loadPresseData() {
         vidContainer.innerHTML = '<p style="color:#888; margin-left:20px;">Aucune vidéo pour le moment.</p>';
     }
 
-    // --- 1.5 Flux Automatique YouTube (Anti-Bloqueur) ---
+    // --- 1.5 Flux Automatique YouTube ---
     const ytContainer = document.getElementById('youtube-feed-container');
     if (ytContainer) {
         const YOUTUBE_CHANNEL_ID = "UCuaiYfKTeTWvQyz4tJXMlug"; 
-        const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${YOUTUBE_CHANNEL_ID}`;
+        const rssUrl = encodeURIComponent(`https://www.youtube.com/feeds/videos.xml?channel_id=${YOUTUBE_CHANNEL_ID}`);
+        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
 
         try {
-            const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`);
+            const response = await fetch(apiUrl);
             const data = await response.json();
             
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(data.contents, "text/xml");
-            const entries = Array.from(xmlDoc.querySelectorAll("entry"));
-            
-            if(entries.length > 0) {
-                ytContainer.innerHTML = entries.map(entry => {
-                    const title = entry.querySelector("title").textContent;
-                    
-                    let videoId = "";
-                    const ytIdTag = entry.getElementsByTagName("yt:videoId")[0];
-                    if(ytIdTag) {
-                        videoId = ytIdTag.textContent;
-                    } else {
-                        videoId = entry.querySelector("id").textContent.replace('yt:video:', '');
-                    }
-
-                    const link = `https://www.youtube.com/watch?v=${videoId}`;
-                    const thumbUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-                    // 🪄 Correction ici : utilisation d'encodeURIComponent
-                    const safeTitle = encodeURIComponent(title); 
+            if(data.status === 'ok' && data.items && data.items.length > 0) {
+                // Sauvegarde globale pour le mini-slider
+                window.site_presse_yt = data.items; 
+                
+                ytContainer.innerHTML = data.items.map((item, index) => {
+                    const ytId = getYouTubeId(item.link);
+                    const thumbUrl = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : item.thumbnail;
+                    const safeTitle = encodeURIComponent(item.title);
                     
                     return `
-                    <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${link}" data-title="${safeTitle}" data-desc="" data-link="">
+                    <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${item.link}" data-title="${safeTitle}" data-desc="" data-link="" data-source="yt" data-index="${index}">
                         <div class="video-container">
                             <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
                             <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
                                 <div style="width:50px; height:50px; background:#ff0000; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; padding-left:4px; box-shadow: 0 4px 15px rgba(255,0,0,0.4);">▶</div>
                             </div>
                         </div>
-                        <div class="video-title">${title}</div>
+                        <div class="video-title">${item.title}</div>
                     </div>`;
                 }).join('');
             } else {
@@ -615,7 +649,6 @@ async function loadPresseData() {
             }
         } catch(e) {
             console.error("Erreur YouTube:", e);
-            ytContainer.innerHTML = '<p style="color:red; margin-left:20px;">Vidéos YouTube temporairement indisponibles.</p>';
         }
 
         const btnYtPrev = document.getElementById('btn-yt-prev');
@@ -623,6 +656,40 @@ async function loadPresseData() {
         if(btnYtPrev) btnYtPrev.addEventListener('click', () => ytContainer.scrollBy({ left: -400, behavior: 'smooth' }));
         if(btnYtNext) btnYtNext.addEventListener('click', () => ytContainer.scrollBy({ left: 400, behavior: 'smooth' }));
     }
+
+    // --- 2. Articles ---
+    let articles = Cache.get('site_presse_articles');
+    if(!articles || articles.length === 0) {
+        try {
+            const { query, collection, getDocs, limit } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+            const q = query(collection(db, "presse_articles"), limit(50));
+            const snap = await getDocs(q);
+            articles = [];
+            snap.forEach(d => articles.push({id: d.id, ...d.data()}));
+            articles.sort((a, b) => (a.order || 999) - (b.order || 999));
+            if(articles.length > 0) Cache.set('site_presse_articles', articles);
+        } catch(e) { console.error(e); }
+    }
+    
+    if(articles && articles.length > 0) {
+        mosContainer.innerHTML = articles.map((a, index) => {
+            return `
+            <div class="mosaic-item presse-trigger" data-type="image" data-url="${a.image_url}" data-title="${encodeURIComponent(a.title || '')}" data-desc="${encodeURIComponent(a.description || '')}" data-link="${encodeURIComponent(a.link || '')}" data-source="articles" data-index="${index}">
+                <img src="${a.image_url}" loading=\"lazy\" alt=\"Presse\">
+            </div>`;
+        }).join('');
+    } else {
+        mosContainer.innerHTML = '<p style="color:#888; grid-column: 1/-1;">Aucun article pour le moment.</p>';
+    }
+
+    const btnPrev = document.getElementById('btn-vid-prev');
+    const btnNext = document.getElementById('btn-vid-next');
+    if(btnPrev) btnPrev.addEventListener('click', () => vidContainer.scrollBy({ left: -400, behavior: 'smooth' }));
+    if(btnNext) btnNext.addEventListener('click', () => vidContainer.scrollBy({ left: 400, behavior: 'smooth' }));
+}
+
+const startPresse = () => { if(document.getElementById('presse-video-container')) loadPresseData(); };
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', startPresse); } else { startPresse(); }
 
     // --- 2. Articles ---
     let articles = Cache.get('site_presse_articles');
