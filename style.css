@@ -694,14 +694,8 @@ body {
     text-decoration: none; 
     transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     position: relative;
-    
-    /* 🛠️ BLOC DE CORRECTION BORDURE (WEBKIT BUG) */
     overflow: hidden;
     background-color: var(--bg-dark);
-    transform: translateZ(0); 
-    -webkit-mask-image: -webkit-radial-gradient(white, black); 
-    isolation: isolate; 
-    background-clip: padding-box; 
 }
 
 .bento-service-card:hover {
