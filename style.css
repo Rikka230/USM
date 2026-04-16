@@ -1236,31 +1236,29 @@ html, body {
     .lightbox-media iframe { width: 100%; height: 100%; }
 }
 
-/* 🪄 Masquage manuel du Watermark Instagram - VERSION LARGE */
+/* 🪄 Masquage manuel précis du Watermark Instagram - RÉGLAGE FINAL USM */
 #instagram-feed {
     position: relative;
-    /* On augmente encore l'espace en haut pour une respiration maximale */
-    padding-top: 60px; 
-    padding-bottom: 20px;
+    /* On stabilise l'espace en haut pour un alignement parfait avec le titre */
+    padding-top: 40px; 
     
-    /* On pousse la hauteur pour s'assurer que les photos ne sont plus serrées */
-    /* Si vous avez beaucoup de photos, vous pouvez monter jusqu'à 750px ou 800px */
-    max-height: 700px; 
+    /* 🪄 FIX : On augmente la hauteur à 750px pour laisser respirer les deux lignes de photos */
+    max-height: 750px; 
     
     overflow: hidden; 
-    /* Ombre interne plus profonde pour une transition invisible vers le noir */
-    box-shadow: inset 0 -50px 40px var(--bg-dark);
+    /* Ombre interne plus douce pour une transition naturelle vers le fond du site */
+    box-shadow: inset 0 -60px 50px var(--bg-dark);
     border-bottom: 2px solid var(--surface-border);
 }
 
-/* 🪄 Badge de recouvrement large pour boucher le coin du logo */
+/* 🪄 Badge de recouvrement (Largeur et hauteur calibrées pour les coins Elfsight) */
 .insta-overlay-fix {
     position: absolute;
     bottom: 0;
     right: 0;
-    /* On augmente la surface pour être sûr de couvrir les badges "Free" */
-    width: 220px; 
-    height: 60px; 
+    /* On couvre une zone un peu plus haute pour masquer le badge "Free" persistant */
+    width: 250px; 
+    height: 70px; 
     background: var(--bg-dark); 
     z-index: 100; 
     pointer-events: none; 
