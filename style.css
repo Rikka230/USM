@@ -1081,70 +1081,114 @@ html, body {
 }
 .video-title { padding: 15px; font-size: 1rem; font-weight: bold; color: white; }
 
-/* Mosaïque Articles (Effet Pile de Journaux) */
+/* Mosaïque Articles (Effet Vrai Journal Plié) */
 .mosaic-wrapper { max-width: 1400px; margin: 0 auto 100px; padding: 0 var(--spacing-main); }
-.mosaic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 25px; }
+.mosaic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 35px; }
 
 .mosaic-item { 
     position: relative; 
     cursor: pointer; 
     aspect-ratio: 1 / 1; 
-    background: #f4f4f4; /* Couleur papier recyclé */
+    background: #eaeaea; /* Couleur papier légèrement grisée */
     display: flex; align-items: center; justify-content: center;
-    padding: 8px; /* Marge blanche qui encadre le journal */
-    border: 1px solid #ddd;
+    /* Plus de marge à gauche pour la pliure, moins à droite */
+    padding: 12px 8px 12px 18px; 
     
-    /* 🪄 L'EFFET MAGIQUE : Pile de journaux avec ombres dures */
+    /* 🪄 L'EFFET PLIURE : Très arrondi à gauche, angles droits à droite */
+    border-radius: 14px 2px 2px 14px; 
+    
+    /* 🪄 OMBRES 3D : Lignes blanches et grises alternées pour simuler les pages */
     box-shadow: 
-        -1px 1px 0px #fff, 
-        -2px 2px 0px #ccc, 
-        -3px 3px 0px #fff, 
-        -4px 4px 0px #bbb, 
-        -6px 6px 10px rgba(0,0,0,0.3);
+        2px 2px 0px #fff, 
+        3px 3px 2px rgba(0,0,0,0.15), 
+        5px 5px 0px #fff, 
+        6px 6px 3px rgba(0,0,0,0.15), 
+        8px 8px 0px #fff, 
+        10px 10px 15px rgba(0,0,0,0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease; 
+}
+
+/* 🪄 L'OMBRE INTERNE : Simule le volume cylindrique de la pliure du journal */
+.mosaic-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 14px 2px 2px 14px;
+    background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(255,255,255,0.4) 6%, transparent 15%);
+    pointer-events: none;
+    z-index: 2;
 }
 
 .mosaic-item img { 
     width: 100%; height: 100%; 
-    object-fit: contain !important; /* Interdit le stretching */
+    object-fit: contain !important; 
     object-position: center; 
     display: block;
-    filter: contrast(1.05) sepia(0.05); /* Léger filtre "encre presse" */
+    z-index: 1;
+    filter: contrast(1.03) sepia(0.02); /* Donne un très léger ton ancien au papier */
     transition: transform 0.5s ease; 
 }
 
 .mosaic-item:hover { 
-    transform: translateY(-5px) translateX(5px); 
+    transform: translateY(-5px) translateX(-2px); 
     box-shadow: 
-        -2px 2px 0px #fff, -4px 4px 0px #ccc, 
-        -6px 6px 0px #fff, -8px 8px 0px #bbb, 
-        -12px 12px 20px rgba(0,0,0,0.5);
-    border-color: var(--usm-pink); 
+        3px 3px 0px #fff, 4px 4px 3px rgba(0,0,0,0.15), 
+        7px 7px 0px #fff, 8px 8px 4px rgba(0,0,0,0.15), 
+        11px 11px 0px #fff, 15px 15px 20px rgba(0,0,0,0.4);
+    border: 1px solid var(--usm-pink); 
 }
 .mosaic-item:hover img { transform: scale(1.02); }
 
+
+/* Modale (Lightbox Responsive & Connectée) */
 .lightbox { 
     position: fixed; inset: 0; background: rgba(0,0,0,0.92); 
-    z-index: 9999; display: none; /* Cache 100% du temps si non active */
+    z-index: 9999; display: none; /* Caché par défaut */
+    align-items: center; justify-content: center; /* Centre le conteneur global */
 }
-.lightbox.active { display: block; }
-.lightbox-container { width: 100%; height: 100%; position: relative; }
+.lightbox.active { display: flex; } /* Flex permet un centrage parfait */
+
+/* 🪄 LE CONTENEUR FIXE : Bloque l'écartement des éléments sur grand écran */
+.lightbox-container { 
+    display: flex; 
+    flex-direction: row; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 40px; /* L'écart entre le média et le texte ne bougera jamais ! */
+    width: 95vw; 
+    max-width: 1400px; /* Bloque l'écartement au-delà de 1400px */
+    height: 90vh; 
+    position: relative; 
+}
 
 .lightbox-media { 
-    position: absolute; inset: 0; z-index: 1;
-    display: flex; align-items: center; justify-content: center; 
-    padding: 40px; 
-}
-.lightbox-media img { max-width: 100%; max-height: 100%; object-fit: contain; }
-.lightbox-media iframe { 
-    width: 80vw; max-width: 1200px; height: 45vw; max-height: 80vh; 
-    border: none; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); 
+    flex: 1 1 auto; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; /* Centre le média dans sa propre moitié */
+    height: 100%; 
+    max-width: calc(100% - 390px); /* Laisse toujours exactement la place pour le texte */
 }
 
+.lightbox-media img { 
+    max-width: 100%; max-height: 100%; 
+    object-fit: contain; 
+    border-radius: 8px; /* Adoucit les bords de la photo affichée */
+}
+
+.lightbox-media iframe { 
+    width: 100%; max-width: 1000px; 
+    aspect-ratio: 16 / 9; height: auto; max-height: 100%; 
+    border: none; border-radius: 12px; 
+    box-shadow: 0 20px 60px rgba(0,0,0,0.9); 
+}
+
+/* Le Panneau Latéral (Ne part plus sur le bord de l'écran) */
 .lightbox-sidebar { 
-    position: absolute; right: 40px; top: 50%; transform: translateY(-50%); 
-    width: 350px; max-height: 80vh; overflow-y: auto; z-index: 2;
-    background: rgba(25, 25, 30, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+    flex: 0 0 350px; /* Reste toujours à 350px de large */
+    max-height: 80vh; overflow-y: auto; 
+    background: rgba(25, 25, 30, 0.85); 
+    backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
     border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; 
     box-shadow: -10px 0 40px rgba(0,0,0,0.5); 
 }
@@ -1157,12 +1201,19 @@ html, body {
 }
 .lightbox-close:hover { color: var(--usm-pink); transform: scale(1.1); }
 
-/* Adaptabilité Mobile */
-@media (max-width: 850px) {
-    .lightbox-sidebar { 
-        right: 0; left: 0; bottom: 0; top: auto; transform: none; 
-        width: 100%; max-height: 40vh; border-radius: 20px 20px 0 0; padding: 20px; 
+/* Adaptabilité Tablette & Mobile (Le texte passe en dessous au lieu de chevaucher) */
+@media (max-width: 950px) {
+    .lightbox-container { 
+        flex-direction: column; 
+        gap: 20px; 
+        padding-top: 60px; /* Laisse la place pour la croix de fermeture */
     }
-    .lightbox-media { padding: 10px; padding-bottom: 42vh; }
-    .lightbox-media iframe { width: 100%; height: 60vw; }
+    .lightbox-media { 
+        flex: 0 1 auto; max-width: 100%; height: 50vh; 
+    }
+    .lightbox-sidebar { 
+        flex: 1 1 auto; width: 100%; max-height: 40vh; 
+        border-radius: 20px 20px 0 0; padding: 20px; 
+    }
+    .lightbox-media iframe { width: 100%; height: 100%; }
 }
