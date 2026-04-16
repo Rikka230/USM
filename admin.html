@@ -9,8 +9,22 @@
 <body class="admin-body">
 
     <div id="auth-loader" class="fullscreen-loader">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Eagle_white_icon.svg/1024px-Eagle_white_icon.svg.png" alt="USM" width="60" class="pulse-anim">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Eagle_white_icon.svg/1024px-Eagle_white_icon.svg.png" id="admin-loader-img" alt="USM" style="max-width: 150px; height: auto;" class="pulse-anim">
     </div>
+    
+    <script>
+        try {
+            const settingsCache = localStorage.getItem('site_settings');
+            if (settingsCache) {
+                const parsed = JSON.parse(settingsCache);
+                if (parsed && parsed.data && parsed.data.logoHero) {
+                    const img = document.getElementById('admin-loader-img');
+                    img.src = parsed.data.logoHero;
+                    img.style.width = '180px';
+                }
+            }
+        } catch(e) {}
+    </script>
 
     <div id="login-screen" class="hidden">
         <form id="login-form">
