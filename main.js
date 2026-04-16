@@ -568,30 +568,50 @@ async function loadPresseData() {
         vidContainer.innerHTML = '<p style="color:#888; margin-left:20px;">Aucune vidéo pour le moment.</p>';
     }
 
-  // --- 1.5 Flux Automatique YouTube ---
+  // --- 1.5 Flux Automatique YouTube (Anti-Bloqueur) ---
     const ytContainer = document.getElementById('youtube-feed-container');
     if (ytContainer) {
+        // L'ID officiel de ta chaîne
         const YOUTUBE_CHANNEL_ID = "UCuaiYfKTeTWvQyz4tJXMlug"; 
-        
-        const rssUrl = encodeURIComponent(`https://www.youtube.com/feeds/videos.xml?channel_id=${YOUTUBE_CHANNEL_ID}`);
-        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
+        const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${YOUTUBE_CHANNEL_ID}`;
 
         try {
-            const response = await fetch(apiUrl);
+            // Utilisation d'un proxy neutre qui échappe aux bloqueurs de publicité
+            const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`);
             const data = await response.json();
             
-            if(data.items && data.items.length > 0) {
-                ytContainer.innerHTML = data.items.map(item => {
-                    const safeTitle = escapeHTML(item.title);
+            // Décodage "à la main" du fichier brut de YouTube
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+            const entries = Array.from(xmlDoc.querySelectorAll("entry"));
+            
+            if(entries.length > 0) {
+                ytContainer.innerHTML = entries.map(entry => {
+                    const title = entry.querySelector("title").textContent;
+                    
+                    // Extraction ultra-sécurisée de l'ID de la vidéo
+                    let videoId = "";
+                    const ytIdTag = entry.getElementsByTagName("yt:videoId")[0];
+                    if(ytIdTag) {
+                        videoId = ytIdTag.textContent;
+                    } else {
+                        videoId = entry.querySelector("id").textContent.replace('yt:video:', '');
+                    }
+
+                    // Reconstitution du lien et de la photo miniature
+                    const link = `https://www.youtube.com/watch?v=${videoId}`;
+                    const thumbUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                    const safeTitle = escapeHTML(title);
+                    
                     return `
-                    <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${item.link}" data-title="${safeTitle}" data-desc="" data-link="">
+                    <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${link}" data-title="${safeTitle}" data-desc="" data-link="">
                         <div class="video-container">
-                            <img src="${item.thumbnail}" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
+                            <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
                             <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
                                 <div style="width:50px; height:50px; background:#ff0000; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; padding-left:4px; box-shadow: 0 4px 15px rgba(255,0,0,0.4);">▶</div>
                             </div>
                         </div>
-                        <div class="video-title">${item.title}</div>
+                        <div class="video-title">${title}</div>
                     </div>`;
                 }).join('');
             } else {
@@ -599,10 +619,10 @@ async function loadPresseData() {
             }
         } catch(e) {
             console.error("Erreur YouTube:", e);
-            ytContainer.innerHTML = '<p style="color:red; margin-left:20px;">Impossible de charger la chaîne YouTube.</p>';
+            ytContainer.innerHTML = '<p style="color:red; margin-left:20px;">Vidéos YouTube temporairement indisponibles.</p>';
         }
 
-        // Connexion des flèches du nouveau slider
+        // Branchement des flèches
         const btnYtPrev = document.getElementById('btn-yt-prev');
         const btnYtNext = document.getElementById('btn-yt-next');
         if(btnYtPrev) btnYtPrev.addEventListener('click', () => ytContainer.scrollBy({ left: -400, behavior: 'smooth' }));
