@@ -463,3 +463,91 @@ if(searchInput) {
         }, 400); // 400ms d'attente avant d'exécuter la recherche
     });
 }
+
+/* ================= 9. PAGE PRESSE (VIDEOS & ARTICLES) ================= */
+
+// Fonctions globales pour la Lightbox (doivent être accessibles depuis le HTML)
+window.openLightbox = (url) => {
+    const lb = document.getElementById('presse-lightbox');
+    const img = document.getElementById('lightbox-img');
+    if(lb && img) { 
+        img.src = url; 
+        lb.classList.add('active'); 
+        document.body.style.overflow = 'hidden'; // Bloque le scroll du site derrière
+    }
+};
+window.closeLightbox = () => {
+    const lb = document.getElementById('presse-lightbox');
+    if(lb) {
+        lb.classList.remove('active');
+        document.body.style.overflow = ''; // Rétablit le scroll
+    }
+};
+
+async function loadPresseData() {
+    const vidContainer = document.getElementById('presse-video-container');
+    const mosContainer = document.getElementById('presse-mosaic-container');
+    
+    // Si on n'est pas sur la page presse, on arrête ici
+    if(!vidContainer || !mosContainer) return;
+
+    // --- 1. Chargement des Vidéos (Avec Cache) ---
+    let videos = Cache.get('site_presse_videos');
+    if(!videos) {
+        try {
+            const q = query(collection(db, "presse_videos"), orderBy("order", "asc"), limit(15));
+            const snap = await getDocs(q);
+            videos = [];
+            snap.forEach(d => videos.push({id: d.id, ...d.data()}));
+            Cache.set('site_presse_videos', videos);
+        } catch(e) { console.error("Erreur Vidéos:", e); }
+    }
+    
+    if(videos && videos.length > 0) {
+        vidContainer.innerHTML = videos.map(v => `
+            <div class="video-card">
+                <div class="video-container">
+                    <iframe src="${v.url}" loading="lazy" allowfullscreen></iframe>
+                </div>
+                <div class="video-title">${v.title}</div>
+            </div>
+        `).join('');
+    } else {
+        vidContainer.innerHTML = '<p style="color:#888;">Aucune vidéo pour le moment.</p>';
+    }
+
+    // --- 2. Chargement des Articles (Avec Cache) ---
+    let articles = Cache.get('site_presse_articles');
+    if(!articles) {
+        try {
+            const q = query(collection(db, "presse_articles"), orderBy("order", "asc"), limit(30));
+            const snap = await getDocs(q);
+            articles = [];
+            snap.forEach(d => articles.push({id: d.id, ...d.data()}));
+            Cache.set('site_presse_articles', articles);
+        } catch(e) { console.error("Erreur Articles:", e); }
+    }
+    
+    if(articles && articles.length > 0) {
+        mosContainer.innerHTML = articles.map(a => `
+            <div class="mosaic-item" onclick="openLightbox('${a.image_url}')">
+                <img src="${a.image_url}" loading="lazy" alt="Article de presse">
+            </div>
+        `).join('');
+    } else {
+        mosContainer.innerHTML = '<p style="color:#888; grid-column: 1/-1;">Aucun article pour le moment.</p>';
+    }
+
+    // --- 3. Logique des flèches du Slider Vidéo ---
+    const btnPrev = document.getElementById('btn-vid-prev');
+    const btnNext = document.getElementById('btn-vid-next');
+    if(btnPrev) btnPrev.addEventListener('click', () => vidContainer.scrollBy({ left: -400, behavior: 'smooth' }));
+    if(btnNext) btnNext.addEventListener('click', () => vidContainer.scrollBy({ left: 400, behavior: 'smooth' }));
+}
+
+// Ajout du déclencheur dans la logique de démarrage
+document.addEventListener("DOMContentLoaded", () => {
+    // ... [Ton code existant dans DOMContentLoaded] ...
+    // Vérifie qu'à la fin de DOMContentLoaded, tu ajoutes bien l'appel à loadPresseData() :
+    setTimeout(loadPresseData, 500); 
+});
