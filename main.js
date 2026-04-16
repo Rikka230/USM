@@ -568,19 +568,16 @@ async function loadPresseData() {
         vidContainer.innerHTML = '<p style="color:#888; margin-left:20px;">Aucune vidéo pour le moment.</p>';
     }
 
-  // --- 1.5 Flux Automatique YouTube (Anti-Bloqueur) ---
+    // --- 1.5 Flux Automatique YouTube (Anti-Bloqueur) ---
     const ytContainer = document.getElementById('youtube-feed-container');
     if (ytContainer) {
-        // L'ID officiel de ta chaîne
         const YOUTUBE_CHANNEL_ID = "UCuaiYfKTeTWvQyz4tJXMlug"; 
         const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${YOUTUBE_CHANNEL_ID}`;
 
         try {
-            // Utilisation d'un proxy neutre qui échappe aux bloqueurs de publicité
             const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`);
             const data = await response.json();
             
-            // Décodage "à la main" du fichier brut de YouTube
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(data.contents, "text/xml");
             const entries = Array.from(xmlDoc.querySelectorAll("entry"));
@@ -589,7 +586,6 @@ async function loadPresseData() {
                 ytContainer.innerHTML = entries.map(entry => {
                     const title = entry.querySelector("title").textContent;
                     
-                    // Extraction ultra-sécurisée de l'ID de la vidéo
                     let videoId = "";
                     const ytIdTag = entry.getElementsByTagName("yt:videoId")[0];
                     if(ytIdTag) {
@@ -598,10 +594,10 @@ async function loadPresseData() {
                         videoId = entry.querySelector("id").textContent.replace('yt:video:', '');
                     }
 
-                    // Reconstitution du lien et de la photo miniature
                     const link = `https://www.youtube.com/watch?v=${videoId}`;
                     const thumbUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-                    const safeTitle = escapeHTML(title);
+                    // 🪄 Correction ici : utilisation d'encodeURIComponent
+                    const safeTitle = encodeURIComponent(title); 
                     
                     return `
                     <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${link}" data-title="${safeTitle}" data-desc="" data-link="">
@@ -622,7 +618,6 @@ async function loadPresseData() {
             ytContainer.innerHTML = '<p style="color:red; margin-left:20px;">Vidéos YouTube temporairement indisponibles.</p>';
         }
 
-        // Branchement des flèches
         const btnYtPrev = document.getElementById('btn-yt-prev');
         const btnYtNext = document.getElementById('btn-yt-next');
         if(btnYtPrev) btnYtPrev.addEventListener('click', () => ytContainer.scrollBy({ left: -400, behavior: 'smooth' }));
