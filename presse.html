@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presse | USM Football</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo-nav">
+            <a href="index.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px;">
+                <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" class="nav-logo-dyn">
+                <div>USM F<span>OO</span>TBALL</div>
+            </a>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html">❮ Retour Accueil</a>
+            <a href="contact.html" style="text-decoration: none;">
+                <button class="btn-premium">Contact</button>
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="presse-hero">
+            <h1 class="pink-accent">Presse & Médias</h1>
+            <p style="color: #aaa; font-size: 1.1rem; margin-top: 10px;">L'actualité de l'agence USM Football dans les médias.</p>
+        </section>
+
+        <section class="video-slider-wrapper">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-size: 1.8rem; text-transform: uppercase;">Passages TV</h2>
+                <div class="slider-controls">
+                    <button class="slider-btn" id="btn-vid-prev">❮</button>
+                    <button class="slider-btn" id="btn-vid-next">❯</button>
+                </div>
+            </div>
+            
+            <div class="video-slider" id="presse-video-container">
+                <div class="loader-spinner" style="margin: 50px auto;"></div>
+            </div>
+        </section>
+
+        <section class="mosaic-wrapper">
+            <h2 style="font-size: 1.8rem; text-transform: uppercase; margin-bottom: 20px;">Articles & Parutions</h2>
+            <div class="mosaic-grid" id="presse-mosaic-container">
+                <div class="loader-spinner" style="margin: 50px auto; grid-column: 1 / -1;"></div>
+            </div>
+        </section>
+    </main>
+
+    <div class="lightbox" id="presse-lightbox" onclick="closeLightbox()">
+        <button class="lightbox-close" onclick="closeLightbox()">×</button>
+        <img src="" alt="Article en grand" id="lightbox-img" class="lightbox-content" onclick="event.stopPropagation()">
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
