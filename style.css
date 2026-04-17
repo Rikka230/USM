@@ -832,7 +832,7 @@ html, body {
 }
 
 @media (max-width: 850px) {
-    /* 2. HEADER STRICTEMENT CADRÉ (CORRIGÉ POUR LE BURGER) */
+    /* 2. HEADER STRICTEMENT CADRÉ (CORRIGÉ) */
     .navbar {
         flex-direction: row !important; 
         justify-content: space-between !important; 
@@ -843,22 +843,14 @@ html, body {
         box-sizing: border-box;
     }
 
-    /* 3. TEXTES GÉANTS EN ARRIÈRE-PLAN (Source n°1 de dépassement) */
-    .giant-bg-text {
-        font-size: 4rem; /* Réduit pour ne pas faire exploser la largeur de la page */
-    }
+    /* 3. TEXTES GÉANTS EN ARRIÈRE-PLAN */
+    .giant-bg-text { font-size: 4rem; }
 
     /* 4. HERO SECTION */
-    .hero-massive {
-        padding-top: 160px; 
-        width: 100%;
-        box-sizing: border-box;
-    }
-    .massive-eagle-wrapper {
-        width: 90%; /* Évite que l'aigle touche les bords de l'écran */
-    }
+    .hero-massive { padding-top: 160px; width: 100%; box-sizing: border-box; }
+    .massive-eagle-wrapper { width: 90%; }
 
-  /* 5. BENTO GRID & STATISTIQUES (Textes 100% lisibles) */
+    /* 5. STATISTIQUES (BENTO GRID) */
     .bento-grid {
         grid-template-columns: repeat(2, 1fr);
         padding: 10px;
@@ -866,151 +858,71 @@ html, body {
         width: 100%;
         box-sizing: border-box;
     }
-    .bento-card {
-        min-height: auto;
-        padding: 15px 10px;
-        width: 100%;
-    }
-    .data-label {
-        height: auto;
-        min-height: 35px;
-        font-size: 0.75rem;
-        line-height: 1.2;
-    }
-    .data-huge {
-        font-size: 1.8rem;
-        margin: 5px 0;
-    }
-    .data-desc {
-        height: auto;
-        -webkit-line-clamp: 4; /* Autorise jusqu'à 4 lignes pour ne plus couper le texte */
-        font-size: 0.75rem;
-        line-height: 1.3;
-    }
+    .bento-card { min-height: auto; padding: 15px 10px; width: 100%; }
+    .data-label { height: auto; min-height: 35px; font-size: 0.75rem; line-height: 1.2; }
+    .data-huge { font-size: 1.8rem; margin: 5px 0; }
+    .data-desc { height: auto; -webkit-line-clamp: 4; font-size: 0.75rem; line-height: 1.3; }
+    .card-full { grid-column: 1 / -1; align-items: center; text-align: center; }
+    .card-full .data-label { justify-content: center; }
 
-    /* CENTRAGE DU GRAND TITRE SERVICES */
-    .card-full {
-        grid-column: 1 / -1;
-        align-items: center; /* Centre le titre "Accompagnement Global" */
-        text-align: center;
-    }
-    .card-full .data-label {
-        justify-content: center;
-    }
-
-    /* TUILES SERVICES (Design premium 1 colonne) */
+    /* 🪄 6. NOUVEAU DESIGN SERVICES (1 Colonne, Format Cinéma) */
     .services-grid { 
-        gap: 15px; 
+        display: grid !important; 
+        grid-template-columns: 1fr !important; /* Force 1 seule colonne large */
+        gap: 20px; 
         width: 100%; 
-        flex-direction: column; /* 🪄 Force l'affichage sur 1 seule colonne */
-    }
-    .bento-service-card {
-        flex: 0 1 100%; /* 🪄 La carte prend 100% de la largeur */
-        aspect-ratio: auto;
-        min-height: 200px; /* Moins haut puisqu'on a toute la largeur */
-        padding: 25px; /* Plus d'espace interne pour respirer */
-        width: 100%;
+        padding: 0 15px; /* Dégage les bords du téléphone */
         box-sizing: border-box;
     }
-    
-    /* Filtre sombre ajouté par-dessus l'image de fond */
+    .bento-service-card {
+        width: 100% !important;
+        aspect-ratio: 16 / 9; /* Un beau format rectangulaire type Netflix */
+        min-height: auto !important; 
+        padding: 25px 20px !important;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end; /* Pousse le contenu vers le bas */
+    }
+    /* Dégradé sombre pour toujours lire le texte, peu importe la photo */
     .bento-service-card::before {
         content: '';
         position: absolute;
         inset: 0;
-        background: rgba(0, 0, 0, 0.65);
+        background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.1) 100%);
         z-index: 1;
     }
-    
     .srv-card-content {
+        position: relative;
+        z-index: 2;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
-        height: 100%;
     }
-    .srv-card-content h3 {
-        font-size: 1.3rem; /* Taille de titre ajustée */
-        min-height: auto; /* Supprime le blocage de hauteur */
-        margin-bottom: 8px;
-    }
-    .srv-card-content p {
-        font-size: 0.9rem;
-        line-height: 1.5;
-        -webkit-line-clamp: 3; /* Garde le texte propre */
-    }
-    .srv-card-arrow { 
-        font-size: 0.8rem; 
-        margin-top: 15px;
-    }
+    .srv-card-content h3 { font-size: 1.4rem; margin-bottom: 5px; }
+    .srv-card-content p { font-size: 0.9rem; line-height: 1.4; -webkit-line-clamp: 3; }
+    .srv-card-arrow { position: relative; z-index: 2; font-size: 0.8rem; margin-top: 10px; }
 
-    /* 6. SECTION FONDATEUR */
-    .founder-vip-section {
-        flex-direction: column;
-        margin: 20px 15px 60px;
-        width: calc(100% - 30px); /* 100% moins les marges */
-    }
-    .vip-photo-wrapper, .vip-content {
-        flex: 1 1 100%;
-        width: 100%;
-    }
-    .vip-photo-wrapper {
-        height: 350px; 
-        min-height: 350px;
-    }
-    .vip-content {
-        padding: 30px 20px;
-    }
-    .vip-name {
-        font-size: 2.5rem;
-    }
+    /* 7. SECTION FONDATEUR */
+    .founder-vip-section { flex-direction: column; margin: 20px 15px 60px; width: calc(100% - 30px); }
+    .vip-photo-wrapper, .vip-content { flex: 1 1 100%; width: 100%; }
+    .vip-photo-wrapper { height: 350px; min-height: 350px; }
+    .vip-content { padding: 30px 20px; }
+    .vip-name { font-size: 2.5rem; }
 
-    /* 7. ROSTER & SLIDER JOUEURS (Sécurisation anti-débordement) */
-    .players-section {
-        padding: 15px;
-        width: 100%;
-        max-width: 100vw;
-        overflow: hidden; /* Empêche le slider de faire scroller toute la page */
-        box-sizing: border-box;
-    }
-    .player-filters {
-        justify-content: center; 
-    }
-    .category-block {
-        width: 100%;
-        max-width: 100%;
-    }
-    .slider-container {
-        width: 100%;
-        max-width: 100%;
-    }
-    .horizontal-scroller {
-        width: 100%;
-        padding-bottom: 20px;
-        /* Le scroll se fait UNIQUEMENT à l'intérieur de cette boîte, pas sur le site */
-    }
-    .player-card {
-        flex: 0 0 240px; 
-    }
-    .player-img-container {
-        height: 280px;
-    }
+    /* 8. ROSTER & SLIDER JOUEURS */
+    .players-section { padding: 15px; width: 100%; overflow: hidden; box-sizing: border-box; }
+    .player-filters { justify-content: center; }
+    .category-block { width: 100%; max-width: 100%; }
+    .slider-container { width: 100%; max-width: 100%; }
+    .horizontal-scroller { width: 100%; padding-bottom: 20px; }
+    .player-card { flex: 0 0 240px; }
+    .player-img-container { height: 280px; }
 
-    /* 8. PAGES INTERNES */
-    .contact-grid {
-        grid-template-columns: 1fr;
-    }
-    .service-page-layout {
-        flex-direction: column;
-        padding: 15px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-    .service-sidebar {
-        flex: 1 1 100%; 
-    }
-    .service-hero h1 {
-        font-size: 2rem;
-    }
+    /* 9. PAGES INTERNES */
+    .contact-grid { grid-template-columns: 1fr; }
+    .service-page-layout { flex-direction: column; padding: 15px; width: 100%; box-sizing: border-box; }
+    .service-sidebar { flex: 1 1 100%; }
+    .service-hero h1 { font-size: 2rem; }
 }
 
 /* Optimisation extrême pour les très petits téléphones (iPhone SE, etc.) */
