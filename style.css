@@ -898,16 +898,17 @@ html, body {
         justify-content: center;
     }
 
-    /* TUILES SERVICES (Assombries et alignées) */
+    /* TUILES SERVICES (Design premium 1 colonne) */
     .services-grid { 
-        gap: 10px; 
+        gap: 15px; 
         width: 100%; 
+        flex-direction: column; /* 🪄 Force l'affichage sur 1 seule colonne */
     }
     .bento-service-card {
-        flex: 0 1 calc(50% - 5px);
+        flex: 0 1 100%; /* 🪄 La carte prend 100% de la largeur */
         aspect-ratio: auto;
-        min-height: 260px;
-        padding: 15px 10px;
+        min-height: 200px; /* Moins haut puisqu'on a toute la largeur */
+        padding: 25px; /* Plus d'espace interne pour respirer */
         width: 100%;
         box-sizing: border-box;
     }
@@ -928,17 +929,18 @@ html, body {
         height: 100%;
     }
     .srv-card-content h3 {
-        font-size: 1rem;
-        min-height: 45px; /* Verrouille la hauteur du titre pour aligner les textes en dessous */
-        margin-bottom: 5px;
+        font-size: 1.3rem; /* Taille de titre ajustée */
+        min-height: auto; /* Supprime le blocage de hauteur */
+        margin-bottom: 8px;
     }
     .srv-card-content p {
-        font-size: 0.75rem;
-        line-height: 1.4;
-        -webkit-line-clamp: 4; /* Texte plus long autorisé */
+        font-size: 0.9rem;
+        line-height: 1.5;
+        -webkit-line-clamp: 3; /* Garde le texte propre */
     }
     .srv-card-arrow { 
-        font-size: 0.7rem; 
+        font-size: 0.8rem; 
+        margin-top: 15px;
     }
 
     /* 6. SECTION FONDATEUR */
