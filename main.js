@@ -340,6 +340,19 @@ function renderOtherServices(currentId, lang) {
         </a>`;
     });
     container.innerHTML = html;
+  // 🪄 Activation des flèches du slider Services (VERSION CORRIGÉE)
+    const btnSrvPrev = document.getElementById('btn-srv-prev');
+    const btnSrvNext = document.getElementById('btn-srv-next');
+    if (btnSrvPrev && container) {
+        const newBtnPrev = btnSrvPrev.cloneNode(true);
+        btnSrvPrev.parentNode.replaceChild(newBtnPrev, btnSrvPrev);
+        newBtnPrev.addEventListener('click', () => container.scrollBy({ left: -350, behavior: 'smooth' }));
+    }
+    if (btnSrvNext && container) {
+        const newBtnNext = btnSrvNext.cloneNode(true);
+        btnSrvNext.parentNode.replaceChild(newBtnNext, btnSrvNext);
+        newBtnNext.addEventListener('click', () => container.scrollBy({ left: 350, behavior: 'smooth' }));
+    }
 }
 
 /* ================= 7. PAGE SERVICE UNIQUE ================= */
