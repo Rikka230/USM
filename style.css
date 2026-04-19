@@ -988,11 +988,10 @@ html, body {
     #services-container .bento-service-card {
         flex: 0 0 85% !important; 
         width: 85% !important;
-        height: 220px !important; /* 🪄 Hauteur cinéma imposée (plus de bug d'étirement) */
+        height: 220px !important; 
         scroll-snap-align: center !important; 
         padding: 25px 20px !important;
     }
-    /* Dégradé sombre pour toujours lire le texte, peu importe la photo */
     .bento-service-card::before {
         content: '';
         position: absolute;
@@ -1032,36 +1031,35 @@ html, body {
     .service-sidebar { flex: 1 1 100%; }
     .service-hero h1 { font-size: 2rem; }
 
-    /* 10. CACHER LE BADGE INSTAGRAM SUR MOBILE (RÉGLAGE CHIRURGICAL) */
+    /* 10. CACHER LE BADGE INSTAGRAM SUR MOBILE (MÉTHODE BLINDÉE 100% CSS) */
     #instagram-feed {
-        height: 750px !important; 
+        position: relative !important;
+        height: 700px !important; 
+        overflow: hidden !important;
     }
+    
     #instagram-feed iframe, 
     #instagram-feed [class*="elfsight-app"] {
-        margin-top: -50px !important; /* On remonte à peine */
+        margin-top: -30px !important; 
         height: calc(100% + 80px) !important; 
     }
-    .insta-overlay-fix {
-        width: 100% !important; 
-        height: 32px !important; /* 🪄 Minimum absolu pour couvrir la pilule sans rogner la photo */
-        left: 0;
-    }
-}
 
-/* Optimisation extrême pour les très petits téléphones (iPhone SE, etc.) */
-@media (max-width: 480px) {
-    .nav-links a {
-        font-size: 0.75rem; 
+    /* Le rectangle noir généré directement par le navigateur par-dessus le widget */
+    #instagram-feed::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 55px; /* Hauteur suffisante pour couvrir la pilule entière */
+        background: var(--bg-dark);
+        z-index: 9999;
+        pointer-events: none;
     }
-    .btn-premium {
-        padding: 8px 16px;
-        font-size: 0.8rem;
-    }
-    .data-huge {
-        font-size: 1.8rem; 
-    }
-    .data-label {
-        font-size: 0.75rem;
+
+    /* On désactive l'ancienne div de masquage pour éviter les conflits */
+    .insta-overlay-fix {
+        display: none !important;
     }
 }
 
