@@ -948,25 +948,26 @@ document.addEventListener("DOMContentLoaded", () => {
     marqueeObserver.observe(marqueeSection);
 });
 
-<script type="text/javascript">
-  (function(d, t) {
-      var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
-      v.onload = function() {
-        window.voiceflow.chat.load({
-          verify: { projectID: '69e51bd6380fec02e85d3480' },
-          url: 'https://general-runtime.voiceflow.com',
-          versionID: 'production',
-          voice: {
-            url: "https://runtime-api.voiceflow.com"
-          },
-          render: {
-              mode: 'overlay', 
-          },
-          autostart: false
-        });
-      }
-      v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; 
-      v.type = "text/javascript"; 
-      s.parentNode.insertBefore(v, s);
-  })(document, 'script');
-</script>
+/* ================= 11. ASSISTANT IA (FILTRAGE CANDIDATURES) ================= */
+document.addEventListener("DOMContentLoaded", () => {
+    (function(d, t) {
+        var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
+        v.onload = function() {
+          window.voiceflow.chat.load({
+            verify: { projectID: '69e51bd6380fec02e85d3480' },
+            url: 'https://general-runtime.voiceflow.com',
+            versionID: 'production',
+            voice: {
+              url: "https://runtime-api.voiceflow.com"
+            },
+            render: {
+                mode: 'overlay', 
+            },
+            autostart: false
+          });
+        }
+        v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; 
+        v.type = "text/javascript"; 
+        s.parentNode.insertBefore(v, s);
+    })(document, 'script');
+});
