@@ -948,3 +948,24 @@ document.addEventListener("DOMContentLoaded", () => {
     marqueeObserver.observe(marqueeSection);
 });
 
+/* ================= 11. ASSISTANT IA (FILTRAGE CANDIDATURES) ================= */
+(function(d, t) {
+    var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
+    v.onload = function() {
+        window.voiceflow.chat.load({
+            verify: { projectID: '69e51bd6380fec02e85d347f' },
+            url: 'https://general-runtime.voiceflow.com',
+            versionID: 'production',
+            /* Paramètres pour forcer le workflow et le silence de l'IA */
+            autostart: true,
+            allowDangerousHTML: true,
+            assistant: {
+                extensions: [],
+            }
+        });
+    }
+    v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; 
+    v.type = "text/javascript"; 
+    s.parentNode.insertBefore(v, s);
+})(document, 'script');
+
