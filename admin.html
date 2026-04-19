@@ -43,6 +43,7 @@
                 <button id="nav-services">Gérer les Services</button>
                 <button id="nav-settings">Paramètres du Site</button>
                 <button id="nav-presse">Gérer la Presse</button>
+                <button id="nav-social">Gérer les Réseaux</button>
                 
                 <div style="margin-top: 50px; display: flex; flex-direction: column; gap: 10px;">
                     <button id="btn-force-cache" style="background: rgba(255, 68, 68, 0.1); color: #ff4444; border: 1px solid #ff4444; border-radius: 6px; padding: 10px; cursor: pointer; font-weight: bold; transition: 0.3s;">🔄 Vider le Cache</button>
@@ -341,6 +342,36 @@
                     <div style="display: flex; gap: 15px; margin-top: 20px;">
                         <button type="submit" id="save-article-btn" class="btn-publish" style="flex:1;">Enregistrer l'article</button>
                     </div>
+                </form>
+            </section>
+
+            <section id="manage-social-section" class="hidden">
+                <header style="margin-bottom: 25px;">
+                    <h1 style="margin: 0;">Réseaux Sociaux</h1>
+                    <p style="color: #aaa; margin-top: 10px;">Gérez les liens de vos réseaux sociaux ici. Laissez un champ vide pour masquer automatiquement l'icône correspondante sur le site public.</p>
+                </header>
+                <form id="social-form" class="bento-form" style="max-width: 600px;">
+                    <div>
+                        <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">TikTok</label>
+                        <input type="url" id="social-tiktok" placeholder="https://www.tiktok.com/@...">
+                    </div>
+                    <div>
+                        <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">LinkedIn</label>
+                        <input type="url" id="social-linkedin" placeholder="https://www.linkedin.com/company/...">
+                    </div>
+                    <div>
+                        <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Instagram</label>
+                        <input type="url" id="social-instagram" placeholder="https://www.instagram.com/...">
+                    </div>
+                    <div>
+                        <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Facebook</label>
+                        <input type="url" id="social-facebook" placeholder="https://www.facebook.com/...">
+                    </div>
+                    <div>
+                        <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">YouTube</label>
+                        <input type="url" id="social-youtube" placeholder="https://www.youtube.com/channel/...">
+                    </div>
+                    <button type="submit" id="save-social-btn" class="btn-publish" style="margin-top: 20px;">Enregistrer les Réseaux</button>
                 </form>
             </section>
             
