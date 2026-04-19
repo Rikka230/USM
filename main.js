@@ -20,14 +20,13 @@ const app = initializeApp(firebaseConfig);
 // --- BOUCLIER ANTI-DDOS (APP CHECK + RECAPTCHA V3) ---
 const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider('6LdF2rUsAAAAAOUCVKJt2DCDKWQIEQXHyBkYETT1'),
-  isTokenAutoRefreshEnabled: true // Firebase renouvelle le jeton de sécurité tout seul
+  isTokenAutoRefreshEnabled: true
 });
 
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
 
 /* ================= 2. SYSTEME DE CACHE ANTI-COÛT ================= */
-// Le cache expire après 24 heures (équilibre parfait entre budget Firebase et mise à jour du site)
 const CACHE_TIME_24H = 1000 * 60 * 60 * 24; 
 
 const Cache = {
@@ -35,7 +34,7 @@ const Cache = {
         const item = localStorage.getItem(key);
         if (!item) return null;
         const parsed = JSON.parse(item);
-        if (Date.now() - parsed.timestamp > CACHE_TIME_24H) { // <-- Modifié ici
+        if (Date.now() - parsed.timestamp > CACHE_TIME_24H) {
             localStorage.removeItem(key);
             return null;
         }
@@ -58,8 +57,8 @@ const translations = {
         roster_title: "USM FAMILY", filter_all: "Tous", filter_gk: "Gardiens", filter_def: "Défenseurs",
         legal_mentions: "Mentions Légales",
         contact_title: "Contact", contact_subtitle: "Discutons de votre avenir.",
-        contact_info_title: "Nos Coordonnées", contact_hq: "Siège Social", contact_hq_val: "Marseille, France",
-        contact_phone: "Téléphone", contact_phone_val: "+33 (0)4 XX XX XX XX",
+        contact_info_title: "Nos Coordonnées", contact_hq: "Siège Social", contact_hq_val: "351, chemin des Gourettes - 06370 Mouans-Sartoux - France",
+        contact_phone: "Téléphone", contact_phone_val: "+33 492 90 90 25",
         contact_email: "Email", contact_email_val: "contact@usm-football.com",
         contact_form_title: "Envoyer un message",
         contact_ph_name: "Votre nom complet", contact_ph_email: "Votre adresse email",
@@ -79,8 +78,8 @@ const translations = {
         roster_title: "USM FAMILY", filter_all: "All", filter_gk: "Goalkeepers", filter_def: "Defenders",
         legal_mentions: "Legal Notice",
         contact_title: "Contact", contact_subtitle: "Let's discuss your future.",
-        contact_info_title: "Our Details", contact_hq: "Headquarters", contact_hq_val: "Marseille, France",
-        contact_phone: "Phone", contact_phone_val: "+33 (0)4 XX XX XX XX",
+        contact_info_title: "Our Details", contact_hq: "Headquarters", contact_hq_val: "351, chemin des Gourettes - 06370 Mouans-Sartoux - France",
+        contact_phone: "Phone", contact_phone_val: "+33 492 90 90 25",
         contact_email: "Email", contact_email_val: "contact@usm-football.com",
         contact_form_title: "Send a message",
         contact_ph_name: "Your full name", contact_ph_email: "Your email address",
@@ -100,8 +99,8 @@ const translations = {
         roster_title: "USM FAMILY", filter_all: "Todos", filter_gk: "Porteros", filter_def: "Defensas",
         legal_mentions: "Aviso Legal",
         contact_title: "Contacto", contact_subtitle: "Hablemos de tu futuro.",
-        contact_info_title: "Nuestros Datos", contact_hq: "Sede Central", contact_hq_val: "Marsella, Francia",
-        contact_phone: "Teléfono", contact_phone_val: "+33 (0)4 XX XX XX XX",
+        contact_info_title: "Nuestros Datos", contact_hq: "Sede Central", contact_hq_val: "351, chemin des Gourettes - 06370 Mouans-Sartoux - Francia",
+        contact_phone: "Teléfono", contact_phone_val: "+33 492 90 90 25",
         contact_email: "Email", contact_email_val: "contact@usm-football.com",
         contact_form_title: "Enviar un mensaje",
         contact_ph_name: "Tu nombre completo", contact_ph_email: "Tu correo electrónico",
@@ -121,8 +120,8 @@ const translations = {
         roster_title: "USM FAMILY", filter_all: "Todos", filter_gk: "Goleiros", filter_def: "Defensores",
         legal_mentions: "Aviso Legal",
         contact_title: "Contato", contact_subtitle: "Vamos discutir o seu futuro.",
-        contact_info_title: "Nossos Dados", contact_hq: "Sede", contact_hq_val: "Marselha, França",
-        contact_phone: "Telefone", contact_phone_val: "+33 (0)4 XX XX XX XX",
+        contact_info_title: "Nossos Dados", contact_hq: "Sede", contact_hq_val: "351, chemin des Gourettes - 06370 Mouans-Sartoux - França",
+        contact_phone: "Telefone", contact_phone_val: "+33 492 90 90 25",
         contact_email: "Email", contact_email_val: "contact@usm-football.com",
         contact_form_title: "Enviar uma mensagem",
         contact_ph_name: "Seu nome completo", contact_ph_email: "Seu endereço de email",
@@ -142,28 +141,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!translations[currentLang]) currentLang = 'fr';
     if(langSelect) langSelect.value = currentLang;
 
-  // 🪄 LOGIQUE DES ONGLETS AGENCE / FONDATEUR (Avec Lazy Loading & Fondu)
+    // LOGIQUE DES ONGLETS AGENCE / FONDATEUR
     const tabFounder = document.getElementById('tab-founder');
     const tabAgency = document.getElementById('tab-agency');
     
     if (tabFounder && tabAgency) {
-        
-        // 🪄 Fonction magique pour gérer le fondu croisé
         const doFadeTransition = async (updateContentCallback) => {
             const elements = ['vip-title-display', 'vip-quote-display', 'vip-desc-display', 'vip-licenses-display', 'vip-img-display'];
-            
-            // 1. On masque les textes et l'image (opacité à 0)
             elements.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.opacity = '0';
             });
-
-            // 2. On attend la fin du fondu sortant (300ms)
             setTimeout(async () => {
-                // On injecte les nouvelles données
                 await updateContentCallback();
-                
-                // 3. On réaffiche tout en douceur (opacité à 1)
                 elements.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.style.opacity = '1';
@@ -171,10 +161,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             }, 300);
         };
 
-        // Clic sur "Fondateur"
         tabFounder.addEventListener('click', () => {
-            if (tabFounder.style.background === 'var(--usm-pink)') return; // Anti-spam si on est déjà dessus
-
+            if (tabFounder.style.background === 'var(--usm-pink)') return;
             tabFounder.style.background = 'var(--usm-pink)'; tabFounder.style.color = '#fff';
             tabAgency.style.background = 'rgba(255,255,255,0.1)'; tabAgency.style.color = '#aaa';
             
@@ -190,20 +178,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         });
 
-        // Clic sur "L'Agence"
         tabAgency.addEventListener('click', () => {
-            if (tabAgency.style.background === 'var(--usm-pink)') return; // Anti-spam
-
+            if (tabAgency.style.background === 'var(--usm-pink)') return;
             tabAgency.style.background = 'var(--usm-pink)'; tabAgency.style.color = '#fff';
             tabFounder.style.background = 'rgba(255,255,255,0.1)'; tabFounder.style.color = '#aaa';
 
             doFadeTransition(async () => {
                 document.getElementById('vip-title-display').innerHTML = 'L\'Agence<br><span>USM Football</span>';
-                document.getElementById('vip-licenses-display').style.display = 'none'; // Cache les licences perso
+                document.getElementById('vip-licenses-display').style.display = 'none';
                 document.getElementById('vip-quote-display').textContent = '...';
                 document.getElementById('vip-desc-display').textContent = 'Chargement en cours...';
 
-                // Lazy Load
                 let agencyData = Cache.get('site_agency');
                 if (!agencyData) {
                     try {
@@ -292,7 +277,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-  // Gestion du menu mobile
     const mobileBtn = document.getElementById('mobile-menu-btn');
     const closeBtn = document.getElementById('close-menu-btn');
     const navLinks = document.getElementById('nav-links');
@@ -300,7 +284,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (mobileBtn && navLinks) {
         mobileBtn.addEventListener('click', () => navLinks.classList.add('active'));
         closeBtn.addEventListener('click', () => navLinks.classList.remove('active'));
-        // Ferme le menu si on clique sur un lien (sur mobile)
         navLinks.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => navLinks.classList.remove('active'));
         });
@@ -314,7 +297,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-   const startApp = async () => {
+    const startApp = async () => {
         await loadSettings(); 
         await loadSocialLinks();
         await loadServices(); 
@@ -322,11 +305,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         await loadSingleServicePage(); 
     };
     startApp();
-}); 
+}); /* <-- 🪄 LA FERMETURE GLOBALE DU DOMCONTENTLOADED EST ICI */
 
 /* ================= 5. CHARGEMENT PARAMÈTRES AVEC CACHE ================= */
 
-// La fonction magique qui manquait et qui faisait planter tout le site !
 function loadSmoothImage(selector, url, finalOpacity = '1') {
     const img = document.querySelector(selector);
     if (img && url) {
@@ -356,7 +338,7 @@ async function loadSettings() {
         
         if(data.logoNav) {
             loadSmoothImage('#nav-logo-dyn', data.logoNav);
-            loadSmoothImage('#footer-logo-dyn', data.logoNav); // 🪄 Ajoute le logo au footer
+            loadSmoothImage('#footer-logo-dyn', data.logoNav);
         }
         if(data.logoHero) loadSmoothImage('.massive-eagle-wrapper img', data.logoHero);
         if(data.founderImg) loadSmoothImage('.vip-photo-wrapper img', data.founderImg);
@@ -393,7 +375,6 @@ async function loadSocialLinks() {
     }
 
     if (socialData) {
-        // La liste correspond aux attributs "title" de tes balises HTML
         const platforms = [
             { key: 'tiktok', title: 'TikTok' },
             { key: 'linkedin', title: 'LinkedIn' },
@@ -415,6 +396,7 @@ async function loadSocialLinks() {
                 }
             });
         });
+    }
 }
 
 /* ================= 6. CHARGEMENT DES SERVICES AVEC CACHE ================= */
@@ -462,7 +444,6 @@ function renderServices() {
     });
     container.innerHTML = html;
 
-    // 🪄 ACTIVATION DES FLÈCHES (Au bon endroit !)
     const btnSrvPrev = document.getElementById('btn-srv-prev');
     const btnSrvNext = document.getElementById('btn-srv-next');
     if (btnSrvPrev && container) {
@@ -541,11 +522,8 @@ async function loadPlayers(category = 'gardien') {
     if (!container) return;
     
     currentFrontCat = category;
-    
-    // 1. Vérification du Cache
     let players = Cache.get(`players_${category}`);
     
-    // 2. Si pas en cache, on télécharge depuis Firebase (LIMITE A 20 POUR PROTEGER LE BUDGET)
     if(!players) {
         try {
             const q = query(collection(db, "players"), where("category", "==", category), limit(20));
@@ -602,15 +580,12 @@ function setupTabs() {
             currentFrontSearch = ''; 
             document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); 
             e.target.classList.add('active'); 
-            
-            // Charge la nouvelle catégorie sélectionnée
             loadPlayers(e.target.getAttribute('data-tab')); 
         }); 
     }); 
 }
-setupTabs(); // Initialisation des boutons
+setupTabs(); 
 
-// Système "Debounce" pour protéger Firebase contre le SPAM de la barre de recherche
 const searchInput = document.getElementById('front-search');
 if(searchInput) {
     searchInput.addEventListener('input', (e) => { 
@@ -624,7 +599,7 @@ if(searchInput) {
                 if(activeTab) activeTab.classList.add('active'); 
             }
             renderCategorySlider(); 
-        }, 400); // 400ms d'attente avant d'exécuter la recherche
+        }, 400); 
     });
 }
 
@@ -646,7 +621,6 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
     const miniSlider = document.getElementById('lightbox-mini-slider');
     
     if(lb && mediaContainer) {
-        // 1. Injection du Média
         if(type === 'video') {
             let embedUrl = mediaUrl;
             if(embedUrl.includes('watch?v=')) {
@@ -659,7 +633,6 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
             mediaContainer.innerHTML = `<img src="${mediaUrl}" alt="Presse">`;
         }
         
-        // 2. Injection du Texte
         titleEl.textContent = title;
         descEl.textContent = desc || '';
         if(linkUrl && linkUrl.length > 5) {
@@ -668,9 +641,7 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
             linkContainer.innerHTML = '';
         }
         
-        // 3. 🪄 FIX DU MINI-SLIDER (Rechargement intelligent)
         if (miniSlider && source && source !== 'null') {
-            // Si la source a changé (ex: passage de YouTube à TV), on génère le slider
             if (miniSlider.getAttribute('data-current-source') !== source) {
                 let items = [];
                 if (source === 'tv') items = Cache.get('site_presse_videos') || [];
@@ -705,16 +676,13 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
                     </div>`;
                 }).join('');
                 
-                // On mémorise la source actuelle pour ne pas la recréer au prochain clic
                 miniSlider.setAttribute('data-current-source', source);
             }
 
-            // 🪄 MISE À JOUR DOUCE : On change juste la bordure rose sans casser le HTML
             document.querySelectorAll('.mini-slider-item').forEach(el => el.classList.remove('active'));
             const activeItem = document.getElementById(`mini-item-${currentIndex}`);
             if (activeItem) {
                 activeItem.classList.add('active');
-                // Scroll fluide automatique
                 setTimeout(() => {
                     const scrollPos = activeItem.offsetLeft - (miniSlider.clientWidth / 2) + (activeItem.clientWidth / 2);
                     miniSlider.scrollTo({ left: scrollPos, behavior: 'smooth' });
@@ -739,22 +707,18 @@ window.closeLightbox = () => {
     }
 };
 
-// 🪄 ÉCOUTEUR GLOBAL SÉCURISÉ (Gère la fermeture ET les clics du mini-slider)
 document.addEventListener('click', (e) => {
-    // 1. Fermeture si on clique dans le vide (fond noir)
     if (e.target.id === 'presse-lightbox') {
         closeLightbox();
         return;
     }
 
-    // 2. Détection des clics sur les éléments de presse (Mosaïque ou Mini-slider)
     const trigger = e.target.closest('.presse-trigger');
     if (trigger) {
         const type = trigger.getAttribute('data-type');
         const url = trigger.getAttribute('data-url');
         
         const safeDecode = (str) => { try { return decodeURIComponent(str || ''); } catch(err) { return str || ''; } };
-        
         const decodeHTML = (html) => { const txt = document.createElement("textarea"); txt.innerHTML = html; return txt.value; };
 
         const title = decodeHTML(safeDecode(trigger.getAttribute('data-title')));
@@ -766,12 +730,12 @@ document.addEventListener('click', (e) => {
         openPresseLightbox(type, url, title, desc, link, source, index);
     }
 });
+
 async function loadPresseData() {
     const vidContainer = document.getElementById('presse-video-container');
     const mosContainer = document.getElementById('presse-mosaic-container');
     if(!vidContainer || !mosContainer) return; 
 
-    // --- 1. Passages TV ---
     let videos = Cache.get('site_presse_videos');
     if(!videos || videos.length === 0) {
         try {
@@ -804,13 +768,9 @@ async function loadPresseData() {
         vidContainer.innerHTML = '<p style="color:#888; margin-left:20px;">Aucune vidéo pour le moment.</p>';
     }
 
-   // --- 1.5 Flux Automatique YouTube (AVEC CACHE ANTI-BLOCAGE) ---
     const ytContainer = document.getElementById('youtube-feed-container');
     if (ytContainer) {
-        // 1. On vérifie si on a déjà les vidéos en mémoire (Cache de 24h)
         let ytItems = Cache.get('usm_yt_feed');
-
-        // 2. Si on ne les a pas, on appelle l'API
         if (!ytItems || ytItems.length === 0) {
             const YOUTUBE_CHANNEL_ID = "UCuaiYfKTeTWvQyz4tJXMlug"; 
             const rssUrl = encodeURIComponent(`https://www.youtube.com/feeds/videos.xml?channel_id=${YOUTUBE_CHANNEL_ID}`);
@@ -827,7 +787,6 @@ async function loadPresseData() {
             } catch(e) { console.error("Erreur YouTube:", e); }
         }
 
-        // 3. Affichage des vidéos (depuis le cache ou l'API)
         if (ytItems && ytItems.length > 0) {
             window.site_presse_yt = ytItems; 
             
@@ -851,19 +810,17 @@ async function loadPresseData() {
             ytContainer.innerHTML = '<p style="color:#888; margin-left:20px;">Aucune vidéo récente (ou limite de connexion API atteinte).</p>';
         }
 
-        // Contrôles du slider
         const btnYtPrev = document.getElementById('btn-yt-prev');
         const btnYtNext = document.getElementById('btn-yt-next');
         if(btnYtPrev) btnYtPrev.addEventListener('click', () => ytContainer.scrollBy({ left: -400, behavior: 'smooth' }));
         if(btnYtNext) btnYtNext.addEventListener('click', () => ytContainer.scrollBy({ left: 400, behavior: 'smooth' }));
     }
 
-    // --- 2. Articles (🪄 FIX PAGINATION : 16 Par Page) ---
     let articles = Cache.get('site_presse_articles');
     if(!articles || articles.length === 0) {
         try {
             const { query, collection, getDocs, limit } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-            const q = query(collection(db, "presse_articles"), limit(80)); // On charge jusqu'à 80 articles max pour la mémoire
+            const q = query(collection(db, "presse_articles"), limit(80)); 
             const snap = await getDocs(q);
             articles = [];
             snap.forEach(d => articles.push({id: d.id, ...d.data()}));
@@ -890,7 +847,6 @@ async function loadPresseData() {
         if(window.currentArtPage > totalPages) window.currentArtPage = totalPages;
         
         const start = (window.currentArtPage - 1) * ART_PER_PAGE;
-        // On ne sélectionne QUE les 16 articles de la page courante
         const pageItems = window.presseArticles.slice(start, start + ART_PER_PAGE);
 
         mosContainer.innerHTML = pageItems.map((a, i) => {
@@ -904,9 +860,8 @@ async function loadPresseData() {
         if(pageInfo) pageInfo.textContent = `${window.currentArtPage} / ${totalPages}`;
     };
 
-    window.renderArticlesPage(); // Premier affichage
+    window.renderArticlesPage(); 
 
-    // Branchement des boutons "Page Suivante / Précédente"
     const btnArtPrev = document.getElementById('btn-art-prev');
     const btnArtNext = document.getElementById('btn-art-next');
     if(btnArtPrev) btnArtPrev.addEventListener('click', () => { 
@@ -949,7 +904,6 @@ document.addEventListener("DOMContentLoaded", () => {
         let marqueeData = null;
         const cachedItem = localStorage.getItem('site_marquee');
         
-        // Vérification du cache spécifique de 1h
         if (cachedItem) {
             const parsed = JSON.parse(cachedItem);
             if (Date.now() - parsed.timestamp < CACHE_TIME_1H) {
@@ -957,11 +911,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Appel Firebase si pas de cache
         if (!marqueeData) {
             try {
                 const { collection, getDocs, limit, query } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-                // On limite à 20 images pour garder de bonnes perfs
                 const q = query(collection(db, "marquee_images"), limit(20));
                 const snap = await getDocs(q);
                 marqueeData = [];
@@ -974,25 +926,22 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (marqueeData && marqueeData.length > 0) {
-            // On génère le HTML
             const itemsHTML = marqueeData.map(url => `
                 <div class="marquee-item">
                     <img src="${url}" loading="lazy" alt="Gallery">
                 </div>
             `).join('');
 
-            // On injecte 2 fois le contenu pour créer la boucle infinie parfaite (scroll -50%)
             marqueeTrack.innerHTML = itemsHTML + itemsHTML;
         } else {
-            marqueeSection.style.display = 'none'; // On masque la section si vide
+            marqueeSection.style.display = 'none'; 
         }
     };
 
-    // Intersection Observer : Charge quand la section approche de l'écran (marge de 300px)
     const marqueeObserver = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
             loadMarqueeImages();
-            marqueeObserver.disconnect(); // On a chargé, on arrête d'observer
+            marqueeObserver.disconnect();
         }
     }, { rootMargin: '300px' });
 
