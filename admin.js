@@ -129,22 +129,27 @@ if(navSettings) {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 
-                ['stat1', 'stat2', 'stat3', 'stat4'].forEach(s => {
-                    const el = document.getElementById(`set-${s}`);
-                    if(el) el.value = data[s] || '';
+                // --- CHARGEMENT DES STATS (Nouveaux IDs) ---
+                ['1', '2', '3', '4'].forEach(num => {
+                    const el = document.getElementById(`stat-${num}`);
+                    if(el) el.value = data[`stat${num}`] || '';
                 });
                 
+                // --- CHARGEMENT DU FONDATEUR (Avec logique onglets) ---
                 ['fr', 'en', 'es', 'pt'].forEach(lang => {
-                    const q = document.getElementById(`set-founder-quote-${lang}`);
-                    if(q) q.value = data[`founderQuote_${lang}`] || data.founderQuote || '';
-                    const d = document.getElementById(`set-founder-desc-${lang}`);
-                    if(d) d.value = data[`founderDesc_${lang}`] || data.founderDesc || '';
+                    founderDataObj[lang].quote = data[`founderQuote_${lang}`] || data.founderQuote || '';
+                    founderDataObj[lang].desc = data[`founderDesc_${lang}`] || data.founderDesc || '';
                 });
+                const founderQuoteInput = document.getElementById('founder-quote');
+                const founderDescInput = document.getElementById('founder-desc');
+                if(founderQuoteInput) founderQuoteInput.value = founderDataObj[currentFounderLang].quote;
+                if(founderDescInput) founderDescInput.value = founderDataObj[currentFounderLang].desc;
 
                 prefillImageZone('drop-zone-nav', 'existing-logo-nav', data.logoNav, 'Glissez le logo header');
                 prefillImageZone('drop-zone-hero', 'existing-logo-hero', data.logoHero, 'Glissez le logo central');
                 prefillImageZone('drop-zone-founder', 'existing-founder-img', data.founderImg, 'Glissez la photo du fondateur');
-               // --- CHARGEMENT DES INFOS DE L'AGENCE ---
+                
+                // --- CHARGEMENT DE L'AGENCE ---
                 try {
                     const dAgency = await getDoc(doc(db, "settings", "agency"));
                     if (dAgency.exists()) {
@@ -802,6 +807,57 @@ if(srvForm) {
 }
 
 /* ================= 6. SAUVEGARDE DES PARAMÈTRES GLOBAUX ================= */
+
+// 🪄 INITIALISATION DES OBJETS DE LANGUES (Fondateur & Agence)
+let currentFounderLang = 'fr';
+const founderDataObj = { fr: { quote: '', desc: '' }, en: { quote: '', desc: '' }, es: { quote: '', desc: '' }, pt: { quote: '', desc: '' } };
+
+let currentAgencyLang = 'fr';
+const agencyDataObj = { fr: { quote: '', desc: '' }, en: { quote: '', desc: '' }, es: { quote: '', desc: '' }, pt: { quote: '', desc: '' } };
+
+// --- LOGIQUE TABS FONDATEUR ---
+const founderTabs = document.querySelectorAll('#founder-lang-tabs .lang-tab');
+const founderQuoteInput = document.getElementById('founder-quote');
+const founderDescInput = document.getElementById('founder-desc');
+
+if (founderTabs.length > 0) {
+    founderTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            if(founderQuoteInput) founderDataObj[currentFounderLang].quote = founderQuoteInput.value;
+            if(founderDescInput) founderDataObj[currentFounderLang].desc = founderDescInput.value;
+            
+            founderTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            currentFounderLang = tab.getAttribute('data-lang');
+            if(founderQuoteInput) founderQuoteInput.value = founderDataObj[currentFounderLang].quote || '';
+            if(founderDescInput) founderDescInput.value = founderDataObj[currentFounderLang].desc || '';
+        });
+    });
+}
+
+// --- LOGIQUE TABS AGENCE ---
+const agencyTabs = document.querySelectorAll('#agency-lang-tabs .lang-tab');
+const agencyQuoteInput = document.getElementById('agency-quote');
+const agencyDescInput = document.getElementById('agency-desc');
+
+if (agencyTabs.length > 0) {
+    agencyTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            if(agencyQuoteInput) agencyDataObj[currentAgencyLang].quote = agencyQuoteInput.value;
+            if(agencyDescInput) agencyDataObj[currentAgencyLang].desc = agencyDescInput.value;
+            
+            agencyTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            currentAgencyLang = tab.getAttribute('data-lang');
+            if(agencyQuoteInput) agencyQuoteInput.value = agencyDataObj[currentAgencyLang].quote || '';
+            if(agencyDescInput) agencyDescInput.value = agencyDataObj[currentAgencyLang].desc || '';
+        });
+    });
+}
+
+// --- SAUVEGARDE DU FORMULAIRE ---
 const settingsForm = document.getElementById('settings-form');
 if(settingsForm) {
     settingsForm.addEventListener('submit', async (e) => {
@@ -810,6 +866,7 @@ if(settingsForm) {
         if(btn) btn.textContent = "Sauvegarde en cours...";
         
         try {
+            // 1. Upload Images
             let finalFounderUrl = document.getElementById('existing-founder-img').value || "";
             if (optimizedImages.founder) {
                 const r = ref(storage, `site/founder_${Date.now()}.webp`);
@@ -831,36 +888,35 @@ if(settingsForm) {
                 finalHeroUrl = await getDownloadURL(r);
             }
 
+            // 2. Préparation Données Générales & Fondateur
+            if(founderQuoteInput) founderDataObj[currentFounderLang].quote = founderQuoteInput.value;
+            if(founderDescInput) founderDataObj[currentFounderLang].desc = founderDescInput.value;
+
             const getVal = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
 
             await setDoc(doc(db, "settings", "general"), {
                 logoNav: finalNavUrl,
                 logoHero: finalHeroUrl,
                 founderImg: finalFounderUrl,
-                founderQuote_fr: getVal('set-founder-quote-fr'),
-                founderDesc_fr: getVal('set-founder-desc-fr'),
-                founderQuote_en: getVal('set-founder-quote-en'),
-                founderDesc_en: getVal('set-founder-desc-en'),
-                founderQuote_es: getVal('set-founder-quote-es'),
-                founderDesc_es: getVal('set-founder-desc-es'),
-                founderQuote_pt: getVal('set-founder-quote-pt'),
-                founderDesc_pt: getVal('set-founder-desc-pt'),
-                stat1: getVal('set-stat1'),
-                stat2: getVal('set-stat2'),
-                stat3: getVal('set-stat3'),
-                stat4: getVal('set-stat4')
+                founderQuote_fr: founderDataObj['fr'].quote,
+                founderDesc_fr: founderDataObj['fr'].desc,
+                founderQuote_en: founderDataObj['en'].quote,
+                founderDesc_en: founderDataObj['en'].desc,
+                founderQuote_es: founderDataObj['es'].quote,
+                founderDesc_es: founderDataObj['es'].desc,
+                founderQuote_pt: founderDataObj['pt'].quote,
+                founderDesc_pt: founderDataObj['pt'].desc,
+                stat1: getVal('stat-1'),
+                stat2: getVal('stat-2'),
+                stat3: getVal('stat-3'),
+                stat4: getVal('stat-4')
             }, { merge: true });
             
-            const eFounder = document.getElementById('existing-founder-img');
-            if(eFounder) eFounder.value = finalFounderUrl;
-            const eNav = document.getElementById('existing-logo-nav');
-            if(eNav) eNav.value = finalNavUrl;
-            const eHero = document.getElementById('existing-logo-hero');
-            if(eHero) eHero.value = finalHeroUrl;
+            if(document.getElementById('existing-founder-img')) document.getElementById('existing-founder-img').value = finalFounderUrl;
+            if(document.getElementById('existing-logo-nav')) document.getElementById('existing-logo-nav').value = finalNavUrl;
+            if(document.getElementById('existing-logo-hero')) document.getElementById('existing-logo-hero').value = finalHeroUrl;
 
-           // --- SAUVEGARDE DES INFOS DE L'AGENCE ---
-            const agencyQuoteInput = document.getElementById('agency-quote');
-            const agencyDescInput = document.getElementById('agency-desc');
+            // 3. Préparation Données Agence
             if(agencyQuoteInput) agencyDataObj[currentAgencyLang].quote = agencyQuoteInput.value;
             if(agencyDescInput) agencyDataObj[currentAgencyLang].desc = agencyDescInput.value;
 
@@ -879,7 +935,7 @@ if(settingsForm) {
             agencyDataToSave.image = finalAgencyUrl;
             
             await setDoc(doc(db, "settings", "agency"), agencyDataToSave);
-            localStorage.removeItem('site_agency'); // On vide le cache public de l'agence
+            localStorage.removeItem('site_agency'); // On vide le cache
             
             optimizedImages = { founder: null, nav: null, hero: null, service: null, agency: null };
             clearPublicCache();
@@ -892,51 +948,9 @@ if(settingsForm) {
     });
 }
 
-// 🪄 LOGIQUE TABS AGENCE
-    let currentAgencyLang = 'fr';
-    const agencyDataObj = {
-        fr: { quote: '', desc: '' },
-        en: { quote: '', desc: '' },
-        es: { quote: '', desc: '' },
-        pt: { quote: '', desc: '' }
-    };
-
-    const agencyTabs = document.querySelectorAll('#agency-lang-tabs .lang-tab');
-    const agencyQuoteInput = document.getElementById('agency-quote');
-    const agencyDescInput = document.getElementById('agency-desc');
-
-    if (agencyTabs.length > 0) {
-        agencyTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Sauvegarde ce qu'on vient d'écrire
-                agencyDataObj[currentAgencyLang].quote = agencyQuoteInput.value;
-                agencyDataObj[currentAgencyLang].desc = agencyDescInput.value;
-                
-                // Change la couleur de l'onglet actif
-                agencyTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                // Affiche les textes de la nouvelle langue
-                currentAgencyLang = tab.getAttribute('data-lang');
-                agencyQuoteInput.value = agencyDataObj[currentAgencyLang].quote || '';
-                agencyDescInput.value = agencyDataObj[currentAgencyLang].desc || '';
-            });
-        });
-    }
-
 /* ================= 7. GESTION DES ONGLETS DE LANGUES ================= */
-document.querySelectorAll('.lang-tab').forEach(tab => {
-    tab.addEventListener('click', (e) => {
-        e.preventDefault(); 
-        document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
-        e.target.classList.add('active');
-        
-        document.querySelectorAll('.lang-content').forEach(c => c.classList.add('hidden'));
-        const lang = e.target.getAttribute('data-lang');
-        const content = document.getElementById(`lang-${lang}`);
-        if(content) content.classList.remove('hidden');
-    });
-});
+// Code nettoyé : les anciens onglets globaux ont été supprimés pour éviter les conflits.
+// On garde uniquement la logique des onglets dédiés aux Services.
 
 document.querySelectorAll('.lang-tab-srv').forEach(tab => {
     tab.addEventListener('click', (e) => {
