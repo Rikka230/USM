@@ -1032,18 +1032,18 @@ html, body {
     .service-sidebar { flex: 1 1 100%; }
     .service-hero h1 { font-size: 2rem; }
 
-    /* 10. CACHER LE BADGE INSTAGRAM SUR MOBILE (RÉGLAGE CHIRURGICAL) */
+    /* 10. CACHER LE BADGE INSTAGRAM SUR MOBILE (RÉGLAGE PIXEL PRÈS) */
     #instagram-feed {
         height: 750px !important; 
     }
     #instagram-feed iframe, 
     #instagram-feed [class*="elfsight-app"] {
-        margin-top: -50px !important; /* On remonte à peine */
-        height: calc(100% + 80px) !important; 
+        margin-top: -45px !important; /* Relâché de 5px pour sauver le haut des photos */
+        height: calc(100% + 85px) !important; 
     }
     .insta-overlay-fix {
         width: 100% !important; 
-        height: 32px !important; /* 🪄 Minimum absolu pour couvrir la pilule sans rogner la photo */
+        height: 40px !important; /* +8px ajoutés pour couvrir parfaitement la pilule */
         left: 0;
     }
 }
