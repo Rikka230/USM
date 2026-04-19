@@ -353,7 +353,10 @@ async function loadSettings() {
                 document.getElementById(`stat-${s.replace('stat','')}`).textContent = data[s]; 
         });
         
-        if(data.logoNav) loadSmoothImage('.logo-nav img', data.logoNav);
+        if(data.logoNav) {
+            loadSmoothImage('#nav-logo-dyn', data.logoNav);
+            loadSmoothImage('#footer-logo-dyn', data.logoNav); // 🪄 Ajoute le logo au footer
+        }
         if(data.logoHero) loadSmoothImage('.massive-eagle-wrapper img', data.logoHero);
         if(data.founderImg) loadSmoothImage('.vip-photo-wrapper img', data.founderImg);
 
