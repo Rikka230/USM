@@ -1031,6 +1031,20 @@ html, body {
     .service-page-layout { flex-direction: column; padding: 15px; width: 100%; box-sizing: border-box; }
     .service-sidebar { flex: 1 1 100%; }
     .service-hero h1 { font-size: 2rem; }
+
+    /* 10. CACHER LE BADGE INSTAGRAM SUR MOBILE */
+    #instagram-feed {
+        height: 600px !important;
+    }
+    #instagram-feed iframe, 
+    #instagram-feed [class*="elfsight-app"] {
+        height: calc(100% + 120px) !important; 
+    }
+    .insta-overlay-fix {
+        width: 100% !important; 
+        height: 75px !important; 
+        left: 0;
+    }
 }
 
 /* Optimisation extrême pour les très petits téléphones (iPhone SE, etc.) */
@@ -1043,7 +1057,7 @@ html, body {
         font-size: 0.8rem;
     }
     .data-huge {
-        font-size: 1.8rem; /* 🪄 Plus petit pour que "25 000+" rentre dans une demi-colonne */
+        font-size: 1.8rem; 
     }
     .data-label {
         font-size: 0.75rem;
