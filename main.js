@@ -403,19 +403,18 @@ async function loadSocialLinks() {
         ];
 
         platforms.forEach(platform => {
-            // On cible l'icône par son titre
-            const iconEl = document.querySelector(`.social-icon[title="${platform.title}"]`);
-            if (iconEl) {
-                const url = socialData[platform.key];
+            const icons = document.querySelectorAll(`.social-icon[title="${platform.title}"], .sticky-icon[title="${platform.title}"]`);
+            const url = socialData[platform.key];
+            
+            icons.forEach(iconEl => {
                 if (url && url.trim() !== '') {
                     iconEl.href = url;
-                    iconEl.style.display = 'flex'; // Affiche l'icône
+                    iconEl.style.display = 'flex'; 
                 } else {
-                    iconEl.style.display = 'none'; // Masque si vide
+                    iconEl.style.display = 'none'; 
                 }
-            }
+            });
         });
-    }
 }
 
 /* ================= 6. CHARGEMENT DES SERVICES AVEC CACHE ================= */
