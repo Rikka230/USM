@@ -79,14 +79,19 @@
 
         <section class="founder-vip-section reveal" id="agence">
             <div class="vip-photo-wrapper">
-                <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Fondateur" class="lazy-load">
+                <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Fondateur" id="vip-img-display" class="lazy-load">
             </div>
             <div class="vip-content">
-                <span class="vip-badge" data-i18n="vip_badge">Fondateur & CEO</span>
-                <h2 class="vip-name">Christophe<br><span>Mongai</span></h2>
-                <div class="vip-quote" data-i18n="vip_quote">...</div>
-                <p class="vip-desc" data-i18n="vip_desc">Chargement du profil...</p>
-                <div class="licenses-wrapper">
+                
+                <div class="vip-tabs" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button id="tab-founder" class="vip-badge" style="border: none; cursor: pointer; transition: 0.3s;" data-i18n="vip_badge">Fondateur & CEO</button>
+                    <button id="tab-agency" class="vip-badge" style="border: none; cursor: pointer; background: rgba(255,255,255,0.1); color: #aaa; transition: 0.3s;" data-i18n="agency_badge">L'Agence USM</button>
+                </div>
+                
+                <h2 class="vip-name" id="vip-title-display">Christophe<br><span>Mongai</span></h2>
+                <div class="vip-quote" id="vip-quote-display" data-i18n="vip_quote">...</div>
+                <p class="vip-desc" id="vip-desc-display" data-i18n="vip_desc">Chargement du profil...</p>
+                <div class="licenses-wrapper" id="vip-licenses-display">
                     <span class="license-badge">Licence FIFA</span>
                     <span class="license-badge">Licence FFF</span>
                     <span class="license-badge">Licence FIGC</span>
