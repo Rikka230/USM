@@ -1031,33 +1031,32 @@ html, body {
     .service-sidebar { flex: 1 1 100%; }
     .service-hero h1 { font-size: 2rem; }
 
-    /* 10. CACHER LE BADGE INSTAGRAM SUR MOBILE (MÉTHODE BLINDÉE 100% CSS) */
+    /* 10. CACHER LE BADGE INSTAGRAM SUR MOBILE (SANS COUPER LES PHOTOS) */
     #instagram-feed {
         position: relative !important;
-        height: 700px !important; 
-        overflow: hidden !important;
+        height: 750px !important; /* On donne de la place pour bien voir les photos */
     }
     
     #instagram-feed iframe, 
     #instagram-feed [class*="elfsight-app"] {
-        margin-top: -30px !important; 
-        height: calc(100% + 80px) !important; 
+        margin-top: 0 !important; /* 🪄 Zéro décalage, on ne coupe plus le haut */
+        height: 100% !important;  /* 🪄 Taille 100% normale, on n'étire plus */
     }
 
-    /* Le rectangle noir généré directement par le navigateur par-dessus le widget */
+    /* Le rectangle noir de 35px posé en bas, juste pour cacher le texte */
     #instagram-feed::after {
         content: '';
         position: absolute;
         bottom: 0;
         left: 0;
         width: 100%;
-        height: 55px; /* Hauteur suffisante pour couvrir la pilule entière */
+        height: 35px; /* L'épaisseur exacte de la pilule */
         background: var(--bg-dark);
         z-index: 9999;
         pointer-events: none;
     }
 
-    /* On désactive l'ancienne div de masquage pour éviter les conflits */
+    /* On désactive l'ancienne div de masquage */
     .insta-overlay-fix {
         display: none !important;
     }
