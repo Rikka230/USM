@@ -105,3 +105,22 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 @media (max-width: 1100px) {
     .settings-grid { grid-template-columns: 1fr; gap: 40px; }
 }
+
+/* 🪄 SÉCURITÉ STYLE DES CHAMPS DE TEXTE PARAMÈTRES */
+#settings-form input[type="text"], 
+#settings-form textarea {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--surface-border);
+    border-radius: 6px;
+    color: white;
+    outline: none;
+    transition: 0.3s;
+    font-size: 0.95rem;
+}
+#settings-form input[type="text"]:focus, 
+#settings-form textarea:focus {
+    border-color: var(--usm-pink);
+    background: rgba(255, 255, 255, 0.1);
+}
