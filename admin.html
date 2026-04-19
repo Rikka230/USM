@@ -198,77 +198,77 @@
 
             <section id="settings-section" class="hidden">
                 <header><h1>Identité & Paramètres</h1></header>
-                <form id="settings-form" class="bento-form">
-                    <h3 class="pink-accent">Logos du Site</h3>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                        <div><label style="color:#aaa; font-size:0.85rem;">Logo Menu</label><div id="drop-zone-nav" class="drop-zone" style="padding: 20px; margin-top:5px;"><p>Glissez le logo</p><input type="file" id="nav-upload" accept="image/*" hidden></div><input type="hidden" id="existing-logo-nav"></div>
-                        <div><label style="color:#aaa; font-size:0.85rem;">Logo Central</label><div id="drop-zone-hero" class="drop-zone" style="padding: 20px; margin-top:5px;"><p>Glissez le logo</p><input type="file" id="hero-upload" accept="image/*" hidden></div><input type="hidden" id="existing-logo-hero"></div>
-                    </div>
-
-                    <h3 class="pink-accent" style="margin-top:20px;">Section Fondateur</h3>
-                    <label style="color:#aaa; font-size:0.85rem;">Photo du Fondateur</label>
-                    <div id="drop-zone-founder" class="drop-zone"><p>Glissez la photo</p><input type="file" id="founder-upload" accept="image/*" hidden></div>
-                    <input type="hidden" id="existing-founder-img">
-                    
-                    <div style="display:flex; gap:10px; margin: 20px 0;">
-                        <button type="button" class="admin-tab lang-tab active" data-lang="fr">🇫🇷 FR</button>
-                        <button type="button" class="admin-tab lang-tab" data-lang="en">🇬🇧 EN</button>
-                        <button type="button" class="admin-tab lang-tab" data-lang="es">🇪🇸 ES</button>
-                        <button type="button" class="admin-tab lang-tab" data-lang="pt">🇵🇹 PT</button>
-                    </div>
-                    <div class="lang-content" id="lang-fr">
-                        <label style="color:#aaa; font-size:0.85rem;">Citation (FR)</label><input type="text" id="set-founder-quote-fr">
-                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (FR)</label><textarea id="set-founder-desc-fr" rows="5" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
-                    </div>
-                    <div class="lang-content hidden" id="lang-en">
-                        <label style="color:#aaa; font-size:0.85rem;">Citation (EN)</label><input type="text" id="set-founder-quote-en">
-                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (EN)</label><textarea id="set-founder-desc-en" rows="5" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
-                    </div>
-                    <div class="lang-content hidden" id="lang-es">
-                        <label style="color:#aaa; font-size:0.85rem;">Citation (ES)</label><input type="text" id="set-founder-quote-es">
-                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (ES)</label><textarea id="set-founder-desc-es" rows="5" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
-                    </div>
-                    <div class="lang-content hidden" id="lang-pt">
-                        <label style="color:#aaa; font-size:0.85rem;">Citation (PT)</label><input type="text" id="set-founder-quote-pt">
-                        <label style="color:#aaa; font-size:0.85rem; margin-top:10px; display:block;">Description (PT)</label><textarea id="set-founder-desc-pt" rows="5" style="width:100%; background:var(--surface); border:1px solid #444; color:white; border-radius:8px; padding:15px;"></textarea>
-                    </div>
-
-                    <h3 class="pink-accent" style="margin-top:20px;">Statistiques</h3>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                        <div><label style="color:#aaa; font-size:0.85rem;">Activité & Transactions</label><input type="text" id="set-stat1" style="margin-top:5px;"></div>
-                        <div><label style="color:#aaa; font-size:0.85rem;">Réseau Mondial</label><input type="text" id="set-stat4" style="margin-top:5px;"></div>
-                        <div><label style="color:#aaa; font-size:0.85rem;">Confiance & Roster</label><input type="text" id="set-stat2" style="margin-top:5px;"></div>
-                        <div><label style="color:#aaa; font-size:0.85rem;">Impact Digital (Abonnés)</label><input type="text" id="set-stat3" style="margin-top:5px;"></div>
-                    </div>
-
-                    <div style="margin: 40px 0; border-top: 1px solid #333; padding-top: 30px;">
-                        <h3 class="pink-accent">Présentation de L'Agence</h3>
-                        <p style="color:#aaa; font-size:0.85rem; margin-bottom: 20px;">Optimisation : ces données ne coûtent rien sur Firebase tant que le visiteur ne clique pas sur l'onglet.</p>
-
-                        <input type="hidden" id="existing-agency-img">
+                <form id="settings-form">
+                    <div class="settings-grid">
                         
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                            <div><label>Citation (FR)</label><input type="text" id="agency-quote-fr" placeholder="Notre philosophie..."></div>
-                            <div><label>Citation (EN)</label><input type="text" id="agency-quote-en"></div>
-                            <div><label>Citation (ES)</label><input type="text" id="agency-quote-es"></div>
-                            <div><label>Citation (PT)</label><input type="text" id="agency-quote-pt"></div>
+                        <div class="settings-col">
+                            <h3 class="pink-accent">Chiffres Clés (Bento Grid)</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                                <div><label>Activité & Transactions</label><input type="text" id="stat-1"></div>
+                                <div><label>Confiance & Roster</label><input type="text" id="stat-2"></div>
+                                <div><label>Impact Digital</label><input type="text" id="stat-3"></div>
+                                <div><label>Réseau Mondial</label><input type="text" id="stat-4"></div>
+                            </div>
+
+                            <h3 class="pink-accent" style="margin-top: 40px;">Visuels Principaux</h3>
+                            <label>Logo Navbar (Haut gauche)</label>
+                            <div id="drop-zone-nav" class="drop-zone">
+                                <p>Glissez le logo Navbar ici</p>
+                                <input type="file" id="logo-nav-upload" accept="image/*" hidden>
+                            </div>
+                            <input type="hidden" id="existing-logo-nav">
+
+                            <label style="margin-top:15px;">Logo Géant (Hero Accueil)</label>
+                            <div id="drop-zone-hero" class="drop-zone">
+                                <p>Glissez l'aigle/logo géant ici</p>
+                                <input type="file" id="logo-hero-upload" accept="image/*" hidden>
+                            </div>
+                            <input type="hidden" id="existing-logo-hero">
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                            <div><label>Description (FR)</label><textarea id="agency-desc-fr" rows="4"></textarea></div>
-                            <div><label>Description (EN)</label><textarea id="agency-desc-en" rows="4"></textarea></div>
-                            <div><label>Description (ES)</label><textarea id="agency-desc-es" rows="4"></textarea></div>
-                            <div><label>Description (PT)</label><textarea id="agency-desc-pt" rows="4"></textarea></div>
+                        <div class="settings-col">
+                            <h3 class="pink-accent">Le Fondateur (VIP)</h3>
+                            <div class="lang-tabs" id="founder-lang-tabs">
+                                <button type="button" class="lang-tab active" data-lang="fr">Français</button>
+                                <button type="button" class="lang-tab" data-lang="en">English</button>
+                                <button type="button" class="lang-tab" data-lang="es">Español</button>
+                                <button type="button" class="lang-tab" data-lang="pt">Português</button>
+                            </div>
+                            <label>Citation / Slogan</label>
+                            <textarea id="founder-quote" rows="2" placeholder="Une phrase d'accroche..."></textarea>
+                            <label style="margin-top:15px;">Description détaillée</label>
+                            <textarea id="founder-desc" rows="6" placeholder="Parcours du fondateur..."></textarea>
+                            
+                            <label style="margin-top:15px;">Photo du Fondateur</label>
+                            <div id="drop-zone-founder" class="drop-zone">
+                                <p>Glissez la photo du fondateur ici</p>
+                                <input type="file" id="founder-upload" accept="image/*" hidden>
+                            </div>
+                            <input type="hidden" id="existing-founder-img">
+
+                            <h3 class="pink-accent" style="margin-top: 40px; border-top: 1px solid #333; padding-top: 30px;">L'Agence USM</h3>
+                            <div class="lang-tabs" id="agency-lang-tabs">
+                                <button type="button" class="lang-tab active" data-lang="fr">Français</button>
+                                <button type="button" class="lang-tab" data-lang="en">English</button>
+                                <button type="button" class="lang-tab" data-lang="es">Español</button>
+                                <button type="button" class="lang-tab" data-lang="pt">Português</button>
+                            </div>
+                            <label>Citation / Slogan de l'Agence</label>
+                            <input type="text" id="agency-quote" placeholder="Notre philosophie...">
+                            
+                            <label style="margin-top:15px;">Description détaillée de l'Agence</label>
+                            <textarea id="agency-desc" rows="6" placeholder="Présentation de l'équipe..."></textarea>
+
+                            <label style="margin-top:15px;">Photo de l'Agence</label>
+                            <div id="drop-zone-agency" class="drop-zone">
+                                <p>Glissez la photo de l'agence ici</p>
+                                <input type="file" id="agency-upload" accept="image/*" hidden>
+                            </div>
+                            <input type="hidden" id="existing-agency-img">
                         </div>
 
-                        <label style="margin-top:20px;">Photo de l'Agence (Bureaux, équipe...)</label>
-                        <div id="drop-zone-agency" class="drop-zone">
-                            <p>Glissez la photo de l'agence ici</p>
-                            <input type="file" id="agency-upload" accept="image/*" hidden>
-                        </div>
                     </div>
-                    
-                    <button type="submit" class="btn-publish" style="margin-top:20px;">Enregistrer les modifications</button>
+                    <button type="submit" id="save-settings-btn" class="btn-publish" style="margin-top: 40px; width: 100%; padding: 15px; font-size: 1.1rem;">Enregistrer les paramètres</button>
                 </form>
             </section>
 
