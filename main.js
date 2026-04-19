@@ -948,3 +948,38 @@ document.addEventListener("DOMContentLoaded", () => {
     marqueeObserver.observe(marqueeSection);
 });
 
+/* ================= 11. ASSISTANT IA (FILTRAGE CANDIDATURES - MODE EXTENSION) ================= */
+(function(d, t) {
+    var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
+    v.onload = function() {
+        window.voiceflow.chat.load({
+            verify: { projectID: '69e51bd6380fec02e85d3480' },
+            url: 'https://general-runtime.voiceflow.com',
+            versionID: 'production',
+            autostart: true,
+            /* Configuration des Extensions pour l'affichage manuel */
+            extensions: [
+                {
+                    name: 'USM_Welcome',
+                    type: 'effect',
+                    match: ({ trace }) => trace.type === 'welcome_screen' || trace.payload?.name === 'welcome_screen',
+                    render: ({ element }) => {
+                        element.innerHTML = `
+                            <div style="font-family: sans-serif; padding: 10px; color: #fff;">
+                                <p style="margin-bottom: 15px;">Bonjour et bienvenue chez USM Football. Comment pouvons-nous vous orienter ?</p>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <button onclick="window.Voiceflow.interact({type: 'intent', payload: {intent: {name: 'joueur'}}})" style="background: #e91e63; border: none; color: white; padding: 10px; border-radius: 5px; cursor: pointer;">Je suis un joueur</button>
+                                    <button onclick="window.Voiceflow.interact({type: 'intent', payload: {intent: {name: 'club'}}})" style="background: #333; border: 1px solid #e91e63; color: white; padding: 10px; border-radius: 5px; cursor: pointer;">Je représente un club</button>
+                                    <button onclick="window.Voiceflow.interact({type: 'intent', payload: {intent: {name: 'autre'}}})" style="background: #333; border: 1px solid #e91e63; color: white; padding: 10px; border-radius: 5px; cursor: pointer;">Autre demande</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            ]
+        });
+    }
+    v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; 
+    v.type = "text/javascript"; 
+    s.parentNode.insertBefore(v, s);
+})(document, 'script');
