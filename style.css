@@ -288,58 +288,64 @@ body {
 
 
 /* ================= 6. SERVICES (SLIDER HORIZONTAL PC) ================= */
-#services-container, .services-grid { 
-    display: flex; 
-    flex-wrap: nowrap; /* 🪄 Sécurité absolue anti-colonne */
-    gap: 30px; 
+#services-container { 
+    display: flex !important; 
+    flex-direction: row !important;
+    flex-wrap: nowrap !important; /* 🪄 Sécurité anti-colonne */
+    gap: 30px !important; 
     margin-top: 10px; 
-    overflow-x: auto; 
+    overflow-x: auto !important; /* 🪄 Force le scroll interne */
     scroll-snap-type: x mandatory; 
     scroll-behavior: smooth; 
-    scrollbar-width: none; /* Cache la scrollbar (Firefox) */
+    scrollbar-width: none; 
     padding-bottom: 20px;
+    width: 100% !important;       /* 🪄 OBLIGE le slider à rester dans l'écran */
+    max-width: 100vw !important;  
+    box-sizing: border-box !important;
 }
-#services-container::-webkit-scrollbar, .services-grid::-webkit-scrollbar { 
-    display: none; /* Cache la scrollbar (Chrome/Safari) */
-}
+#services-container::-webkit-scrollbar { display: none; }
 
-.bento-service-card {
-    flex: 0 0 320px; /* 🪄 Fixe la largeur, empêche l'écrasement */
-    scroll-snap-align: start; /* 🪄 La carte s'aimante au bord au défilement */
-    aspect-ratio: 1 / 1; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: flex-end;
+#services-container .bento-service-card {
+    flex: 0 0 auto !important;    /* 🪄 Empêche l'écrasement ou l'étirement */
+    width: 320px !important;      /* 🪄 Largeur stricte fixée */
+    height: 320px !important;     /* 🪄 Hauteur stricte fixée (Carré parfait) */
+    scroll-snap-align: start; 
+    display: flex !important; 
+    flex-direction: column !important; 
+    justify-content: flex-end !important;
     box-shadow: inset 0 3px 0 0 var(--usm-pink), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-    padding: 30px; 
-    border-radius: 16px;
+    padding: 30px !important; 
+    border-radius: 16px !important;
     text-decoration: none; 
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
     background-color: var(--bg-dark);
     clip-path: inset(0 0 0 0 round 16px);
     -webkit-clip-path: inset(0 0 0 0 round 16px);
+    box-sizing: border-box !important;
+    margin: 0 !important;
 }
 
-.bento-service-card:hover {
+#services-container .bento-service-card:hover {
     transform: translateY(-5px);
     box-shadow: inset 0 3px 0 0 rgba(216, 0, 86, 0.8), inset 0 0 0 1px rgba(216, 0, 86, 0.3), 0 15px 35px rgba(0,0,0,0.6);
 }
 
-.srv-card-content, .srv-card-arrow { position: relative; z-index: 2; }
+#services-container .srv-card-content, 
+#services-container .srv-card-arrow { position: relative; z-index: 2; }
 
-.srv-card-content h3 { font-size: 1.6rem; color: #fff; margin-bottom: 10px; text-shadow: 0 2px 15px rgba(0,0,0,0.9); }
-.srv-card-content p { 
+#services-container .srv-card-content h3 { font-size: 1.6rem; color: #fff; margin-bottom: 10px; text-shadow: 0 2px 15px rgba(0,0,0,0.9); }
+#services-container .srv-card-content p { 
     font-size: 0.95rem; color: #eee; line-height: 1.5; 
     display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; 
     text-shadow: 0 2px 15px rgba(0,0,0,0.9);
 }
 
-.srv-card-arrow { 
+#services-container .srv-card-arrow { 
     align-self: flex-end; margin-top: 25px; color: var(--usm-pink); font-weight: bold; 
     font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; 
 }
-.bento-service-card:hover .srv-card-arrow { transform: translateX(8px); color: #fff; }
+#services-container .bento-service-card:hover .srv-card-arrow { transform: translateX(8px); color: #fff; }
 
 
 /* ================= 7. SECTION VIP (FONDATEUR) ================= */
@@ -811,19 +817,16 @@ html, body {
     .card-full .data-label { justify-content: center; }
 
    /* 🪄 6. DESIGN SERVICES EN SLIDER MOBILE (Format Cinéma) */
-    #services-container, .services-grid { 
-        display: flex !important; 
-        flex-direction: row !important; 
-        flex-wrap: nowrap !important; /* 🪄 INTERDIT LE RETOUR À LA LIGNE */
-        overflow-x: auto !important; /* 🪄 FORCE LA BARRE DE DÉFILEMENT */
-        scroll-snap-type: x mandatory !important;
-        gap: 15px; 
-        width: 100%; 
-        padding: 0 15px 20px 15px; 
-        box-sizing: border-box;
+    #services-container { 
+        gap: 15px !important; 
+        padding: 0 15px 20px 15px !important; 
     }
-    #services-container::-webkit-scrollbar, .services-grid::-webkit-scrollbar {
-        display: none !important; 
+    #services-container .bento-service-card {
+        flex: 0 0 85% !important; 
+        width: 85% !important;
+        height: 220px !important; /* 🪄 Hauteur cinéma imposée (plus de bug d'étirement) */
+        scroll-snap-align: center !important; 
+        padding: 25px 20px !important;
     }
     /* Dégradé sombre pour toujours lire le texte, peu importe la photo */
     .bento-service-card::before {
