@@ -1335,3 +1335,77 @@ if (!navBtnIds.includes('nav-social')) {
         localStorage.setItem('admin_active_tab', 'nav-social');
     });
 }
+
+/* ================= 10. GESTION BANDEROLE IMAGES ================= */
+let allMarqueeImages = [];
+
+const navMarquee = document.getElementById('nav-marquee');
+if(navMarquee) {
+    if (!navBtnIds.includes('nav-marquee')) navBtnIds.push('nav-marquee');
+    navMarquee.addEventListener('click', (e) => {
+        document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        hideAllSections();
+        document.getElementById('manage-marquee-section').classList.remove('hidden');
+        localStorage.setItem('admin_active_tab', 'nav-marquee');
+        loadAdminMarquee();
+    });
+}
+
+// Setup Dropzone (Utilise la même logique d'optimisation WebP existante)
+setupDropZone('drop-zone-marquee', 'marquee-upload', 'marquee');
+
+async function loadAdminMarquee() {
+    const list = document.getElementById('admin-marquee-list');
+    if(!list) return;
+    list.innerHTML = '<tr><td colspan="2">Chargement...</td></tr>';
+    try {
+        const snap = await getDocs(collection(db, "marquee_images"));
+        allMarqueeImages = [];
+        snap.forEach(docSnap => allMarqueeImages.push({ id: docSnap.id, ...docSnap.data() }));
+        allMarqueeImages.sort((a, b) => b.timestamp - a.timestamp); // Plus récentes en premier
+        
+        list.innerHTML = '';
+        if(allMarqueeImages.length === 0) { list.innerHTML = '<tr><td colspan="2" style="color:#aaa;">Aucune image.</td></tr>'; return; }
+        
+        allMarqueeImages.forEach((img) => {
+            list.innerHTML += `
+                <tr>
+                    <td><img src="${img.image_url}" style="height:60px; border-radius:6px; object-fit:cover;"></td>
+                    <td><button class="btn-delete" onclick="deleteMarquee('${img.id}')">Supprimer</button></td>
+                </tr>`;
+        });
+    } catch(e) { list.innerHTML = '<tr><td colspan="2" style="color:red;">Erreur.</td></tr>'; }
+}
+
+window.deleteMarquee = async (id) => {
+    if(confirm("Supprimer cette image de la banderole ?")) {
+        await deleteDoc(doc(db, "marquee_images", id));
+        localStorage.removeItem('site_marquee'); // Vide le cache public
+        loadAdminMarquee();
+    }
+};
+
+const marqueeForm = document.getElementById('marquee-form');
+if(marqueeForm) {
+    marqueeForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if(!optimizedImages.marquee) { alert("Veuillez sélectionner une image."); return; }
+        
+        const btn = document.getElementById('save-marquee-btn');
+        btn.disabled = true; btn.textContent = "Upload...";
+        try {
+            const r = ref(storage, `marquee/${Date.now()}.webp`);
+            await uploadString(r, optimizedImages.marquee, 'data_url');
+            const url = await getDownloadURL(r);
+            
+            await addDoc(collection(db, "marquee_images"), { image_url: url, timestamp: Date.now() });
+            
+            optimizedImages.marquee = null;
+            document.getElementById('drop-zone-marquee').innerHTML = `<p>Glissez une nouvelle image ici</p><input type="file" id="marquee-upload" accept="image/*" hidden>`;
+            localStorage.removeItem('site_marquee');
+            loadAdminMarquee();
+        } catch(err) { alert("Erreur: " + err.message); }
+        finally { btn.disabled = false; btn.textContent = "Ajouter à la banderole"; }
+    });
+}
