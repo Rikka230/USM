@@ -950,7 +950,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ================= 11. ASSISTANT IA (FILTRAGE CANDIDATURES) ================= */
 document.addEventListener("DOMContentLoaded", () => {
-    const VF_PROJECT_ID = '69e51bd6380fec02e85d347f'; 
+    const VF_PROJECT_ID = '69e51bd6380fec02e85d3480'; 
     
     if (VF_PROJECT_ID !== 'TON_PROJECT_ID_VOICEFLOW_ICI') {
         (function(d, t) {
