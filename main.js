@@ -931,3 +931,70 @@ async function loadPresseData() {
 
 const startPresse = () => { if(document.getElementById('presse-video-container')) loadPresseData(); };
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', startPresse); } else { startPresse(); }
+
+/* ================= 10. BANDEROLE IMAGES (LAZY LOAD & CACHE 1H) ================= */
+document.addEventListener("DOMContentLoaded", () => {
+    const marqueeSection = document.getElementById('marquee-section');
+    const marqueeTrack = document.getElementById('marquee-track');
+    
+    if (!marqueeSection || !marqueeTrack) return;
+
+    let marqueeLoaded = false;
+    const CACHE_TIME_1H = 1000 * 60 * 60; // 1 heure
+
+    const loadMarqueeImages = async () => {
+        if (marqueeLoaded) return;
+        marqueeLoaded = true;
+
+        let marqueeData = null;
+        const cachedItem = localStorage.getItem('site_marquee');
+        
+        // Vérification du cache spécifique de 1h
+        if (cachedItem) {
+            const parsed = JSON.parse(cachedItem);
+            if (Date.now() - parsed.timestamp < CACHE_TIME_1H) {
+                marqueeData = parsed.data;
+            }
+        }
+
+        // Appel Firebase si pas de cache
+        if (!marqueeData) {
+            try {
+                const { collection, getDocs, limit, query } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+                // On limite à 20 images pour garder de bonnes perfs
+                const q = query(collection(db, "marquee_images"), limit(20));
+                const snap = await getDocs(q);
+                marqueeData = [];
+                snap.forEach(doc => marqueeData.push(doc.data().image_url));
+                
+                if (marqueeData.length > 0) {
+                    localStorage.setItem('site_marquee', JSON.stringify({timestamp: Date.now(), data: marqueeData}));
+                }
+            } catch(e) { console.error("Erreur Marquee:", e); return; }
+        }
+
+        if (marqueeData && marqueeData.length > 0) {
+            // On génère le HTML
+            const itemsHTML = marqueeData.map(url => `
+                <div class="marquee-item">
+                    <img src="${url}" loading="lazy" alt="Gallery">
+                </div>
+            `).join('');
+
+            // On injecte 2 fois le contenu pour créer la boucle infinie parfaite (scroll -50%)
+            marqueeTrack.innerHTML = itemsHTML + itemsHTML;
+        } else {
+            marqueeSection.style.display = 'none'; // On masque la section si vide
+        }
+    };
+
+    // Intersection Observer : Charge quand la section approche de l'écran (marge de 300px)
+    const marqueeObserver = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            loadMarqueeImages();
+            marqueeObserver.disconnect(); // On a chargé, on arrête d'observer
+        }
+    }, { rootMargin: '300px' });
+
+    marqueeObserver.observe(marqueeSection);
+});
