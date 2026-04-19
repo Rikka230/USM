@@ -32,6 +32,10 @@ html {
     font-family: 'Helvetica Neue', Arial, sans-serif; 
 }
 
+#agence, #services, #joueurs {
+    scroll-margin-top: 110px;
+}
+
 body {
     background-color: var(--bg-dark);
     background-image: 
