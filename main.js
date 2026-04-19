@@ -316,12 +316,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const startApp = async () => {
         await loadSettings(); 
+        await loadSocialLinks();
         await loadServices(); 
-        await loadPlayers('gardien'); // Charge uniquement les gardiens au démarrage
+        await loadPlayers('gardien'); 
         await loadSingleServicePage(); 
     };
     startApp();
-});
 
 /* ================= 5. CHARGEMENT PARAMÈTRES AVEC CACHE ================= */
 
@@ -369,6 +369,50 @@ async function loadSettings() {
         document.querySelectorAll('[data-i18n]').forEach(el => { 
             const key = el.getAttribute('data-i18n'); 
             if (translations[currentLang] && translations[currentLang][key]) el.textContent = translations[currentLang][key]; 
+        });
+    }
+}
+
+/* ================= 5.5 CHARGEMENT DES RÉSEAUX SOCIAUX ================= */
+async function loadSocialLinks() {
+    let socialData = Cache.get('site_social');
+    
+    if (!socialData) {
+        try {
+            const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+            const docSnap = await getDoc(doc(db, "settings", "social"));
+            if (docSnap.exists()) {
+                socialData = docSnap.data();
+                Cache.set('site_social', socialData);
+            }
+        } catch (e) { 
+            console.error("Erreur chargement réseaux:", e); 
+            return; 
+        }
+    }
+
+    if (socialData) {
+        // La liste correspond aux attributs "title" de tes balises HTML
+        const platforms = [
+            { key: 'tiktok', title: 'TikTok' },
+            { key: 'linkedin', title: 'LinkedIn' },
+            { key: 'instagram', title: 'Instagram' },
+            { key: 'facebook', title: 'Facebook' },
+            { key: 'youtube', title: 'YouTube' }
+        ];
+
+        platforms.forEach(platform => {
+            // On cible l'icône par son titre
+            const iconEl = document.querySelector(`.social-icon[title="${platform.title}"]`);
+            if (iconEl) {
+                const url = socialData[platform.key];
+                if (url && url.trim() !== '') {
+                    iconEl.href = url;
+                    iconEl.style.display = 'flex'; // Affiche l'icône
+                } else {
+                    iconEl.style.display = 'none'; // Masque si vide
+                }
+            }
         });
     }
 }
