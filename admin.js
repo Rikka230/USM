@@ -29,7 +29,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-let optimizedImages = { founder: null, nav: null, hero: null, service: null };
+let optimizedImages = { founder: null, nav: null, hero: null, service: null, agency: null };
 
 // Fonction vitale : quand l'admin modifie quelque chose, on vide le cache local
 function clearPublicCache() { localStorage.clear(); }
@@ -144,8 +144,24 @@ if(navSettings) {
                 prefillImageZone('drop-zone-nav', 'existing-logo-nav', data.logoNav, 'Glissez le logo header');
                 prefillImageZone('drop-zone-hero', 'existing-logo-hero', data.logoHero, 'Glissez le logo central');
                 prefillImageZone('drop-zone-founder', 'existing-founder-img', data.founderImg, 'Glissez la photo du fondateur');
+               // --- CHARGEMENT DES INFOS DE L'AGENCE ---
+                try {
+                    const dAgency = await getDoc(doc(db, "settings", "agency"));
+                    if (dAgency.exists()) {
+                        const aData = dAgency.data();
+                        prefillImageZone('drop-zone-agency', 'existing-agency-img', aData.image, 'Glissez la photo de l\'agence');
+                        ['fr', 'en', 'es', 'pt'].forEach(lang => {
+                            agencyDataObj[lang].quote = aData[`quote_${lang}`] || '';
+                            agencyDataObj[lang].desc = aData[`desc_${lang}`] || '';
+                        });
+                        const agencyQuoteInput = document.getElementById('agency-quote');
+                        const agencyDescInput = document.getElementById('agency-desc');
+                        if(agencyQuoteInput) agencyQuoteInput.value = agencyDataObj[currentAgencyLang].quote;
+                        if(agencyDescInput) agencyDescInput.value = agencyDataObj[currentAgencyLang].desc;
+                    }
+                } catch(e) { console.error("Erreur agence:", e); }
                 
-                optimizedImages = { founder: null, nav: null, hero: null, service: null };
+                optimizedImages = { founder: null, nav: null, hero: null, service: null, agency: null };
             }
         } catch (error) { console.error(error); }
     });
@@ -211,6 +227,7 @@ setupDropZone('drop-zone-nav', 'nav-upload', 'nav');
 setupDropZone('drop-zone-hero', 'hero-upload', 'hero');
 setupDropZone('drop-zone-srv', 'srv-upload', 'service');
 setupDropZone('drop-zone-article', 'article-upload', 'article');
+setupDropZone('drop-zone-agency', 'agency-upload', 'agency');
 
 let cropState = { img: null, zoom: 1, x: 0, y: 0, baseScale: 1 };
 const playerDropZone = document.getElementById('drop-zone');
@@ -840,8 +857,31 @@ if(settingsForm) {
             if(eNav) eNav.value = finalNavUrl;
             const eHero = document.getElementById('existing-logo-hero');
             if(eHero) eHero.value = finalHeroUrl;
+
+           // --- SAUVEGARDE DES INFOS DE L'AGENCE ---
+            const agencyQuoteInput = document.getElementById('agency-quote');
+            const agencyDescInput = document.getElementById('agency-desc');
+            if(agencyQuoteInput) agencyDataObj[currentAgencyLang].quote = agencyQuoteInput.value;
+            if(agencyDescInput) agencyDataObj[currentAgencyLang].desc = agencyDescInput.value;
+
+            const agencyDataToSave = {};
+            ['fr', 'en', 'es', 'pt'].forEach(lang => {
+                agencyDataToSave[`quote_${lang}`] = agencyDataObj[lang].quote;
+                agencyDataToSave[`desc_${lang}`] = agencyDataObj[lang].desc;
+            });
+
+            let finalAgencyUrl = document.getElementById('existing-agency-img').value || "";
+            if (optimizedImages.agency) {
+                const r = ref(storage, `site/agency_${Date.now()}.webp`);
+                await uploadString(r, optimizedImages.agency, 'data_url');
+                finalAgencyUrl = await getDownloadURL(r);
+            }
+            agencyDataToSave.image = finalAgencyUrl;
             
-            optimizedImages = { founder: null, nav: null, hero: null, service: null };
+            await setDoc(doc(db, "settings", "agency"), agencyDataToSave);
+            localStorage.removeItem('site_agency'); // On vide le cache public de l'agence
+            
+            optimizedImages = { founder: null, nav: null, hero: null, service: null, agency: null };
             clearPublicCache();
             alert("Identité et Paramètres mis à jour avec succès !");
         } catch(err) { 
