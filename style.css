@@ -645,44 +645,196 @@ body {
 
 
 /* ================= 9. FOOTER & LIENS ================= */
-.site-footer {
-    background: rgba(5, 5, 7, 0.9);
-    border-top: 1px solid var(--surface-border);
-    padding: 30px var(--spacing-main);
-    margin-top: 80px;
-    text-align: center;
+:root {
+    --usm-pink: #D80056; /* Assure-toi que cette variable est définie */
+    --footer-bg: #0A0A0C;
+    --footer-text: #AAAAAA;
+}
+
+.usm-universal-footer {
+    background-color: var(--footer-bg);
+    color: var(--footer-text);
+    padding: 80px 20px 20px;
+    font-family: 'Montserrat', sans-serif; /* Ou ta police principale */
+    border-top: 1px solid rgba(216, 0, 86, 0.2);
+    margin-top: auto; /* Pour le pousser en bas si contenu court */
+}
+
+.usm-universal-footer a {
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
 }
 
 .footer-container {
+    max-width: 1360px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1.5fr; /* Info plus large, Nav plus étroite */
+    gap: 60px;
+    margin-bottom: 60px;
+}
+
+/* Colonne Info */
+.footer-logo {
+    max-height: 50px;
+    margin-bottom: 20px;
+}
+
+.footer-tagline {
+    font-style: italic;
+    font-size: 0.95rem;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.contact-hardcoded {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 15px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+}
+
+.contact-item i {
+    color: var(--usm-pink);
+    width: 20px;
+    text-align: center;
+}
+
+.contact-item a:hover {
+    color: #fff;
+}
+
+/* Colonnes Titres */
+.footer-col h3 {
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    margin-bottom: 25px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.footer-col h3::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background-color: var(--usm-pink);
+}
+
+/* Colonne Nav */
+.footer-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-nav li {
+    margin-bottom: 15px;
+}
+
+.footer-nav a {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.footer-nav a:hover {
+    color: #fff;
+    padding-left: 5px; /* Petit effet au hover */
+}
+
+/* Colonne Social & Admin */
+.social-links-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    background-color: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    font-size: 1.2rem;
+    color: #fff;
+}
+
+.social-icon:hover {
+    background-color: var(--usm-pink);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(216, 0, 86, 0.3);
+}
+
+.admin-access-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(216, 0, 86, 0.1);
+    border: 1px solid rgba(216, 0, 86, 0.3);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
     font-size: 0.85rem;
-    color: #888;
+    font-weight: 600;
+    margin-top: 10px;
 }
 
-.footer-separator { color: #333; }
-
-.legal-link { 
-    color: #aaa; 
-    text-decoration: none; 
-    transition: 0.3s; 
+.admin-access-btn i {
+    color: var(--usm-pink);
+    font-size: 0.9rem;
 }
 
-.legal-link:hover { color: var(--usm-pink); }
-.copyright { color: #aaa; }
-
-.admin-secret-link {
-    color: #888; 
-    text-decoration: none; 
-    cursor: default; 
-    transition: 0.3s;
+.admin-access-btn:hover {
+    background: var(--usm-pink);
+    border-color: var(--usm-pink);
+    box-shadow: 0 5px 20px rgba(216, 0, 86, 0.2);
 }
 
-.admin-secret-link:hover {
-    color: var(--usm-pink); 
+/* Bottom */
+.footer-bottom {
+    max-width: 1360px;
+    margin: 0 auto;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.footer-bottom a:hover {
+    color: var(--usm-pink);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .footer-container {
+        grid-template-columns: 1fr 1fr;
+    }
+    .footer-info {
+        grid-column: 1 / -1;
+        margin-bottom: 30px;
+    }
+}
+
+@media (max-width: 600px) {
+    .footer-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
 }
 
 /* ================= 10. PAGE CONTACT ================= */
