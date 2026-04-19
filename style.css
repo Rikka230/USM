@@ -1303,3 +1303,6 @@ html, body {
     .nav-links.active { right: 0; }
     #close-menu-btn { display: block !important; }
 }
+
+.footer-separator { margin: 0 10px; color: #555; }
+.admin-secret-link { color: inherit; text-decoration: none; cursor: default; }
