@@ -142,78 +142,49 @@
                     <h1 id="service-form-title">Créer un Service</h1>
                     <button class="btn-cancel-service" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">❌ Annuler</button>
                 </header>
-                <form id="settings-form">
-                    <div class="settings-grid">
-                        
-                        <div class="settings-col">
-                            <h3 class="pink-accent">Chiffres Clés (Bento Grid)</h3>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                                <div><label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Activité & Transactions</label><input type="text" id="stat-1"></div>
-                                <div><label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Confiance & Roster</label><input type="text" id="stat-2"></div>
-                                <div><label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Impact Digital</label><input type="text" id="stat-3"></div>
-                                <div><label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Réseau Mondial</label><input type="text" id="stat-4"></div>
-                            </div>
+                <form id="service-form" class="bento-form">
+                    <input type="hidden" id="edit-service-id">
+                    <input type="hidden" id="existing-srv-img">
 
-                            <h3 class="pink-accent" style="margin-top: 40px; border-top: 1px solid #333; padding-top: 30px;">Le Fondateur (VIP)</h3>
-                            <div class="lang-tabs" id="founder-lang-tabs" style="margin-bottom: 15px;">
-                                <button type="button" class="admin-tab lang-tab active" data-lang="fr">Français</button>
-                                <button type="button" class="admin-tab lang-tab" data-lang="en">English</button>
-                                <button type="button" class="admin-tab lang-tab" data-lang="es">Español</button>
-                                <button type="button" class="admin-tab lang-tab" data-lang="pt">Português</button>
-                            </div>
-                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Citation / Slogan</label>
-                            <textarea id="founder-quote" rows="2" placeholder="Une phrase d'accroche..."></textarea>
-                            
-                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px; margin-top:15px;">Description détaillée</label>
-                            <textarea id="founder-desc" rows="6" placeholder="Parcours du fondateur..."></textarea>
-                            
-                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px; margin-top:15px;">Photo du Fondateur</label>
-                            <div id="drop-zone-founder" class="drop-zone">
-                                <p>Glissez la photo du fondateur ici</p>
-                                <input type="file" id="founder-upload" accept="image/*" hidden>
-                            </div>
-                            <input type="hidden" id="existing-founder-img">
-                        </div>
-
-                        <div class="settings-col">
-                            <h3 class="pink-accent">Visuels Principaux</h3>
-                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Logo Navbar (Haut gauche)</label>
-                            <div id="drop-zone-nav" class="drop-zone">
-                                <p>Glissez le logo Navbar ici</p>
-                                <input type="file" id="logo-nav-upload" accept="image/*" hidden>
-                            </div>
-                            <input type="hidden" id="existing-logo-nav">
-
-                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px; margin-top:15px;">Logo Géant (Hero Accueil)</label>
-                            <div id="drop-zone-hero" class="drop-zone">
-                                <p>Glissez l'aigle/logo géant ici</p>
-                                <input type="file" id="logo-hero-upload" accept="image/*" hidden>
-                            </div>
-                            <input type="hidden" id="existing-logo-hero">
-
-                            <h3 class="pink-accent" style="margin-top: 40px; border-top: 1px solid #333; padding-top: 30px;">L'Agence USM</h3>
-                            <div class="lang-tabs" id="agency-lang-tabs" style="margin-bottom: 15px;">
-                                <button type="button" class="admin-tab lang-tab active" data-lang="fr">Français</button>
-                                <button type="button" class="admin-tab lang-tab" data-lang="en">English</button>
-                                <button type="button" class="admin-tab lang-tab" data-lang="es">Español</button>
-                                <button type="button" class="admin-tab lang-tab" data-lang="pt">Português</button>
-                            </div>
-                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Citation / Slogan de l'Agence</label>
-                            <textarea id="agency-quote" rows="2" placeholder="Notre philosophie..."></textarea>
-                            
-                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px; margin-top:15px;">Description détaillée de l'Agence</label>
-                            <textarea id="agency-desc" rows="6" placeholder="Présentation de l'équipe..."></textarea>
-
-                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px; margin-top:15px;">Photo de l'Agence</label>
-                            <div id="drop-zone-agency" class="drop-zone">
-                                <p>Glissez la photo de l'agence ici</p>
-                                <input type="file" id="agency-upload" accept="image/*" hidden>
-                            </div>
-                            <input type="hidden" id="existing-agency-img">
-                        </div>
-
+                    <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Photo du Service</label>
+                    <div id="drop-zone-srv" class="drop-zone">
+                        <p>Glissez la photo du service ici</p>
+                        <input type="file" id="srv-upload" accept="image/*" hidden>
                     </div>
-                    <button type="submit" id="save-settings-btn" class="btn-publish" style="margin-top: 40px; width: 100%; padding: 15px; font-size: 1.1rem; border-radius: 8px;">Enregistrer les paramètres</button>
+
+                    <div class="lang-tabs admin-tabs" style="margin-top: 20px; margin-bottom: 15px;">
+                        <button type="button" class="admin-tab lang-tab-srv active" data-lang="fr">🇫🇷 Français</button>
+                        <button type="button" class="admin-tab lang-tab-srv" data-lang="en">🇬🇧 English</button>
+                        <button type="button" class="admin-tab lang-tab-srv" data-lang="es">🇪🇸 Español</button>
+                        <button type="button" class="admin-tab lang-tab-srv" data-lang="pt">🇵🇹 Português</button>
+                    </div>
+
+                    <div id="lang-srv-fr" class="lang-content-srv">
+                        <input type="text" id="srv-title-fr" placeholder="Titre (FR)" required>
+                        <input type="text" id="srv-subtitle-fr" placeholder="Sous-titre (FR)" style="margin-top:10px;">
+                        <textarea id="srv-desc-fr" rows="4" placeholder="Description (FR)" style="margin-top:10px;"></textarea>
+                        <input type="text" id="srv-seo-fr" placeholder="Mots-clés SEO (FR)" style="margin-top:10px;">
+                    </div>
+                    <div id="lang-srv-en" class="lang-content-srv hidden">
+                        <input type="text" id="srv-title-en" placeholder="Title (EN)">
+                        <input type="text" id="srv-subtitle-en" placeholder="Subtitle (EN)" style="margin-top:10px;">
+                        <textarea id="srv-desc-en" rows="4" placeholder="Description (EN)" style="margin-top:10px;"></textarea>
+                        <input type="text" id="srv-seo-en" placeholder="SEO Keywords (EN)" style="margin-top:10px;">
+                    </div>
+                    <div id="lang-srv-es" class="lang-content-srv hidden">
+                        <input type="text" id="srv-title-es" placeholder="Título (ES)">
+                        <input type="text" id="srv-subtitle-es" placeholder="Subtítulo (ES)" style="margin-top:10px;">
+                        <textarea id="srv-desc-es" rows="4" placeholder="Descripción (ES)" style="margin-top:10px;"></textarea>
+                        <input type="text" id="srv-seo-es" placeholder="Palabras clave SEO (ES)" style="margin-top:10px;">
+                    </div>
+                    <div id="lang-srv-pt" class="lang-content-srv hidden">
+                        <input type="text" id="srv-title-pt" placeholder="Título (PT)">
+                        <input type="text" id="srv-subtitle-pt" placeholder="Subtítulo (PT)" style="margin-top:10px;">
+                        <textarea id="srv-desc-pt" rows="4" placeholder="Descrição (PT)" style="margin-top:10px;"></textarea>
+                        <input type="text" id="srv-seo-pt" placeholder="Palavras-chave SEO (PT)" style="margin-top:10px;">
+                    </div>
+
+                    <button type="submit" id="save-service-btn" class="btn-publish" style="margin-top: 20px;">Enregistrer le Service</button>
                 </form>
             </section>
 
@@ -249,11 +220,11 @@
 
                         <div class="settings-col">
                             <h3 class="pink-accent">Le Fondateur (VIP)</h3>
-                            <div class="lang-tabs" id="founder-lang-tabs">
-                                <button type="button" class="lang-tab active" data-lang="fr">Français</button>
-                                <button type="button" class="lang-tab" data-lang="en">English</button>
-                                <button type="button" class="lang-tab" data-lang="es">Español</button>
-                                <button type="button" class="lang-tab" data-lang="pt">Português</button>
+                            <div class="lang-tabs admin-tabs" id="founder-lang-tabs" style="margin-bottom: 15px;">
+                                <button type="button" class="admin-tab lang-tab active" data-lang="fr">🇫🇷 Français</button>
+                                <button type="button" class="admin-tab lang-tab" data-lang="en">🇬🇧 English</button>
+                                <button type="button" class="admin-tab lang-tab" data-lang="es">🇪🇸 Español</button>
+                                <button type="button" class="admin-tab lang-tab" data-lang="pt">🇵🇹 Português</button>
                             </div>
                             <label>Citation / Slogan</label>
                             <textarea id="founder-quote" rows="2" placeholder="Une phrase d'accroche..."></textarea>
@@ -268,11 +239,11 @@
                             <input type="hidden" id="existing-founder-img">
 
                             <h3 class="pink-accent" style="margin-top: 40px; border-top: 1px solid #333; padding-top: 30px;">L'Agence USM</h3>
-                            <div class="lang-tabs" id="agency-lang-tabs">
-                                <button type="button" class="lang-tab active" data-lang="fr">Français</button>
-                                <button type="button" class="lang-tab" data-lang="en">English</button>
-                                <button type="button" class="lang-tab" data-lang="es">Español</button>
-                                <button type="button" class="lang-tab" data-lang="pt">Português</button>
+                            <div class="lang-tabs admin-tabs" id="agency-lang-tabs" style="margin-bottom: 15px;">
+                                <button type="button" class="admin-tab lang-tab active" data-lang="fr">🇫🇷 Français</button>
+                                <button type="button" class="admin-tab lang-tab" data-lang="en">🇬🇧 English</button>
+                                <button type="button" class="admin-tab lang-tab" data-lang="es">🇪🇸 Español</button>
+                                <button type="button" class="admin-tab lang-tab" data-lang="pt">🇵🇹 Português</button>
                             </div>
                             <label>Citation / Slogan de l'Agence</label>
                             <input type="text" id="agency-quote" placeholder="Notre philosophie...">
