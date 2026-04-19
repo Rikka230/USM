@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mentions légales de l'agence USM Football.">
+    <title>Mentions Légales | USM Football</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Styles spécifiques pour rendre le texte légal élégant et lisible */
+        .legal-container {
+            max-width: 900px;
+            margin: 150px auto 100px;
+            padding: 50px;
+            background: var(--surface);
+            border: 1px solid rgba(216, 0, 86, 0.2);
+            border-radius: var(--card-radius);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            position: relative;
+            z-index: 10;
+        }
+        .legal-container h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            color: #fff;
+            text-align: center;
+            margin-bottom: 50px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .legal-container h2 {
+            color: var(--usm-pink);
+            font-size: 1.5rem;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(216, 0, 86, 0.2);
+            padding-bottom: 10px;
+        }
+        .legal-container p, .legal-container ul {
+            color: #ccc;
+            line-height: 1.8;
+            font-size: 1.05rem;
+            margin-bottom: 15px;
+        }
+        .legal-container ul {
+            padding-left: 20px;
+        }
+        .legal-container li {
+            margin-bottom: 8px;
+        }
+        .legal-container a {
+            color: var(--usm-pink);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .legal-container a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo-nav">
+            <a href="index.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px;">
+                <img src="" alt="USM Logo" class="nav-logo-dyn" id="nav-logo-dyn">
+                <div>USM F<span>OO</span>TBALL</div>
+            </a>
+        </div>
+        
+        <button class="mobile-menu-btn" id="mobile-menu-btn" style="background:none; border:none; color:white; font-size:2rem; cursor:pointer; display:none;">☰</button>
+        
+        <nav class="nav-links" id="nav-links">
+            <button class="close-menu-btn" id="close-menu-btn" style="background:none; border:none; color:white; font-size:2.5rem; position:absolute; top:20px; right:30px; cursor:pointer; display:none;">×</button>
+            <a href="index.html#agence" data-i18n="nav_agency">L'Agence</a>
+            <a href="index.html#services" data-i18n="nav_services">Services</a>
+            <a href="joueurs.html" data-i18n="nav_talents">Les Talents</a>
+            <a href="presse.html" data-i18n="nav_press">Presse</a>
+            <a href="contact.html" class="btn-premium" data-i18n="nav_button">Contact</a>
+            
+            <select id="lang-select" class="lang-selector">
+                <option value="fr">FR</option>
+                <option value="en">EN</option>
+                <option value="es">ES</option>
+                <option value="pt">PT</option>
+            </select>
+        </nav>
+    </header>
+
+    <main class="legal-container reveal">
+        <h1>Mentions Légales</h1>
+
+        <h2>1. Éditeur du site</h2>
+        <p>Le présent site est édité par l'Agence <strong>USM FOOTBALL</strong>.</p>
+        <ul>
+            <li><strong>Siège social :</strong> 351, chemin des Gourettes - 06370 Mouans-Sartoux - France</li>
+            <li><strong>Téléphone :</strong> +33 492 90 90 25</li>
+            <li><strong>Email :</strong> contact@usm-football.com</li>
+            <li><strong>Directeur de la publication :</strong> Christophe Mongai</li>
+        </ul>
+
+        <h2>2. Création et Développement</h2>
+        <p>La conception, la direction artistique et le développement de ce site ont été réalisés par :</p>
+        <ul>
+            <li><strong>Agence :</strong> Nocx Web ( VIARD Antony )</li>
+            <li><strong>Contact développeur :</strong> <a href="#" target="_blank" rel="https://nocxweb.netlify.app">https://nocxweb.netlify.app</a></li>
+        </ul>
+
+        <h2>3. Hébergement</h2>
+        <p>L'infrastructure technique et les bases de données du site sont hébergées conjointement par :</p>
+        <ul>
+            <li><strong>Netlify, Inc.</strong> - 44 Montgomery Street, Suite 300, San Francisco, California 94104, USA.</li>
+            <li><strong>Google Firebase</strong> (Google Ireland Limited) - Gordon House, Barrow Street, Dublin 4, Irlande.</li>
+        </ul>
+
+        <h2>4. Propriété intellectuelle</h2>
+        <p>L'ensemble de ce site relève des législations française et internationale sur le droit d'auteur et la propriété intellectuelle. Tous les droits de reproduction sont réservés, y compris pour les documents iconographiques et photographiques.</p>
+        <p>Toute reproduction, représentation, modification, publication, adaptation de tout ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est formellement interdite sans l'autorisation écrite préalable de l'éditeur.</p>
+
+        <h2>5. Données personnelles et cookies</h2>
+        <p>Les informations recueillies via les éventuels formulaires de contact ou bulles de discussion sont destinées exclusivement à un usage interne par l'agence USM Football dans le cadre de la gestion des candidatures et demandes. Elles ne sont ni vendues, ni cédées à des tiers.</p>
+        <p>Conformément à la loi « Informatique et Libertés » et au Règlement Général sur la Protection des Données (RGPD), vous disposez d'un droit d'accès, de rectification et de suppression des données vous concernant. Vous pouvez exercer ce droit en nous contactant à l'adresse email mentionnée ci-dessus.</p>
+        <p>Lors de la navigation sur le site, des cookies techniques strictement nécessaires au bon fonctionnement de l'application (sauvegarde de vos préférences de langue, optimisation des images en cache) peuvent être déposés sur votre terminal.</p>
+    </main>
+
+    <footer class="usm-universal-footer">
+        <div class="footer-container">
+            
+            <div class="footer-col footer-info">
+                <div style="display: flex; align-items: center; gap: 12px; font-family: 'Moglan', sans-serif; font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 20px;">
+                    <img src="" alt="USM Logo" id="footer-logo-dyn" style="height: 38px; width: auto; transform: translateY(-5px);">
+                    <div>USM F<span style="color: var(--usm-pink);">OO</span>TBALL</div>
+                </div>
+                <p class="footer-tagline">L'excellence au service du football mondial.</p>
+                
+                <div class="contact-hardcoded">
+                    <div class="contact-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--usm-pink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        <span>351, chemin des Gourettes - 06370 Mouans-Sartoux - France</span>
+                    </div>
+                    <div class="contact-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--usm-pink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        <a href="mailto:contact@usm-football.com">contact@usm-football.com</a>
+                    </div>
+                    <div class="contact-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--usm-pink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        <a href="tel:+33492909025">+33 492 90 90 25</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-col footer-nav">
+                <h3>Plan du Site</h3>
+                <ul>
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="joueurs.html">Nos Joueurs</a></li>
+                    <li><a href="presse.html">Espace Presse</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col footer-social">
+                <h3>Suivez-nous</h3>
+                <div class="social-links-container" id="footer-social-links">
+                    <a href="#" target="_blank" class="social-icon" title="TikTok"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg></a>
+                    <a href="#" target="_blank" class="social-icon" title="LinkedIn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a>
+                    <a href="#" target="_blank" class="social-icon" title="Instagram"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
+                    <a href="#" target="_blank" class="social-icon" title="Facebook"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
+                    <a href="#" target="_blank" class="social-icon" title="YouTube"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg></a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 USM Football. Tous droits réservés. <span class="footer-separator">•</span> <a href="mentions.html">Mentions Légales</a> <span class="footer-separator">•</span> <a href="admin.html" class="admin-secret-link">Powered by NOX WEB</a></p>
+        </div>
+    </footer>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
