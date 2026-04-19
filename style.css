@@ -678,24 +678,27 @@ body {
 
 /* ================= 11. CARTES SERVICES & PAGE DYNAMIQUE ================= */
 
-/* La grille devient un affichage flexible centré */
+/* Le conteneur devient un slider horizontal */
 .services-grid { 
     display: flex; 
-    flex-wrap: wrap; 
-    justify-content: center; /* 🪄 Magie : centre la ligne de 2 cartes en bas ! */
     gap: 30px; 
-    margin-top: 30px; 
+    margin-top: 10px; 
+    overflow-x: auto; 
+    scroll-snap-type: x mandatory; 
+    scroll-behavior: smooth; 
+    scrollbar-width: none; /* Cache la scrollbar (Firefox) */
+    padding-bottom: 20px;
 }
+.services-grid::-webkit-scrollbar { display: none; /* Cache la scrollbar (Chrome/Safari) */ }
 
-/* Format carré parfait pour les tuiles (OPTIMISÉ ZÉRO LAG + ANTI-DÉBORDEMENT) */
+/* Format carré parfait (PC) avec ancrage de défilement */
 .bento-service-card {
-    flex: 0 1 320px; 
-    width: 100%;
+    flex: 0 0 320px; /* 🪄 Fixe la largeur, empêche l'écrasement */
+    scroll-snap-align: start; /* 🪄 La carte s'aimante au bord au défilement */
     aspect-ratio: 1 / 1; 
     display: flex; 
     flex-direction: column; 
     justify-content: flex-end;
-    
     box-shadow: inset 0 3px 0 0 var(--usm-pink), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
     padding: 30px; 
     border-radius: 16px;
@@ -703,11 +706,9 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
     background-color: var(--bg-dark);
-    
     clip-path: inset(0 0 0 0 round 16px);
     -webkit-clip-path: inset(0 0 0 0 round 16px);
 }
-
 .bento-service-card:hover {
     transform: translateY(-5px);
     box-shadow: inset 0 3px 0 0 rgba(216, 0, 86, 0.8), inset 0 0 0 1px rgba(216, 0, 86, 0.3), 0 15px 35px rgba(0,0,0,0.6);
@@ -865,24 +866,25 @@ html, body {
     .card-full { grid-column: 1 / -1; align-items: center; text-align: center; }
     .card-full .data-label { justify-content: center; }
 
-    /* 🪄 6. NOUVEAU DESIGN SERVICES (1 Colonne, Format Cinéma) */
+    /* 🪄 6. DESIGN SERVICES EN SLIDER MOBILE (Format Cinéma) */
     .services-grid { 
-        display: grid !important; 
-        grid-template-columns: 1fr !important; /* Force 1 seule colonne large */
-        gap: 20px; 
+        display: flex !important; 
+        flex-direction: row !important; 
+        gap: 15px; 
         width: 100%; 
-        padding: 0 15px; /* Dégage les bords du téléphone */
+        padding: 0 15px 20px 15px; 
         box-sizing: border-box;
     }
     .bento-service-card {
-        width: 100% !important;
-        aspect-ratio: 16 / 9; /* Un beau format rectangulaire type Netflix */
+        flex: 0 0 85% !important; 
+        width: auto !important;
+        aspect-ratio: 16 / 9 !important; 
         min-height: auto !important; 
         padding: 25px 20px !important;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        justify-content: flex-end; /* Pousse le contenu vers le bas */
+        justify-content: flex-end; 
     }
     /* Dégradé sombre pour toujours lire le texte, peu importe la photo */
     .bento-service-card::before {
