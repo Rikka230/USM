@@ -852,6 +852,38 @@ if(settingsForm) {
     });
 }
 
+// 🪄 LOGIQUE TABS AGENCE
+    let currentAgencyLang = 'fr';
+    const agencyDataObj = {
+        fr: { quote: '', desc: '' },
+        en: { quote: '', desc: '' },
+        es: { quote: '', desc: '' },
+        pt: { quote: '', desc: '' }
+    };
+
+    const agencyTabs = document.querySelectorAll('#agency-lang-tabs .lang-tab');
+    const agencyQuoteInput = document.getElementById('agency-quote');
+    const agencyDescInput = document.getElementById('agency-desc');
+
+    if (agencyTabs.length > 0) {
+        agencyTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Sauvegarde ce qu'on vient d'écrire
+                agencyDataObj[currentAgencyLang].quote = agencyQuoteInput.value;
+                agencyDataObj[currentAgencyLang].desc = agencyDescInput.value;
+                
+                // Change la couleur de l'onglet actif
+                agencyTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Affiche les textes de la nouvelle langue
+                currentAgencyLang = tab.getAttribute('data-lang');
+                agencyQuoteInput.value = agencyDataObj[currentAgencyLang].quote || '';
+                agencyDescInput.value = agencyDataObj[currentAgencyLang].desc || '';
+            });
+        });
+    }
+
 /* ================= 7. GESTION DES ONGLETS DE LANGUES ================= */
 document.querySelectorAll('.lang-tab').forEach(tab => {
     tab.addEventListener('click', (e) => {
