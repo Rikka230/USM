@@ -70,8 +70,9 @@ if(logoutBtn) {
 }
 
 /* ================= 2. NAVIGATION ET CHARGEMENT SETTINGS ================= */
+// 🪄 LA CORRECTION EST ICI : Toutes les sections sont déclarées proprement
 function hideAllSections() {
-    ['manage-players-section', 'form-player-section', 'settings-section', 'manage-services-section', 'form-service-section', 'manage-presse-section', 'form-video-section', 'form-article-section'].forEach(id => {
+    ['manage-players-section', 'form-player-section', 'settings-section', 'manage-services-section', 'form-service-section', 'manage-presse-section', 'form-video-section', 'form-article-section', 'manage-social-section', 'manage-marquee-section'].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.classList.add('hidden');
     });
@@ -808,14 +809,12 @@ if(srvForm) {
 
 /* ================= 6. SAUVEGARDE DES PARAMÈTRES GLOBAUX ================= */
 
-// 🪄 VARIABLES GLOBALES BLINDÉES (Empêche les crashs Javascript)
 window.currentFounderLang = 'fr';
 window.founderDataObj = { fr: { quote: '', desc: '' }, en: { quote: '', desc: '' }, es: { quote: '', desc: '' }, pt: { quote: '', desc: '' } };
 
 window.currentAgencyLang = 'fr';
 window.agencyDataObj = { fr: { quote: '', desc: '' }, en: { quote: '', desc: '' }, es: { quote: '', desc: '' }, pt: { quote: '', desc: '' } };
 
-// --- LOGIQUE ONGLETS FONDATEUR ---
 const founderTabs = document.querySelectorAll('#founder-lang-tabs .lang-tab');
 if (founderTabs.length > 0) {
     founderTabs.forEach(tab => {
@@ -823,14 +822,12 @@ if (founderTabs.length > 0) {
             const fQuote = document.getElementById('founder-quote');
             const fDesc = document.getElementById('founder-desc');
             
-            // Sauvegarde de l'onglet précédent
             if(fQuote) window.founderDataObj[window.currentFounderLang].quote = fQuote.value;
             if(fDesc) window.founderDataObj[window.currentFounderLang].desc = fDesc.value;
             
             founderTabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             
-            // Chargement du nouvel onglet
             window.currentFounderLang = tab.getAttribute('data-lang');
             if(fQuote) fQuote.value = window.founderDataObj[window.currentFounderLang].quote || '';
             if(fDesc) fDesc.value = window.founderDataObj[window.currentFounderLang].desc || '';
@@ -838,7 +835,6 @@ if (founderTabs.length > 0) {
     });
 }
 
-// --- LOGIQUE ONGLETS AGENCE ---
 const agencyTabs = document.querySelectorAll('#agency-lang-tabs .lang-tab');
 if (agencyTabs.length > 0) {
     agencyTabs.forEach(tab => {
@@ -846,14 +842,12 @@ if (agencyTabs.length > 0) {
             const aQuote = document.getElementById('agency-quote');
             const aDesc = document.getElementById('agency-desc');
             
-            // Sauvegarde de l'onglet précédent
             if(aQuote) window.agencyDataObj[window.currentAgencyLang].quote = aQuote.value;
             if(aDesc) window.agencyDataObj[window.currentAgencyLang].desc = aDesc.value;
             
             agencyTabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             
-            // Chargement du nouvel onglet
             window.currentAgencyLang = tab.getAttribute('data-lang');
             if(aQuote) aQuote.value = window.agencyDataObj[window.currentAgencyLang].quote || '';
             if(aDesc) aDesc.value = window.agencyDataObj[window.currentAgencyLang].desc || '';
@@ -861,7 +855,6 @@ if (agencyTabs.length > 0) {
     });
 }
 
-// --- SAUVEGARDE FIREBASE (Bouton Enregistrer) ---
 const settingsForm = document.getElementById('settings-form');
 if(settingsForm) {
     settingsForm.addEventListener('submit', async (e) => {
@@ -870,7 +863,6 @@ if(settingsForm) {
         if(btn) btn.textContent = "Sauvegarde en cours...";
         
         try {
-            // Sauvegarder la saisie active dans les objets
             const fQuote = document.getElementById('founder-quote');
             const fDesc = document.getElementById('founder-desc');
             if(fQuote) window.founderDataObj[window.currentFounderLang].quote = fQuote.value;
@@ -881,7 +873,6 @@ if(settingsForm) {
             if(aQuote) window.agencyDataObj[window.currentAgencyLang].quote = aQuote.value;
             if(aDesc) window.agencyDataObj[window.currentAgencyLang].desc = aDesc.value;
 
-            // Upload des images (Fondateur, Nav, Hero, Agence)
             let finalFounderUrl = document.getElementById('existing-founder-img').value || "";
             if (optimizedImages.founder) {
                 const r = ref(storage, `site/founder_${Date.now()}.webp`);
@@ -910,7 +901,6 @@ if(settingsForm) {
                 finalAgencyUrl = await getDownloadURL(r);
             }
 
-            // Envoi dans la base de données (General)
             const getVal = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
             await setDoc(doc(db, "settings", "general"), {
                 logoNav: finalNavUrl,
@@ -930,7 +920,6 @@ if(settingsForm) {
                 stat4: getVal('stat-4')
             }, { merge: true });
 
-            // Envoi dans la base de données (Agence)
             const agencyDataToSave = { image: finalAgencyUrl };
             ['fr', 'en', 'es', 'pt'].forEach(lang => {
                 agencyDataToSave[`quote_${lang}`] = window.agencyDataObj[lang].quote;
@@ -938,7 +927,6 @@ if(settingsForm) {
             });
             await setDoc(doc(db, "settings", "agency"), agencyDataToSave);
             
-            // Mise à jour visuelle et cache
             if(document.getElementById('existing-founder-img')) document.getElementById('existing-founder-img').value = finalFounderUrl;
             if(document.getElementById('existing-logo-nav')) document.getElementById('existing-logo-nav').value = finalNavUrl;
             if(document.getElementById('existing-logo-hero')) document.getElementById('existing-logo-hero').value = finalHeroUrl;
@@ -980,7 +968,6 @@ window.loadAdminPresse = async () => {
     loadAdminArticles();
 }
 
-// --- GESTION DES VIDÉOS ---
 async function loadAdminVideos() {
     const list = document.getElementById('admin-videos-list');
     if(!list) return;
@@ -1016,7 +1003,6 @@ function renderAdminVideos() {
     });
 }
 
-// --- GESTION DES ARTICLES ---
 async function loadAdminArticles() {
     const list = document.getElementById('admin-articles-list');
     if(!list) return;
@@ -1057,7 +1043,6 @@ function renderAdminArticles() {
     });
 }
 
-// --- ACTIONS GLOBALES PRESSE ---
 window.deletePresseItem = async (collectionName, id) => {
     if(confirm("Supprimer cet élément définitivement ?")) {
         await deleteDoc(doc(db, collectionName, id));
@@ -1084,7 +1069,6 @@ window.movePresseItem = async (collectionName, currentIndex, direction) => {
     else loadAdminArticles();
 };
 
-// --- LOGIQUE D'AFFICHAGE ET D'ÉDITION ---
 const btnAddVid = document.getElementById('btn-add-video');
 if(btnAddVid) {
     btnAddVid.addEventListener('click', () => {
@@ -1144,7 +1128,6 @@ document.querySelectorAll('.btn-cancel-presse').forEach(btn => {
     });
 });
 
-// --- SAUVEGARDE VIDÉO ---
 const vidForm = document.getElementById('video-form');
 if(vidForm) {
     vidForm.addEventListener('submit', async (e) => {
@@ -1188,7 +1171,6 @@ if(vidForm) {
     });
 }
 
-// --- SAUVEGARDE ARTICLE ---
 const artForm = document.getElementById('article-form');
 if(artForm) {
     artForm.addEventListener('submit', async (e) => {
@@ -1263,15 +1245,6 @@ if (dashboardAdmin) {
 
 /* ================= 9. GESTION DES RÉSEAUX SOCIAUX ================= */
 
-// 1. Ajouter la nouvelle section à la fonction qui cache tout
-const originalHideAllSections = hideAllSections;
-hideAllSections = () => {
-    originalHideAllSections(); // Appelle l'ancienne fonction
-    const sec = document.getElementById('manage-social-section');
-    if(sec) sec.classList.add('hidden');
-};
-
-// 2. Navigation et Chargement des données
 const navSocial = document.getElementById('nav-social');
 if(navSocial) {
     navSocial.addEventListener('click', async (e) => {
@@ -1281,7 +1254,7 @@ if(navSocial) {
         document.getElementById('manage-social-section').classList.remove('hidden');
 
         try {
-            const docSnap = await getDoc(doc(db, "settings", "social")); // On crée un document séparé "social"
+            const docSnap = await getDoc(doc(db, "settings", "social")); 
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 document.getElementById('social-tiktok').value = data.tiktok || '';
@@ -1294,7 +1267,6 @@ if(navSocial) {
     });
 }
 
-// 3. Sauvegarde des données
 const socialForm = document.getElementById('social-form');
 if(socialForm) {
     socialForm.addEventListener('submit', async (e) => {
@@ -1315,7 +1287,7 @@ if(socialForm) {
 
             await setDoc(doc(db, "settings", "social"), payload);
             
-            clearPublicCache(); // Vide le cache pour que le site public se mette à jour
+            clearPublicCache(); 
             localStorage.removeItem('site_social'); 
             
             alert("Réseaux sociaux mis à jour avec succès !");
@@ -1328,7 +1300,6 @@ if(socialForm) {
     });
 }
 
-// 4. Ajouter le bouton au système de mémorisation de l'onglet actif (F5)
 if (!navBtnIds.includes('nav-social')) {
     navBtnIds.push('nav-social');
     navSocial.addEventListener('click', () => {
@@ -1352,7 +1323,6 @@ if(navMarquee) {
     });
 }
 
-// Setup Dropzone (Utilise la même logique d'optimisation WebP existante)
 setupDropZone('drop-zone-marquee', 'marquee-upload', 'marquee');
 
 async function loadAdminMarquee() {
@@ -1363,7 +1333,7 @@ async function loadAdminMarquee() {
         const snap = await getDocs(collection(db, "marquee_images"));
         allMarqueeImages = [];
         snap.forEach(docSnap => allMarqueeImages.push({ id: docSnap.id, ...docSnap.data() }));
-        allMarqueeImages.sort((a, b) => b.timestamp - a.timestamp); // Plus récentes en premier
+        allMarqueeImages.sort((a, b) => b.timestamp - a.timestamp); 
         
         list.innerHTML = '';
         if(allMarqueeImages.length === 0) { list.innerHTML = '<tr><td colspan="2" style="color:#aaa;">Aucune image.</td></tr>'; return; }
@@ -1381,7 +1351,7 @@ async function loadAdminMarquee() {
 window.deleteMarquee = async (id) => {
     if(confirm("Supprimer cette image de la banderole ?")) {
         await deleteDoc(doc(db, "marquee_images", id));
-        localStorage.removeItem('site_marquee'); // Vide le cache public
+        localStorage.removeItem('site_marquee'); 
         loadAdminMarquee();
     }
 };
