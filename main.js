@@ -142,6 +142,63 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!translations[currentLang]) currentLang = 'fr';
     if(langSelect) langSelect.value = currentLang;
 
+  // 🪄 LOGIQUE DES ONGLETS AGENCE / FONDATEUR (Avec Lazy Loading)
+    const tabFounder = document.getElementById('tab-founder');
+    const tabAgency = document.getElementById('tab-agency');
+    
+    if (tabFounder && tabAgency) {
+        // Clic sur "Fondateur" (On remet les données d'origine)
+        tabFounder.addEventListener('click', () => {
+            tabFounder.style.background = 'var(--usm-pink)'; tabFounder.style.color = '#fff';
+            tabAgency.style.background = 'rgba(255,255,255,0.1)'; tabAgency.style.color = '#aaa';
+            
+            document.getElementById('vip-title-display').innerHTML = 'Christophe<br><span>Mongai</span>';
+            const currLang = localStorage.getItem('usm_lang') || 'fr';
+            document.getElementById('vip-quote-display').textContent = translations[currLang].vip_quote || '...';
+            document.getElementById('vip-desc-display').textContent = translations[currLang].vip_desc || '';
+            document.getElementById('vip-licenses-display').style.display = 'flex';
+            
+            const fImg = Cache.get('site_settings')?.founderImg;
+            if(fImg) document.getElementById('vip-img-display').src = fImg;
+        });
+
+        // Clic sur "L'Agence" (On télécharge sur Firebase sans surcharger)
+        tabAgency.addEventListener('click', async () => {
+            tabAgency.style.background = 'var(--usm-pink)'; tabAgency.style.color = '#fff';
+            tabFounder.style.background = 'rgba(255,255,255,0.1)'; tabFounder.style.color = '#aaa';
+
+            document.getElementById('vip-title-display').innerHTML = 'L\'Agence<br><span>USM Football</span>';
+            document.getElementById('vip-licenses-display').style.display = 'none'; // Cache les licences perso
+            document.getElementById('vip-quote-display').textContent = '...';
+            document.getElementById('vip-desc-display').textContent = 'Chargement en cours...';
+
+            // 🪄 Le Lazy Load anti-coût Firebase
+            let agencyData = Cache.get('site_agency');
+            if (!agencyData) {
+                try {
+                    const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+                    const d = await getDoc(doc(db, "settings", "agency")); // On lit un document séparé !
+                    if(d.exists()) {
+                        agencyData = d.data();
+                        Cache.set('site_agency', agencyData);
+                    } else {
+                        agencyData = { empty: true };
+                    }
+                } catch(e) { console.error("Erreur Agence:", e); }
+            }
+
+            if (agencyData && !agencyData.empty) {
+                const currLang = localStorage.getItem('usm_lang') || 'fr';
+                document.getElementById('vip-quote-display').textContent = agencyData[`quote_${currLang}`] || '';
+                document.getElementById('vip-desc-display').textContent = agencyData[`desc_${currLang}`] || '';
+                if(agencyData.image) document.getElementById('vip-img-display').src = agencyData.image;
+            } else {
+                 document.getElementById('vip-desc-display').textContent = 'Informations de l\'agence à venir.';
+                 document.getElementById('vip-quote-display').textContent = '';
+            }
+        });
+    }
+
     const updateContent = (lang) => {
         document.querySelectorAll('[data-i18n]').forEach(el => { 
             const key = el.getAttribute('data-i18n'); 
