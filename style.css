@@ -186,13 +186,15 @@ body {
 .massive-eagle-wrapper {
     width: clamp(300px, 60vw, 800px); 
     margin-bottom: 20px;
-    filter: drop-shadow(0 0 50px rgba(216,0,86,0.3)); 
+    will-change: transform; 
+    transform: translateZ(0); 
     animation: float 6s ease-in-out infinite;
 }
 
 .massive-eagle-wrapper img { 
     width: 100%; 
     height: auto; 
+    filter: drop-shadow(0 0 50px rgba(216,0,86,0.3)); 
 }
 
 .hero-massive h1 { 
@@ -204,8 +206,8 @@ body {
 }
 
 @keyframes float { 
-    0%, 100% { transform: translateY(0px); } 
-    50% { transform: translateY(-20px); } 
+    0%, 100% { transform: translate3d(0, 0px, 0); } 
+    50% { transform: translate3d(0, -20px, 0); } 
 }
 
 
