@@ -654,41 +654,54 @@ async function loadPresseData() {
         vidContainer.innerHTML = '<p style="color:#888; margin-left:20px;">Aucune vidéo pour le moment.</p>';
     }
 
-    // --- 1.5 Flux Automatique YouTube ---
+   // --- 1.5 Flux Automatique YouTube (AVEC CACHE ANTI-BLOCAGE) ---
     const ytContainer = document.getElementById('youtube-feed-container');
     if (ytContainer) {
-        const YOUTUBE_CHANNEL_ID = "UCuaiYfKTeTWvQyz4tJXMlug"; 
-        const rssUrl = encodeURIComponent(`https://www.youtube.com/feeds/videos.xml?channel_id=${YOUTUBE_CHANNEL_ID}`);
-        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
+        // 1. On vérifie si on a déjà les vidéos en mémoire (Cache de 24h)
+        let ytItems = Cache.get('usm_yt_feed');
 
-        try {
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            
-            if(data.status === 'ok' && data.items && data.items.length > 0) {
-                window.site_presse_yt = data.items; 
+        // 2. Si on ne les a pas, on appelle l'API
+        if (!ytItems || ytItems.length === 0) {
+            const YOUTUBE_CHANNEL_ID = "UCuaiYfKTeTWvQyz4tJXMlug"; 
+            const rssUrl = encodeURIComponent(`https://www.youtube.com/feeds/videos.xml?channel_id=${YOUTUBE_CHANNEL_ID}`);
+            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
                 
-                ytContainer.innerHTML = data.items.map((item, index) => {
-                    const ytId = getYouTubeId(item.link);
-                    const thumbUrl = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : item.thumbnail;
-                    const safeTitle = encodeURIComponent(item.title);
-                    
-                    return `
-                    <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${item.link}" data-title="${safeTitle}" data-desc="" data-link="" data-source="yt" data-index="${index}">
-                        <div class="video-container">
-                            <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
-                            <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
-                                <div style="width:50px; height:50px; background:#ff0000; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; padding-left:4px; box-shadow: 0 4px 15px rgba(255,0,0,0.4);">▶</div>
-                            </div>
-                        </div>
-                        <div class="video-title">${item.title}</div>
-                    </div>`;
-                }).join('');
-            } else {
-                ytContainer.innerHTML = '<p style="color:#888; margin-left:20px;">Aucune vidéo récente sur la chaîne.</p>';
-            }
-        } catch(e) { console.error("Erreur YouTube:", e); }
+                if(data.status === 'ok' && data.items && data.items.length > 0) {
+                    ytItems = data.items;
+                    Cache.set('usm_yt_feed', ytItems); 
+                }
+            } catch(e) { console.error("Erreur YouTube:", e); }
+        }
 
+        // 3. Affichage des vidéos (depuis le cache ou l'API)
+        if (ytItems && ytItems.length > 0) {
+            window.site_presse_yt = ytItems; 
+            
+            ytContainer.innerHTML = ytItems.map((item, index) => {
+                const ytId = getYouTubeId(item.link);
+                const thumbUrl = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : item.thumbnail;
+                const safeTitle = encodeURIComponent(item.title);
+                
+                return `
+                <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${item.link}" data-title="${safeTitle}" data-desc="" data-link="" data-source="yt" data-index="${index}">
+                    <div class="video-container">
+                        <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
+                        <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
+                            <div style="width:50px; height:50px; background:#ff0000; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; padding-left:4px; box-shadow: 0 4px 15px rgba(255,0,0,0.4);">▶</div>
+                        </div>
+                    </div>
+                    <div class="video-title">${item.title}</div>
+                </div>`;
+            }).join('');
+        } else {
+            ytContainer.innerHTML = '<p style="color:#888; margin-left:20px;">Aucune vidéo récente (ou limite de connexion API atteinte).</p>';
+        }
+
+        // Contrôles du slider
         const btnYtPrev = document.getElementById('btn-yt-prev');
         const btnYtNext = document.getElementById('btn-yt-next');
         if(btnYtPrev) btnYtPrev.addEventListener('click', () => ytContainer.scrollBy({ left: -400, behavior: 'smooth' }));
