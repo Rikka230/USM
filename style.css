@@ -988,10 +988,11 @@ html, body {
     #services-container .bento-service-card {
         flex: 0 0 85% !important; 
         width: 85% !important;
-        height: 220px !important; 
+        height: 220px !important; /* 🪄 Hauteur cinéma imposée (plus de bug d'étirement) */
         scroll-snap-align: center !important; 
         padding: 25px 20px !important;
     }
+    /* Dégradé sombre pour toujours lire le texte, peu importe la photo */
     .bento-service-card::before {
         content: '';
         position: absolute;
@@ -1031,29 +1032,19 @@ html, body {
     .service-sidebar { flex: 1 1 100%; }
     .service-hero h1 { font-size: 2rem; }
 
-    /* 10. CACHER LE BADGE INSTAGRAM (VUE MAXIMALE SANS COUPURE DE PHOTO) */
+    /* 10. CACHER LE BADGE INSTAGRAM SUR MOBILE (RÉGLAGE CHIRURGICAL) */
     #instagram-feed {
-        position: relative !important;
-        height: 850px !important; /* 🪄 Beaucoup plus haut pour voir un maximum de contenu */
-        overflow: hidden !important; /* On cache ce qui déborde en bas */
-        padding: 0 !important;
+        height: 750px !important; 
     }
-    
     #instagram-feed iframe, 
     #instagram-feed [class*="elfsight-app"] {
-        margin-top: 0 !important; /* Aucun décalage en haut, la photo reste parfaite */
-        height: calc(100% + 45px) !important; /* 🪄 On allonge le widget de 45px vers le bas */
-        margin-bottom: -45px !important; /* On pousse la pilule dans la zone invisible */
-        width: 100% !important;
-        display: block !important;
+        margin-top: -50px !important; /* On remonte à peine */
+        height: calc(100% + 80px) !important; 
     }
-
-    #instagram-feed::after {
-        display: none !important; /* On supprime l'ancien rectangle noir */
-    }
-
     .insta-overlay-fix {
-        display: none !important; /* On supprime l'ancienne rustine */
+        width: 100% !important; 
+        height: 32px !important; /* 🪄 Minimum absolu pour couvrir la pilule sans rogner la photo */
+        left: 0;
     }
 }
 
