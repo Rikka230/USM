@@ -288,8 +288,9 @@ body {
 
 
 /* ================= 6. SERVICES (SLIDER HORIZONTAL PC) ================= */
-.services-grid { 
+#services-container, .services-grid { 
     display: flex; 
+    flex-wrap: nowrap; /* 🪄 Sécurité absolue anti-colonne */
     gap: 30px; 
     margin-top: 10px; 
     overflow-x: auto; 
@@ -298,7 +299,9 @@ body {
     scrollbar-width: none; /* Cache la scrollbar (Firefox) */
     padding-bottom: 20px;
 }
-.services-grid::-webkit-scrollbar { display: none; /* Cache la scrollbar (Chrome/Safari) */ }
+#services-container::-webkit-scrollbar, .services-grid::-webkit-scrollbar { 
+    display: none; /* Cache la scrollbar (Chrome/Safari) */
+}
 
 .bento-service-card {
     flex: 0 0 320px; /* 🪄 Fixe la largeur, empêche l'écrasement */
@@ -807,8 +810,8 @@ html, body {
     .card-full { grid-column: 1 / -1; align-items: center; text-align: center; }
     .card-full .data-label { justify-content: center; }
 
-    /* 🪄 6. DESIGN SERVICES EN SLIDER MOBILE (Format Cinéma) */
-    .services-grid { 
+   /* 🪄 6. DESIGN SERVICES EN SLIDER MOBILE (Format Cinéma) */
+    #services-container, .services-grid { 
         display: flex !important; 
         flex-direction: row !important; 
         flex-wrap: nowrap !important; /* 🪄 INTERDIT LE RETOUR À LA LIGNE */
@@ -819,20 +822,8 @@ html, body {
         padding: 0 15px 20px 15px; 
         box-sizing: border-box;
     }
-    .services-grid::-webkit-scrollbar {
-        display: none !important; /* Cache la barre moche sur mobile */
-    }
-    .bento-service-card {
-        flex: 0 0 85% !important; /* 🪄 Laisse 15% pour voir la carte suivante */
-        scroll-snap-align: center !important; /* S'aimante bien au centre sur mobile */
-        width: auto !important;
-        aspect-ratio: 16 / 9 !important; 
-        min-height: auto !important; 
-        padding: 25px 20px !important;
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end; 
+    #services-container::-webkit-scrollbar, .services-grid::-webkit-scrollbar {
+        display: none !important; 
     }
     /* Dégradé sombre pour toujours lire le texte, peu importe la photo */
     .bento-service-card::before {
