@@ -1260,3 +1260,78 @@ if (dashboardAdmin) {
     });
     observer.observe(dashboardAdmin, { attributes: true });
 }
+
+/* ================= 9. GESTION DES RÉSEAUX SOCIAUX ================= */
+
+// 1. Ajouter la nouvelle section à la fonction qui cache tout
+const originalHideAllSections = hideAllSections;
+hideAllSections = () => {
+    originalHideAllSections(); // Appelle l'ancienne fonction
+    const sec = document.getElementById('manage-social-section');
+    if(sec) sec.classList.add('hidden');
+};
+
+// 2. Navigation et Chargement des données
+const navSocial = document.getElementById('nav-social');
+if(navSocial) {
+    navSocial.addEventListener('click', async (e) => {
+        document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        hideAllSections();
+        document.getElementById('manage-social-section').classList.remove('hidden');
+
+        try {
+            const docSnap = await getDoc(doc(db, "settings", "social")); // On crée un document séparé "social"
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                document.getElementById('social-tiktok').value = data.tiktok || '';
+                document.getElementById('social-linkedin').value = data.linkedin || '';
+                document.getElementById('social-instagram').value = data.instagram || '';
+                document.getElementById('social-facebook').value = data.facebook || '';
+                document.getElementById('social-youtube').value = data.youtube || '';
+            }
+        } catch (error) { console.error("Erreur chargement réseaux:", error); }
+    });
+}
+
+// 3. Sauvegarde des données
+const socialForm = document.getElementById('social-form');
+if(socialForm) {
+    socialForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('save-social-btn');
+        btn.textContent = "Sauvegarde en cours...";
+        btn.disabled = true;
+
+        try {
+            const payload = {
+                tiktok: document.getElementById('social-tiktok').value,
+                linkedin: document.getElementById('social-linkedin').value,
+                instagram: document.getElementById('social-instagram').value,
+                facebook: document.getElementById('social-facebook').value,
+                youtube: document.getElementById('social-youtube').value,
+                timestamp: new Date()
+            };
+
+            await setDoc(doc(db, "settings", "social"), payload);
+            
+            clearPublicCache(); // Vide le cache pour que le site public se mette à jour
+            localStorage.removeItem('site_social'); 
+            
+            alert("Réseaux sociaux mis à jour avec succès !");
+        } catch(err) {
+            alert("Erreur : " + err.message);
+        } finally {
+            btn.textContent = "Enregistrer les Réseaux";
+            btn.disabled = false;
+        }
+    });
+}
+
+// 4. Ajouter le bouton au système de mémorisation de l'onglet actif (F5)
+if (!navBtnIds.includes('nav-social')) {
+    navBtnIds.push('nav-social');
+    navSocial.addEventListener('click', () => {
+        localStorage.setItem('admin_active_tab', 'nav-social');
+    });
+}
