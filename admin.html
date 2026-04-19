@@ -240,6 +240,33 @@
                         <div><label style="color:#aaa; font-size:0.85rem;">Confiance & Roster</label><input type="text" id="set-stat2" style="margin-top:5px;"></div>
                         <div><label style="color:#aaa; font-size:0.85rem;">Impact Digital (Abonnés)</label><input type="text" id="set-stat3" style="margin-top:5px;"></div>
                     </div>
+
+                    <div style="margin: 40px 0; border-top: 1px solid #333; padding-top: 30px;">
+                        <h3 class="pink-accent">Présentation de L'Agence</h3>
+                        <p style="color:#aaa; font-size:0.85rem; margin-bottom: 20px;">Optimisation : ces données ne coûtent rien sur Firebase tant que le visiteur ne clique pas sur l'onglet.</p>
+
+                        <input type="hidden" id="existing-agency-img">
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div><label>Citation (FR)</label><input type="text" id="agency-quote-fr" placeholder="Notre philosophie..."></div>
+                            <div><label>Citation (EN)</label><input type="text" id="agency-quote-en"></div>
+                            <div><label>Citation (ES)</label><input type="text" id="agency-quote-es"></div>
+                            <div><label>Citation (PT)</label><input type="text" id="agency-quote-pt"></div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div><label>Description (FR)</label><textarea id="agency-desc-fr" rows="4"></textarea></div>
+                            <div><label>Description (EN)</label><textarea id="agency-desc-en" rows="4"></textarea></div>
+                            <div><label>Description (ES)</label><textarea id="agency-desc-es" rows="4"></textarea></div>
+                            <div><label>Description (PT)</label><textarea id="agency-desc-pt" rows="4"></textarea></div>
+                        </div>
+
+                        <label style="margin-top:20px;">Photo de l'Agence (Bureaux, équipe...)</label>
+                        <div id="drop-zone-agency" class="drop-zone">
+                            <p>Glissez la photo de l'agence ici</p>
+                            <input type="file" id="agency-upload" accept="image/*" hidden>
+                        </div>
+                    </div>
                     
                     <button type="submit" class="btn-publish" style="margin-top:20px;">Enregistrer les modifications</button>
                 </form>
