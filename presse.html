@@ -99,22 +99,59 @@
             </div>
         </section>
     </main>
-<footer style="background: var(--bg-dark); border-top: 1px solid var(--surface-border); padding: 60px 20px 30px; text-align: center; margin-top: 60px;">
-        <div style="max-width: 1200px; margin: 0 auto;">
-            <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 15px;">USM F<span style="color: var(--usm-pink);">OO</span>TBALL</div>
-            <p style="color: #aaa; margin-bottom: 30px;">Management & Développement de carrière depuis 1998.</p>
+<footer class="usm-universal-footer">
+    <div class="footer-container">
+        
+        <div class="footer-col footer-info">
+            <img src="assets/logo-usm-navbar.png" alt="USM Football" class="footer-logo"> <p class="footer-tagline">L'excellence au service du football mondial.</p>
             
-            <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 40px;">
-                <a href="https://www.instagram.com/usmgroup/" target="_blank" style="color: white; text-decoration: none; font-weight: bold; transition: 0.3s;" onmouseover="this.style.color='var(--usm-pink)'" onmouseout="this.style.color='white'">Instagram</a>
-                <a href="https://www.youtube.com/channel/UCuaiYfKTeTWvQyz4tJXMlug" target="_blank" style="color: white; text-decoration: none; font-weight: bold; transition: 0.3s;" onmouseover="this.style.color='var(--usm-pink)'" onmouseout="this.style.color='white'">YouTube</a>
-            </div>
-            
-            <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; color: #666; font-size: 0.85rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
-                <span>© 2025 USM Football. Tous droits réservés.</span>
-                <a href="mentions.html" style="color: #888; text-decoration: none;" data-i18n="legal_mentions">Mentions Légales</a>
+            <div class="contact-hardcoded">
+                <div class="contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>123 Rue du Football, 75000 Paris, France</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <a href="mailto:contact@usmfootball.com">contact@usmfootball.com</a>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <a href="tel:+33123456789">+33 1 23 45 67 89</a>
+                </div>
             </div>
         </div>
-    </footer>
+
+        <div class="footer-col footer-nav">
+            <h3>Plan du Site</h3>
+            <ul>
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="joueurs.html">Nos Joueurs</a></li>
+                <li><a href="presse.html">Espace Presse</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col footer-social">
+            <h3>Suivez-nous</h3>
+            <div class="social-links-container" id="footer-social-links">
+                <a href="#" target="_blank" class="social-icon" title="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" target="_blank" class="social-icon" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" target="_blank" class="social-icon" title="X (Twitter)"><i class="fab fa-x-twitter"></i></a>
+                <a href="#" target="_blank" class="social-icon" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+            </div>
+
+            <a href="admin.html" class="admin-access-btn">
+                <i class="fas fa-lock"></i>
+                <span>Partenaire INNOX WEB - Admin</span>
+            </a>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2024 USM Football. Tous droits réservés. <a href="mentions.html">Mentions Légales</a></p>
+    </div>
+</footer>
  <div class="lightbox" id="presse-lightbox">
         <button class="lightbox-close" onclick="closeLightbox()">×</button>
         <div class="lightbox-container">
