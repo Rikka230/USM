@@ -959,7 +959,7 @@ document.addEventListener("DOMContentLoaded", () => {
               window.voiceflow.chat.load({
                 verify: { projectID: VF_PROJECT_ID },
                 url: 'https://general-runtime.voiceflow.com',
-                versionID: 'production',
+                versionID: 'development', /* 🪄 On force le mode de travail ici */
                 voice: {
                   url: "https://runtime-api.voiceflow.com"
                 },
