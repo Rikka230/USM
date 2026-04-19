@@ -374,6 +374,28 @@
                     <button type="submit" id="save-social-btn" class="btn-publish" style="margin-top: 20px;">Enregistrer les Réseaux</button>
                 </form>
             </section>
+
+            <section id="manage-marquee-section" class="hidden">
+                <header style="margin-bottom: 25px;">
+                    <h1 style="margin: 0;">Images Décoratives (Banderole)</h1>
+                    <p style="color: #aaa; margin-top: 10px;">Ajoutez des photos pour la banderole défilante. Limité aux 20 dernières photos pour les performances.</p>
+                </header>
+                
+                <form id="marquee-form" class="bento-form" style="margin-bottom: 40px; max-width: 400px;">
+                    <div id="drop-zone-marquee" class="drop-zone">
+                        <p>Glissez une nouvelle image ici</p>
+                        <input type="file" id="marquee-upload" accept="image/*" hidden>
+                    </div>
+                    <button type="submit" id="save-marquee-btn" class="btn-publish" style="margin-top: 20px;">Ajouter à la banderole</button>
+                </form>
+
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead><tr><th>Aperçu</th><th>Action</th></tr></thead>
+                        <tbody id="admin-marquee-list"></tbody>
+                    </table>
+                </div>
+            </section>
             
         </main>
     </div>
