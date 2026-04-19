@@ -1031,21 +1031,6 @@ html, body {
     .service-page-layout { flex-direction: column; padding: 15px; width: 100%; box-sizing: border-box; }
     .service-sidebar { flex: 1 1 100%; }
     .service-hero h1 { font-size: 2rem; }
-
-    /* 10. CACHER LE BADGE INSTAGRAM SUR MOBILE (RÉGLAGE PIXEL PRÈS) */
-    #instagram-feed {
-        height: 750px !important; 
-    }
-    #instagram-feed iframe, 
-    #instagram-feed [class*="elfsight-app"] {
-        margin-top: -45px !important; /* Relâché de 5px pour sauver le haut des photos */
-        height: calc(100% + 85px) !important; 
-    }
-    .insta-overlay-fix {
-        width: 100% !important; 
-        height: 40px !important; /* +8px ajoutés pour couvrir parfaitement la pilule */
-        left: 0;
-    }
 }
 
 /* Optimisation extrême pour les très petits téléphones (iPhone SE, etc.) */
@@ -1058,7 +1043,7 @@ html, body {
         font-size: 0.8rem;
     }
     .data-huge {
-        font-size: 1.8rem; 
+        font-size: 1.8rem; /* 🪄 Plus petit pour que "25 000+" rentre dans une demi-colonne */
     }
     .data-label {
         font-size: 0.75rem;
@@ -1086,12 +1071,12 @@ html, body {
     gap: 20px; 
     overflow-x: auto; 
     scroll-snap-type: x mandatory; 
-    scrollbar-width: none; 
+    scrollbar-width: none; /* Cache la barre de scroll moche sur Firefox */
     padding-bottom: 20px; 
     scroll-behavior: smooth;
 }
 .video-slider::-webkit-scrollbar { 
-    display: none; 
+    display: none; /* Cache la barre sur Chrome/Safari */
 }
 .video-card { 
     flex: 0 0 clamp(280px, 40vw, 500px); 
@@ -1105,7 +1090,7 @@ html, body {
 .video-card:hover { border-color: var(--usm-pink); transform: translateY(-5px); }
 .video-container { 
     position: relative; 
-    padding-bottom: 56.25%; 
+    padding-bottom: 56.25%; /* Ratio 16:9 parfait pour YouTube */
     height: 0; 
 }
 .video-container iframe { 
@@ -1118,6 +1103,34 @@ html, body {
 
 /* Mosaïque Articles (Effet Vrai Journal Plié) */
 .mosaic-wrapper { max-width: 1400px; margin: 0 auto 100px; padding: 0 var(--spacing-main); }
+.mosaic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 35px; }
+
+.mosaic-item { 
+    position: relative; 
+    cursor: pointer; 
+    aspect-ratio: 1 / 1; 
+    background: #eaeaea; /* Couleur papier légèrement grisée */
+    display: flex; align-items: center; justify-content: center;
+    /* Plus de marge à gauche pour la pliure, moins à droite */
+    padding: 12px 8px 12px 18px; 
+    
+    /* 🪄 L'EFFET PLIURE : Très arrondi à gauche, angles droits à droite */
+    border-radius: 14px 2px 2px 14px; 
+    
+    /* 🪄 OMBRES 3D : Lignes blanches et grises alternées pour simuler les pages */
+    box-shadow: 
+        2px 2px 0px #fff, 
+        3px 3px 2px rgba(0,0,0,0.15), 
+        5px 5px 0px #fff, 
+        6px 6px 3px rgba(0,0,0,0.15), 
+        8px 8px 0px #fff, 
+        10px 10px 15px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+}
+
+/* Mosaïque Articles (Effet Vrai Journal Plié - Grand format) */
+.mosaic-wrapper { max-width: 1400px; margin: 0 auto 100px; padding: 0 var(--spacing-main); }
+
 .mosaic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 35px; }
 
 .mosaic-item { 
@@ -1127,6 +1140,7 @@ html, body {
     background: #eaeaea; 
     display: flex; align-items: center; justify-content: center;
     padding: 6px 4px 6px 14px; 
+    
     border-radius: 14px 2px 2px 14px; 
     box-shadow: 
         2px 2px 0px #fff, 
@@ -1182,18 +1196,20 @@ html, body {
     gap: 40px; width: 95vw; max-width: 1400px; height: 90vh; position: relative; 
 }
 
+/* 🪄 NOUVEAU : La colonne qui gère le média + le slider */
 .lightbox-left-col {
     flex: 1 1 auto; display: flex; flex-direction: column; 
     height: 100%; max-width: calc(100% - 390px); gap: 15px;
 }
 
 .lightbox-media { 
-    flex: 1 1 auto; height: calc(100% - 135px); 
+    flex: 1 1 auto; height: calc(100% - 135px); /* Laisse 135px pour le slider en bas */
     display: flex; align-items: center; justify-content: center; 
 }
 .lightbox-media img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
 .lightbox-media iframe { width: 100%; max-width: 1000px; aspect-ratio: 16 / 9; height: auto; max-height: 100%; border: none; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); }
 
+/* 🪄 NOUVEAU : Le bloc du Mini-Slider */
 .lightbox-slider-wrapper {
     flex: 0 0 120px; display: flex; align-items: center; gap: 15px;
     background: rgba(25, 25, 30, 0.85); border-radius: 16px; padding: 10px 15px;
@@ -1214,9 +1230,12 @@ html, body {
 }
 .mini-slider-item.active, .mini-slider-item:hover { opacity: 1; border-color: var(--usm-pink); }
 .mini-slider-item img { width: 100%; height: 100%; object-fit: cover; }
+
+/* 🪄 L'effet Journal conservé pour le mini-slider */
 .mini-slider-item.is-article { background: #eaeaea; padding: 4px; border-radius: 8px 2px 2px 8px; }
 .mini-slider-item.is-article img { object-fit: cover !important; object-position: top center; border-radius: 2px; }
 
+/* La Sidebar (Inchangée) */
 .lightbox-sidebar { 
     flex: 0 0 350px; max-height: 80vh; overflow-y: auto; background: rgba(25, 25, 30, 0.85); 
     backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
@@ -1232,9 +1251,44 @@ html, body {
     .lightbox-container { flex-direction: column; gap: 20px; padding-top: 60px; }
     .lightbox-left-col { max-width: 100%; height: 45vh; }
     .lightbox-media { height: 100%; }
-    .lightbox-slider-wrapper { display: none; }
+    .lightbox-slider-wrapper { display: none; /* Cache le mini slider sur mobile pour gagner de la place */ }
     .lightbox-sidebar { flex: 1 1 auto; width: 100%; max-height: 40vh; border-radius: 20px 20px 0 0; padding: 20px; }
     .lightbox-media iframe { width: 100%; height: 100%; }
+}
+
+/* 🪄 Masquage manuel précis du Watermark Instagram - RÉGLAGE FINAL FINAL */
+#instagram-feed {
+    position: relative;
+    padding-top: 0; 
+    
+    /* 🪄 ON POUSSE À 840px : Pour libérer le bas des photos à 100% */
+    height: 840px; 
+    
+    overflow: hidden; 
+    /* Ombre interne maintenue pour noyer le logo Elfsight */
+    box-shadow: inset 0 -60px 50px var(--bg-dark);
+    border-bottom: 2px solid var(--surface-border);
+}
+
+/* 🪄 AJUSTEMENT DU CONTENU INTERNE (Le haut est déjà parfait) */
+#instagram-feed iframe, 
+#instagram-feed [class*="elfsight-app"] {
+    margin-top: -90px !important; 
+    height: calc(100% + 150px) !important; 
+    width: 100% !important;
+    display: block;
+}
+
+/* 🪄 Badge de recouvrement pour le coin inférieur droit */
+.insta-overlay-fix {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 260px; 
+    height: 80px; 
+    background: var(--bg-dark); 
+    z-index: 100; 
+    pointer-events: none; 
 }
 
 /* ================= MENU MOBILE ================= */
@@ -1274,13 +1328,14 @@ html, body {
 .sticky-icon {
     color: #888;
     transition: all 0.3s ease;
-    display: none; 
+    display: none; /* Masqué par défaut tant que Firebase n'a pas validé le lien */
 }
 .sticky-icon:hover {
     color: var(--usm-pink);
     transform: scale(1.15) translateX(-2px);
     filter: drop-shadow(0 0 8px rgba(216, 0, 86, 0.5));
 }
+/* Masquer sur mobile pour ne pas gêner la lecture */
 @media (max-width: 768px) {
     .sticky-social-bar { display: none; }
 }
@@ -1293,6 +1348,7 @@ html, body {
     background: var(--bg-dark);
     position: relative;
 }
+/* Dégradés sur les bords pour fondre les images dans le décor */
 .marquee-wrapper::before, .marquee-wrapper::after {
     content: '';
     position: absolute;
@@ -1313,6 +1369,7 @@ html, body {
 .marquee-track {
     display: flex;
     width: max-content;
+    /* 40s = Vitesse raisonnable et classe. Fluidité absolue via translate3d */
     animation: scrollMarquee 40s linear infinite; 
     will-change: transform;
 }
@@ -1339,5 +1396,5 @@ html, body {
 
 @keyframes scrollMarquee {
     0% { transform: translate3d(0, 0, 0); }
-    100% { transform: translate3d(-50%, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); } /* -50% car on duplique le contenu en JS pour boucler */
 }
