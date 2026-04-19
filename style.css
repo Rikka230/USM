@@ -678,78 +678,7 @@ body {
 
 /* ================= 11. CARTES SERVICES & PAGE DYNAMIQUE ================= */
 
-/* Le conteneur devient un slider horizontal */
-.services-grid { 
-    display: flex; 
-    gap: 30px; 
-    margin-top: 10px; 
-    overflow-x: auto; 
-    scroll-snap-type: x mandatory; 
-    scroll-behavior: smooth; 
-    scrollbar-width: none; /* Cache la scrollbar (Firefox) */
-    padding-bottom: 20px;
-}
-.services-grid::-webkit-scrollbar { display: none; /* Cache la scrollbar (Chrome/Safari) */ }
-
-/* Format carré parfait (PC) avec ancrage de défilement */
-.bento-service-card {
-    flex: 0 0 320px; /* 🪄 Fixe la largeur, empêche l'écrasement */
-    scroll-snap-align: start; /* 🪄 La carte s'aimante au bord au défilement */
-    aspect-ratio: 1 / 1; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: flex-end;
-    box-shadow: inset 0 3px 0 0 var(--usm-pink), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-    padding: 30px; 
-    border-radius: 16px;
-    text-decoration: none; 
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
-    background-color: var(--bg-dark);
-    clip-path: inset(0 0 0 0 round 16px);
-    -webkit-clip-path: inset(0 0 0 0 round 16px);
-}
-.bento-service-card:hover {
-    transform: translateY(-5px);
-    box-shadow: inset 0 3px 0 0 rgba(216, 0, 86, 0.8), inset 0 0 0 1px rgba(216, 0, 86, 0.3), 0 15px 35px rgba(0,0,0,0.6);
-}
-
-/* Force le texte à passer au-dessus de l'image de fond */
-.srv-card-content, .srv-card-arrow { position: relative; z-index: 2; }
-
-.srv-card-content h3 { 
-    font-size: 1.5rem; 
-    color: #fff; 
-    margin-bottom: 10px; 
-    text-shadow: 0 2px 15px rgba(0,0,0,0.9); 
-}
-
-.srv-card-content p { 
-    font-size: 0.95rem; 
-    color: #eee; 
-    line-height: 1.5; 
-    display: -webkit-box; 
-    -webkit-line-clamp: 3; 
-    -webkit-box-orient: vertical; 
-    overflow: hidden; 
-    text-shadow: 0 2px 15px rgba(0,0,0,0.9);
-}
-
-.srv-card-arrow { 
-    align-self: flex-end; 
-    margin-top: 15px; 
-    color: var(--usm-pink); 
-    font-weight: bold; 
-    font-size: 0.85rem; 
-    text-transform: uppercase; 
-    letter-spacing: 1px; 
-    transition: 0.3s; 
-}
-
-.bento-service-card:hover .srv-card-arrow { 
-    transform: translateX(8px); 
-    color: #fff; 
-}
+/* 🪄 L'ancien code de la grille a été supprimé d'ici pour laisser le Slider de la Section 6 fonctionner ! */
 
 /* Header de la page service unique */
 .service-hero {
@@ -766,6 +695,7 @@ body {
 .btn-back { display: inline-block; margin-bottom: 20px; color: var(--usm-pink); text-decoration: none; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
 .btn-back:hover { color: #fff; transform: translateX(-5px); }
 
+/* ================= 12. LAYOUT PAGE DYNAMIQUE (SIDEBAR) ================= */
 /* ================= 12. LAYOUT PAGE DYNAMIQUE (SIDEBAR) ================= */
 .service-page-layout {
     display: flex;
@@ -870,13 +800,20 @@ html, body {
     .services-grid { 
         display: flex !important; 
         flex-direction: row !important; 
+        flex-wrap: nowrap !important; /* 🪄 INTERDIT LE RETOUR À LA LIGNE */
+        overflow-x: auto !important; /* 🪄 FORCE LA BARRE DE DÉFILEMENT */
+        scroll-snap-type: x mandatory !important;
         gap: 15px; 
         width: 100%; 
         padding: 0 15px 20px 15px; 
         box-sizing: border-box;
     }
+    .services-grid::-webkit-scrollbar {
+        display: none !important; /* Cache la barre moche sur mobile */
+    }
     .bento-service-card {
-        flex: 0 0 85% !important; 
+        flex: 0 0 85% !important; /* 🪄 Laisse 15% pour voir la carte suivante */
+        scroll-snap-align: center !important; /* S'aimante bien au centre sur mobile */
         width: auto !important;
         aspect-ratio: 16 / 9 !important; 
         min-height: auto !important; 
