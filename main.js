@@ -314,7 +314,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-    const startApp = async () => {
+   const startApp = async () => {
         await loadSettings(); 
         await loadSocialLinks();
         await loadServices(); 
@@ -322,6 +322,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         await loadSingleServicePage(); 
     };
     startApp();
+}); 
 
 /* ================= 5. CHARGEMENT PARAMÈTRES AVEC CACHE ================= */
 
