@@ -947,3 +947,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
     marqueeObserver.observe(marqueeSection);
 });
+
+/* ================= 11. ASSISTANT IA (FILTRAGE CANDIDATURES) ================= */
+document.addEventListener("DOMContentLoaded", () => {
+    // ⚠️ Remplace cette valeur par le "Project ID" que Voiceflow te donnera
+    const VF_PROJECT_ID = 'TON_PROJECT_ID_VOICEFLOW_ICI'; 
+    
+    // On ne charge le script que si tu as entré ton ID
+    if (VF_PROJECT_ID !== 'TON_PROJECT_ID_VOICEFLOW_ICI') {
+        (function(d, t) {
+            var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
+            v.onload = function() {
+              window.voiceflow.chat.load({
+                verify: { projectID: VF_PROJECT_ID },
+                url: 'https://general-runtime.voiceflow.com',
+                versionID: 'production',
+                render: {
+                    mode: 'overlay', 
+                },
+                autostart: false
+              });
+            }
+            v.src = "https://cdn.voiceflow.com/widget/bundle.mjs"; 
+            v.type = "text/javascript"; 
+            s.parentNode.insertBefore(v, s);
+        })(document, 'script');
+    }
+});
