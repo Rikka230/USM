@@ -159,7 +159,28 @@
             <p>&copy; 2026 USM Football. Tous droits réservés. <span class="footer-separator">•</span> <a href="mentions.html">Mentions Légales</a> <span class="footer-separator">•</span> <a href="admin.html" class="admin-secret-link">Powered by NOCX WEB</a></p>
         </div>
     </footer>
+<div id="presse-lightbox" class="lightbox">
+        <button class="lightbox-close" onclick="closeLightbox()">×</button>
+        <div class="lightbox-container">
+            
+            <div class="lightbox-left-col">
+                <div id="lightbox-media" class="lightbox-media"></div>
+                
+                <div class="lightbox-slider-wrapper">
+                    <button class="lightbox-slider-btn" onclick="document.getElementById('lightbox-mini-slider').scrollBy({left: -150, behavior: 'smooth'})">❮</button>
+                    <div id="lightbox-mini-slider" class="lightbox-mini-slider"></div>
+                    <button class="lightbox-slider-btn" onclick="document.getElementById('lightbox-mini-slider').scrollBy({left: 150, behavior: 'smooth'})">❯</button>
+                </div>
+            </div>
 
+            <div class="lightbox-sidebar">
+                <h3 id="lightbox-title" style="color:var(--usm-pink); margin-bottom:15px; font-size:1.5rem; text-transform:uppercase;"></h3>
+                <p id="lightbox-desc" style="color:#ccc; line-height:1.6; font-size:1rem;"></p>
+                <div id="lightbox-link-container"></div>
+            </div>
+
+        </div>
+    </div>
     <script type="module" src="main.js"></script>
 </body>
 </html>
