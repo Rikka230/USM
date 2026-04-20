@@ -159,28 +159,27 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         padding: 0 10px !important;
         padding-bottom: env(safe-area-inset-bottom) !important;
         
-        /* Le look verre dépoli de ton site public */
         background: rgba(10, 10, 12, 0.85) !important;
         backdrop-filter: blur(20px) !important;
         -webkit-backdrop-filter: blur(20px) !important;
         border-top: 1px solid rgba(216, 0, 86, 0.3) !important;
         border-right: none !important;
         
-        /* Le mécanisme 100% Horizontal BLINDÉ (Fini le flexbox qui wrap) */
         display: block !important; 
-        white-space: nowrap !important; /* Force tout le texte sur une seule ligne infinie */
-        overflow-x: auto !important; /* Active le scroll horizontal */
-        overflow-y: hidden !important; /* Coupe tout ce qui essaierait de descendre */
-        -webkit-overflow-scrolling: touch !important; /* Fluidité Apple */
+        white-space: nowrap !important; 
+        overflow-x: auto !important; 
+        overflow-y: hidden !important; 
+        -webkit-overflow-scrolling: touch !important; 
         z-index: 99999 !important;
-        line-height: 75px !important; /* Centre les boutons verticalement */
+        line-height: 75px !important; 
     }
     
     .sidebar::-webkit-scrollbar { display: none !important; }
     .sidebar h2 { display: none !important; }
     
-    /* Les boutons se comportent comme des blocs alignés horizontalement */
-    .sidebar button {
+    /* 🪄 CORRECTION ICI : On inclut les liens (<a>) comme le bouton "Retour au Site" */
+    .sidebar button, 
+    .sidebar a.btn-return {
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -195,12 +194,18 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         font-weight: 500 !important;
         vertical-align: middle !important;
         white-space: nowrap !important;
+        text-decoration: none !important; /* Enlève le soulignement du lien */
     }
     
     .sidebar button.active {
         color: var(--usm-pink) !important;
         background: rgba(216, 0, 86, 0.1) !important;
         font-weight: bold !important;
+    }
+
+    /* Conserve la couleur d'alerte pour le bouton "Vider le Cache" */
+    .sidebar button.danger {
+        color: #ff4444 !important;
     }
 
     /* 4. RESTE DU FIX (Tableaux et formulaires) */
