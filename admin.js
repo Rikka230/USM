@@ -234,6 +234,7 @@ setupDropZone('drop-zone-hero', 'hero-upload', 'hero');
 setupDropZone('drop-zone-srv', 'srv-upload', 'service');
 setupDropZone('drop-zone-article', 'article-upload', 'article');
 setupDropZone('drop-zone-agency', 'agency-upload', 'agency');
+setupDropZone('drop-zone-marquee', 'marquee-upload', 'marquee'); 
 
 let cropState = { img: null, zoom: 1, x: 0, y: 0, baseScale: 1 };
 const playerDropZone = document.getElementById('drop-zone');
@@ -318,27 +319,23 @@ if(btnCancelCrop) {
     });
 }
 
+// --- SUPPORT SOURIS ET TACTILE POUR LE CROPPER ---
 let isDragging = false;
 let startDragX, startDragY;
 
 if(cropCanvas) {
-    cropCanvas.addEventListener('mousedown', (e) => {
+    const startDrag = (clientX, clientY) => {
         if(!cropState.img) return;
         isDragging = true;
-        startDragX = e.clientX; 
-        startDragY = e.clientY;
+        startDragX = clientX; 
+        startDragY = clientY;
         cropCanvas.style.cursor = 'grabbing';
-    });
-    
-    window.addEventListener('mouseup', () => { 
-        isDragging = false; 
-        if(cropCanvas) cropCanvas.style.cursor = 'grab'; 
-    });
-    
-    window.addEventListener('mousemove', (e) => {
+    };
+
+    const doDrag = (clientX, clientY) => {
         if(!isDragging || !cropState.img) return;
-        const dx = e.clientX - startDragX;
-        const dy = e.clientY - startDragY;
+        const dx = clientX - startDragX;
+        const dy = clientY - startDragY;
         cropState.x += dx / cropState.zoom;
         cropState.y += dy / cropState.zoom;
         
@@ -347,10 +344,37 @@ if(cropCanvas) {
         const ySlider = document.getElementById('crop-y');
         if(ySlider) ySlider.value = cropState.y;
         
-        startDragX = e.clientX; 
-        startDragY = e.clientY;
+        startDragX = clientX; 
+        startDragY = clientY;
         updateCropUI();
-    });
+    };
+
+    const endDrag = () => { 
+        isDragging = false; 
+        cropCanvas.style.cursor = 'grab'; 
+    };
+
+    // Événements Souris (PC)
+    cropCanvas.addEventListener('mousedown', (e) => startDrag(e.clientX, e.clientY));
+    window.addEventListener('mousemove', (e) => doDrag(e.clientX, e.clientY));
+    window.addEventListener('mouseup', endDrag);
+
+    // Événements Tactiles (Mobile/Tablette)
+    cropCanvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            e.preventDefault(); // Empêche le défilement de la page
+            startDrag(e.touches[0].clientX, e.touches[0].clientY);
+        }
+    }, { passive: false });
+    
+    window.addEventListener('touchmove', (e) => {
+        if (isDragging && e.touches.length === 1) {
+            e.preventDefault(); // Empêche le défilement de la page
+            doDrag(e.touches[0].clientX, e.touches[0].clientY);
+        }
+    }, { passive: false });
+    
+    window.addEventListener('touchend', endDrag);
 }
 
 function updateCropUI() {
