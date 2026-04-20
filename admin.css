@@ -127,22 +127,27 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 
 /* ================= 10. OPTIMISATION MOBILE (ADMIN - TOP & BOTTOM BARS STRICTES) ================= */
 
-/* 1. Base PC (Assure que le HTML divisé s'affiche bien sur ordi sans déborder) */
+/* 1. Base PC (Correction de l'escalier/cran pour un panel parfaitement droit) */
+.sidebar {
+    overflow-x: hidden !important; /* 🪄 FIX PC : Coupe net tout ce qui essaierait de déborder */
+}
 .sidebar-top-group, .sidebar-bottom-group { 
     display: flex; 
     flex-direction: column; 
     gap: 10px; 
     width: 100%; 
+    max-width: 100%;
     box-sizing: border-box; 
 }
 .sidebar-bottom-group { flex: 1; }
 
 .sidebar-top-group button, .sidebar-top-group a.btn-return, .sidebar-bottom-group button { 
-    width: 100%; 
-    box-sizing: border-box; /* 🪄 FIX PC : Empêche les boutons de sortir du menu gauche */
+    width: 100% !important; 
+    max-width: 100% !important;
+    box-sizing: border-box !important; 
     text-align: left;
-    max-width: 100%;
-    overflow: hidden;
+    margin-left: 0 !important; 
+    margin-right: 0 !important; /* Force l'alignement droit */
 }
 
 @media (max-width: 850px) {
@@ -170,18 +175,7 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 
     /* 3. DÉSACTIVATION DE LA SIDEBAR ORIGINALE */
     .sidebar {
-        position: absolute !important;
-        inset: 0 !important;
-        width: 100vw !important;
-        max-width: 100vw !important;
-        height: 100% !important;
-        background: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-        pointer-events: none !important; 
-        z-index: 99999 !important;
-        display: block !important;
-        box-sizing: border-box !important;
+        display: contents !important; 
     }
     .sidebar h2 { display: none !important; }
 
@@ -203,7 +197,11 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         overflow-x: auto !important;
         overflow-y: hidden !important;
         -webkit-overflow-scrolling: touch !important;
+        
+        /* 🪄 CENTRAGE PARFAIT AU MILIEU POUR LE MOBILE */
         align-items: center !important;
+        justify-content: center !important; 
+        
         padding: 0 10px !important;
         gap: 10px !important;
         padding-top: env(safe-area-inset-top) !important;
@@ -231,6 +229,7 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         overflow-y: hidden !important;
         -webkit-overflow-scrolling: touch !important;
         align-items: center !important;
+        justify-content: flex-start !important; 
         padding: 0 10px !important;
         gap: 10px !important;
         padding-bottom: env(safe-area-inset-bottom) !important;
@@ -280,7 +279,7 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         box-shadow: 0 4px 10px rgba(216, 0, 86, 0.3) !important;
     }
 
-    /* 7. LE CONTENU CENTRAL (Verrouillé, Anti-wobble) */
+    /* 7. LE CONTENU CENTRAL */
     .admin-content {
         position: absolute !important;
         top: 50px !important; 
@@ -291,12 +290,12 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         height: auto !important;
         padding: 15px !important;
         overflow-y: auto !important;
-        overflow-x: hidden !important; /* 🪄 VERROUILLE L'ÉCRAN À DROITE */
+        overflow-x: hidden !important; 
         -webkit-overflow-scrolling: touch !important;
         box-sizing: border-box !important;
     }
 
-    /* Correction du wobble des onglets */
+    /* Onglets */
     .admin-tabs {
         display: flex !important;
         flex-direction: row !important;
@@ -315,7 +314,7 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     .admin-tabs::-webkit-scrollbar { display: none !important; }
     .admin-tab { flex: 0 0 auto !important; margin: 0 !important; }
 
-    /* 🪄 8. CORRECTION DES TABLEAUX (Joueurs) */
+    /* Tableaux */
     .table-container {
         width: 100% !important;
         max-width: 100% !important;
@@ -327,13 +326,7 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         box-sizing: border-box !important;
     }
     .admin-table { width: 100% !important; min-width: 0 !important; table-layout: auto !important; }
-    
-    /* Réduction de l'espace pour éviter de scroller de droite à gauche */
-    .admin-table th, .admin-table td { 
-        padding: 8px 4px !important; /* Marges réduites au minimum */
-        font-size: 0.75rem !important; 
-        word-wrap: break-word !important;
-    }
+    .admin-table th, .admin-table td { padding: 8px 4px !important; font-size: 0.75rem !important; word-wrap: break-word !important;}
     .admin-table img { max-width: 35px !important; height: auto !important; }
     .admin-table td div { flex-wrap: wrap !important; gap: 4px !important; }
 
@@ -341,34 +334,19 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     .header-actions { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; margin-bottom: 15px !important; }
     #search-bar { width: 100% !important; box-sizing: border-box !important;}
     
-    /* 🪄 9. CORRECTION DES PARAMÈTRES (Anti-débordement) */
+    /* Formulaires */
     #settings-form, .settings-grid, .bento-form, form {
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
-        overflow-x: hidden !important; /* Empêche les champs de pousser l'écran */
+        overflow-x: hidden !important; 
     }
-    
-    .settings-grid { 
-        display: flex !important; 
-        flex-direction: column !important; 
-        gap: 20px !important; 
-    }
-    
+    .settings-grid { display: flex !important; flex-direction: column !important; gap: 20px !important; }
     .bento-form { padding: 15px !important; }
-    
-    input, textarea, select { 
-        font-size: 16px !important; 
-        padding: 10px !important; 
-        width: 100% !important; 
-        max-width: 100% !important;
-        box-sizing: border-box !important; 
-    }
-    
+    input, textarea, select { font-size: 16px !important; padding: 10px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; }
     .btn-publish { width: 100% !important; padding: 15px !important; font-size: 1.1rem !important; box-sizing: border-box !important;}
     .drop-zone { padding: 15px 10px !important; box-sizing: border-box !important;}
     .drop-zone img { max-height: 50px !important; }
-    
     #cropper-ui { width: 100% !important; padding: 15px !important; box-sizing: border-box !important; }
     #crop-canvas { width: 100% !important; max-width: 280px !important; margin: 0 auto !important; display: block !important; touch-action: none !important; }
 }
