@@ -980,7 +980,7 @@ html, body {
     .card-full { grid-column: 1 / -1; align-items: center; text-align: center; }
     .card-full .data-label { justify-content: center; }
 
-   /* 🪄 6. DESIGN SERVICES EN SLIDER MOBILE (Format Cinéma) */
+   /* 🪄 6. DESIGN SERVICES EN SLIDER MOBILE (Format Cinéma & Ancrage Haut) */
     #services-container { 
         gap: 15px !important; 
         padding: 0 15px 20px 15px !important; 
@@ -991,13 +991,16 @@ html, body {
         height: 220px !important; 
         scroll-snap-align: center !important; 
         padding: 25px 20px !important;
+        justify-content: space-between !important; /* 🪄 Pousse le texte en haut et la flèche en bas */
+        align-items: flex-start !important; /* 🪄 Ancre tout le bloc à gauche */
+        text-align: left !important; /* 🪄 Force l'alignement du texte à gauche */
     }
-    /* Dégradé sombre pour toujours lire le texte, peu importe la photo */
+    /* Dégradé ajusté pour protéger le texte en haut et la flèche en bas, clair au centre */
     .bento-service-card::before {
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.1) 100%);
+        background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.8) 100%);
         z-index: 1;
     }
     .srv-card-content {
@@ -1005,23 +1008,23 @@ html, body {
         z-index: 2;
         display: flex;
         flex-direction: column;
+        width: 100%; /* S'assure que le titre prend bien toute la largeur pour s'aligner à gauche */
     }
     
-    /* 🪄 CORRECTION TYPO POUR ALIGNEMENT PARFAIT */
     .srv-card-content h3 { 
-        font-size: 1.15rem; /* Police réduite (avant 1.4rem) */
+        font-size: 1.15rem; 
         line-height: 1.2;
         margin-bottom: 6px; 
         display: -webkit-box;
-        -webkit-line-clamp: 2; /* Force le titre à faire 2 lignes max */
+        -webkit-line-clamp: 2; 
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
     .srv-card-content p { 
-        font-size: 0.85rem; /* Police réduite (avant 0.9rem) */
+        font-size: 0.85rem; 
         line-height: 1.3; 
         display: -webkit-box;
-        -webkit-line-clamp: 2; /* Force la desc à faire 2 lignes max */
+        -webkit-line-clamp: 2; 
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
@@ -1029,7 +1032,8 @@ html, body {
         position: relative; 
         z-index: 2; 
         font-size: 0.8rem; 
-        margin-top: 12px; 
+        margin-top: auto; /* 🪄 Pousse la flèche vers le bas au maximum */
+        align-self: flex-end; /* 🪄 Garde la flèche bien calée à droite */
     }
 
     /* 7. SECTION FONDATEUR */
@@ -1054,7 +1058,7 @@ html, body {
     .service-sidebar { flex: 1 1 100%; }
     .service-hero h1 { font-size: 2rem; }
 
-    /* 10. CACHER LE BADGE INSTAGRAM SUR MOBILE (RÉGLAGE PIXEL PRÈS) */
+    /* 10. CACHER LE BADGE INSTAGRAM SUR MOBILE */
     #instagram-feed {
         height: 750px !important; 
     }
