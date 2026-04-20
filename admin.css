@@ -130,7 +130,7 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     /* 1. On libère le body de sa contrainte PC */
     body.admin-body {
         display: block !important; 
-        height: 100dvh !important; 
+        height: 100vh !important; 
         overflow: hidden !important; 
     }
 
@@ -143,116 +143,90 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     /* 2. LE CONTENU PRINCIPAL */
     .admin-content {
         width: 100% !important;
-        height: calc(100dvh - 80px) !important; 
-        padding: 20px 15px 40px 15px !important;
+        height: calc(100vh - 90px) !important; /* Laisse de la place pour la barre du bas */
+        padding: 15px 15px 30px 15px !important;
         overflow-y: auto !important;
-        overflow-x: hidden !important; /* Empêche la page entière de flotter de droite à gauche */
+        overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch !important;
     }
 
-    /* 3. LA BARRE DU BAS (MENU GLISSANT AU DOIGT) */
+    /* 3. LA BARRE DU BAS (BLINDAGE ANTI-ÉCRASEMENT) */
     .sidebar {
         position: fixed !important;
         bottom: 0 !important;
         left: 0 !important;
         width: 100vw !important;
-        height: 80px !important;
-        padding: 10px 15px !important;
+        height: 90px !important; 
+        padding: 10px 15px calc(10px + env(safe-area-inset-bottom)) 15px !important;
+        background: #050507 !important;
+        border-top: 1px solid #333 !important;
         border-right: none !important;
-        border-top: 1px solid rgba(216, 0, 86, 0.4) !important; 
-        background: rgba(10, 10, 12, 0.95) !important;
-        backdrop-filter: blur(15px) !important;
-        -webkit-backdrop-filter: blur(15px) !important;
         
+        /* 🪄 LE MOTEUR DU SCROLL HORIZONTAL */
         display: flex !important;
-        flex-direction: row !important; 
-        flex-wrap: nowrap !important; 
-        overflow-x: auto !important; 
-        overflow-y: hidden !important; 
-        -webkit-overflow-scrolling: touch !important; /* 🪄 Instruction magique Apple pour le glissement */
-        overscroll-behavior-x: contain !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
         
         align-items: center !important;
         justify-content: flex-start !important;
-        gap: 12px !important;
-        scrollbar-width: none !important;
-        z-index: 10000 !important;
-        padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important; 
+        gap: 15px !important;
+        z-index: 99999 !important;
     }
-    
     .sidebar::-webkit-scrollbar { display: none !important; }
     .sidebar h2 { display: none !important; }
     
     .sidebar button {
-        width: max-content !important; 
-        height: 45px !important;
-        margin-bottom: 0 !important;
-        padding: 0 20px !important;
-        flex: 0 0 auto !important; 
-        border-radius: 25px !important;
-        font-size: 0.9rem !important;
-        display: flex !important;
+        display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        border-left: none !important; 
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        background: rgba(255, 255, 255, 0.05) !important;
-        white-space: nowrap !important;
+        flex: 0 0 auto !important; /* 🪄 INTERDIT AU BOUTON DE RÉTRÉCIR */
+        height: 45px !important;
+        padding: 0 20px !important;
+        margin: 0 !important;
+        border-radius: 30px !important;
+        background: #1e1e1e !important;
+        color: #aaa !important;
+        border: 1px solid #333 !important;
+        font-size: 14px !important;
+        font-weight: bold !important;
+        white-space: nowrap !important; /* 🪄 LE TEXTE RESTE SUR UNE LIGNE */
     }
-    
     .sidebar button.active {
-        border-bottom: none !important;
-        border-left: none !important;
         background: var(--usm-pink) !important;
-        color: white !important;
+        color: #fff !important;
         border-color: var(--usm-pink) !important;
-        box-shadow: 0 4px 15px rgba(216, 0, 86, 0.4) !important;
     }
 
-    /* 4. ADAPTATION DES CONTENUS ET TABLEAUX (FINI LE SCROLL À DROITE) */
-    .admin-content h1 {
-        font-size: 1.5rem !important;
-        margin-bottom: 20px !important;
-    }
-
+    /* 4. LE RESTE DES ADAPTATIONS MOBILES */
+    .admin-content h1 { font-size: 1.3rem !important; margin-bottom: 20px !important; }
+    
     .table-container {
         width: 100% !important;
-        overflow-x: hidden !important; 
-        border: 1px solid var(--surface-border) !important;
-        border-radius: 12px !important;
-        margin-bottom: 30px !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        border: 1px solid #333 !important;
+        border-radius: 8px !important;
+        margin-bottom: 20px !important;
     }
-    .admin-table { 
-        width: 100% !important; 
-        min-width: 0 !important; /* 🪄 Annule les 600px forcés, le tableau s'adapte à l'écran */
-        table-layout: auto !important;
-    }
-    .admin-table th, .admin-table td {
-        padding: 10px 8px !important; /* Réduit l'espace vide pour tout coller */
-        font-size: 0.85rem !important;
-    }
-    .admin-table img {
-        max-width: 50px !important;
-        height: auto !important;
-    }
-    /* Les boutons (Supprimer, Éditer) s'adaptent et s'empilent s'il n'y a plus de place */
-    .admin-table td div {
-        flex-wrap: wrap !important;
-        gap: 5px !important;
-    }
+    .admin-table { width: 100% !important; min-width: 0 !important; }
+    .admin-table th, .admin-table td { padding: 12px 10px !important; font-size: 0.85rem !important; }
+    .admin-table img { max-width: 40px !important; height: auto !important; }
+    .admin-table td div { flex-wrap: wrap !important; gap: 5px !important; }
 
-    /* Sous-menus (Gardiens, Défenseurs...) Glissement activé */
     .admin-tabs {
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
         overflow-y: hidden !important;
-        -webkit-overflow-scrolling: touch !important; /* 🪄 Glissement Apple ici aussi */
+        -webkit-overflow-scrolling: touch !important;
         white-space: nowrap !important;
         scrollbar-width: none !important;
-        padding-bottom: 10px !important;
-        width: 100vw !important;
+        padding-bottom: 15px !important;
+        width: calc(100% + 30px) !important;
         margin-left: -15px !important;
         padding-left: 15px !important;
         padding-right: 15px !important;
@@ -260,62 +234,15 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     .admin-tabs::-webkit-scrollbar { display: none !important; }
     .admin-tab { flex: 0 0 auto !important; }
 
-    .header-actions {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 10px !important;
-        margin-bottom: 20px !important;
-    }
+    .header-actions { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; margin-bottom: 20px !important; }
     #search-bar { width: 100% !important; box-sizing: border-box !important;}
 
-    /* 5. OPTIMISATION DES FORMULAIRES */
-    .settings-grid {
-        grid-template-columns: 1fr !important;
-        gap: 25px !important;
-    }
-    
-    .bento-form { 
-        padding: 20px 15px !important; 
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-    }
-
-    input[type="text"], input[type="url"], input[type="number"], input[type="password"], input[type="email"], textarea, select {
-        font-size: 16px !important; 
-        padding: 12px !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-
-    .btn-publish {
-        width: 100% !important;
-        margin-top: 10px !important;
-        padding: 15px !important;
-        font-size: 1.1rem !important;
-        box-sizing: border-box !important;
-    }
-
-    .drop-zone {
-        padding: 20px 10px !important;
-        min-height: auto !important;
-    }
-    .drop-zone img {
-        max-height: 60px !important; 
-    }
-
-    /* 6. STUDIO PHOTO (CROPPER) */
-    #cropper-ui {
-        width: 100% !important;
-        padding: 15px !important;
-        box-sizing: border-box !important;
-    }
-    #crop-canvas {
-        width: 100% !important;
-        max-width: 280px !important;
-        height: auto !important;
-        margin: 0 auto !important;
-        display: block !important;
-        touch-action: none !important; /* 🪄 Indispensable pour éviter que l'écran bouge quand tu cadres une photo ! */
-    }
+    .settings-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
+    .bento-form { padding: 20px 15px !important; width: 100% !important; box-sizing: border-box !important; }
+    input, textarea, select { font-size: 16px !important; padding: 12px !important; width: 100% !important; box-sizing: border-box !important; }
+    .btn-publish { width: 100% !important; padding: 15px !important; font-size: 1.1rem !important; }
+    .drop-zone { padding: 20px 10px !important; }
+    .drop-zone img { max-height: 60px !important; }
+    #cropper-ui { width: 100% !important; padding: 15px !important; box-sizing: border-box !important; }
+    #crop-canvas { width: 100% !important; max-width: 280px !important; margin: 0 auto !important; display: block !important; touch-action: none !important; }
 }
