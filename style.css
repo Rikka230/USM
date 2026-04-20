@@ -1439,3 +1439,55 @@ html, body {
     0% { transform: translate3d(0, 0, 0); }
     100% { transform: translate3d(-50%, 0, 0); } /* -50% car on duplique le contenu en JS pour boucler */
 }
+
+/* ================= 16. BARRE DE CONTACT MOBILE (BOTTOM BAR) ================= */
+.mobile-bottom-bar {
+    display: none; /* Toujours caché sur PC */
+}
+
+@media (max-width: 850px) {
+    .mobile-bottom-bar {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 65px;
+        background: rgba(10, 10, 12, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(216, 0, 86, 0.3); /* Liseré rose */
+        z-index: 10000;
+        justify-content: space-evenly;
+        align-items: center;
+        box-shadow: 0 -5px 25px rgba(0,0,0,0.6);
+        /* Support intelligent pour la barre iOS d'iPhone */
+        padding-bottom: env(safe-area-inset-bottom); 
+    }
+
+    .mobile-bar-icon {
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        height: 100%;
+        transition: 0.3s;
+    }
+
+    .mobile-bar-icon:hover, .mobile-bar-icon:active {
+        color: var(--usm-pink);
+        background: rgba(216, 0, 86, 0.1);
+    }
+
+    .mobile-bar-separator {
+        width: 1px;
+        height: 30px;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* On repousse le bas du site pour que la barre ne cache rien */
+    body {
+        padding-bottom: calc(65px + env(safe-area-inset-bottom)) !important;
+    }
+}
