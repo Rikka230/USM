@@ -127,41 +127,61 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 
 /* ================= 10. OPTIMISATION MOBILE (ADMIN - TOP & BOTTOM BARS STRICTES) ================= */
 
-/* 1. Base PC (Assure que le HTML divisé s'affiche bien sur ordi) */
-.sidebar-top-group, .sidebar-bottom-group { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+/* 1. Base PC (Assure que le HTML divisé s'affiche bien sur ordi sans déborder) */
+.sidebar-top-group, .sidebar-bottom-group { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px; 
+    width: 100%; 
+    box-sizing: border-box; 
+}
 .sidebar-bottom-group { flex: 1; }
-.sidebar-top-group button, .sidebar-top-group a.btn-return, .sidebar-bottom-group button { width: 100%; }
+
+.sidebar-top-group button, .sidebar-top-group a.btn-return, .sidebar-bottom-group button { 
+    width: 100%; 
+    box-sizing: border-box; /* 🪄 FIX PC : Empêche les boutons de sortir du menu gauche */
+    text-align: left;
+    max-width: 100%;
+    overflow: hidden;
+}
 
 @media (max-width: 850px) {
-    /* 2. BLOCAGE DU CORPS (Anti-wobble global) */
+    /* 2. BLOCAGE DU CORPS (Anti-wobble ABSOLU) */
     html, body.admin-body { 
         position: fixed !important; 
+        top: 0 !important; left: 0 !important;
         width: 100vw !important; 
+        max-width: 100vw !important;
         height: 100dvh !important; 
         overflow: hidden !important; 
         margin: 0 !important; 
         padding: 0 !important; 
+        box-sizing: border-box !important;
     }
     
     #dashboard { 
         display: flex !important; 
         flex-direction: column !important; 
-        width: 100% !important; 
+        width: 100vw !important; 
+        max-width: 100vw !important;
         height: 100% !important; 
+        overflow: hidden !important;
     }
 
     /* 3. DÉSACTIVATION DE LA SIDEBAR ORIGINALE */
     .sidebar {
         position: absolute !important;
         inset: 0 !important;
-        width: 100% !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
         height: 100% !important;
         background: transparent !important;
         border: none !important;
         padding: 0 !important;
-        pointer-events: none !important; /* Laisse passer les clics au milieu */
+        pointer-events: none !important; 
         z-index: 99999 !important;
         display: block !important;
+        box-sizing: border-box !important;
     }
     .sidebar h2 { display: none !important; }
 
@@ -171,12 +191,12 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         top: 0 !important;
         left: 0 !important;
         width: 100vw !important;
-        height: 50px !important; /* Très fin, comme demandé */
+        max-width: 100vw !important;
+        height: 50px !important; 
         background: #000 !important;
         border-bottom: 1px solid #333 !important;
-        pointer-events: auto !important; /* Réactive les clics */
+        pointer-events: auto !important; 
         
-        /* Slide horizontal */
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
@@ -187,6 +207,7 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         padding: 0 10px !important;
         gap: 10px !important;
         padding-top: env(safe-area-inset-top) !important;
+        box-sizing: border-box !important;
     }
 
     /* 5. LA BARRE DU BAS (Menu principal) */
@@ -195,6 +216,7 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         bottom: 0 !important;
         left: 0 !important;
         width: 100vw !important;
+        max-width: 100vw !important;
         height: 65px !important;
         background: rgba(10, 10, 12, 0.95) !important;
         backdrop-filter: blur(15px) !important;
@@ -202,7 +224,6 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         border-top: 1px solid rgba(216, 0, 86, 0.4) !important;
         pointer-events: auto !important; 
         
-        /* Slide horizontal */
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
@@ -213,26 +234,27 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         padding: 0 10px !important;
         gap: 10px !important;
         padding-bottom: env(safe-area-inset-bottom) !important;
+        box-sizing: border-box !important;
     }
 
     .sidebar-top-group::-webkit-scrollbar, .sidebar-bottom-group::-webkit-scrollbar { display: none !important; }
 
-    /* 6. BOUTONS STRICTEMENT ALIGNÉS ET NON ÉCRASÉS */
+    /* 6. BOUTONS STRICTEMENT ALIGNÉS */
     .sidebar-top-group button, 
     .sidebar-top-group a.btn-return, 
     .sidebar-bottom-group button {
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        flex: 0 0 auto !important; /* Interdiction formelle de s'écraser */
+        flex: 0 0 auto !important; 
         width: max-content !important;
         white-space: nowrap !important;
         margin: 0 !important;
         text-decoration: none !important;
         border-radius: 6px !important;
+        box-sizing: border-box !important;
     }
 
-    /* Design Boutons Haut (Petits) */
     .sidebar-top-group button, .sidebar-top-group a.btn-return {
         height: 32px !important;
         padding: 0 12px !important;
@@ -243,7 +265,6 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     }
     .sidebar-top-group button.danger { color: #ff4444 !important; border-color: rgba(255, 68, 68, 0.3) !important; }
 
-    /* Design Boutons Bas (Normaux) */
     .sidebar-bottom-group button {
         height: 40px !important;
         padding: 0 15px !important;
@@ -262,19 +283,20 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     /* 7. LE CONTENU CENTRAL (Verrouillé, Anti-wobble) */
     .admin-content {
         position: absolute !important;
-        top: 50px !important; /* Sous la barre du haut */
-        bottom: 65px !important; /* Au-dessus de la barre du bas */
+        top: 50px !important; 
+        bottom: 65px !important; 
         left: 0 !important;
         width: 100vw !important;
+        max-width: 100vw !important;
         height: auto !important;
         padding: 15px !important;
         overflow-y: auto !important;
-        overflow-x: hidden !important; /* VERROUILLE L'ÉCRAN À DROITE */
+        overflow-x: hidden !important; /* 🪄 VERROUILLE L'ÉCRAN À DROITE */
         -webkit-overflow-scrolling: touch !important;
         box-sizing: border-box !important;
     }
 
-    /* Correction du wobble des onglets (Gardien, etc.) */
+    /* Correction du wobble des onglets */
     .admin-tabs {
         display: flex !important;
         flex-direction: row !important;
@@ -283,15 +305,17 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         overflow-y: hidden !important;
         -webkit-overflow-scrolling: touch !important;
         scrollbar-width: none !important;
-        width: 100% !important; /* Fini le calc() qui cassait tout */
+        width: 100% !important;
+        max-width: 100% !important;
         margin: 0 0 15px 0 !important;
         padding: 0 !important;
         gap: 10px !important;
+        box-sizing: border-box !important;
     }
     .admin-tabs::-webkit-scrollbar { display: none !important; }
     .admin-tab { flex: 0 0 auto !important; margin: 0 !important; }
 
-    /* Correction du wobble des tableaux */
+    /* 🪄 8. CORRECTION DES TABLEAUX (Joueurs) */
     .table-container {
         width: 100% !important;
         max-width: 100% !important;
@@ -302,20 +326,49 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         margin-bottom: 20px !important;
         box-sizing: border-box !important;
     }
-    .admin-table { width: 100% !important; min-width: 0 !important; }
-    .admin-table th, .admin-table td { padding: 10px !important; font-size: 0.85rem !important; }
-    .admin-table img { max-width: 40px !important; height: auto !important; }
-    .admin-table td div { flex-wrap: wrap !important; gap: 5px !important; }
+    .admin-table { width: 100% !important; min-width: 0 !important; table-layout: auto !important; }
+    
+    /* Réduction de l'espace pour éviter de scroller de droite à gauche */
+    .admin-table th, .admin-table td { 
+        padding: 8px 4px !important; /* Marges réduites au minimum */
+        font-size: 0.75rem !important; 
+        word-wrap: break-word !important;
+    }
+    .admin-table img { max-width: 35px !important; height: auto !important; }
+    .admin-table td div { flex-wrap: wrap !important; gap: 4px !important; }
 
     .admin-content h1 { font-size: 1.3rem !important; margin-bottom: 15px !important; }
     .header-actions { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; margin-bottom: 15px !important; }
     #search-bar { width: 100% !important; box-sizing: border-box !important;}
-    .settings-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
-    .bento-form { padding: 15px !important; width: 100% !important; box-sizing: border-box !important; }
-    input, textarea, select { font-size: 16px !important; padding: 12px !important; width: 100% !important; box-sizing: border-box !important; }
-    .btn-publish { width: 100% !important; padding: 15px !important; font-size: 1.1rem !important; }
-    .drop-zone { padding: 20px 10px !important; }
-    .drop-zone img { max-height: 60px !important; }
+    
+    /* 🪄 9. CORRECTION DES PARAMÈTRES (Anti-débordement) */
+    #settings-form, .settings-grid, .bento-form, form {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important; /* Empêche les champs de pousser l'écran */
+    }
+    
+    .settings-grid { 
+        display: flex !important; 
+        flex-direction: column !important; 
+        gap: 20px !important; 
+    }
+    
+    .bento-form { padding: 15px !important; }
+    
+    input, textarea, select { 
+        font-size: 16px !important; 
+        padding: 10px !important; 
+        width: 100% !important; 
+        max-width: 100% !important;
+        box-sizing: border-box !important; 
+    }
+    
+    .btn-publish { width: 100% !important; padding: 15px !important; font-size: 1.1rem !important; box-sizing: border-box !important;}
+    .drop-zone { padding: 15px 10px !important; box-sizing: border-box !important;}
+    .drop-zone img { max-height: 50px !important; }
+    
     #cropper-ui { width: 100% !important; padding: 15px !important; box-sizing: border-box !important; }
     #crop-canvas { width: 100% !important; max-width: 280px !important; margin: 0 auto !important; display: block !important; touch-action: none !important; }
 }
