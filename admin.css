@@ -125,114 +125,105 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     background: rgba(255, 255, 255, 0.1);
 }
 
-/* ================= 10. OPTIMISATION MOBILE (ADMIN - FAÇON APPLICATION) ================= */
+/* ================= 10. OPTIMISATION MOBILE (ADMIN - FAÇON BOTTOM BAR) ================= */
 @media (max-width: 850px) {
     /* 1. On libère le body de sa contrainte PC */
-    body.admin-body {
+    body.admin-body { 
         display: block !important; 
-        height: 100vh !important; 
+        height: 100dvh !important; 
         overflow: hidden !important; 
     }
-
-    #dashboard {
-        display: block !important;
-        height: 100% !important;
-        width: 100% !important;
+    #dashboard { 
+        display: block !important; 
+        height: 100% !important; 
+        width: 100% !important; 
     }
-
+    
     /* 2. LE CONTENU PRINCIPAL */
     .admin-content {
         width: 100% !important;
-        height: calc(100vh - 90px) !important; /* Laisse de la place pour la barre du bas */
+        height: calc(100dvh - 75px) !important; 
         padding: 15px 15px 30px 15px !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch !important;
     }
 
-    /* 3. LA BARRE DU BAS (BLINDAGE ANTI-ÉCRASEMENT) */
+    /* 🪄 3. LA BARRE DU BAS IDENTIQUE AU SITE PUBLIC (RAIL HORIZONTAL STRICT) */
     .sidebar {
         position: fixed !important;
         bottom: 0 !important;
         left: 0 !important;
         width: 100vw !important;
-        height: 90px !important; 
-        padding: 10px 15px calc(10px + env(safe-area-inset-bottom)) 15px !important;
-        background: #050507 !important;
-        border-top: 1px solid #333 !important;
+        height: 75px !important; 
+        padding: 0 10px !important;
+        padding-bottom: env(safe-area-inset-bottom) !important;
+        
+        /* Le look verre dépoli de ton site public */
+        background: rgba(10, 10, 12, 0.85) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-top: 1px solid rgba(216, 0, 86, 0.3) !important;
         border-right: none !important;
         
-        /* 🪄 LE MOTEUR DU SCROLL HORIZONTAL */
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
-        -webkit-overflow-scrolling: touch !important;
-        
-        align-items: center !important;
-        justify-content: flex-start !important;
-        gap: 15px !important;
+        /* Le mécanisme 100% Horizontal BLINDÉ (Fini le flexbox qui wrap) */
+        display: block !important; 
+        white-space: nowrap !important; /* Force tout le texte sur une seule ligne infinie */
+        overflow-x: auto !important; /* Active le scroll horizontal */
+        overflow-y: hidden !important; /* Coupe tout ce qui essaierait de descendre */
+        -webkit-overflow-scrolling: touch !important; /* Fluidité Apple */
         z-index: 99999 !important;
+        line-height: 75px !important; /* Centre les boutons verticalement */
     }
+    
     .sidebar::-webkit-scrollbar { display: none !important; }
     .sidebar h2 { display: none !important; }
     
+    /* Les boutons se comportent comme des blocs alignés horizontalement */
     .sidebar button {
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        flex: 0 0 auto !important; /* 🪄 INTERDIT AU BOUTON DE RÉTRÉCIR */
         height: 45px !important;
-        padding: 0 20px !important;
-        margin: 0 !important;
-        border-radius: 30px !important;
-        background: #1e1e1e !important;
-        color: #aaa !important;
-        border: 1px solid #333 !important;
-        font-size: 14px !important;
-        font-weight: bold !important;
-        white-space: nowrap !important; /* 🪄 LE TEXTE RESTE SUR UNE LIGNE */
-    }
-    .sidebar button.active {
-        background: var(--usm-pink) !important;
+        padding: 0 15px !important;
+        margin: 0 5px !important;
+        border-radius: 8px !important;
+        background: transparent !important;
         color: #fff !important;
-        border-color: var(--usm-pink) !important;
+        border: none !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        vertical-align: middle !important;
+        white-space: nowrap !important;
+    }
+    
+    .sidebar button.active {
+        color: var(--usm-pink) !important;
+        background: rgba(216, 0, 86, 0.1) !important;
+        font-weight: bold !important;
     }
 
-    /* 4. LE RESTE DES ADAPTATIONS MOBILES */
+    /* 4. RESTE DU FIX (Tableaux et formulaires) */
     .admin-content h1 { font-size: 1.3rem !important; margin-bottom: 20px !important; }
     
     .table-container {
-        width: 100% !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        border: 1px solid #333 !important;
-        border-radius: 8px !important;
-        margin-bottom: 20px !important;
+        width: 100% !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important;
+        border: 1px solid #333 !important; border-radius: 8px !important; margin-bottom: 20px !important;
     }
     .admin-table { width: 100% !important; min-width: 0 !important; }
     .admin-table th, .admin-table td { padding: 12px 10px !important; font-size: 0.85rem !important; }
     .admin-table img { max-width: 40px !important; height: auto !important; }
     .admin-table td div { flex-wrap: wrap !important; gap: 5px !important; }
 
+    /* Fix horizontal strict pour les sous-onglets (Gardien, etc.) */
     .admin-tabs {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
-        -webkit-overflow-scrolling: touch !important;
-        white-space: nowrap !important;
-        scrollbar-width: none !important;
-        padding-bottom: 15px !important;
-        width: calc(100% + 30px) !important;
-        margin-left: -15px !important;
-        padding-left: 15px !important;
-        padding-right: 15px !important;
+        display: block !important; white-space: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important;
+        padding-bottom: 15px !important; width: calc(100% + 30px) !important;
+        margin-left: -15px !important; padding-left: 15px !important; padding-right: 15px !important;
     }
     .admin-tabs::-webkit-scrollbar { display: none !important; }
-    .admin-tab { flex: 0 0 auto !important; }
+    .admin-tab { display: inline-block !important; margin-right: 10px !important; }
 
     .header-actions { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; margin-bottom: 20px !important; }
     #search-bar { width: 100% !important; box-sizing: border-box !important;}
