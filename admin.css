@@ -127,92 +127,139 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 
 /* ================= 10. OPTIMISATION MOBILE (APP: TOP & BOTTOM BARS) ================= */
 
-/* --- Fix PC pour la nouvelle structure HTML --- */
+/* --- Base pour PC (Pour que le HTML divisé marche sur ordi) --- */
 .sidebar-top-group, .sidebar-bottom-group { display: flex; flex-direction: column; gap: 15px; width: 100%; }
 .sidebar-bottom-group { flex: 1; }
-.sidebar button, .sidebar a.btn-return { width: 100%; }
+.sidebar-top-group button, .sidebar-top-group a.btn-return, .sidebar-bottom-group button { width: 100%; }
 
 @media (max-width: 850px) {
-    body.admin-body { display: block !important; height: 100dvh !important; overflow: hidden !important; }
+    body.admin-body { display: block !important; height: 100vh !important; overflow: hidden !important; }
     #dashboard { display: block !important; height: 100% !important; width: 100% !important; }
     
-    /* Le conteneur principal devient invisible et laisse passer les clics au milieu */
-    .sidebar {
-        position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100dvh !important;
-        background: transparent !important; border: none !important; padding: 0 !important;
-        pointer-events: none !important; z-index: 99999 !important; display: block !important;
-    }
+    /* 🪄 LE FIX EST ICI : On "désintègre" la sidebar pour qu'elle ne crée plus de colonne invisible géante */
+    .sidebar { display: contents !important; }
     .sidebar h2 { display: none !important; }
 
-    /* 🪄 LA BARRE DU HAUT (Utilitaires) */
+    /* ================= 1. BARRE DU HAUT ================= */
     .sidebar-top-group {
-        position: absolute !important; top: 0 !important; left: 0 !important;
-        width: 100vw !important; height: 60px !important; padding: 0 10px !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 65px !important;
+        background: rgba(10, 10, 12, 0.95) !important;
+        border-bottom: 1px solid rgba(216, 0, 86, 0.3) !important;
+        z-index: 99999 !important;
+        
+        /* Rail horizontal parfait */
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 10px !important;
+        padding: 0 15px !important;
         padding-top: env(safe-area-inset-top) !important;
-        background: rgba(10, 10, 12, 0.85) !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;
-        border-bottom: 1px solid rgba(216, 0, 86, 0.3) !important; pointer-events: auto !important; 
-        display: block !important; white-space: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; 
-        -webkit-overflow-scrolling: touch !important; line-height: 60px !important; 
+        
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 
-    /* 🪄 LA BARRE DU BAS (Navigation) */
+    /* ================= 2. BARRE DU BAS ================= */
     .sidebar-bottom-group {
-        position: absolute !important; bottom: 0 !important; left: 0 !important;
-        width: 100vw !important; height: 75px !important; padding: 0 10px !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 75px !important;
+        background: rgba(10, 10, 12, 0.95) !important;
+        border-top: 1px solid rgba(216, 0, 86, 0.3) !important;
+        z-index: 99999 !important;
+        
+        /* Rail horizontal parfait */
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 10px !important;
+        padding: 0 15px !important;
         padding-bottom: env(safe-area-inset-bottom) !important;
-        background: rgba(10, 10, 12, 0.85) !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;
-        border-top: 1px solid rgba(216, 0, 86, 0.3) !important; pointer-events: auto !important; 
-        display: block !important; white-space: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; 
-        -webkit-overflow-scrolling: touch !important; line-height: 75px !important; 
+        
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 
     .sidebar-top-group::-webkit-scrollbar, .sidebar-bottom-group::-webkit-scrollbar { display: none !important; }
 
-    /* STYLE DES BOUTONS DES DEUX BARRES */
-    .sidebar button, .sidebar a.btn-return {
-        display: inline-flex !important; align-items: center !important; justify-content: center !important;
-        margin: 0 5px !important; border-radius: 8px !important; vertical-align: middle !important;
-        white-space: nowrap !important; text-decoration: none !important;
+    /* ================= 3. PROTECTION DES BOUTONS ================= */
+    /* Interdit de s'empiler, interdit de passer à la ligne */
+    .sidebar-top-group button, 
+    .sidebar-top-group a.btn-return,
+    .sidebar-bottom-group button {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex: 0 0 auto !important; /* Force la taille exacte */
+        width: max-content !important; 
+        margin: 0 !important;
+        white-space: nowrap !important; 
+        text-decoration: none !important;
     }
 
-    /* Boutons spécifiques Barre du HAUT */
+    /* Style Boutons du Haut */
     .sidebar-top-group button, .sidebar-top-group a.btn-return {
-        height: 40px !important; padding: 0 15px !important; background: rgba(255,255,255,0.05) !important;
-        border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important; font-size: 13px !important;
+        height: 40px !important;
+        padding: 0 15px !important;
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #fff !important;
+        border-radius: 8px !important;
+        font-size: 13px !important;
     }
     .sidebar-top-group button.danger { color: #ff4444 !important; border-color: rgba(255, 68, 68, 0.3) !important; }
 
-    /* Boutons spécifiques Barre du BAS */
+    /* Style Boutons du Bas */
     .sidebar-bottom-group button {
-        height: 45px !important; padding: 0 15px !important; background: transparent !important;
-        border: none !important; color: #fff !important; font-size: 14px !important; font-weight: 500 !important;
+        height: 45px !important;
+        padding: 0 15px !important;
+        background: transparent !important;
+        border: none !important;
+        color: #fff !important;
+        border-radius: 8px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
     }
     .sidebar-bottom-group button.active { color: var(--usm-pink) !important; background: rgba(216, 0, 86, 0.1) !important; font-weight: bold !important; }
 
-    /* 🪄 LE CONTENU PRINCIPAL COINCÉ ENTRE LES DEUX BARRES */
+    /* ================= 4. LE CONTENU CENTRAL ================= */
     .admin-content {
         width: 100% !important;
-        height: calc(100dvh - 135px) !important; /* 60px haut + 75px bas */
-        margin-top: 60px !important; /* Pousse sous la barre du haut */
+        height: calc(100vh - 140px) !important; /* Laisse l'espace pour les deux barres */
+        margin-top: 65px !important; /* Se cale sous la barre du haut */
         padding: 15px 15px 30px 15px !important;
-        overflow-y: auto !important; overflow-x: hidden !important; -webkit-overflow-scrolling: touch !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        box-sizing: border-box !important;
     }
 
-    /* RESTE DES OPTIMISATIONS FORMULAIRES / TABLEAUX */
+    /* ================= 5. AUTRES AJUSTEMENTS MOBILES ================= */
     .admin-content h1 { font-size: 1.3rem !important; margin-bottom: 20px !important; }
     .table-container { width: 100% !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; border: 1px solid #333 !important; border-radius: 8px !important; margin-bottom: 20px !important;}
     .admin-table { width: 100% !important; min-width: 0 !important; }
     .admin-table th, .admin-table td { padding: 12px 10px !important; font-size: 0.85rem !important; }
     .admin-table img { max-width: 40px !important; height: auto !important; }
     .admin-table td div { flex-wrap: wrap !important; gap: 5px !important; }
-
-    .admin-tabs { display: block !important; white-space: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; padding-bottom: 15px !important; width: calc(100% + 30px) !important; margin-left: -15px !important; padding-left: 15px !important; padding-right: 15px !important; }
+    
+    .admin-tabs { display: flex !important; flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; padding-bottom: 15px !important; width: calc(100% + 30px) !important; margin-left: -15px !important; padding-left: 15px !important; padding-right: 15px !important; }
     .admin-tabs::-webkit-scrollbar { display: none !important; }
-    .admin-tab { display: inline-block !important; margin-right: 10px !important; }
-
+    .admin-tab { flex: 0 0 auto !important; margin-right: 10px !important; }
+    
     .header-actions { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; margin-bottom: 20px !important; }
     #search-bar { width: 100% !important; box-sizing: border-box !important;}
-
     .settings-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
     .bento-form { padding: 20px 15px !important; width: 100% !important; box-sizing: border-box !important; }
     input, textarea, select { font-size: 16px !important; padding: 12px !important; width: 100% !important; box-sizing: border-box !important; }
