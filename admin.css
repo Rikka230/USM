@@ -125,88 +125,143 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     background: rgba(255, 255, 255, 0.1);
 }
 
-/* ================= 10. OPTIMISATION MOBILE (ADMIN) ================= */
+/* ================= 10. OPTIMISATION MOBILE (ADMIN - FAÇON APPLICATION) ================= */
 @media (max-width: 850px) {
-    /* Le layout passe à la verticale */
+    /* 1. On libère le body de sa contrainte PC */
     body.admin-body {
-        flex-direction: column;
-        overflow-y: auto;
+        display: block; 
+        height: 100dvh; /* Utilise la vraie hauteur de l'écran mobile sans être bloqué par Safari/Chrome */
+        overflow: hidden; 
     }
 
-    /* La barre latérale devient un menu horizontal défilant en haut */
-    .sidebar {
+    #dashboard {
+        display: block;
+        height: 100%;
         width: 100%;
-        height: auto;
+    }
+
+    /* 2. LE CONTENU PRINCIPAL : Prend tout l'écran au-dessus de la barre */
+    .admin-content {
+        width: 100%;
+        height: calc(100dvh - 80px); /* On laisse la place exacte pour la barre du bas */
+        padding: 20px 15px 40px 15px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* 3. LA BARRE DU BAS (Le Menu Mobile) */
+    .sidebar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 80px;
         padding: 10px 15px;
         border-right: none;
-        border-bottom: 1px solid var(--surface-border);
+        border-top: 1px solid rgba(216, 0, 86, 0.4); /* Liseré rose stylé */
+        background: rgba(10, 10, 12, 0.95);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
         display: flex;
         flex-direction: row;
         align-items: center;
-        gap: 10px;
-        overflow-x: auto;
+        justify-content: flex-start;
+        gap: 12px;
+        overflow-x: auto; /* Défilement horizontal avec le doigt activé */
         white-space: nowrap;
-        scrollbar-width: none; /* Cache la barre de défilement */
-        z-index: 100;
-        background: var(--bg-admin);
+        scrollbar-width: none;
+        z-index: 10000;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom)); /* Support encoche iPhone */
     }
+    
     .sidebar::-webkit-scrollbar { display: none; }
     
-    /* On cache le logo pour gagner de la place sur mobile */
+    /* On cache le gros titre "USM SYSTEM" pour gagner de la place */
     .sidebar h2 { display: none; }
     
+    /* Les boutons du menu deviennent des pilules tactiles défilantes */
     .sidebar button {
         width: auto;
+        height: 45px;
         margin-bottom: 0;
-        padding: 10px 15px;
-        flex: 0 0 auto;
+        padding: 0 20px;
+        flex: 0 0 auto; /* Empêche les boutons de s'écraser */
+        border-radius: 25px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-left: none; /* Enlève la barre latérale rose de la version PC */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .sidebar button.active {
+        border-bottom: none;
+        border-left: none;
+        background: var(--usm-pink);
+        color: white;
+        border-color: var(--usm-pink);
+        box-shadow: 0 4px 15px rgba(216, 0, 86, 0.4);
     }
 
-    /* Le contenu principal prend le reste de l'écran */
-    .main-content {
-        width: 100%;
-        padding: 15px;
-        height: auto;
-        overflow-y: visible;
+    /* 4. ADAPTATION DES CONTENUS (Tableaux, formulaires) */
+    .admin-content h1 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
     }
 
-    /* Tables responsives (on peut les faire glisser de gauche à droite) */
+    /* Tableaux : on permet le glissement de gauche à droite pour voir toutes les colonnes */
     .table-container {
         width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         border: 1px solid var(--surface-border);
-        border-radius: 8px;
+        border-radius: 12px;
+        margin-bottom: 30px;
     }
-    .admin-table { min-width: 600px; border: none; }
+    .admin-table { min-width: 600px; }
 
-    /* Formulaires de réglages sur 1 colonne */
+    /* Formulaires pleine largeur */
     .settings-grid {
         grid-template-columns: 1fr;
         gap: 30px;
     }
-    .bento-form { padding: 20px 15px; }
+    .bento-form { 
+        padding: 20px 15px; 
+        width: 100%;
+        max-width: 100%;
+    }
 
-    /* Barre de filtres / Roster */
-    .header-actions { flex-direction: column; gap: 10px; align-items: stretch; }
-    #search-bar { width: 100%; }
-    
-    .admin-tabs { 
-        flex-wrap: nowrap; 
-        overflow-x: auto; 
-        padding-bottom: 5px; 
-        scrollbar-width: none; 
+    /* Sous-menus (ex: Gardien, Défenseur) */
+    .admin-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding-bottom: 10px;
     }
     .admin-tabs::-webkit-scrollbar { display: none; }
     .admin-tab { flex: 0 0 auto; }
 
-    /* Ajustement du Cropper Studio pour l'écran mobile */
-    #cropper-ui { padding: 15px 10px; }
-    #crop-canvas { 
-        width: 100%; 
-        height: auto; 
-        max-width: 240px; 
-        margin: 0 auto; 
-        display: block; 
+    /* Barre de recherche sur une ligne */
+    .header-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    #search-bar { width: 100%; }
+
+    /* Ajustement du studio photo (Cropper) pour petit écran */
+    #cropper-ui {
+        width: 100%;
+        padding: 15px;
+    }
+    #crop-canvas {
+        width: 100%;
+        max-width: 280px;
+        height: auto;
+        margin: 0 auto;
+        display: block;
     }
 }
