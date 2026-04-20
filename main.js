@@ -384,7 +384,7 @@ async function loadSocialLinks() {
         ];
 
         platforms.forEach(platform => {
-            const icons = document.querySelectorAll(`.social-icon[title="${platform.title}"], .sticky-icon[title="${platform.title}"]`);
+            const icons = document.querySelectorAll(`.social-icon[title="${platform.title}"], .sticky-icon[title="${platform.title}"], .dyn-social[title="${platform.title}"]`);
             const url = socialData[platform.key];
             
             icons.forEach(iconEl => {
