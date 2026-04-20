@@ -947,4 +947,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
     marqueeObserver.observe(marqueeSection);
 });
-
