@@ -124,3 +124,89 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     border-color: var(--usm-pink);
     background: rgba(255, 255, 255, 0.1);
 }
+
+/* ================= 10. OPTIMISATION MOBILE (ADMIN) ================= */
+@media (max-width: 850px) {
+    /* Le layout passe à la verticale */
+    body.admin-body {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    /* La barre latérale devient un menu horizontal défilant en haut */
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 10px 15px;
+        border-right: none;
+        border-bottom: 1px solid var(--surface-border);
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none; /* Cache la barre de défilement */
+        z-index: 100;
+        background: var(--bg-admin);
+    }
+    .sidebar::-webkit-scrollbar { display: none; }
+    
+    /* On cache le logo pour gagner de la place sur mobile */
+    .sidebar h2 { display: none; }
+    
+    .sidebar button {
+        width: auto;
+        margin-bottom: 0;
+        padding: 10px 15px;
+        flex: 0 0 auto;
+    }
+
+    /* Le contenu principal prend le reste de l'écran */
+    .main-content {
+        width: 100%;
+        padding: 15px;
+        height: auto;
+        overflow-y: visible;
+    }
+
+    /* Tables responsives (on peut les faire glisser de gauche à droite) */
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid var(--surface-border);
+        border-radius: 8px;
+    }
+    .admin-table { min-width: 600px; border: none; }
+
+    /* Formulaires de réglages sur 1 colonne */
+    .settings-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    .bento-form { padding: 20px 15px; }
+
+    /* Barre de filtres / Roster */
+    .header-actions { flex-direction: column; gap: 10px; align-items: stretch; }
+    #search-bar { width: 100%; }
+    
+    .admin-tabs { 
+        flex-wrap: nowrap; 
+        overflow-x: auto; 
+        padding-bottom: 5px; 
+        scrollbar-width: none; 
+    }
+    .admin-tabs::-webkit-scrollbar { display: none; }
+    .admin-tab { flex: 0 0 auto; }
+
+    /* Ajustement du Cropper Studio pour l'écran mobile */
+    #cropper-ui { padding: 15px 10px; }
+    #crop-canvas { 
+        width: 100%; 
+        height: auto; 
+        max-width: 240px; 
+        margin: 0 auto; 
+        display: block; 
+    }
+}
