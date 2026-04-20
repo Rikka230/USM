@@ -362,14 +362,14 @@ if(cropCanvas) {
     // Événements Tactiles (Mobile/Tablette)
     cropCanvas.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
-            e.preventDefault(); // Empêche le défilement de la page
+            e.preventDefault(); // Empêche le défilement de la page pendant qu'on ajuste la photo
             startDrag(e.touches[0].clientX, e.touches[0].clientY);
         }
     }, { passive: false });
     
     window.addEventListener('touchmove', (e) => {
         if (isDragging && e.touches.length === 1) {
-            e.preventDefault(); // Empêche le défilement de la page
+            e.preventDefault(); 
             doDrag(e.touches[0].clientX, e.touches[0].clientY);
         }
     }, { passive: false });
