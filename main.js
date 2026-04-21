@@ -526,6 +526,7 @@ async function loadPlayers(category = 'gardien') {
     
     if(!players) {
         try {
+            const { query, collection, getDocs, where, limit } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
             const q = query(collection(db, "players"), where("category", "==", category), limit(20));
             const querySnapshot = await getDocs(q); 
             players = [];
@@ -590,19 +591,41 @@ const searchInput = document.getElementById('front-search');
 if(searchInput) {
     searchInput.addEventListener('input', (e) => { 
         clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            currentFrontSearch = e.target.value.toLowerCase(); 
-            if(currentFrontSearch.length > 0) {
+        
+        // 🪄 OPTIMISATION 1 : Délai augmenté à 600ms (Debounce)
+        searchTimeout = setTimeout(async () => {
+            currentFrontSearch = e.target.value.trim().toLowerCase(); 
+            
+            // 🪄 OPTIMISATION 2 : On ne lance la recherche qu'à partir de 2 caractères minimum
+            if(currentFrontSearch.length >= 2) {
                 document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); 
-            } else {
+                
+                let all = Cache.get('players_all');
+                if (!all) {
+                    try {
+                        const { collection, getDocs } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+                        const querySnapshot = await getDocs(collection(db, "players"));
+                        all = [];
+                        querySnapshot.forEach(d => all.push(d.data()));
+                        Cache.set('players_all', all); 
+                    } catch(err) { console.error("Erreur recherche globale:", err); all = []; }
+                }
+                
+                allPlayersData = all; 
+                renderCategorySlider(); 
+                
+            } else if (currentFrontSearch.length === 0) {
+                // Si la barre de recherche est vidée, on réaffiche la catégorie sélectionnée
                 const activeTab = document.querySelector(`.filter-btn[data-tab="${currentFrontCat}"]`);
                 if(activeTab) activeTab.classList.add('active'); 
+                
+                allPlayersData = Cache.get(`players_${currentFrontCat}`) || [];
+                if (allPlayersData.length === 0) loadPlayers(currentFrontCat);
+                else renderCategorySlider();
             }
-            renderCategorySlider(); 
-        }, 400); 
+        }, 600); 
     });
 }
-
 /* ================= 9. PAGE PRESSE (VIDEOS & ARTICLES) ================= */
 
 function getYouTubeId(url) {
