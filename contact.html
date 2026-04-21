@@ -30,23 +30,24 @@
         
         <button class="mobile-menu-btn" id="mobile-menu-btn" style="background:none; border:none; color:white; font-size:2rem; cursor:pointer; display:none;">☰</button>
         
-        <nav class="sidebar">
-            <div class="sidebar-top-group">
-                <a href="index.html" class="btn-return">❮ Retour au site</a>
-                <button id="btn-force-cache" class="danger">🔄 Vider le Cache</button>
-                <button id="logout-btn" class="danger">Déconnexion</button>
-            </div>
+        <nav class="nav-links" id="nav-links">
+            <button class="close-menu-btn" id="close-menu-btn" style="background:none; border:none; color:white; font-size:2.5rem; position:absolute; top:20px; right:30px; cursor:pointer; display:none;">×</button>
             
-            <h2>USM SYSTEM</h2>
+            <a href="#agence" data-i18n="nav_agency">L'Agence</a>
+            <a href="#services" data-i18n="nav_services">Services</a>
+            <a href="#joueurs" data-i18n="nav_talents">Les Talents</a>
+            <a href="presse.html" data-i18n="nav_press">Presse</a>
             
-            <div class="sidebar-bottom-group">
-                <button id="nav-manage" class="active">Joueurs</button>
-                <button id="nav-services">Services</button>
-                <button id="nav-presse">Presse</button>
-                <button id="nav-social">Réseaux</button>
-                <button id="nav-marquee">Images Déco</button>
-                <button id="nav-settings">Paramètres</button>
-            </div>
+            <select id="lang-select" class="lang-switcher" style="background:transparent; color:white; border:1px solid rgba(255,255,255,0.2); border-radius:4px; padding:4px; cursor:pointer;">
+                <option value="fr" style="color:black;">FR</option>
+                <option value="en" style="color:black;">EN</option>
+                <option value="es" style="color:black;">ES</option>
+                <option value="pt" style="color:black;">PT</option>
+            </select>
+            
+            <a href="contact.html" style="text-decoration: none;">
+                <button class="btn-premium" data-i18n="nav_button">Contact</button>
+            </a>
         </nav>
     </header>
 
