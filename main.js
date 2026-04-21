@@ -947,3 +947,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     marqueeObserver.observe(marqueeSection);
 });
+
+// ================= SWITCH D'ANIMATION BOUTONS VIP =================
+const btnFounder = document.getElementById('tab-founder');
+const btnAgency = document.getElementById('tab-agency');
+
+if (btnFounder && btnAgency) {
+    btnFounder.addEventListener('click', () => {
+        btnFounder.classList.add('active');    // Coupe la lumière sur Fondateur
+        btnAgency.classList.remove('active');  // Allume la lumière sur Agence
+    });
+
+    btnAgency.addEventListener('click', () => {
+        btnAgency.classList.add('active');     // Coupe la lumière sur Agence
+        btnFounder.classList.remove('active'); // Allume la lumière sur Fondateur
+    });
+}
