@@ -36,6 +36,7 @@
     </div>
 
     <div id="dashboard" class="hidden">
+        
         <aside class="sidebar">
             <h2 class="pink-accent" style="text-align: center; margin-bottom: 20px; font-size: 1.5rem; letter-spacing: 2px;">USM SYSTEM</h2>
             
@@ -70,7 +71,9 @@
                 <header style="margin-bottom: 25px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
                         <h1 style="margin: 0;">Gérer le Roster</h1>
-                        <button id="btn-show-add-form" style="background:var(--usm-pink); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold; transition:0.3s;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Ajouter Ajouter un profil</button>
+                        <button id="btn-show-add-form" style="background:var(--usm-pink); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold; transition:0.3s;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Ajouter un profil
+                        </button>
                     </div>
                     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; background: rgba(255,255,255,0.02); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--surface-border);">
                         <div class="admin-tabs" style="margin:0; gap:8px;">
@@ -96,7 +99,9 @@
             <section id="form-player-section" class="hidden">
                 <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
                     <h1 id="form-title">Créer un Profil</h1>
-                    <button class="btn-cancel" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Annuler Annuler</button>
+                    <button class="btn-cancel" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Annuler
+                    </button>
                 </header>
                 <form id="content-form" class="bento-form">
                     <input type="hidden" id="edit-player-id">
@@ -138,7 +143,9 @@
                 <header style="margin-bottom: 25px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
                         <h1 style="margin: 0;">Gérer les Services</h1>
-                        <button id="btn-add-service" style="background:var(--usm-pink); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Ajouter Ajouter un Service</button>
+                        <button id="btn-add-service" style="background:var(--usm-pink); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Ajouter un Service
+                        </button>
                     </div>
                 </header>
                 <div class="table-container">
@@ -152,7 +159,9 @@
             <section id="form-service-section" class="hidden">
                 <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
                     <h1 id="service-form-title">Créer un Service</h1>
-                    <button class="btn-cancel-service" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Annuler Annuler</button>
+                    <button class="btn-cancel-service" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Annuler
+                    </button>
                 </header>
                 <form id="service-form" class="bento-form">
                     <input type="hidden" id="edit-service-id">
@@ -285,7 +294,9 @@
                     <div style="flex: 1; min-width: 300px;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
                             <h2 class="pink-accent" style="margin:0; font-size: 1.2rem;">Vidéos (Passages TV)</h2>
-                            <button id="btn-add-video" style="background:var(--usm-pink); color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer; font-weight:bold;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Ajouter Ajouter</button>
+                            <button id="btn-add-video" style="background:var(--usm-pink); color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer; font-weight:bold;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Ajouter
+                            </button>
                         </div>
                         <div class="table-container">
                             <table class="admin-table">
@@ -298,7 +309,9 @@
                     <div style="flex: 1; min-width: 300px;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
                             <h2 class="pink-accent" style="margin:0; font-size: 1.2rem;">Articles (Images)</h2>
-                            <button id="btn-add-article" style="background:var(--usm-pink); color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer; font-weight:bold;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Ajouter Ajouter</button>
+                            <button id="btn-add-article" style="background:var(--usm-pink); color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer; font-weight:bold;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Ajouter
+                            </button>
                         </div>
                         <div class="table-container">
                             <table class="admin-table">
@@ -313,7 +326,9 @@
             <section id="form-video-section" class="hidden">
                 <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
                     <h1 id="form-video-title">Ajouter une Vidéo</h1>
-                    <button class="btn-cancel-presse" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Annuler Annuler</button>
+                    <button class="btn-cancel-presse" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Annuler
+                    </button>
                 </header>
                 <form id="video-form" class="bento-form">
                     <input type="hidden" id="edit-video-id"> <label style="color:#aaa; font-size:0.85rem;">Titre de la vidéo</label>
@@ -332,7 +347,9 @@
             <section id="form-article-section" class="hidden">
                 <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
                     <h1 id="form-article-title">Ajouter un Article</h1>
-                    <button class="btn-cancel-presse" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Annuler Annuler</button>
+                    <button class="btn-cancel-presse" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Annuler
+                    </button>
                 </header>
                 <form id="article-form" class="bento-form">
                     <input type="hidden" id="edit-article-id">
