@@ -149,7 +149,60 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     margin-left: 0 !important; 
     margin-right: 0 !important; /* Force l'alignement droit */
 }
+/* ================= NOUVEAUX STYLES HARMONISÉS ================= */
+/* Case de numéro d'ordre pour les tableaux */
+.input-order {
+    -moz-appearance: textfield;
+    width: 60px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--surface-border);
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px;
+    font-weight: 900;
+    font-size: 1rem;
+    transition: 0.3s;
+}
+.input-order::-webkit-outer-spin-button,
+.input-order::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.input-order:focus {
+    border-color: var(--usm-pink);
+    background: rgba(216, 0, 86, 0.1);
+    outline: none;
+    box-shadow: 0 0 10px rgba(216, 0, 86, 0.4);
+}
 
+/* Harmonisation parfaite des boutons de la Sidebar (PC) */
+.sidebar-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 15px 20px;
+    text-align: left;
+    background: transparent;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.sidebar-btn.danger { color: #ff4444; }
+.sidebar-btn:hover:not(.active) { background: rgba(255,255,255,0.05); color: #fff; }
+.sidebar-btn.danger:hover { background: rgba(255, 68, 68, 0.1); }
+.sidebar-btn.active {
+    background: rgba(216,0,86,0.1);
+    color: #fff;
+    border-left: 4px solid var(--usm-pink);
+    font-weight: bold;
+}
 @media (max-width: 850px) {
     /* 2. BLOCAGE DU CORPS (Anti-wobble ABSOLU) */
     html, body.admin-body { 
