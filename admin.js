@@ -411,7 +411,7 @@ let allAdminPlayers = [];
 let adminCurrentCat = 'gardien';
 let adminSearchQuery = '';
 let adminCurrentPage = 1;
-const ITEMS_PER_PAGE = 20; // 20 joueurs par page dans l'administration
+const ITEMS_PER_PAGE = 20;
 
 document.querySelectorAll('.admin-tab:not(.lang-tab):not(.lang-tab-srv)').forEach(tab => {
     tab.addEventListener('click', (e) => {
@@ -441,7 +441,7 @@ if(searchBar) {
 async function loadAdminPlayers(category) {
     const listContainer = document.getElementById('admin-players-list');
     if(!listContainer) return;
-    listContainer.innerHTML = '<tr><td colspan=\"4\" style=\"text-align:center;\">Chargement...</td></tr>';
+    listContainer.innerHTML = '<tr><td colspan="4" style="text-align:center;">Chargement...</td></tr>';
     try {
         const q = query(collection(db, "players"), where("category", "==", category));
         const querySnapshot = await getDocs(q);
@@ -449,16 +449,15 @@ async function loadAdminPlayers(category) {
         querySnapshot.forEach((docSnap) => allAdminPlayers.push({ id: docSnap.id, ...docSnap.data() }));
         renderAdminTable();
     } catch (error) { 
-        listContainer.innerHTML = `<tr><td colspan=\"4\" style=\"color:red;\">Erreur base de données.</td></tr>`; 
+        listContainer.innerHTML = `<tr><td colspan="4" style="color:red;">Erreur base de données.</td></tr>`; 
     }
 }
 
-/* ================= NOUVELLE LOGIQUE DE TRI MANUEL (PAR NUMÉRO) ================= */
+/* 🪄 NOUVELLE FONCTION : Mise à jour en tapant le numéro */
 window.updateItemOrder = async (collectionName, id, newOrderStr, listData, refreshCallback) => {
     let newOrder = parseInt(newOrderStr);
     if (isNaN(newOrder) || newOrder < 1) newOrder = 1;
     
-    // On trie la liste actuelle
     let sortedList = [...listData].sort((a, b) => (a.order || 999) - (b.order || 999));
     const currentIndex = sortedList.findIndex(item => item.id === id);
     if (currentIndex === -1) return;
@@ -466,13 +465,11 @@ window.updateItemOrder = async (collectionName, id, newOrderStr, listData, refre
     if (newOrder > sortedList.length) newOrder = sortedList.length;
     const targetIndex = newOrder - 1;
     
-    if (currentIndex === targetIndex) return; // Aucun changement nécessaire
+    if (currentIndex === targetIndex) return; 
     
-    // On déplace l'élément dans le tableau
     const [movedItem] = sortedList.splice(currentIndex, 1);
     sortedList.splice(targetIndex, 0, movedItem);
     
-    // On met à jour l'ordre de tous les éléments impactés dans la base
     const batch = writeBatch(db);
     sortedList.forEach((item, index) => {
         item.order = index + 1;
@@ -508,7 +505,8 @@ function renderAdminTable() {
 
     paginated.forEach((player, indexOnPage) => {
         const globalIndex = startIndex + indexOnPage;
-        // 🪄 LE NOUVEAU CHAMP DE SAISIE REMPLACE LES FLÈCHES
+        
+        // 🪄 LE CHAMP DE NUMÉRO REMPLACE LES FLÈCHES
         const orderInput = `<input type="number" class="input-order" data-id="${player.id}" value="${player.order || globalIndex + 1}">`;
         const catLabel = adminSearchQuery.length > 0 ? `<br><span style="font-size:0.8rem; color:#888;">${player.category}</span>` : '';
 
@@ -527,35 +525,18 @@ function renderAdminTable() {
         `;
     });
 
-    // 🪄 L'ÉVÉNEMENT MAGIQUE : Sauvegarde automatique quand on change le numéro
+    // 🪄 DÉCLENCHEUR : Dès qu'on modifie le chiffre, ça sauvegarde !
     document.querySelectorAll('.input-order').forEach(input => {
         input.addEventListener('change', (e) => {
             const id = e.target.getAttribute('data-id');
             const val = e.target.value;
-            // Bloque les inputs pendant l'upload pour éviter les bugs
-            e.target.disabled = true;
+            e.target.disabled = true; 
             updateItemOrder("players", id, val, allAdminPlayers, () => loadAdminPlayers(adminCurrentCat));
         });
     });
 
     document.querySelectorAll('.btn-edit').forEach(btn => btn.addEventListener('click', (e) => editPlayer(e.target.dataset.id)));
     document.querySelectorAll('.btn-delete').forEach(btn => btn.addEventListener('click', (e) => deletePlayer(e.target.dataset.id)));
-
-    if(paginationContainer) {
-        paginationContainer.innerHTML = '';
-        for(let i = 1; i <= totalPages; i++) {
-            const btn = document.createElement('button');
-            btn.textContent = i;
-            btn.className = `pag-btn ${i === adminCurrentPage ? 'active' : ''}`;
-            btn.addEventListener('click', () => { adminCurrentPage = i; renderAdminTable(); });
-            paginationContainer.appendChild(btn);
-        }
-    }
-}
-    document.querySelectorAll('.btn-edit').forEach(btn => btn.addEventListener('click', (e) => editPlayer(e.target.dataset.id)));
-    document.querySelectorAll('.btn-delete').forEach(btn => btn.addEventListener('click', (e) => deletePlayer(e.target.dataset.id)));
-    document.querySelectorAll('.btn-move-up').forEach(btn => btn.addEventListener('click', (e) => movePlayer(parseInt(e.target.dataset.index), -1)));
-    document.querySelectorAll('.btn-move-down').forEach(btn => btn.addEventListener('click', (e) => movePlayer(parseInt(e.target.dataset.index), 1)));
 
     if(paginationContainer) {
         paginationContainer.innerHTML = '';
@@ -639,22 +620,6 @@ async function deletePlayer(id) {
         clearPublicCache();
         loadAdminPlayers(adminCurrentCat);
     }
-}
-
-async function movePlayer(currentIndex, direction) {
-    let categoryPlayers = allAdminPlayers.sort((a, b) => (a.order || 999) - (b.order || 999));
-    const targetIndex = currentIndex + direction;
-    if(targetIndex < 0 || targetIndex >= categoryPlayers.length) return;
-
-    const temp = categoryPlayers[currentIndex];
-    categoryPlayers[currentIndex] = categoryPlayers[targetIndex];
-    categoryPlayers[targetIndex] = temp;
-
-    const batch = writeBatch(db);
-    categoryPlayers.forEach((player, index) => batch.update(doc(db, "players", player.id), { order: index + 1 }));
-    await batch.commit();
-    clearPublicCache();
-    loadAdminPlayers(adminCurrentCat);
 }
 
 const contentForm = document.getElementById('content-form');
