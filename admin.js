@@ -453,6 +453,37 @@ async function loadAdminPlayers(category) {
     }
 }
 
+/* ================= NOUVELLE LOGIQUE DE TRI MANUEL (PAR NUMÉRO) ================= */
+window.updateItemOrder = async (collectionName, id, newOrderStr, listData, refreshCallback) => {
+    let newOrder = parseInt(newOrderStr);
+    if (isNaN(newOrder) || newOrder < 1) newOrder = 1;
+    
+    // On trie la liste actuelle
+    let sortedList = [...listData].sort((a, b) => (a.order || 999) - (b.order || 999));
+    const currentIndex = sortedList.findIndex(item => item.id === id);
+    if (currentIndex === -1) return;
+    
+    if (newOrder > sortedList.length) newOrder = sortedList.length;
+    const targetIndex = newOrder - 1;
+    
+    if (currentIndex === targetIndex) return; // Aucun changement nécessaire
+    
+    // On déplace l'élément dans le tableau
+    const [movedItem] = sortedList.splice(currentIndex, 1);
+    sortedList.splice(targetIndex, 0, movedItem);
+    
+    // On met à jour l'ordre de tous les éléments impactés dans la base
+    const batch = writeBatch(db);
+    sortedList.forEach((item, index) => {
+        item.order = index + 1;
+        batch.update(doc(db, collectionName, item.id), { order: item.order });
+    });
+    
+    await batch.commit();
+    clearPublicCache();
+    refreshCallback();
+};
+
 function renderAdminTable() {
     const listContainer = document.getElementById('admin-players-list');
     if(!listContainer) return;
@@ -470,27 +501,24 @@ function renderAdminTable() {
 
     listContainer.innerHTML = '';
     if (paginated.length === 0) {
-        listContainer.innerHTML = '<tr><td colspan=\"4\" style=\"text-align:center;\">Aucun joueur trouvé.</td></tr>';
+        listContainer.innerHTML = '<tr><td colspan="4" style="text-align:center;">Aucun joueur trouvé.</td></tr>';
         if(paginationContainer) paginationContainer.innerHTML = '';
         return;
     }
 
     paginated.forEach((player, indexOnPage) => {
         const globalIndex = startIndex + indexOnPage;
-        const canMove = adminSearchQuery === '';
-        
-        const upBtn = (canMove && globalIndex !== 0) ? `<button class="btn-order btn-move-up" data-index="${globalIndex}">▲</button>` : `<div style="width: 30px; height: 30px;"></div>`; 
-        const downBtn = (canMove && globalIndex !== filtered.length - 1) ? `<button class="btn-order btn-move-down" data-index="${globalIndex}">▼</button>` : `<div style="width: 30px; height: 30px;"></div>`;
+        // 🪄 LE NOUVEAU CHAMP DE SAISIE REMPLACE LES FLÈCHES
+        const orderInput = `<input type="number" class="input-order" data-id="${player.id}" value="${player.order || globalIndex + 1}">`;
         const catLabel = adminSearchQuery.length > 0 ? `<br><span style="font-size:0.8rem; color:#888;">${player.category}</span>` : '';
 
         listContainer.innerHTML += `
             <tr>
-                <td style="font-weight:900; color:var(--usm-pink);">#${player.order || '-'}</td>
+                <td>${orderInput}</td>
                 <td><img src="${player.image_url}" class="player-list-img"></td>
                 <td style="font-weight:bold;">${player.name} ${catLabel}</td>
                 <td>
                     <div style="display:flex; gap:8px;">
-                        ${upBtn} ${downBtn}
                         <button class="btn-edit" data-id="${player.id}">Éditer</button>
                         <button class="btn-delete" data-id="${player.id}">Supprimer</button>
                     </div>
@@ -499,6 +527,31 @@ function renderAdminTable() {
         `;
     });
 
+    // 🪄 L'ÉVÉNEMENT MAGIQUE : Sauvegarde automatique quand on change le numéro
+    document.querySelectorAll('.input-order').forEach(input => {
+        input.addEventListener('change', (e) => {
+            const id = e.target.getAttribute('data-id');
+            const val = e.target.value;
+            // Bloque les inputs pendant l'upload pour éviter les bugs
+            e.target.disabled = true;
+            updateItemOrder("players", id, val, allAdminPlayers, () => loadAdminPlayers(adminCurrentCat));
+        });
+    });
+
+    document.querySelectorAll('.btn-edit').forEach(btn => btn.addEventListener('click', (e) => editPlayer(e.target.dataset.id)));
+    document.querySelectorAll('.btn-delete').forEach(btn => btn.addEventListener('click', (e) => deletePlayer(e.target.dataset.id)));
+
+    if(paginationContainer) {
+        paginationContainer.innerHTML = '';
+        for(let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            btn.className = `pag-btn ${i === adminCurrentPage ? 'active' : ''}`;
+            btn.addEventListener('click', () => { adminCurrentPage = i; renderAdminTable(); });
+            paginationContainer.appendChild(btn);
+        }
+    }
+}
     document.querySelectorAll('.btn-edit').forEach(btn => btn.addEventListener('click', (e) => editPlayer(e.target.dataset.id)));
     document.querySelectorAll('.btn-delete').forEach(btn => btn.addEventListener('click', (e) => deletePlayer(e.target.dataset.id)));
     document.querySelectorAll('.btn-move-up').forEach(btn => btn.addEventListener('click', (e) => movePlayer(parseInt(e.target.dataset.index), -1)));
