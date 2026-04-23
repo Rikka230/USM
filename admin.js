@@ -28,47 +28,45 @@ function clearPublicCache() { localStorage.clear(); }
 
 /* ================= 2. GESTION DE LA CONNEXION ================= */
 const loginForm = document.getElementById('login-form');
-const loginError = document.getElementById('login-error'); // La zone rouge réactivée !
+const loginError = document.getElementById('login-error');
 
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault(); 
         
-        // .trim() supprime les espaces tapés par erreur à la fin de l'email
         const email = document.getElementById('admin-email').value.trim();
         const pwd = document.getElementById('admin-pwd').value;
         const btn = loginForm.querySelector('button');
-        const originalText = btn.textContent;
+        const originalText = "Connexion"; 
         
         if (loginError) loginError.style.display = 'none';
+        console.log("[USM DEBUG] 1. Tentative de connexion pour :", email);
         
         try {
-            btn.textContent = "Vérification...";
+            btn.textContent = "Ouverture du panel...";
             btn.disabled = true;
             
-            await signInWithEmailAndPassword(auth, email, pwd);
-            
-            // On ne réinitialise PAS le bouton ici. 
-            // L'événement onAuthStateChanged masquera l'écran complet.
-            btn.textContent = "Ouverture du panel...";
+            // Course entre la connexion Firebase et un compte à rebours de 10 secondes
+            const authPromise = signInWithEmailAndPassword(auth, email, pwd);
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error("Timeout: Firebase ne répond pas. Le domaine n'est probablement pas autorisé ou bloqué par CORB/CORS.")), 10000)
+            );
+
+            const userCredential = await Promise.race([authPromise, timeoutPromise]);
+            console.log("[USM DEBUG] 2. Connexion Firebase RÉUSSIE :", userCredential.user.email);
             
         } catch (error) {
-            console.error("[USM SYSTEM] Erreur Auth :", error);
+            console.error("[USM DEBUG] Erreur bloquante attrapée :", error);
             
-            // Le VRAI affichage de l'erreur dynamique
             if (loginError) {
-                if (error.code === 'auth/too-many-requests') {
-                    loginError.textContent = "Trop de tentatives. Réessayez dans quelques minutes.";
-                } else if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
                     loginError.textContent = "Accès refusé : Email ou mot de passe incorrect.";
                 } else {
-                    // Capture les erreurs non prévues (ex: domaine non autorisé, réseau)
-                    loginError.textContent = "Erreur de connexion (" + error.code + "). Vérifiez la console.";
+                    loginError.textContent = "Erreur : " + (error.message || error.code);
                 }
                 loginError.style.display = 'block';
             }
             
-            // On réactive le bouton uniquement en cas d'échec
             btn.textContent = originalText;
             btn.disabled = false;
         }
@@ -76,6 +74,8 @@ if (loginForm) {
 }
 
 onAuthStateChanged(auth, (user) => {
+    console.log("[USM DEBUG] 3. État Auth changé. Utilisateur :", user ? user.email : "Non connecté");
+    
     const authLoader = document.getElementById('auth-loader');
     const loginScreen = document.getElementById('login-screen');
     const dashboard = document.getElementById('dashboard');
@@ -83,6 +83,7 @@ onAuthStateChanged(auth, (user) => {
     if (authLoader) authLoader.classList.add('hidden');
 
     if (user) {
+        console.log("[USM DEBUG] 4. Masquage du login, affichage du dashboard");
         if (loginScreen) loginScreen.classList.add('hidden');
         if (dashboard) dashboard.classList.remove('hidden');
         
