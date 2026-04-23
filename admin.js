@@ -48,18 +48,27 @@ if (loginForm) {
             
             await signInWithEmailAndPassword(auth, email, pwd);
             
-            btn.textContent = originalText;
-            btn.disabled = false;
+            // On ne réinitialise PAS le bouton ici. 
+            // L'événement onAuthStateChanged masquera l'écran complet.
+            btn.textContent = "Ouverture du panel...";
+            
         } catch (error) {
-            // Le VRAI affichage de l'erreur
+            console.error("[USM SYSTEM] Erreur Auth :", error);
+            
+            // Le VRAI affichage de l'erreur dynamique
             if (loginError) {
                 if (error.code === 'auth/too-many-requests') {
                     loginError.textContent = "Trop de tentatives. Réessayez dans quelques minutes.";
-                } else {
+                } else if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
                     loginError.textContent = "Accès refusé : Email ou mot de passe incorrect.";
+                } else {
+                    // Capture les erreurs non prévues (ex: domaine non autorisé, réseau)
+                    loginError.textContent = "Erreur de connexion (" + error.code + "). Vérifiez la console.";
                 }
                 loginError.style.display = 'block';
             }
+            
+            // On réactive le bouton uniquement en cas d'échec
             btn.textContent = originalText;
             btn.disabled = false;
         }
@@ -85,13 +94,6 @@ onAuthStateChanged(auth, (user) => {
         if (dashboard) dashboard.classList.add('hidden');
     }
 });
-
-const logoutBtn = document.getElementById('logout-btn');
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-        signOut(auth);
-    });
-}
 
 /* ================= 3. NAVIGATION ET CHARGEMENT SETTINGS ================= */
 function hideAllSections() {
