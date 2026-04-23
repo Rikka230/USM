@@ -1,5 +1,5 @@
 /* ==========================================================================
-   USM FOOTBALL - ADMIN JAVASCRIPT (OPTIMISÉ + SÉCURITÉ ANTI-DDOS)
+   USM FOOTBALL - ADMIN JAVASCRIPT (ÉPURÉ & DÉBLOQUÉ)
    ========================================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -21,8 +21,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
-
-// 🪄 LE BOUCLIER APP-CHECK EST DÉSACTIVÉ ICI POUR ÉVITER LE BLOCAGE DE CONNEXION
 
 let optimizedImages = { founder: null, nav: null, hero: null, service: null, agency: null };
 
