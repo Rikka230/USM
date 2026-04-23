@@ -549,8 +549,9 @@ async function loadPlayers(category = 'gardien') {
     
     if(!players) {
         try {
-            const { query, collection, getDocs, where, limit } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-            const q = query(collection(db, "players"), where("category", "==", category), limit(20));
+            const { query, collection, getDocs, where } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+            const q = query(collection(db, "players"), where("category", "==", category));
+            
             const querySnapshot = await getDocs(q); 
             players = [];
             querySnapshot.forEach((docSnap) => players.push(docSnap.data())); 
