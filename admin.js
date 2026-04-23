@@ -35,38 +35,76 @@ let optimizedImages = { founder: null, nav: null, hero: null, service: null, age
 function clearPublicCache() { localStorage.clear(); }
 
 /* ================= 1. AUTHENTIFICATION ================= */
-onAuthStateChanged(auth, (user) => {
-    const loader = document.getElementById('auth-loader');
-    if(loader) loader.classList.add('hidden');
-    
-    if (user) {
-        const login = document.getElementById('login-screen');
-        if(login) login.classList.add('hidden');
-        const dash = document.getElementById('dashboard');
-        if(dash) dash.classList.remove('hidden');
-        
-        loadAdminPlayers('gardien'); 
-        loadAdminServices();
-    } else {
-        const dash = document.getElementById('dashboard');
-        if(dash) dash.classList.add('hidden');
-        const login = document.getElementById('login-screen');
-        if(login) login.classList.remove('hidden');
-    }
-});
+/* ================= 2. INITIALISATION & AUTHENTIFICATION ================= */
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+const auth = getAuth(app);
 
+// Optionnel: Désactive AppCheck en local si ça bloque, ou laisse ton initialisation ReCaptcha ici
+try {
+    const { initializeAppCheck, ReCaptchaV3Provider } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js");
+    initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider('6LdF2rUsAAAAAOUCVKJt2DCDKWQIEQXHyBkYETT1'),
+        isTokenAutoRefreshEnabled: true
+    });
+} catch(e) { console.warn("AppCheck info:", e); }
+
+/* ================= 3. GESTION DE LA CONNEXION ================= */
 const loginForm = document.getElementById('login-form');
-if(loginForm) {
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        signInWithEmailAndPassword(auth, document.getElementById('admin-email').value, document.getElementById('admin-pwd').value)
-            .catch(err => { alert("Identifiants incorrects."); });
+
+// 1. Écoute du clic sur le bouton "Connexion"
+if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); // 🪄 TRÈS IMPORTANT : Empêche la page de se recharger dans le vide
+        
+        const email = document.getElementById('admin-email').value;
+        const pwd = document.getElementById('admin-pwd').value;
+        const btn = loginForm.querySelector('button');
+        const originalText = btn.textContent;
+        
+        try {
+            btn.textContent = "Vérification...";
+            btn.disabled = true;
+            // On demande à Firebase de vérifier tes identifiants
+            await signInWithEmailAndPassword(auth, email, pwd);
+        } catch (error) {
+            alert("Accès refusé : Identifiants incorrects.");
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
     });
 }
 
+// 2. Écoute de l'état de l'utilisateur (Connecté / Déconnecté)
+onAuthStateChanged(auth, (user) => {
+    const authLoader = document.getElementById('auth-loader');
+    const loginScreen = document.getElementById('login-screen');
+    const dashboard = document.getElementById('dashboard');
+
+    // On cache le logo qui charge
+    if (authLoader) authLoader.classList.add('hidden');
+
+    if (user) {
+        // ✔️ CONNECTÉ : On cache le formulaire et on affiche le tableau de bord
+        if (loginScreen) loginScreen.classList.add('hidden');
+        if (dashboard) dashboard.classList.remove('hidden');
+        
+        // On déclenche le chargement des données (Vérifie que cette fonction existe bien plus bas dans ton JS)
+        if(typeof loadAdminPlayers === 'function') loadAdminPlayers(adminCurrentCat || 'gardien');
+    } else {
+        // ❌ DÉCONNECTÉ : On affiche le formulaire
+        if (loginScreen) loginScreen.classList.remove('hidden');
+        if (dashboard) dashboard.classList.add('hidden');
+    }
+});
+
+// 3. Déconnexion
 const logoutBtn = document.getElementById('logout-btn');
-if(logoutBtn) {
-    logoutBtn.addEventListener('click', () => signOut(auth).then(() => window.location.reload()));
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+        signOut(auth);
+    });
 }
 
 /* ================= 2. NAVIGATION ET CHARGEMENT SETTINGS ================= */
