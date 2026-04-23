@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Sécurité : Interdire l'indexation de l'espace administration
+Disallow: /admin.html
+Disallow: /admin.js
+Disallow: /admin.css
+
+# Lien vers le plan du site pour aider Google
+Sitemap: https://www.usmfootball.com/sitemap.xml
