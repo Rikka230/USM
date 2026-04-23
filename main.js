@@ -502,7 +502,31 @@ async function loadSingleServicePage() {
             const subEl = document.getElementById('srv-page-subtitle'); if(subEl) subEl.textContent = subText;
             const descEl = document.getElementById('srv-page-desc'); if(descEl) descEl.textContent = descText;
 
+            // 🪄 SEO DYNAMIQUE : Mise à jour du Titre de l'onglet
             document.title = `${titleText} | USM Football`;
+
+            // 🪄 SEO DYNAMIQUE : Mise à jour de la Meta Description
+            if (descText) {
+                let metaDesc = document.querySelector('meta[name="description"]');
+                if (!metaDesc) {
+                    metaDesc = document.createElement('meta');
+                    metaDesc.name = "description";
+                    document.head.appendChild(metaDesc);
+                }
+                metaDesc.content = descText.length > 150 ? descText.substring(0, 150) + "..." : descText;
+            }
+
+            // 🪄 SEO DYNAMIQUE : Mise à jour des Mots-clés (Keywords)
+            if (seoText) {
+                let metaKeys = document.querySelector('meta[name="keywords"]');
+                if (!metaKeys) {
+                    metaKeys = document.createElement('meta');
+                    metaKeys.name = "keywords";
+                    document.head.appendChild(metaKeys);
+                }
+                metaKeys.content = seoText;
+            }
+
             renderOtherServices(srvId, currentLang);
         } else {
             const titleEl = document.getElementById('srv-page-title'); if(titleEl) titleEl.textContent = "Service Introuvable";
@@ -510,7 +534,6 @@ async function loadSingleServicePage() {
         }
     } catch(e) { console.error("Erreur Service: ", e); }
 }
-
 /* ================= 8. CHARGEMENT OPTIMISÉ DU ROSTER ================= */
 let allPlayersData = []; 
 let currentFrontCat = 'gardien'; 
