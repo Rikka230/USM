@@ -6,6 +6,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, query, where, writeBatch, getDoc, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDd7OvBbX35PaQPlm6saccOGTQyvI3UEoU",
@@ -16,73 +17,59 @@ const firebaseConfig = {
   appId: "1:1004955626049:web:1982ac82e68599946f74c0"
 };
 
-/* ================= 1. INITIALISATION FIREBASE ================= */
 const app = initializeApp(firebaseConfig);
+
+// --- BOUCLIER ANTI-DDOS (APP CHECK + RECAPTCHA V3) ---
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LdF2rUsAAAAAOUCVKJt2DCDKWQIEQXHyBkYETT1'),
+  isTokenAutoRefreshEnabled: true
+});
+
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// 🪄 LE BOUCLIER APP-CHECK EST DÉSACTIVÉ ICI POUR ÉVITER LE BLOCAGE DE CONNEXION
-
 let optimizedImages = { founder: null, nav: null, hero: null, service: null, agency: null };
 
+// Fonction vitale : quand l'admin modifie quelque chose, on vide le cache local
 function clearPublicCache() { localStorage.clear(); }
 
-/* ================= 2. GESTION DE LA CONNEXION ================= */
-const loginForm = document.getElementById('login-form');
-
-if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); 
-        
-        const email = document.getElementById('admin-email').value;
-        const pwd = document.getElementById('admin-pwd').value;
-        const btn = loginForm.querySelector('button');
-        const originalText = btn.textContent;
-        
-        try {
-            btn.textContent = "Vérification...";
-            btn.disabled = true;
-            await signInWithEmailAndPassword(auth, email, pwd);
-            
-            // On réinitialise le bouton en arrière-plan en cas de déconnexion future
-            btn.textContent = originalText;
-            btn.disabled = false;
-        } catch (error) {
-            alert("Accès refusé : Identifiants incorrects ou compte inexistant.");
-            btn.textContent = originalText;
-            btn.disabled = false;
-        }
-    });
-}
-
+/* ================= 1. AUTHENTIFICATION ================= */
 onAuthStateChanged(auth, (user) => {
-    const authLoader = document.getElementById('auth-loader');
-    const loginScreen = document.getElementById('login-screen');
-    const dashboard = document.getElementById('dashboard');
-
-    if (authLoader) authLoader.classList.add('hidden');
-
+    const loader = document.getElementById('auth-loader');
+    if(loader) loader.classList.add('hidden');
+    
     if (user) {
-        if (loginScreen) loginScreen.classList.add('hidden');
-        if (dashboard) dashboard.classList.remove('hidden');
+        const login = document.getElementById('login-screen');
+        if(login) login.classList.add('hidden');
+        const dash = document.getElementById('dashboard');
+        if(dash) dash.classList.remove('hidden');
         
-        // Sécurité : on force le chargement du premier onglet sans erreur
-        if(typeof loadAdminPlayers === 'function') loadAdminPlayers('gardien');
+        loadAdminPlayers('gardien'); 
+        loadAdminServices();
     } else {
-        if (loginScreen) loginScreen.classList.remove('hidden');
-        if (dashboard) dashboard.classList.add('hidden');
+        const dash = document.getElementById('dashboard');
+        if(dash) dash.classList.add('hidden');
+        const login = document.getElementById('login-screen');
+        if(login) login.classList.remove('hidden');
     }
 });
 
-const logoutBtn = document.getElementById('logout-btn');
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-        signOut(auth);
+const loginForm = document.getElementById('login-form');
+if(loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        signInWithEmailAndPassword(auth, document.getElementById('admin-email').value, document.getElementById('admin-pwd').value)
+            .catch(err => { alert("Identifiants incorrects."); });
     });
 }
 
-/* ================= 3. NAVIGATION ET CHARGEMENT SETTINGS ================= */
+const logoutBtn = document.getElementById('logout-btn');
+if(logoutBtn) {
+    logoutBtn.addEventListener('click', () => signOut(auth).then(() => window.location.reload()));
+}
+
+/* ================= 2. NAVIGATION ET CHARGEMENT SETTINGS ================= */
 // 🪄 LA CORRECTION EST ICI : Toutes les sections sont déclarées proprement
 function hideAllSections() {
     ['manage-players-section', 'form-player-section', 'settings-section', 'manage-services-section', 'form-service-section', 'manage-presse-section', 'form-video-section', 'form-article-section', 'manage-social-section', 'manage-marquee-section'].forEach(id => {
