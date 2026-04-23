@@ -53,7 +53,7 @@ if (loginForm) {
             const dashboard = document.getElementById('dashboard');
             if (dashboard) {
                 dashboard.classList.remove('hidden');
-                dashboard.style.display = 'block';
+                dashboard.style.display = 'flex'; // <-- CORRECTION : Respecte ta mise en page
             }
             
             if(typeof loadAdminPlayers === 'function') {
@@ -91,7 +91,7 @@ onAuthStateChanged(auth, (user) => {
         
         if (dashboard) {
             dashboard.classList.remove('hidden');
-            dashboard.style.display = 'block';
+            dashboard.style.display = 'flex'; // <-- CORRECTION : Respecte ta mise en page
         }
         
         if(typeof loadAdminPlayers === 'function') {
@@ -101,7 +101,7 @@ onAuthStateChanged(auth, (user) => {
         // L'utilisateur est déconnecté : on affiche le formulaire
         if (loginScreen) {
             loginScreen.classList.remove('hidden');
-            loginScreen.style.display = 'flex'; // Modifie en 'block' si ça casse ton centrage
+            loginScreen.style.display = 'flex'; 
         }
         if (dashboard) dashboard.style.display = 'none';
     }
