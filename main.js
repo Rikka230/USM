@@ -446,15 +446,16 @@ function renderServices() {
 
     const btnSrvPrev = document.getElementById('btn-srv-prev');
     const btnSrvNext = document.getElementById('btn-srv-next');
+  
     if (btnSrvPrev && container) {
         const newBtnPrev = btnSrvPrev.cloneNode(true);
         btnSrvPrev.parentNode.replaceChild(newBtnPrev, btnSrvPrev);
-        newBtnPrev.addEventListener('click', () => container.scrollBy({ left: -350, behavior: 'smooth' }));
+        newBtnPrev.addEventListener('click', () => container.scrollBy({ left: -(container.clientWidth * 0.8), behavior: 'smooth' }));
     }
     if (btnSrvNext && container) {
         const newBtnNext = btnSrvNext.cloneNode(true);
         btnSrvNext.parentNode.replaceChild(newBtnNext, btnSrvNext);
-        newBtnNext.addEventListener('click', () => container.scrollBy({ left: 350, behavior: 'smooth' }));
+        newBtnNext.addEventListener('click', () => container.scrollBy({ left: (container.clientWidth * 0.8), behavior: 'smooth' }));
     }
 }
 
