@@ -30,6 +30,7 @@ function clearPublicCache() { localStorage.clear(); }
 
 /* ================= 2. GESTION DE LA CONNEXION ================= */
 const loginForm = document.getElementById('login-form');
+const loginError = document.getElementById('login-error');
 
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -40,16 +41,22 @@ if (loginForm) {
         const btn = loginForm.querySelector('button');
         const originalText = btn.textContent;
         
+        // On cache l'erreur à chaque nouvelle tentative
+        if (loginError) loginError.style.display = 'none';
+        
         try {
             btn.textContent = "Vérification...";
             btn.disabled = true;
             await signInWithEmailAndPassword(auth, email, pwd);
             
-            // On réinitialise le bouton en arrière-plan en cas de déconnexion future
             btn.textContent = originalText;
             btn.disabled = false;
         } catch (error) {
-            alert("Accès refusé : Identifiants incorrects ou compte inexistant.");
+            // 🪄 On affiche le message d'erreur rouge sur la page
+            if (loginError) {
+                loginError.textContent = "Accès refusé : Identifiants incorrects.";
+                loginError.style.display = 'block';
+            }
             btn.textContent = originalText;
             btn.disabled = false;
         }
@@ -67,8 +74,7 @@ onAuthStateChanged(auth, (user) => {
         if (loginScreen) loginScreen.classList.add('hidden');
         if (dashboard) dashboard.classList.remove('hidden');
         
-        // Sécurité : on force le chargement du premier onglet sans erreur
-        if(typeof loadAdminPlayers === 'function') loadAdminPlayers('gardien');
+        if(typeof loadAdminPlayers === 'function') loadAdminPlayers(adminCurrentCat || 'gardien');
     } else {
         if (loginScreen) loginScreen.classList.remove('hidden');
         if (dashboard) dashboard.classList.add('hidden');
