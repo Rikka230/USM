@@ -22,14 +22,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// --- BOUCLIER ANTI-DDOS ---
-try {
-    const { initializeAppCheck, ReCaptchaV3Provider } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js");
-    initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider('6LdF2rUsAAAAAOUCVKJt2DCDKWQIEQXHyBkYETT1'),
-        isTokenAutoRefreshEnabled: true
-    });
-} catch(e) { console.warn("AppCheck info:", e); }
+// 🪄 LE BOUCLIER APP-CHECK EST DÉSACTIVÉ ICI POUR ÉVITER LE BLOCAGE DE CONNEXION
 
 let optimizedImages = { founder: null, nav: null, hero: null, service: null, agency: null };
 
@@ -51,8 +44,12 @@ if (loginForm) {
             btn.textContent = "Vérification...";
             btn.disabled = true;
             await signInWithEmailAndPassword(auth, email, pwd);
+            
+            // On réinitialise le bouton en arrière-plan en cas de déconnexion future
+            btn.textContent = originalText;
+            btn.disabled = false;
         } catch (error) {
-            alert("Accès refusé : Identifiants incorrects.");
+            alert("Accès refusé : Identifiants incorrects ou compte inexistant.");
             btn.textContent = originalText;
             btn.disabled = false;
         }
@@ -70,7 +67,8 @@ onAuthStateChanged(auth, (user) => {
         if (loginScreen) loginScreen.classList.add('hidden');
         if (dashboard) dashboard.classList.remove('hidden');
         
-        if(typeof loadAdminPlayers === 'function') loadAdminPlayers(adminCurrentCat || 'gardien');
+        // Sécurité : on force le chargement du premier onglet sans erreur
+        if(typeof loadAdminPlayers === 'function') loadAdminPlayers('gardien');
     } else {
         if (loginScreen) loginScreen.classList.remove('hidden');
         if (dashboard) dashboard.classList.add('hidden');
