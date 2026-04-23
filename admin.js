@@ -130,7 +130,7 @@ if(navPresse) {
         e.target.classList.add('active');
         hideAllSections();
         document.getElementById('manage-presse-section').classList.remove('hidden');
-        loadAdminPresse(); // Lance le téléchargement de la presse
+        if (typeof loadAdminPresse === 'function') loadAdminPresse(); // Lance le téléchargement de la presse
     });
 }
 
@@ -151,6 +151,7 @@ if(navServices) {
         e.target.classList.add('active');
         hideAllSections();
         document.getElementById('manage-services-section').classList.remove('hidden');
+        if (typeof loadAdminServices === 'function') loadAdminServices(); // <-- CORRECTION : Force le téléchargement des données
     });
 }
 
