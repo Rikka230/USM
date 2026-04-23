@@ -6,7 +6,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, query, where, writeBatch, getDoc, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDd7OvBbX35PaQPlm6saccOGTQyvI3UEoU",
@@ -17,31 +16,13 @@ const firebaseConfig = {
   appId: "1:1004955626049:web:1982ac82e68599946f74c0"
 };
 
+/* ================= 1. INITIALISATION FIREBASE ================= */
 const app = initializeApp(firebaseConfig);
-
-// --- BOUCLIER ANTI-DDOS (APP CHECK + RECAPTCHA V3) ---
-const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider('6LdF2rUsAAAAAOUCVKJt2DCDKWQIEQXHyBkYETT1'),
-  isTokenAutoRefreshEnabled: true
-});
-
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-let optimizedImages = { founder: null, nav: null, hero: null, service: null, agency: null };
-
-// Fonction vitale : quand l'admin modifie quelque chose, on vide le cache local
-function clearPublicCache() { localStorage.clear(); }
-
-/* ================= 1. AUTHENTIFICATION ================= */
-/* ================= 2. INITIALISATION & AUTHENTIFICATION ================= */
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const storage = getStorage(app);
-const auth = getAuth(app);
-
-// Optionnel: Désactive AppCheck en local si ça bloque, ou laisse ton initialisation ReCaptcha ici
+// --- BOUCLIER ANTI-DDOS ---
 try {
     const { initializeAppCheck, ReCaptchaV3Provider } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js");
     initializeAppCheck(app, {
@@ -50,13 +31,16 @@ try {
     });
 } catch(e) { console.warn("AppCheck info:", e); }
 
-/* ================= 3. GESTION DE LA CONNEXION ================= */
+let optimizedImages = { founder: null, nav: null, hero: null, service: null, agency: null };
+
+function clearPublicCache() { localStorage.clear(); }
+
+/* ================= 2. GESTION DE LA CONNEXION ================= */
 const loginForm = document.getElementById('login-form');
 
-// 1. Écoute du clic sur le bouton "Connexion"
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); // 🪄 TRÈS IMPORTANT : Empêche la page de se recharger dans le vide
+        e.preventDefault(); 
         
         const email = document.getElementById('admin-email').value;
         const pwd = document.getElementById('admin-pwd').value;
@@ -66,7 +50,6 @@ if (loginForm) {
         try {
             btn.textContent = "Vérification...";
             btn.disabled = true;
-            // On demande à Firebase de vérifier tes identifiants
             await signInWithEmailAndPassword(auth, email, pwd);
         } catch (error) {
             alert("Accès refusé : Identifiants incorrects.");
@@ -76,30 +59,24 @@ if (loginForm) {
     });
 }
 
-// 2. Écoute de l'état de l'utilisateur (Connecté / Déconnecté)
 onAuthStateChanged(auth, (user) => {
     const authLoader = document.getElementById('auth-loader');
     const loginScreen = document.getElementById('login-screen');
     const dashboard = document.getElementById('dashboard');
 
-    // On cache le logo qui charge
     if (authLoader) authLoader.classList.add('hidden');
 
     if (user) {
-        // ✔️ CONNECTÉ : On cache le formulaire et on affiche le tableau de bord
         if (loginScreen) loginScreen.classList.add('hidden');
         if (dashboard) dashboard.classList.remove('hidden');
         
-        // On déclenche le chargement des données (Vérifie que cette fonction existe bien plus bas dans ton JS)
         if(typeof loadAdminPlayers === 'function') loadAdminPlayers(adminCurrentCat || 'gardien');
     } else {
-        // ❌ DÉCONNECTÉ : On affiche le formulaire
         if (loginScreen) loginScreen.classList.remove('hidden');
         if (dashboard) dashboard.classList.add('hidden');
     }
 });
 
-// 3. Déconnexion
 const logoutBtn = document.getElementById('logout-btn');
 if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
@@ -107,7 +84,7 @@ if (logoutBtn) {
     });
 }
 
-/* ================= 2. NAVIGATION ET CHARGEMENT SETTINGS ================= */
+/* ================= 3. NAVIGATION ET CHARGEMENT SETTINGS ================= */
 // 🪄 LA CORRECTION EST ICI : Toutes les sections sont déclarées proprement
 function hideAllSections() {
     ['manage-players-section', 'form-player-section', 'settings-section', 'manage-services-section', 'form-service-section', 'manage-presse-section', 'form-video-section', 'form-article-section', 'manage-social-section', 'manage-marquee-section'].forEach(id => {
