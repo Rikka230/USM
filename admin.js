@@ -26,7 +26,7 @@ let optimizedImages = { founder: null, nav: null, hero: null, service: null, age
 
 function clearPublicCache() { localStorage.clear(); }
 
-/* ================= 2. GESTION DE LA CONNEXION ================= */
+/* ================= 2. GESTION DE LA CONNEXION (CORRECTION UI) ================= */
 const loginForm = document.getElementById('login-form');
 const loginError = document.getElementById('login-error');
 
@@ -37,30 +37,35 @@ if (loginForm) {
         const email = document.getElementById('admin-email').value.trim();
         const pwd = document.getElementById('admin-pwd').value;
         const btn = loginForm.querySelector('button');
-        const originalText = "Connexion"; 
+        const originalText = btn.textContent; 
         
         if (loginError) loginError.style.display = 'none';
-        console.log("[USM DEBUG] 1. Tentative de connexion pour :", email);
         
         try {
             btn.textContent = "Ouverture du panel...";
             btn.disabled = true;
             
-            // Course entre la connexion Firebase et un compte à rebours de 10 secondes
-            const authPromise = signInWithEmailAndPassword(auth, email, pwd);
-            const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error("Timeout: Firebase ne répond pas. Le domaine n'est probablement pas autorisé ou bloqué par CORB/CORS.")), 10000)
-            );
-
-            const userCredential = await Promise.race([authPromise, timeoutPromise]);
-            console.log("[USM DEBUG] 2. Connexion Firebase RÉUSSIE :", userCredential.user.email);
+            // Validation Firebase
+            await signInWithEmailAndPassword(auth, email, pwd);
+            
+            // FORCAGE ABSOLU DE L'INTERFACE (Écrase les conflits CSS potentiels)
+            document.getElementById('login-screen').style.display = 'none';
+            const dashboard = document.getElementById('dashboard');
+            if (dashboard) {
+                dashboard.classList.remove('hidden');
+                dashboard.style.display = 'block';
+            }
+            
+            if(typeof loadAdminPlayers === 'function') {
+                setTimeout(() => loadAdminPlayers(typeof adminCurrentCat !== 'undefined' ? adminCurrentCat : 'gardien'), 50);
+            }
             
         } catch (error) {
-            console.error("[USM DEBUG] Erreur bloquante attrapée :", error);
-            
             if (loginError) {
                 if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
                     loginError.textContent = "Accès refusé : Email ou mot de passe incorrect.";
+                } else if (error.code === 'auth/too-many-requests') {
+                    loginError.textContent = "Trop de tentatives. Réessayez dans quelques minutes.";
                 } else {
                     loginError.textContent = "Erreur : " + (error.message || error.code);
                 }
@@ -74,25 +79,31 @@ if (loginForm) {
 }
 
 onAuthStateChanged(auth, (user) => {
-    console.log("[USM DEBUG] 3. État Auth changé. Utilisateur :", user ? user.email : "Non connecté");
-    
     const authLoader = document.getElementById('auth-loader');
     const loginScreen = document.getElementById('login-screen');
     const dashboard = document.getElementById('dashboard');
 
-    if (authLoader) authLoader.classList.add('hidden');
+    if (authLoader) authLoader.style.display = 'none';
 
     if (user) {
-        console.log("[USM DEBUG] 4. Masquage du login, affichage du dashboard");
-        if (loginScreen) loginScreen.classList.add('hidden');
-        if (dashboard) dashboard.classList.remove('hidden');
+        // L'utilisateur est reconnu : on masque de force le formulaire
+        if (loginScreen) loginScreen.style.display = 'none';
+        
+        if (dashboard) {
+            dashboard.classList.remove('hidden');
+            dashboard.style.display = 'block';
+        }
         
         if(typeof loadAdminPlayers === 'function') {
             setTimeout(() => loadAdminPlayers(typeof adminCurrentCat !== 'undefined' ? adminCurrentCat : 'gardien'), 50);
         }
     } else {
-        if (loginScreen) loginScreen.classList.remove('hidden');
-        if (dashboard) dashboard.classList.add('hidden');
+        // L'utilisateur est déconnecté : on affiche le formulaire
+        if (loginScreen) {
+            loginScreen.classList.remove('hidden');
+            loginScreen.style.display = 'flex'; // Modifie en 'block' si ça casse ton centrage
+        }
+        if (dashboard) dashboard.style.display = 'none';
     }
 });
 
