@@ -1,5 +1,5 @@
 /* ==========================================================================
-   USM FOOTBALL - ADMIN JAVASCRIPT (ÉPURÉ & DÉBLOQUÉ)
+   USM FOOTBALL - ADMIN JAVASCRIPT (CORRIGÉ & SÉCURISÉ)
    ========================================================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -28,31 +28,36 @@ function clearPublicCache() { localStorage.clear(); }
 
 /* ================= 2. GESTION DE LA CONNEXION ================= */
 const loginForm = document.getElementById('login-form');
-const loginError = document.getElementById('login-error');
+const loginError = document.getElementById('login-error'); // La zone rouge réactivée !
 
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault(); 
         
-        const email = document.getElementById('admin-email').value;
+        // .trim() supprime les espaces tapés par erreur à la fin de l'email
+        const email = document.getElementById('admin-email').value.trim();
         const pwd = document.getElementById('admin-pwd').value;
         const btn = loginForm.querySelector('button');
         const originalText = btn.textContent;
         
-        // On cache l'erreur à chaque nouvelle tentative
         if (loginError) loginError.style.display = 'none';
         
         try {
             btn.textContent = "Vérification...";
             btn.disabled = true;
+            
             await signInWithEmailAndPassword(auth, email, pwd);
             
             btn.textContent = originalText;
             btn.disabled = false;
         } catch (error) {
-            // 🪄 On affiche le message d'erreur rouge sur la page
+            // Le VRAI affichage de l'erreur
             if (loginError) {
-                loginError.textContent = "Accès refusé : Identifiants incorrects.";
+                if (error.code === 'auth/too-many-requests') {
+                    loginError.textContent = "Trop de tentatives. Réessayez dans quelques minutes.";
+                } else {
+                    loginError.textContent = "Accès refusé : Email ou mot de passe incorrect.";
+                }
                 loginError.style.display = 'block';
             }
             btn.textContent = originalText;
@@ -72,7 +77,9 @@ onAuthStateChanged(auth, (user) => {
         if (loginScreen) loginScreen.classList.add('hidden');
         if (dashboard) dashboard.classList.remove('hidden');
         
-        if(typeof loadAdminPlayers === 'function') loadAdminPlayers(adminCurrentCat || 'gardien');
+        if(typeof loadAdminPlayers === 'function') {
+            setTimeout(() => loadAdminPlayers(typeof adminCurrentCat !== 'undefined' ? adminCurrentCat : 'gardien'), 50);
+        }
     } else {
         if (loginScreen) loginScreen.classList.remove('hidden');
         if (dashboard) dashboard.classList.add('hidden');
