@@ -1,0 +1,36 @@
+name: Patch public loading UX
+
+on:
+  push:
+    branches:
+      - loading-prep
+    paths:
+      - tools/patch-public-loading.cjs
+      - .github/workflows/patch-public-loading.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout loading-prep
+        uses: actions/checkout@v4
+        with:
+          ref: loading-prep
+
+      - name: Patch public loading UX
+        run: node tools/patch-public-loading.cjs
+
+      - name: Commit patch
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add main.js style.css tools/patch-public-loading.cjs .github/workflows/patch-public-loading.yml
+          git commit -m "perf: smooth public loading states"
+          git push origin HEAD:loading-prep
