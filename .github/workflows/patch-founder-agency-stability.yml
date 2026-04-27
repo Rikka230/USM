@@ -31,6 +31,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add main.js style.css tools/patch-founder-agency-stability.cjs .github/workflows/patch-founder-agency-stability.yml
+          git add index.html main.js style.css tools/patch-founder-agency-stability.cjs .github/workflows/patch-founder-agency-stability.yml
           git commit -m "perf: stabilize founder agency panel"
           git push origin HEAD:loading-prep
