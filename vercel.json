@@ -18,8 +18,16 @@
           "value": "SAMEORIGIN"
         },
         {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        },
+        {
           "key": "Permissions-Policy",
           "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+        },
+        {
+          "key": "Content-Security-Policy-Report-Only",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.googletagmanager.com https://www.google-analytics.com https://elfsightcdn.com https://*.elfsight.com https://www.youtube.com https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline' https://elfsightcdn.com https://*.elfsight.com; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebasestorage.app https://*.google-analytics.com https://www.google-analytics.com https://*.elfsight.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://*.elfsight.com; media-src 'self' https: blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
         }
       ]
     },
