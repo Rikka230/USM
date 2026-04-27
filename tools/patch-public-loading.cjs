@@ -182,3 +182,4 @@ if (!css.includes('CHARGEMENT PROGRESSIF / ANTI-POP')) {
 fs.writeFileSync('main.js', main, 'utf8');
 fs.writeFileSync('style.css', css, 'utf8');
 console.log('Public loading UX patch complete.');
+console.log('Patch trigger version: 2026-04-27-public-loading-1');
