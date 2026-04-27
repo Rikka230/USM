@@ -75,6 +75,51 @@
       ]
     },
     {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "<https://www.usmfootball.com/>; rel=canonical"
+        }
+      ]
+    },
+    {
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "<https://www.usmfootball.com/>; rel=canonical"
+        }
+      ]
+    },
+    {
+      "source": "/contact.html",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "<https://www.usmfootball.com/contact.html>; rel=canonical"
+        }
+      ]
+    },
+    {
+      "source": "/presse.html",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "<https://www.usmfootball.com/presse.html>; rel=canonical"
+        }
+      ]
+    },
+    {
+      "source": "/mentions.html",
+      "headers": [
+        {
+          "key": "Link",
+          "value": "<https://www.usmfootball.com/mentions.html>; rel=canonical"
+        }
+      ]
+    },
+    {
       "source": "/docs/(.*)",
       "headers": [
         {
