@@ -189,6 +189,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             setTimeout(async () => {
                 await updateContentCallback();
                 stabilizeFounderAgencyPanel();
+        setupFounderAgencyPrewarm(tabFounder, tabAgency);
                 setTimeout(stabilizeFounderAgencyPanel, 40);
                 elements.forEach(id => {
                     const el = document.getElementById(id);
@@ -209,7 +210,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const currLang = localStorage.getItem('usm_lang') || 'fr';
                 document.getElementById('vip-quote-display').textContent = translations[currLang].vip_quote || '...';
                 document.getElementById('vip-desc-display').textContent = translations[currLang].vip_desc || '';
-                document.getElementById('vip-licenses-display').style.display = 'flex';
+                setVipLicensesVisible(true);
                 
                 const fImg = Cache.get('site_settings')?.founderImg;
                 if(fImg) setVipImageSmooth(fImg);
@@ -223,7 +224,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             doFadeTransition(async () => {
                 document.getElementById('vip-title-display').innerHTML = 'L\'Agence<br><span>USM Football</span>';
-                document.getElementById('vip-licenses-display').style.display = 'none';
+                setVipLicensesVisible(false);
                 document.getElementById('vip-quote-display').textContent = '...';
                 document.getElementById('vip-desc-display').textContent = 'Chargement en cours...';
 
@@ -258,62 +259,192 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 
-function preloadImageUrl(url, timeout = 1200) {
-    return new Promise((resolve) => {
-        if (!url) return resolve(false);
+
+
+const vipPreloadCache = new Map();
+let agencyWarmPromise = null;
+
+function normalizeVipUrl(url) {
+    if (!url) return '';
+    try {
+        return new URL(url, window.location.href).href;
+    } catch (e) {
+        return url;
+    }
+}
+
+function preloadImageUrl(url, timeout = 5000) {
+    const normalizedUrl = normalizeVipUrl(url);
+    if (!normalizedUrl) return Promise.resolve(false);
+    if (vipPreloadCache.has(normalizedUrl)) return vipPreloadCache.get(normalizedUrl);
+
+    const promise = new Promise((resolve) => {
         const img = new Image();
         let done = false;
+
         const finish = (ok) => {
             if (done) return;
             done = true;
             resolve(ok);
         };
-        img.onload = () => finish(true);
+
+        img.decoding = 'async';
+        img.onload = async () => {
+            try {
+                if (img.decode) await img.decode();
+            } catch (e) {}
+            finish(true);
+        };
         img.onerror = () => finish(false);
         setTimeout(() => finish(false), timeout);
-        img.src = url;
+        img.src = normalizedUrl;
+    });
+
+    vipPreloadCache.set(normalizedUrl, promise);
+    return promise;
+}
+
+async function getAgencyDataWarm() {
+    const cachedAgency = Cache.get('site_agency');
+    if (cachedAgency) {
+        if (cachedAgency.image) preloadImageUrl(cachedAgency.image);
+        return cachedAgency;
+    }
+
+    if (agencyWarmPromise) return agencyWarmPromise;
+
+    agencyWarmPromise = (async () => {
+        try {
+            const d = await getDoc(doc(db, 'settings', 'agency'));
+            const agencyData = d.exists() ? d.data() : { empty: true };
+            Cache.set('site_agency', agencyData);
+            if (agencyData.image) await preloadImageUrl(agencyData.image);
+            return agencyData;
+        } catch (e) {
+            agencyWarmPromise = null;
+            console.error('Erreur préchargement agence:', e);
+            return null;
+        }
+    })();
+
+    return agencyWarmPromise;
+}
+
+function warmFounderAssets() {
+    const settings = Cache.get('site_settings');
+    const currentImg = document.getElementById('vip-img-display');
+    const founderUrl = settings?.founderImg || currentImg?.currentSrc || currentImg?.src;
+    if (founderUrl) preloadImageUrl(founderUrl);
+}
+
+function warmAgencyAssets() {
+    getAgencyDataWarm();
+}
+
+function setupFounderAgencyPrewarm(tabFounder, tabAgency) {
+    if (tabAgency) {
+        ['pointerenter', 'mouseenter', 'focus', 'touchstart'].forEach((eventName) => {
+            tabAgency.addEventListener(eventName, warmAgencyAssets, { passive: true });
+        });
+    }
+
+    if (tabFounder) {
+        ['pointerenter', 'mouseenter', 'focus', 'touchstart'].forEach((eventName) => {
+            tabFounder.addEventListener(eventName, warmFounderAssets, { passive: true });
+        });
+    }
+
+    const idle = window.requestIdleCallback || ((callback) => setTimeout(callback, 700));
+    idle(() => {
+        warmFounderAssets();
+        warmAgencyAssets();
     });
 }
 
+function setVipLicensesVisible(isVisible) {
+    const licenses = document.getElementById('vip-licenses-display');
+    if (!licenses) return;
+    licenses.style.display = 'flex';
+    licenses.classList.toggle('vip-licenses-hidden', !isVisible);
+    licenses.setAttribute('aria-hidden', String(!isVisible));
+}
+
 async function setVipImageSmooth(nextUrl) {
-    const img = document.getElementById('vip-img-display');
-    if (!img || !nextUrl || img.src === nextUrl) return;
-    await preloadImageUrl(nextUrl);
-    img.classList.add('vip-image-switching');
+    const baseImg = document.getElementById('vip-img-display');
+    if (!baseImg || !nextUrl) return;
+
+    const normalizedNextUrl = normalizeVipUrl(nextUrl);
+    const currentUrl = normalizeVipUrl(baseImg.dataset.currentVipSrc || baseImg.currentSrc || baseImg.src);
+    if (currentUrl === normalizedNextUrl) return;
+
+    await preloadImageUrl(normalizedNextUrl);
+
+    const wrapper = baseImg.closest('.vip-photo-wrapper');
+    if (!wrapper) {
+        baseImg.src = normalizedNextUrl;
+        baseImg.dataset.currentVipSrc = normalizedNextUrl;
+        return;
+    }
+
+    wrapper.querySelectorAll('.vip-img-crossfade-layer').forEach((layer) => layer.remove());
+
+    const layer = new Image();
+    layer.className = 'vip-img-crossfade-layer';
+    layer.alt = baseImg.alt || '';
+    layer.decoding = 'async';
+    layer.src = normalizedNextUrl;
+    wrapper.appendChild(layer);
+
     requestAnimationFrame(() => {
-        img.src = nextUrl;
-        img.onload = () => img.classList.remove('vip-image-switching');
-        setTimeout(() => img.classList.remove('vip-image-switching'), 520);
+        layer.classList.add('is-active');
     });
+
+    window.clearTimeout(baseImg._vipSwapTimer);
+    baseImg._vipSwapTimer = window.setTimeout(() => {
+        baseImg.src = normalizedNextUrl;
+        baseImg.dataset.currentVipSrc = normalizedNextUrl;
+        layer.remove();
+    }, 430);
 }
 
 function stabilizeFounderAgencyPanel() {
     const section = document.querySelector('.founder-vip-section');
     const content = document.querySelector('.vip-content');
+    const photo = document.querySelector('.vip-photo-wrapper');
     const desc = document.getElementById('vip-desc-display');
     const licenses = document.getElementById('vip-licenses-display');
     if (!section || !content) return;
+
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const baseSectionMin = isMobile ? 0 : 590;
+    const baseContentMin = isMobile ? 470 : 530;
+    const baseDescMin = isMobile ? 150 : 130;
 
     const currentSectionMin = parseFloat(section.style.minHeight || '0') || 0;
     const currentContentMin = parseFloat(content.style.minHeight || '0') || 0;
     const sectionHeight = Math.ceil(section.getBoundingClientRect().height);
     const contentHeight = Math.ceil(content.getBoundingClientRect().height);
 
-    section.style.minHeight = Math.max(currentSectionMin, sectionHeight, 560) + 'px';
-    content.style.minHeight = Math.max(currentContentMin, contentHeight, 500) + 'px';
+    if (!isMobile) {
+        section.style.minHeight = Math.max(currentSectionMin, sectionHeight, baseSectionMin) + 'px';
+        if (photo) photo.style.minHeight = section.style.minHeight;
+    }
+
+    content.style.minHeight = Math.max(currentContentMin, contentHeight, baseContentMin) + 'px';
 
     if (desc) {
         const descHeight = Math.ceil(desc.getBoundingClientRect().height);
         const currentDescMin = parseFloat(desc.style.minHeight || '0') || 0;
-        desc.style.minHeight = Math.max(currentDescMin, descHeight, 105) + 'px';
+        desc.style.minHeight = Math.max(currentDescMin, descHeight, baseDescMin) + 'px';
     }
 
     if (licenses) {
         const licensesHeight = Math.ceil(licenses.getBoundingClientRect().height);
         const currentLicensesMin = parseFloat(licenses.style.minHeight || '0') || 0;
-        licenses.style.minHeight = Math.max(currentLicensesMin, licensesHeight, 44) + 'px';
+        licenses.style.minHeight = Math.max(currentLicensesMin, licensesHeight, 48) + 'px';
     }
 }
+
 
     const updateContent = (lang) => {
         document.querySelectorAll('[data-i18n]').forEach(el => { 

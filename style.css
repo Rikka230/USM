@@ -1725,3 +1725,106 @@ html, body {
     filter: blur(0);
     transform: scale(1);
 }
+
+
+/* ================= STABILITÉ VIP FONDATEUR / AGENCE V2 ================= */
+.founder-vip-section {
+    min-height: clamp(590px, 43vw, 700px);
+    align-items: stretch;
+    contain: paint;
+}
+
+.vip-photo-wrapper {
+    min-height: inherit;
+    overflow: hidden;
+    background: #050507;
+    isolation: isolate;
+}
+
+.vip-photo-wrapper img {
+    display: block;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+#vip-img-display {
+    opacity: 1 !important;
+    transition: none !important;
+    position: relative;
+    z-index: 0;
+}
+
+.vip-img-crossfade-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    filter: contrast(1.1) brightness(0.9);
+    opacity: 0;
+    z-index: 1;
+    pointer-events: none;
+    transition: opacity 0.42s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: opacity;
+}
+
+.vip-img-crossfade-layer.is-active {
+    opacity: 1;
+}
+
+.vip-photo-wrapper::after {
+    z-index: 2;
+    pointer-events: none;
+}
+
+.vip-content {
+    min-height: 530px;
+    justify-content: center;
+}
+
+#vip-title-display,
+#vip-quote-display,
+#vip-desc-display,
+#vip-licenses-display {
+    transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
+#vip-desc-display {
+    min-height: 130px;
+}
+
+#vip-licenses-display {
+    display: flex !important;
+    min-height: 48px;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+#vip-licenses-display.vip-licenses-hidden,
+#vip-licenses-display[aria-hidden="true"] {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .founder-vip-section {
+        min-height: auto;
+        contain: paint;
+    }
+
+    .vip-photo-wrapper {
+        min-height: 420px;
+    }
+
+    .vip-content {
+        min-height: 470px;
+        padding: 42px 28px;
+    }
+
+    #vip-desc-display {
+        min-height: 150px;
+    }
+}
