@@ -1,0 +1,31 @@
+name: Patch admin logout
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout loading-prep
+        uses: actions/checkout@v4
+        with:
+          ref: loading-prep
+
+      - name: Patch admin.js
+        run: node tools/patch-admin-logout.cjs
+
+      - name: Commit patch
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add admin.js
+          git commit -m "fix: enable admin logout button"
+          git push origin HEAD:loading-prep
