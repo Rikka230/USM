@@ -191,12 +191,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
             setTimeout(async () => {
                 await updateContentCallback();
+                stabilizeFounderAgencyPanel();
+                setTimeout(stabilizeFounderAgencyPanel, 40);
                 elements.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.style.opacity = '1';
                 });
             }, 300);
         };
+
+        stabilizeFounderAgencyPanel();
 
         tabFounder.addEventListener('click', () => {
             if (tabFounder.style.background === 'var(--usm-pink)') return;
@@ -252,6 +256,36 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         });
     }
+
+
+
+function stabilizeFounderAgencyPanel() {
+    const section = document.querySelector('.founder-vip-section');
+    const content = document.querySelector('.vip-content');
+    const desc = document.getElementById('vip-desc-display');
+    const licenses = document.getElementById('vip-licenses-display');
+    if (!section || !content) return;
+
+    const currentSectionMin = parseFloat(section.style.minHeight || '0') || 0;
+    const currentContentMin = parseFloat(content.style.minHeight || '0') || 0;
+    const sectionHeight = Math.ceil(section.getBoundingClientRect().height);
+    const contentHeight = Math.ceil(content.getBoundingClientRect().height);
+
+    section.style.minHeight = Math.max(currentSectionMin, sectionHeight, 560) + 'px';
+    content.style.minHeight = Math.max(currentContentMin, contentHeight, 500) + 'px';
+
+    if (desc) {
+        const descHeight = Math.ceil(desc.getBoundingClientRect().height);
+        const currentDescMin = parseFloat(desc.style.minHeight || '0') || 0;
+        desc.style.minHeight = Math.max(currentDescMin, descHeight, 105) + 'px';
+    }
+
+    if (licenses) {
+        const licensesHeight = Math.ceil(licenses.getBoundingClientRect().height);
+        const currentLicensesMin = parseFloat(licenses.style.minHeight || '0') || 0;
+        licenses.style.minHeight = Math.max(currentLicensesMin, licensesHeight, 44) + 'px';
+    }
+}
 
     const updateContent = (lang) => {
         document.querySelectorAll('[data-i18n]').forEach(el => { 

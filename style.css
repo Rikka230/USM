@@ -1658,3 +1658,45 @@ html, body {
 #roster-categories-container.is-loading {
     min-height: 320px;
 }
+
+
+/* ================= STABILITÉ BLOC FONDATEUR / AGENCE ================= */
+.founder-vip-section {
+    min-height: 560px;
+    contain: layout paint;
+}
+
+.vip-content {
+    min-height: 500px;
+}
+
+#vip-desc-display {
+    min-height: 105px;
+}
+
+#vip-licenses-display {
+    min-height: 44px;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+#vip-licenses-display[style*="display: none"] {
+    display: flex !important;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .founder-vip-section {
+        min-height: auto;
+        contain: paint;
+    }
+
+    .vip-content {
+        min-height: 460px;
+    }
+
+    #vip-desc-display {
+        min-height: 130px;
+    }
+}
