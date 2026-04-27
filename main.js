@@ -54,10 +54,7 @@ const LoadingUI = {
         container.innerHTML = Array.from({ length: 4 }, () => '<div class="skeleton-card skeleton-service-card" aria-hidden="true"></div>').join('');
     },
     showRoster() {
-        const container = document.getElementById('roster-categories-container');
-        if (!container || container.dataset.ready === 'true' || container.children.length) return;
-        container.classList.add('is-loading', 'progressive-zone');
-        container.innerHTML = '<div class="category-block skeleton-roster-block" aria-hidden="true"><div class="category-header"><div class="skeleton-line skeleton-title"></div><div class="slider-controls"><span class="skeleton-dot"></span><span class="skeleton-dot"></span></div></div><div class="horizontal-scroller">' + Array.from({ length: 4 }, () => '<div class="skeleton-card skeleton-player-card"></div>').join('') + '</div></div>';
+        return;
     },
     showPresse() {
         ['videos-container', 'articles-container', 'presse-videos-container', 'presse-articles-container'].forEach((id) => {
@@ -370,9 +367,9 @@ function stabilizeFounderAgencyPanel() {
 
     const startApp = async () => {
         LoadingUI.showServices();
-        LoadingUI.showRoster();
         LoadingUI.showPresse();
         await loadSettings(); 
+        updateContent(localStorage.getItem('usm_lang') || currentLang);
         await loadSocialLinks();
         await loadServices(); 
         await loadPlayers('gardien'); 
