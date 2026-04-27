@@ -1568,3 +1568,93 @@ html, body {
     20% { left: 200%; }
     100% { left: 200%; }
 }
+
+
+/* ================= CHARGEMENT PROGRESSIF / ANTI-POP ================= */
+.progressive-zone {
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.progressive-zone.is-loading {
+    opacity: 0.78;
+}
+
+.progressive-zone.is-ready {
+    opacity: 1;
+    animation: progressiveReveal 0.42s ease both;
+}
+
+@keyframes progressiveReveal {
+    from { opacity: 0.55; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.skeleton-card,
+.skeleton-line,
+.skeleton-dot {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(110deg, rgba(255,255,255,0.055) 8%, rgba(255,255,255,0.11) 18%, rgba(255,255,255,0.055) 33%);
+    background-size: 200% 100%;
+    animation: skeletonSweep 1.25s linear infinite;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+@keyframes skeletonSweep {
+    to { background-position-x: -200%; }
+}
+
+.skeleton-service-card {
+    flex: 0 0 auto;
+    width: 320px;
+    height: 320px;
+    border-radius: 16px;
+}
+
+.skeleton-roster-block {
+    width: 100%;
+    margin-bottom: 60px;
+}
+
+.skeleton-player-card {
+    flex: 0 0 280px;
+    height: 395px;
+    border-radius: 24px;
+}
+
+.skeleton-press-card {
+    min-height: 220px;
+    border-radius: 22px;
+}
+
+.skeleton-line.skeleton-title {
+    width: 220px;
+    height: 22px;
+    border-radius: 999px;
+}
+
+.skeleton-dot {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+}
+
+.dynamic-img {
+    opacity: 0;
+    transition: opacity 0.65s ease-in-out, filter 0.65s ease-in-out;
+}
+
+.dynamic-img.loaded {
+    opacity: var(--final-opacity, 1);
+}
+
+#services-container:empty,
+#roster-categories-container:empty {
+    min-height: 320px;
+}
+
+#services-container.is-loading,
+#roster-categories-container.is-loading {
+    min-height: 320px;
+}

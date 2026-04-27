@@ -43,6 +43,43 @@ const Cache = {
     set: (key, data) => localStorage.setItem(key, JSON.stringify({timestamp: Date.now(), data}))
 };
 
+
+
+/* ================= 2B. CHARGEMENT PROGRESSIF PUBLIC ================= */
+const LoadingUI = {
+    showServices() {
+        const container = document.getElementById('services-container');
+        if (!container || container.dataset.ready === 'true' || container.children.length) return;
+        container.classList.add('is-loading', 'progressive-zone');
+        container.innerHTML = Array.from({ length: 4 }, () => '<div class="skeleton-card skeleton-service-card" aria-hidden="true"></div>').join('');
+    },
+    showRoster() {
+        const container = document.getElementById('roster-categories-container');
+        if (!container || container.dataset.ready === 'true' || container.children.length) return;
+        container.classList.add('is-loading', 'progressive-zone');
+        container.innerHTML = '<div class="category-block skeleton-roster-block" aria-hidden="true"><div class="category-header"><div class="skeleton-line skeleton-title"></div><div class="slider-controls"><span class="skeleton-dot"></span><span class="skeleton-dot"></span></div></div><div class="horizontal-scroller">' + Array.from({ length: 4 }, () => '<div class="skeleton-card skeleton-player-card"></div>').join('') + '</div></div>';
+    },
+    showPresse() {
+        ['videos-container', 'articles-container', 'presse-videos-container', 'presse-articles-container'].forEach((id) => {
+            const container = document.getElementById(id);
+            if (!container || container.dataset.ready === 'true' || container.children.length) return;
+            container.classList.add('is-loading', 'progressive-zone');
+            container.innerHTML = Array.from({ length: 3 }, () => '<div class="skeleton-card skeleton-press-card" aria-hidden="true"></div>').join('');
+        });
+    },
+    markReady(target) {
+        const el = typeof target === 'string' ? document.getElementById(target) : target;
+        if (!el) return;
+        el.dataset.ready = 'true';
+        el.classList.remove('is-loading');
+        el.classList.add('is-ready', 'progressive-zone');
+    },
+    imageLoaded(img) {
+        if (!img) return;
+        img.classList.add('loaded');
+    }
+};
+
 /* ================= 3. TRADUCTION i18n ================= */
 const translations = {
     fr: {
@@ -298,6 +335,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
     const startApp = async () => {
+        LoadingUI.showServices();
+        LoadingUI.showRoster();
+        LoadingUI.showPresse();
         await loadSettings(); 
         await loadSocialLinks();
         await loadServices(); 
@@ -312,10 +352,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 function loadSmoothImage(selector, url, finalOpacity = '1') {
     const img = document.querySelector(selector);
     if (img && url) {
-        img.style.opacity = '0'; 
-        img.style.transition = 'opacity 1.2s ease-in-out'; 
-        img.onload = () => { img.style.opacity = finalOpacity; };
-        img.src = url; 
+        img.classList.add('dynamic-img');
+        img.style.setProperty('--final-opacity', finalOpacity);
+        img.onload = () => {
+            img.style.opacity = finalOpacity;
+            LoadingUI.imageLoaded(img);
+        };
+        img.src = url;
+        if (img.complete) {
+            img.style.opacity = finalOpacity;
+            LoadingUI.imageLoaded(img);
+        }
     }
 }
 
@@ -443,6 +490,7 @@ function renderServices() {
         </a>`;
     });
     container.innerHTML = html;
+    LoadingUI.markReady(container);
 
     const btnSrvPrev = document.getElementById('btn-srv-prev');
     const btnSrvNext = document.getElementById('btn-srv-next');
@@ -1011,3 +1059,7 @@ if (btnFounder && btnAgency) {
         btnFounder.classList.remove('active'); // Allume la lumière sur Fondateur
     });
 }
+
+
+// Public loading safety flag
+document.addEventListener('DOMContentLoaded', () => document.body.classList.add('dom-ready'));
