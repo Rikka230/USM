@@ -380,7 +380,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        const targetHeight = Math.round(Math.min(720, Math.max(620, window.innerWidth * 0.44)));
+        const targetHeight = Math.round(Math.min(760, Math.max(640, window.innerWidth * 0.46)));
         vipEls.section.style.height = `${targetHeight}px`;
         vipEls.section.style.minHeight = `${targetHeight}px`;
         vipEls.section.style.maxHeight = `${targetHeight}px`;
@@ -401,6 +401,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const founder = getFounderData();
 
         setVipTabsState('founder');
+        setAgencyLayerVisible(false);
         setVipTextHidden(true);
         await smallDelay(130);
         if (switchId !== vipSwitchId) return;
@@ -465,6 +466,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         setVipTabsState('founder');
         setVipLicensesVisible(true);
         setAgencyLayerVisible(false);
+        warmFounderAssets();
+        warmAgencyAssets();
         lockVipLayout();
 
         vipTabs.founder.addEventListener('click', showFounderVip);
@@ -857,6 +860,7 @@ async function loadSingleServicePage() {
 /* ================= 8. CHARGEMENT OPTIMISÉ DU ROSTER ================= */
 
 const rosterImageCache = new Map();
+const rosterDecodedUrls = new Set();
 
 function preloadRosterImage(url, timeout = 4500) {
     if (!url) return Promise.resolve(false);
@@ -873,6 +877,7 @@ function preloadRosterImage(url, timeout = 4500) {
         img.decoding = 'async';
         img.onload = async () => {
             try { if (img.decode) await img.decode(); } catch (e) {}
+            rosterDecodedUrls.add(url);
             finish(true);
         };
         img.onerror = () => finish(false);
@@ -913,24 +918,31 @@ function prepareRosterImages(scope = document) {
         if (img.dataset.rosterPrepared === 'true') return;
         img.dataset.rosterPrepared = 'true';
         img.classList.remove('is-loaded', 'loaded', 'roster-img-ready');
-        img.style.transitionDelay = `${Math.min(index * 28, 180)}ms`;
+
+        const src = img.currentSrc || img.src || '';
+        const baseDelay = rosterDecodedUrls.has(src) ? 90 : 130;
+        img.style.transitionDelay = `${Math.min(baseDelay + index * 34, 420)}ms`;
 
         const reveal = () => {
             if (img.dataset.rosterRevealQueued === 'true') return;
             img.dataset.rosterRevealQueued = 'true';
-            requestAnimationFrame(() => {
+            const delay = rosterDecodedUrls.has(src) ? 70 : 110;
+            setTimeout(() => {
                 requestAnimationFrame(() => {
                     img.classList.add('roster-img-ready');
                     img.closest('.player-img-container')?.classList.add('roster-holder-ready');
                 });
-            });
+            }, delay);
         };
 
-        if (img.complete && img.naturalWidth > 0) reveal();
-        else {
-            img.addEventListener('load', reveal, { once: true });
-            img.addEventListener('error', reveal, { once: true });
-            preloadRosterImage(img.currentSrc || img.src).then(reveal);
+        img.addEventListener('load', reveal, { once: true });
+        img.addEventListener('error', reveal, { once: true });
+
+        if (img.complete && img.naturalWidth > 0) {
+            rosterDecodedUrls.add(src);
+            reveal();
+        } else {
+            preloadRosterImage(src).then(reveal);
         }
     });
 }
@@ -955,7 +967,7 @@ async function warmRosterCategory(category) {
             return;
         }
     }
-    preloadRosterImages(players, 14, 1600);
+    preloadRosterImages(players, 20, 2200);
 }
 
 let allPlayersData = []; 
@@ -967,6 +979,9 @@ async function loadPlayers(category = 'gardien') {
     const container = document.getElementById('roster-categories-container'); 
     if (!container) return;
     
+    if (currentFrontCat === category && container.dataset.currentRosterCategory === category && container.querySelector('.player-card') && currentFrontSearch.length === 0) {
+        return;
+    }
     currentFrontCat = category;
     let players = Cache.get(`players_${category}`);
     const previousHeight = Math.ceil(container.getBoundingClientRect().height);
@@ -988,9 +1003,10 @@ async function loadPlayers(category = 'gardien') {
         }
     }
     
-    await preloadRosterImages(players, 10, 1400);
+    await preloadRosterImages(players, 20, 2200);
     allPlayersData = players;
     renderCategorySlider();
+    container.dataset.currentRosterCategory = category;
     container.classList.remove('roster-is-preparing');
     setTimeout(() => { container.style.minHeight = ''; }, 450);
 }
@@ -1072,7 +1088,7 @@ if(searchInput) {
                 }
                 
                 allPlayersData = all; 
-                await preloadRosterImages(allPlayersData, 12, 1200);
+                await preloadRosterImages(allPlayersData, 20, 1800);
                 renderCategorySlider(); 
                 
             } else if (currentFrontSearch.length === 0) {

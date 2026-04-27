@@ -1659,12 +1659,12 @@ html, body {
     min-height: 320px;
 }
 
-/* ================= FINAL LAYERED FIX - VIP + ROSTER V2 ================= */
+/* ================= FINAL LAYERED FIX - VIP + ROSTER V3 ================= */
 @media (min-width: 769px) {
     .founder-vip-section {
-        height: clamp(620px, 44vw, 720px);
-        min-height: clamp(620px, 44vw, 720px);
-        max-height: 720px;
+        height: clamp(640px, 46vw, 760px);
+        min-height: clamp(640px, 46vw, 760px);
+        max-height: 760px;
         flex-wrap: nowrap;
         align-items: stretch;
         contain: paint;
@@ -1676,7 +1676,14 @@ html, body {
         min-height: 0;
     }
 
+    .vip-photo-wrapper {
+        flex: 0 0 clamp(390px, 34%, 470px);
+        max-width: 470px;
+        min-width: 390px;
+    }
+
     .vip-content {
+        flex: 1 1 auto;
         overflow: hidden;
     }
 }
@@ -1711,6 +1718,7 @@ html, body {
     z-index: 1;
     opacity: 0;
     pointer-events: none;
+    object-position: center center;
     transition: opacity 0.68s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
@@ -1737,13 +1745,13 @@ html, body {
 
 #vip-title-display { min-height: 92px; }
 #vip-quote-display {
-    min-height: 66px;
-    max-height: 112px;
+    min-height: 76px;
+    max-height: 132px;
     overflow-y: auto;
 }
 #vip-desc-display {
-    min-height: 128px;
-    max-height: 190px;
+    min-height: 150px;
+    max-height: 230px;
     overflow-y: auto;
     padding-right: 6px;
 }
@@ -1823,12 +1831,12 @@ html, body {
     z-index: 1;
     opacity: 0;
     transform: scale(1.018);
-    transition: opacity 0.58s ease, transform 0.72s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: opacity 0.78s ease, transform 0.82s cubic-bezier(0.25, 1, 0.5, 1);
     will-change: opacity, transform;
 }
 
 .player-img-container img.roster-img-ready {
-    opacity: 0.88 !important;
+    opacity: 0.9 !important;
     transform: scale(1);
 }
 
