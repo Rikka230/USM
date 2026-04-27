@@ -149,3 +149,7 @@ Pour économiser les previews Vercel / Firebase :
 - regrouper les modifications dans le moins de commits possible ;
 - éviter les micro-commits sauf test quota ou correction bloquante ;
 - merger en squash après validation.
+
+## Note de redéploiement preview
+
+Après un rollback forcé de branche, créer un commit neutre ou relancer le workflow Firebase afin que le canal `preview-usm` serve bien le nouveau SHA.
