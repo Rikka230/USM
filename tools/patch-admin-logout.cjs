@@ -64,3 +64,4 @@ if (content.includes(marker)) {
 
 fs.writeFileSync(adminPath, content, 'utf8');
 console.log('admin.js patched with logout handler.');
+console.log('Patch trigger version: 2026-04-27-logout-1');
