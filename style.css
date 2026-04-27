@@ -33,7 +33,7 @@ html {
 }
 
 #agence, #services, #joueurs {
-    scroll-margin-top: 110px;
+    scroll-margin-top: 50vh;
 }
 
 body {
@@ -1871,3 +1871,43 @@ html, body {
     #vip-desc-display { min-height: 150px; max-height: 210px; }
 }
 
+
+/* ================= FINAL SCROLL + SECTION RHYTHM V4 ================= */
+:root {
+    --front-section-gap: clamp(76px, 8vw, 116px);
+}
+
+.bento-grid {
+    margin-bottom: var(--front-section-gap) !important;
+    padding-bottom: 0 !important;
+}
+
+.founder-vip-section {
+    margin-top: 0 !important;
+    margin-bottom: var(--front-section-gap) !important;
+}
+
+#services {
+    margin-top: 0 !important;
+    margin-bottom: var(--front-section-gap) !important;
+}
+
+.players-section {
+    padding-top: 0 !important;
+}
+
+@media (max-width: 768px) {
+    :root {
+        --front-section-gap: 64px;
+    }
+
+    #agence, #services, #joueurs {
+        scroll-margin-top: 90px;
+    }
+
+    .bento-grid,
+    .founder-vip-section,
+    #services {
+        margin-bottom: var(--front-section-gap) !important;
+    }
+}

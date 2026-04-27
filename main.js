@@ -560,6 +560,43 @@ document.addEventListener("DOMContentLoaded", async () => {
             link.addEventListener('click', () => navLinks.classList.remove('active'));
         });
     }
+
+    // Scroll navbar vraiment centrÃ© sur le module ciblÃ©, pas juste collÃ© sous la navbar.
+    const getNavHeight = () => Math.ceil(document.querySelector('.navbar')?.getBoundingClientRect().height || 78);
+
+    const getAnchorFocusHeight = (target) => {
+        const rect = target.getBoundingClientRect();
+        const viewport = window.innerHeight;
+        if (target.id === 'services') return Math.min(Math.max(rect.height, 360), viewport * 0.62);
+        if (target.id === 'agence') return Math.min(Math.max(rect.height, 560), viewport * 0.76);
+        if (target.id === 'joueurs') return Math.min(560, viewport * 0.68);
+        return Math.min(rect.height, viewport * 0.7);
+    };
+
+    const scrollSectionToVisualCenter = (target) => {
+        if (!target) return;
+        const navHeight = getNavHeight();
+        const availableHeight = Math.max(320, window.innerHeight - navHeight);
+        const rect = target.getBoundingClientRect();
+        const focusHeight = getAnchorFocusHeight(target);
+        const desiredTop = navHeight + Math.max(22, (availableHeight - focusHeight) / 2);
+        const nextTop = Math.max(0, window.scrollY + rect.top - desiredTop);
+
+        window.scrollTo({ top: nextTop, behavior: 'smooth' });
+    };
+
+    document.querySelectorAll('.nav-links a[href^="#"]').forEach(link => {
+        link.addEventListener('click', (event) => {
+            const hash = link.getAttribute('href');
+            if (!hash || hash === '#') return;
+            const target = document.querySelector(hash);
+            if (!target) return;
+            event.preventDefault();
+            navLinks?.classList.remove('active');
+            scrollSectionToVisualCenter(target);
+            if (history.pushState) history.pushState(null, '', hash);
+        });
+    });
     
     updateContent(currentLang);
 
