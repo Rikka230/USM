@@ -1,6 +1,43 @@
 {
   "cleanUrls": false,
   "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/contact",
+      "destination": "/contact.html",
+      "permanent": true
+    },
+    {
+      "source": "/presse",
+      "destination": "/presse.html",
+      "permanent": true
+    },
+    {
+      "source": "/mentions",
+      "destination": "/mentions.html",
+      "permanent": true
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html",
+      "permanent": false
+    },
+    {
+      "source": "/joueurs.html",
+      "destination": "/#joueurs",
+      "permanent": true
+    },
+    {
+      "source": "/services.html",
+      "destination": "/#services",
+      "permanent": true
+    },
+    {
+      "source": "/agence.html",
+      "destination": "/#agence",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/favicon.ico",
@@ -33,7 +70,16 @@
         },
         {
           "key": "Content-Security-Policy-Report-Only",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.google.com https://www.recaptcha.net https://www.googletagmanager.com https://www.google-analytics.com https://elfsightcdn.com https://*.elfsight.com https://vercel.live https://*.vercel.live https://www.youtube.com https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.google.com https://www.recaptcha.net https://elfsightcdn.com https://*.elfsight.com https://vercel.live https://*.vercel.live; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: https://www.google.com https://www.recaptcha.net https://www.gstatic.com https://*.googleapis.com https://*.firebaseio.com https://*.firebaseapp.com https://*.firebasestorage.app https://*.google-analytics.com https://www.google-analytics.com https://*.elfsight.com https://vercel.live https://*.vercel.live; frame-src 'self' https://www.google.com https://www.recaptcha.net https://www.youtube.com https://www.youtube-nocookie.com https://*.elfsight.com https://vercel.live https://*.vercel.live; media-src 'self' https: blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.google.com https://www.recaptcha.net https://www.googletagmanager.com https://www.google-analytics.com https://elfsightcdn.com https://*.elfsight.com https://vercel.live https://*.vercel.live https://www.youtube.com https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.google.com https://www.recaptcha.net https://elfsightcdn.com https://*.elfsight.com https://vercel.live https://*.vercel.live; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: https://www.google.com https://www.recaptcha.net https://www.gstatic.com https://api.rss2json.com https://*.googleapis.com https://*.firebaseio.com https://*.firebaseapp.com https://*.firebasestorage.app https://*.google-analytics.com https://www.google-analytics.com https://*.elfsight.com https://vercel.live https://*.vercel.live; frame-src 'self' https://www.google.com https://www.recaptcha.net https://www.youtube.com https://www.youtube-nocookie.com https://*.elfsight.com https://vercel.live https://*.vercel.live; media-src 'self' https: blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+        }
+      ]
+    },
+    {
+      "source": "/docs/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
         }
       ]
     },

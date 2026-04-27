@@ -1,10 +1,14 @@
 User-agent: *
 Allow: /
 
-# Sécurité : Interdire l'indexation de l'espace administration
+# Sécurité : ne pas indexer l'espace administration ni les fichiers techniques
+Disallow: /admin
 Disallow: /admin.html
 Disallow: /admin.js
 Disallow: /admin.css
+Disallow: /docs/
+Disallow: /.gitignore
+Disallow: /README.md
 
-# Lien vers le plan du site pour aider Google
+# Plan du site
 Sitemap: https://www.usmfootball.com/sitemap.xml
