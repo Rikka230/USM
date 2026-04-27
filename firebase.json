@@ -84,8 +84,57 @@
         ]
       },
       {
+        "source": "/",
+        "headers": [
+          {
+            "key": "Link",
+            "value": "<https://www.usmfootball.com/>; rel=canonical, </style.css>; rel=preload; as=style, </main.js>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin, <https://www.google.com>; rel=preconnect; crossorigin"
+          }
+        ]
+      },
+      {
+        "source": "/index.html",
+        "headers": [
+          {
+            "key": "Link",
+            "value": "<https://www.usmfootball.com/>; rel=canonical, </style.css>; rel=preload; as=style, </main.js>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin, <https://www.google.com>; rel=preconnect; crossorigin"
+          }
+        ]
+      },
+      {
+        "source": "/contact.html",
+        "headers": [
+          {
+            "key": "Link",
+            "value": "<https://www.usmfootball.com/contact.html>; rel=canonical, </style.css>; rel=preload; as=style, </main.js>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin, <https://www.google.com>; rel=preconnect; crossorigin"
+          }
+        ]
+      },
+      {
+        "source": "/presse.html",
+        "headers": [
+          {
+            "key": "Link",
+            "value": "<https://www.usmfootball.com/presse.html>; rel=canonical, </style.css>; rel=preload; as=style, </main.js>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin, <https://www.google.com>; rel=preconnect; crossorigin"
+          }
+        ]
+      },
+      {
+        "source": "/mentions.html",
+        "headers": [
+          {
+            "key": "Link",
+            "value": "<https://www.usmfootball.com/mentions.html>; rel=canonical, </style.css>; rel=preload; as=style, </main.js>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin, <https://www.google.com>; rel=preconnect; crossorigin"
+          }
+        ]
+      },
+      {
         "source": "/admin.html",
         "headers": [
+          {
+            "key": "Link",
+            "value": "</admin.css>; rel=preload; as=style, </admin.js>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin"
+          },
           {
             "key": "X-Robots-Tag",
             "value": "noindex, nofollow, noarchive"
