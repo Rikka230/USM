@@ -10,13 +10,117 @@ function replaceRegex(content, pattern, replacement, label) {
   return content.replace(pattern, replacement);
 }
 
+let index = fs.readFileSync('index.html', 'utf8');
 let main = fs.readFileSync('main.js', 'utf8');
 let css = fs.readFileSync('style.css', 'utf8');
 
-const helpersV2 = `
+index = index.replace(/href="style\.css(?:\?v=[^"]*)?"/g, 'href="style.css?v=vip-agency-v3"');
+index = index.replace(/src="main\.js(?:\?v=[^"]*)?"/g, 'src="main.js?v=vip-agency-v3"');
+
+const tabLogicV3 = `    // LOGIQUE DES ONGLETS AGENCE / FONDATEUR
+    const tabFounder = document.getElementById('tab-founder');
+    const tabAgency = document.getElementById('tab-agency');
+    
+    if (tabFounder && tabAgency) {
+        const textElements = ['vip-title-display', 'vip-quote-display', 'vip-desc-display', 'vip-licenses-display'];
+
+        const setActiveVipTab = (target) => {
+            const isFounder = target === 'founder';
+            tabFounder.classList.toggle('active', isFounder);
+            tabAgency.classList.toggle('active', !isFounder);
+            tabFounder.style.background = isFounder ? 'var(--usm-pink)' : 'rgba(255,255,255,0.1)';
+            tabFounder.style.color = isFounder ? '#fff' : '#aaa';
+            tabAgency.style.background = !isFounder ? 'var(--usm-pink)' : 'rgba(255,255,255,0.1)';
+            tabAgency.style.color = !isFounder ? '#fff' : '#aaa';
+        };
+
+        const setVipTextVisible = (isVisible) => {
+            textElements.forEach((id) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.classList.toggle('vip-content-switching', !isVisible);
+            });
+        };
+
+        const applyFounderContent = async () => {
+            setActiveVipTab('founder');
+            setVipTextVisible(false);
+            await waitFrame();
+
+            const currLang = localStorage.getItem('usm_lang') || 'fr';
+            const title = document.getElementById('vip-title-display');
+            const quote = document.getElementById('vip-quote-display');
+            const desc = document.getElementById('vip-desc-display');
+
+            if (title) title.innerHTML = 'Christophe<br><span>Mongai</span>';
+            if (quote) quote.textContent = translations[currLang].vip_quote || '...';
+            if (desc) desc.textContent = translations[currLang].vip_desc || '';
+            setVipLicensesVisible(true);
+
+            const fImg = Cache.get('site_settings')?.founderImg;
+            if (fImg) await setVipImageSmooth(fImg);
+
+            stabilizeFounderAgencyPanel();
+            await waitFrame();
+            stabilizeFounderAgencyPanel();
+            setVipTextVisible(true);
+        };
+
+        const applyAgencyContent = async () => {
+            setActiveVipTab('agency');
+            setVipTextVisible(false);
+            await waitFrame();
+
+            const title = document.getElementById('vip-title-display');
+            const quote = document.getElementById('vip-quote-display');
+            const desc = document.getElementById('vip-desc-display');
+            if (title) title.innerHTML = 'L\\'Agence<br><span>USM Football</span>';
+            if (quote) quote.textContent = '...';
+            if (desc) desc.textContent = 'Chargement en cours...';
+            setVipLicensesVisible(false);
+            stabilizeFounderAgencyPanel();
+
+            const agencyData = await getAgencyDataWarm();
+            if (agencyData && !agencyData.empty) {
+                const currLang = localStorage.getItem('usm_lang') || 'fr';
+                if (quote) quote.textContent = agencyData[\`quote_\${currLang}\`] || '';
+                if (desc) desc.textContent = agencyData[\`desc_\${currLang}\`] || '';
+                if (agencyData.image) await setVipImageSmooth(agencyData.image);
+            } else {
+                if (desc) desc.textContent = 'Informations de l\\'agence à venir.';
+                if (quote) quote.textContent = '';
+            }
+
+            stabilizeFounderAgencyPanel();
+            await waitFrame();
+            stabilizeFounderAgencyPanel();
+            setVipTextVisible(true);
+        };
+
+        stabilizeFounderAgencyPanel();
+        setupFounderAgencyPrewarm(tabFounder, tabAgency);
+        window.addEventListener('resize', stabilizeFounderAgencyPanel);
+
+        tabFounder.addEventListener('click', () => {
+            if (tabFounder.classList.contains('active')) return;
+            applyFounderContent();
+        });
+
+        tabAgency.addEventListener('click', () => {
+            if (tabAgency.classList.contains('active')) return;
+            applyAgencyContent();
+        });
+    }
+`;
+
+const helpersV3 = `
 
 const vipPreloadCache = new Map();
 let agencyWarmPromise = null;
+
+function waitFrame() {
+    return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
 
 function normalizeVipUrl(url) {
     if (!url) return '';
@@ -27,7 +131,7 @@ function normalizeVipUrl(url) {
     }
 }
 
-function preloadImageUrl(url, timeout = 5000) {
+function preloadImageUrl(url, timeout = 6000) {
     const normalizedUrl = normalizeVipUrl(url);
     if (!normalizedUrl) return Promise.resolve(false);
     if (vipPreloadCache.has(normalizedUrl)) return vipPreloadCache.get(normalizedUrl);
@@ -97,21 +201,22 @@ function warmAgencyAssets() {
 
 function setupFounderAgencyPrewarm(tabFounder, tabAgency) {
     if (tabAgency) {
-        ['pointerenter', 'mouseenter', 'focus', 'touchstart'].forEach((eventName) => {
+        ['pointerenter', 'mouseenter', 'focus', 'touchstart', 'mouseover'].forEach((eventName) => {
             tabAgency.addEventListener(eventName, warmAgencyAssets, { passive: true });
         });
     }
 
     if (tabFounder) {
-        ['pointerenter', 'mouseenter', 'focus', 'touchstart'].forEach((eventName) => {
+        ['pointerenter', 'mouseenter', 'focus', 'touchstart', 'mouseover'].forEach((eventName) => {
             tabFounder.addEventListener(eventName, warmFounderAssets, { passive: true });
         });
     }
 
-    const idle = window.requestIdleCallback || ((callback) => setTimeout(callback, 700));
+    const idle = window.requestIdleCallback || ((callback) => setTimeout(callback, 450));
     idle(() => {
         warmFounderAssets();
         warmAgencyAssets();
+        stabilizeFounderAgencyPanel();
     });
 }
 
@@ -166,68 +271,59 @@ function stabilizeFounderAgencyPanel() {
     const content = document.querySelector('.vip-content');
     const photo = document.querySelector('.vip-photo-wrapper');
     const desc = document.getElementById('vip-desc-display');
+    const quote = document.getElementById('vip-quote-display');
+    const title = document.getElementById('vip-title-display');
     const licenses = document.getElementById('vip-licenses-display');
     if (!section || !content) return;
 
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    const baseSectionMin = isMobile ? 0 : 590;
-    const baseContentMin = isMobile ? 470 : 530;
-    const baseDescMin = isMobile ? 150 : 130;
-
-    const currentSectionMin = parseFloat(section.style.minHeight || '0') || 0;
-    const currentContentMin = parseFloat(content.style.minHeight || '0') || 0;
-    const sectionHeight = Math.ceil(section.getBoundingClientRect().height);
-    const contentHeight = Math.ceil(content.getBoundingClientRect().height);
+    const baseSectionMin = isMobile ? 0 : 620;
+    const baseContentMin = isMobile ? 500 : 560;
+    const baseDescMin = isMobile ? 165 : 150;
+    const baseQuoteMin = isMobile ? 84 : 70;
+    const baseTitleMin = isMobile ? 96 : 90;
 
     if (!isMobile) {
-        section.style.minHeight = Math.max(currentSectionMin, sectionHeight, baseSectionMin) + 'px';
+        section.style.minHeight = Math.max(parseFloat(section.style.minHeight || '0') || 0, Math.ceil(section.getBoundingClientRect().height), baseSectionMin) + 'px';
         if (photo) photo.style.minHeight = section.style.minHeight;
     }
 
-    content.style.minHeight = Math.max(currentContentMin, contentHeight, baseContentMin) + 'px';
+    content.style.minHeight = Math.max(parseFloat(content.style.minHeight || '0') || 0, Math.ceil(content.getBoundingClientRect().height), baseContentMin) + 'px';
 
-    if (desc) {
-        const descHeight = Math.ceil(desc.getBoundingClientRect().height);
-        const currentDescMin = parseFloat(desc.style.minHeight || '0') || 0;
-        desc.style.minHeight = Math.max(currentDescMin, descHeight, baseDescMin) + 'px';
-    }
-
-    if (licenses) {
-        const licensesHeight = Math.ceil(licenses.getBoundingClientRect().height);
-        const currentLicensesMin = parseFloat(licenses.style.minHeight || '0') || 0;
-        licenses.style.minHeight = Math.max(currentLicensesMin, licensesHeight, 48) + 'px';
-    }
+    if (title) title.style.minHeight = Math.max(parseFloat(title.style.minHeight || '0') || 0, Math.ceil(title.getBoundingClientRect().height), baseTitleMin) + 'px';
+    if (quote) quote.style.minHeight = Math.max(parseFloat(quote.style.minHeight || '0') || 0, Math.ceil(quote.getBoundingClientRect().height), baseQuoteMin) + 'px';
+    if (desc) desc.style.minHeight = Math.max(parseFloat(desc.style.minHeight || '0') || 0, Math.ceil(desc.getBoundingClientRect().height), baseDescMin) + 'px';
+    if (licenses) licenses.style.minHeight = Math.max(parseFloat(licenses.style.minHeight || '0') || 0, Math.ceil(licenses.getBoundingClientRect().height), 52) + 'px';
 }
 `;
 
-const helperPattern = /function preloadImageUrl\(url, timeout = 1200\) \{[\s\S]*?\n\}\n\n    const updateContent = \(lang\) => \{/;
-if (helperPattern.test(main)) {
-  main = main.replace(helperPattern, `${helpersV2}\n\n    const updateContent = (lang) => {`);
-} else if (!main.includes('const vipPreloadCache = new Map();')) {
-  main = replaceOnce(main, '    const updateContent = (lang) => {', `${helpersV2}\n\n    const updateContent = (lang) => {`, 'insert vip helpers v2');
-}
+main = replaceRegex(
+  main,
+  /    \/\/ LOGIQUE DES ONGLETS AGENCE \/ FONDATEUR[\s\S]*?    \}\r?\n\r?\n\r?\n\r?\n\r?\n\r?\nconst vipPreloadCache = new Map\(\);/,
+  `${tabLogicV3}\n\nconst vipPreloadCache = new Map();`,
+  'replace tab logic v3'
+);
+
+main = replaceRegex(
+  main,
+  /const vipPreloadCache = new Map\(\);[\s\S]*?\n\n    const updateContent = \(lang\) => \{/,
+  `${helpersV3}\n\n    const updateContent = (lang) => {`,
+  'replace vip helpers v3'
+);
 
 main = main.replace(/document\.getElementById\('vip-licenses-display'\)\.style\.display = 'flex';/g, 'setVipLicensesVisible(true);');
 main = main.replace(/document\.getElementById\('vip-licenses-display'\)\.style\.display = 'none';/g, 'setVipLicensesVisible(false);');
 
-if (!main.includes('setupFounderAgencyPrewarm(tabFounder, tabAgency);')) {
-  main = replaceOnce(
-    main,
-    '        stabilizeFounderAgencyPanel();',
-    '        stabilizeFounderAgencyPanel();\n        setupFounderAgencyPrewarm(tabFounder, tabAgency);',
-    'setup founder agency prewarm'
-  );
-}
+main = main.replace(
+  '        await loadSettings(); \r\n        updateContent(localStorage.getItem(\'usm_lang\') || currentLang);',
+  '        await loadSettings(); \r\n        warmFounderAssets();\r\n        warmAgencyAssets();\r\n        stabilizeFounderAgencyPanel();\r\n        updateContent(localStorage.getItem(\'usm_lang\') || currentLang);\r\n        requestAnimationFrame(stabilizeFounderAgencyPanel);'
+);
 
-if (!main.includes("window.addEventListener('resize', stabilizeFounderAgencyPanel);")) {
-  main = main.replace('    }\r\n\r\n\n\n\n\nfunction preloadImageUrl', "        window.addEventListener('resize', stabilizeFounderAgencyPanel);\r\n    }\r\n\r\n\n\n\n\nfunction preloadImageUrl");
-}
+const cssV3 = `
 
-const cssV2 = `
-
-/* ================= STABILITÉ VIP FONDATEUR / AGENCE V2 ================= */
+/* ================= STABILITÉ VIP FONDATEUR / AGENCE V3 ================= */
 .founder-vip-section {
-    min-height: clamp(590px, 43vw, 700px);
+    min-height: clamp(620px, 44vw, 720px);
     align-items: stretch;
     contain: paint;
 }
@@ -277,7 +373,7 @@ const cssV2 = `
 }
 
 .vip-content {
-    min-height: 530px;
+    min-height: 560px;
     justify-content: center;
 }
 
@@ -285,19 +381,32 @@ const cssV2 = `
 #vip-quote-display,
 #vip-desc-display,
 #vip-licenses-display {
-    transition: opacity 0.28s ease, transform 0.28s ease;
+    transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.vip-content-switching {
+    opacity: 0 !important;
+    transform: translateY(8px);
+}
+
+#vip-title-display {
+    min-height: 90px;
+}
+
+#vip-quote-display {
+    min-height: 70px;
 }
 
 #vip-desc-display {
-    min-height: 130px;
+    min-height: 150px;
 }
 
 #vip-licenses-display {
     display: flex !important;
-    min-height: 48px;
+    min-height: 52px;
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.25s ease, visibility 0.25s ease;
+    transition: opacity 0.24s ease, visibility 0.24s ease;
 }
 
 #vip-licenses-display.vip-licenses-hidden,
@@ -318,22 +427,28 @@ const cssV2 = `
     }
 
     .vip-content {
-        min-height: 470px;
+        min-height: 500px;
         padding: 42px 28px;
     }
 
+    #vip-title-display {
+        min-height: 96px;
+    }
+
+    #vip-quote-display {
+        min-height: 84px;
+    }
+
     #vip-desc-display {
-        min-height: 150px;
+        min-height: 165px;
     }
 }
 `;
 
-if (css.includes('/* ================= STABILITÉ VIP FONDATEUR / AGENCE V2 ================= */')) {
-  css = css.replace(/\/\* ================= STABILITÉ VIP FONDATEUR \/ AGENCE V2 ================= \*\/[\s\S]*$/m, cssV2.trimStart());
-} else {
-  css += cssV2;
-}
+css = css.replace(/\/\* ================= STABILITÉ VIP FONDATEUR \/ AGENCE V[23] ================= \*\/[\s\S]*$/m, '').trimEnd();
+css += cssV3;
 
+fs.writeFileSync('index.html', index, 'utf8');
 fs.writeFileSync('main.js', main, 'utf8');
 fs.writeFileSync('style.css', css, 'utf8');
-console.log('Founder/agency panel stability V2 patch complete.');
+console.log('Founder/agency panel stability V3 patch complete.');
