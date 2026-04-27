@@ -1,0 +1,36 @@
+name: Patch founder agency stability
+
+on:
+  push:
+    branches:
+      - loading-prep
+    paths:
+      - tools/patch-founder-agency-stability.cjs
+      - .github/workflows/patch-founder-agency-stability.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout loading-prep
+        uses: actions/checkout@v4
+        with:
+          ref: loading-prep
+
+      - name: Patch founder agency stability
+        run: node tools/patch-founder-agency-stability.cjs
+
+      - name: Commit patch
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add main.js style.css tools/patch-founder-agency-stability.cjs .github/workflows/patch-founder-agency-stability.yml
+          git commit -m "perf: stabilize founder agency panel"
+          git push origin HEAD:loading-prep
