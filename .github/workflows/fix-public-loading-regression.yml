@@ -1,0 +1,36 @@
+name: Fix public loading regression
+
+on:
+  push:
+    branches:
+      - loading-prep
+    paths:
+      - tools/fix-public-loading-regression.cjs
+      - .github/workflows/fix-public-loading-regression.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout loading-prep
+        uses: actions/checkout@v4
+        with:
+          ref: loading-prep
+
+      - name: Fix public loading regression
+        run: node tools/fix-public-loading-regression.cjs
+
+      - name: Commit fix
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add main.js tools/fix-public-loading-regression.cjs .github/workflows/fix-public-loading-regression.yml
+          git commit -m "fix: restore initial public content loading"
+          git push origin HEAD:loading-prep
