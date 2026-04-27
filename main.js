@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!translations[currentLang]) currentLang = 'fr';
     if(langSelect) langSelect.value = currentLang;
 
-    // LOGIQUE DES ONGLETS AGENCE / FONDATEUR - REBUILD PROPRE
+    // LOGIQUE DES ONGLETS AGENCE / FONDATEUR - DOUBLE IMAGE STABLE
     const vipTabs = {
         founder: document.getElementById('tab-founder'),
         agency: document.getElementById('tab-agency')
@@ -185,6 +185,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         section: document.querySelector('.founder-vip-section'),
         photoWrapper: document.querySelector('.vip-photo-wrapper'),
         image: document.getElementById('vip-img-display'),
+        agencyImage: null,
         content: document.querySelector('.vip-content'),
         title: document.getElementById('vip-title-display'),
         quote: document.getElementById('vip-quote-display'),
@@ -196,8 +197,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     let vipAgencyPromise = null;
     let vipSwitchId = 0;
     let currentVipMode = 'founder';
+    let founderImageUrl = '';
+    let agencyImageUrl = '';
 
     const nextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
+    const smallDelay = (ms = 120) => new Promise(resolve => setTimeout(resolve, ms));
 
     const normalizeVipUrl = (url) => {
         if (!url) return '';
@@ -205,7 +209,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         catch (e) { return url; }
     };
 
-    const preloadVipImage = (url) => {
+    const preloadVipImage = (url, timeout = 6500) => {
         const normalizedUrl = normalizeVipUrl(url);
         if (!normalizedUrl) return Promise.resolve(false);
         if (vipImageCache.has(normalizedUrl)) return vipImageCache.get(normalizedUrl);
@@ -225,7 +229,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 finish(true);
             };
             img.onerror = () => finish(false);
-            setTimeout(() => finish(false), 6500);
+            setTimeout(() => finish(false), timeout);
             img.src = normalizedUrl;
         });
 
@@ -233,23 +237,77 @@ document.addEventListener("DOMContentLoaded", async () => {
         return promise;
     };
 
+    const ensureVipPhotoLayers = () => {
+        if (!vipEls.photoWrapper || !vipEls.image) return;
+
+        vipEls.image.classList.add('vip-layer-founder');
+        vipEls.image.dataset.vipLayer = 'founder';
+        vipEls.image.style.opacity = '1';
+
+        let agencyLayer = document.getElementById('vip-agency-img-display');
+        if (!agencyLayer) {
+            agencyLayer = document.createElement('img');
+            agencyLayer.id = 'vip-agency-img-display';
+            agencyLayer.className = 'vip-layer-agency';
+            agencyLayer.alt = 'Agence USM Football';
+            agencyLayer.decoding = 'async';
+            agencyLayer.loading = 'eager';
+            agencyLayer.setAttribute('aria-hidden', 'true');
+            vipEls.image.insertAdjacentElement('afterend', agencyLayer);
+        }
+        vipEls.agencyImage = agencyLayer;
+    };
+
     const getVipLang = () => localStorage.getItem('usm_lang') || currentLang || 'fr';
 
     const getFounderData = () => {
         const settings = Cache.get('site_settings') || {};
         const lang = getVipLang();
+        const image = normalizeVipUrl(settings.founderImg || founderImageUrl || vipEls.image?.dataset.currentVipSrc || vipEls.image?.currentSrc || vipEls.image?.src || '');
         return {
             titleHTML: 'Christophe<br><span>Mongai</span>',
             quote: settings[`founderQuote_${lang}`] || translations[lang]?.vip_quote || '',
             desc: settings[`founderDesc_${lang}`] || translations[lang]?.vip_desc || '',
-            image: settings.founderImg || vipEls.image?.dataset.currentVipSrc || vipEls.image?.currentSrc || vipEls.image?.src || ''
+            image
         };
+    };
+
+    const syncFounderImage = (url) => {
+        if (!vipEls.image || !url) return;
+        const normalizedUrl = normalizeVipUrl(url);
+        if (!normalizedUrl) return;
+        founderImageUrl = normalizedUrl;
+        preloadVipImage(normalizedUrl);
+        const current = normalizeVipUrl(vipEls.image.dataset.currentVipSrc || vipEls.image.currentSrc || vipEls.image.src);
+        if (current !== normalizedUrl) {
+            vipEls.image.src = normalizedUrl;
+            vipEls.image.dataset.currentVipSrc = normalizedUrl;
+        }
+    };
+
+    const prepareAgencyImage = async (url) => {
+        ensureVipPhotoLayers();
+        if (!vipEls.agencyImage || !url) return false;
+        const normalizedUrl = normalizeVipUrl(url);
+        if (!normalizedUrl) return false;
+        agencyImageUrl = normalizedUrl;
+
+        const current = normalizeVipUrl(vipEls.agencyImage.dataset.currentVipSrc || vipEls.agencyImage.currentSrc || vipEls.agencyImage.src);
+        if (current !== normalizedUrl) {
+            vipEls.agencyImage.classList.remove('is-ready');
+            vipEls.agencyImage.src = normalizedUrl;
+            vipEls.agencyImage.dataset.currentVipSrc = normalizedUrl;
+        }
+
+        const ok = await preloadVipImage(normalizedUrl);
+        vipEls.agencyImage.classList.add('is-ready');
+        return ok;
     };
 
     const getAgencyData = async () => {
         const cached = Cache.get('site_agency');
         if (cached) {
-            if (cached.image) preloadVipImage(cached.image);
+            if (cached.image) prepareAgencyImage(cached.image);
             return cached;
         }
 
@@ -260,7 +318,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const snap = await getDoc(doc(db, 'settings', 'agency'));
                 const data = snap.exists() ? snap.data() : { empty: true };
                 Cache.set('site_agency', data);
-                if (data.image) await preloadVipImage(data.image);
+                if (data.image) await prepareAgencyImage(data.image);
                 return data;
             } catch (e) {
                 console.error('Erreur Agence:', e);
@@ -296,53 +354,44 @@ document.addEventListener("DOMContentLoaded", async () => {
         vipEls.licenses.setAttribute('aria-hidden', String(!visible));
     };
 
+    const setAgencyLayerVisible = (visible) => {
+        ensureVipPhotoLayers();
+        if (!vipEls.agencyImage) return;
+        vipEls.agencyImage.classList.toggle('is-active', visible);
+        vipEls.agencyImage.setAttribute('aria-hidden', String(!visible));
+    };
+
     const lockVipLayout = () => {
         if (!vipEls.section || !vipEls.content) return;
         const mobile = window.matchMedia('(max-width: 768px)').matches;
-        const sectionMin = mobile ? 0 : 640;
-        const contentMin = mobile ? 500 : 560;
 
-        if (!mobile) {
-            const measuredSection = Math.ceil(vipEls.section.getBoundingClientRect().height);
-            const finalSection = Math.max(sectionMin, measuredSection || 0);
-            vipEls.section.style.minHeight = `${finalSection}px`;
-            if (vipEls.photoWrapper) vipEls.photoWrapper.style.minHeight = `${finalSection}px`;
+        if (mobile) {
+            vipEls.section.style.height = '';
+            vipEls.section.style.minHeight = '';
+            vipEls.section.style.maxHeight = '';
+            if (vipEls.photoWrapper) {
+                vipEls.photoWrapper.style.height = '';
+                vipEls.photoWrapper.style.minHeight = '';
+                vipEls.photoWrapper.style.maxHeight = '';
+            }
+            vipEls.content.style.height = '';
+            vipEls.content.style.minHeight = '';
+            vipEls.content.style.maxHeight = '';
+            return;
         }
 
-        const measuredContent = Math.ceil(vipEls.content.getBoundingClientRect().height);
-        vipEls.content.style.minHeight = `${Math.max(contentMin, measuredContent || 0)}px`;
-        if (vipEls.title) vipEls.title.style.minHeight = `${Math.max(92, Math.ceil(vipEls.title.getBoundingClientRect().height) || 0)}px`;
-        if (vipEls.quote) vipEls.quote.style.minHeight = `${Math.max(mobile ? 78 : 66, Math.ceil(vipEls.quote.getBoundingClientRect().height) || 0)}px`;
-        if (vipEls.desc) vipEls.desc.style.minHeight = `${Math.max(mobile ? 150 : 128, Math.ceil(vipEls.desc.getBoundingClientRect().height) || 0)}px`;
-        if (vipEls.licenses) vipEls.licenses.style.minHeight = `${Math.max(48, Math.ceil(vipEls.licenses.getBoundingClientRect().height) || 0)}px`;
-    };
-
-    const setVipImageSmooth = async (nextUrl) => {
-        if (!vipEls.image || !vipEls.photoWrapper || !nextUrl) return;
-        const normalizedNext = normalizeVipUrl(nextUrl);
-        const current = normalizeVipUrl(vipEls.image.dataset.currentVipSrc || vipEls.image.currentSrc || vipEls.image.src);
-        if (!normalizedNext || normalizedNext === current) return;
-
-        await preloadVipImage(normalizedNext);
-
-        vipEls.photoWrapper.querySelectorAll('.vip-crossfade-layer').forEach(layer => layer.remove());
-
-        const layer = new Image();
-        layer.className = 'vip-crossfade-layer';
-        layer.alt = vipEls.image.alt || '';
-        layer.decoding = 'async';
-        layer.src = normalizedNext;
-        vipEls.photoWrapper.appendChild(layer);
-
-        await nextFrame();
-        layer.classList.add('is-active');
-
-        clearTimeout(vipEls.image._vipSwapTimer);
-        vipEls.image._vipSwapTimer = setTimeout(() => {
-            vipEls.image.src = normalizedNext;
-            vipEls.image.dataset.currentVipSrc = normalizedNext;
-            layer.remove();
-        }, 520);
+        const targetHeight = Math.round(Math.min(720, Math.max(620, window.innerWidth * 0.44)));
+        vipEls.section.style.height = `${targetHeight}px`;
+        vipEls.section.style.minHeight = `${targetHeight}px`;
+        vipEls.section.style.maxHeight = `${targetHeight}px`;
+        if (vipEls.photoWrapper) {
+            vipEls.photoWrapper.style.height = '100%';
+            vipEls.photoWrapper.style.minHeight = '0';
+            vipEls.photoWrapper.style.maxHeight = 'none';
+        }
+        vipEls.content.style.height = '100%';
+        vipEls.content.style.minHeight = '0';
+        vipEls.content.style.maxHeight = 'none';
     };
 
     const showFounderVip = async () => {
@@ -353,17 +402,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         setVipTabsState('founder');
         setVipTextHidden(true);
-        await nextFrame();
+        await smallDelay(130);
         if (switchId !== vipSwitchId) return;
 
         if (vipEls.title) vipEls.title.innerHTML = founder.titleHTML;
         if (vipEls.quote) vipEls.quote.textContent = founder.quote || '';
         if (vipEls.desc) vipEls.desc.textContent = founder.desc || '';
         setVipLicensesVisible(true);
-        if (founder.image) await setVipImageSmooth(founder.image);
+        if (founder.image) syncFounderImage(founder.image);
+        setAgencyLayerVisible(false);
 
-        if (switchId !== vipSwitchId) return;
         lockVipLayout();
+        await nextFrame();
+        if (switchId !== vipSwitchId) return;
         setVipTextHidden(false);
     };
 
@@ -374,35 +425,35 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         setVipTabsState('agency');
         setVipTextHidden(true);
-        await nextFrame();
+        await smallDelay(130);
         if (switchId !== vipSwitchId) return;
-
-        if (vipEls.title) vipEls.title.innerHTML = "L'Agence<br><span>USM Football</span>";
-        if (vipEls.quote) vipEls.quote.textContent = '';
-        if (vipEls.desc) vipEls.desc.textContent = '';
-        setVipLicensesVisible(false);
-        lockVipLayout();
 
         const agency = await getAgencyData();
         if (switchId !== vipSwitchId) return;
 
         const lang = getVipLang();
+        if (vipEls.title) vipEls.title.innerHTML = "L'Agence<br><span>USM Football</span>";
         if (agency && !agency.empty) {
             if (vipEls.quote) vipEls.quote.textContent = agency[`quote_${lang}`] || '';
             if (vipEls.desc) vipEls.desc.textContent = agency[`desc_${lang}`] || '';
-            if (agency.image) await setVipImageSmooth(agency.image);
+            if (agency.image) await prepareAgencyImage(agency.image);
         } else {
+            if (vipEls.quote) vipEls.quote.textContent = '';
             if (vipEls.desc) vipEls.desc.textContent = "Informations de l'agence à venir.";
         }
 
         if (switchId !== vipSwitchId) return;
+        setVipLicensesVisible(false);
+        setAgencyLayerVisible(true);
         lockVipLayout();
+        await nextFrame();
+        if (switchId !== vipSwitchId) return;
         setVipTextHidden(false);
     };
 
     const warmFounderAssets = () => {
-        const image = getFounderData().image;
-        if (image) preloadVipImage(image);
+        const founder = getFounderData();
+        if (founder.image) syncFounderImage(founder.image);
     };
 
     const warmAgencyAssets = () => {
@@ -410,8 +461,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     if (vipTabs.founder && vipTabs.agency && vipEls.section) {
+        ensureVipPhotoLayers();
         setVipTabsState('founder');
         setVipLicensesVisible(true);
+        setAgencyLayerVisible(false);
         lockVipLayout();
 
         vipTabs.founder.addEventListener('click', showFounderVip);
@@ -428,6 +481,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             warmAgencyAssets();
             lockVipLayout();
         });
+
         window.addEventListener('resize', lockVipLayout);
     }
 
@@ -515,7 +569,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
 
 function setupDynamicImageReveal() {
-    const selector = '.player-card img, .player-img, .card-player img, .talent-card img, .roster-card img, .press-card img, .article-card img, .video-card img';
+    const selector = '.press-card img, .article-card img, .video-card img';
     const prepare = (img) => {
         if (!img || img.dataset.fadeReady === 'true') return;
         img.dataset.fadeReady = 'true';
@@ -855,13 +909,23 @@ function escapeHTML(value = '') {
 }
 
 function prepareRosterImages(scope = document) {
-    scope.querySelectorAll('.player-img-container img').forEach((img) => {
+    Array.from(scope.querySelectorAll('.player-img-container img')).forEach((img, index) => {
         if (img.dataset.rosterPrepared === 'true') return;
         img.dataset.rosterPrepared = 'true';
+        img.classList.remove('is-loaded', 'loaded', 'roster-img-ready');
+        img.style.transitionDelay = `${Math.min(index * 28, 180)}ms`;
+
         const reveal = () => {
-            img.classList.add('roster-img-ready');
-            img.closest('.player-img-container')?.classList.add('roster-holder-ready');
+            if (img.dataset.rosterRevealQueued === 'true') return;
+            img.dataset.rosterRevealQueued = 'true';
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    img.classList.add('roster-img-ready');
+                    img.closest('.player-img-container')?.classList.add('roster-holder-ready');
+                });
+            });
         };
+
         if (img.complete && img.naturalWidth > 0) reveal();
         else {
             img.addEventListener('load', reveal, { once: true });

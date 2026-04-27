@@ -1659,33 +1659,37 @@ html, body {
     min-height: 320px;
 }
 
-/* ================= FINAL SMOOTH FIX - VIP + ROSTER ================= */
-.founder-vip-section {
-    min-height: clamp(620px, 44vw, 720px);
-    align-items: stretch;
-    contain: paint;
+/* ================= FINAL LAYERED FIX - VIP + ROSTER V2 ================= */
+@media (min-width: 769px) {
+    .founder-vip-section {
+        height: clamp(620px, 44vw, 720px);
+        min-height: clamp(620px, 44vw, 720px);
+        max-height: 720px;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        contain: paint;
+    }
+
+    .vip-photo-wrapper,
+    .vip-content {
+        height: 100%;
+        min-height: 0;
+    }
+
+    .vip-content {
+        overflow: hidden;
+    }
 }
 
 .vip-photo-wrapper {
-    min-height: inherit;
+    position: relative;
     overflow: hidden;
     background: #050507;
     isolation: isolate;
 }
 
-.vip-photo-wrapper img {
-    display: block;
-    backface-visibility: hidden;
-    transform: translateZ(0);
-}
-
-#vip-img-display {
-    opacity: 1 !important;
-    position: relative;
-    z-index: 0;
-}
-
-.vip-crossfade-layer {
+.vip-photo-wrapper img.vip-layer-founder,
+#vip-agency-img-display {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -1693,14 +1697,24 @@ html, body {
     object-fit: cover;
     object-position: top center;
     filter: contrast(1.1) brightness(0.9);
-    opacity: 0;
-    z-index: 1;
-    pointer-events: none;
-    transition: opacity 0.52s cubic-bezier(0.25, 1, 0.5, 1);
+    backface-visibility: hidden;
+    transform: translateZ(0);
     will-change: opacity;
 }
 
-.vip-crossfade-layer.is-active {
+#vip-img-display.vip-layer-founder {
+    z-index: 0;
+    opacity: 1 !important;
+}
+
+#vip-agency-img-display {
+    z-index: 1;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.68s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+#vip-agency-img-display.is-active {
     opacity: 1;
 }
 
@@ -1709,16 +1723,11 @@ html, body {
     pointer-events: none;
 }
 
-.vip-content {
-    min-height: 560px;
-    justify-content: center;
-}
-
 #vip-title-display,
 #vip-quote-display,
 #vip-desc-display,
 #vip-licenses-display {
-    transition: opacity 0.22s ease, transform 0.22s ease;
+    transition: opacity 0.28s ease, transform 0.28s ease;
 }
 
 .vip-panel-switching {
@@ -1727,15 +1736,32 @@ html, body {
 }
 
 #vip-title-display { min-height: 92px; }
-#vip-quote-display { min-height: 66px; }
-#vip-desc-display { min-height: 128px; }
+#vip-quote-display {
+    min-height: 66px;
+    max-height: 112px;
+    overflow-y: auto;
+}
+#vip-desc-display {
+    min-height: 128px;
+    max-height: 190px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+#vip-quote-display::-webkit-scrollbar,
+#vip-desc-display::-webkit-scrollbar { width: 4px; }
+#vip-quote-display::-webkit-scrollbar-thumb,
+#vip-desc-display::-webkit-scrollbar-thumb {
+    background: rgba(216, 0, 86, 0.45);
+    border-radius: 999px;
+}
 
 #vip-licenses-display {
     display: flex !important;
     min-height: 48px;
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.22s ease, visibility 0.22s ease;
+    transition: opacity 0.28s ease, visibility 0.28s ease;
 }
 
 #vip-licenses-display.vip-licenses-hidden,
@@ -1772,6 +1798,7 @@ html, body {
     transform: translateX(-120%);
     animation: rosterSoftSweep 1.55s ease-in-out infinite;
     opacity: 0.7;
+    transition: opacity 0.35s ease;
 }
 
 .player-img-container::after {
@@ -1796,20 +1823,16 @@ html, body {
     z-index: 1;
     opacity: 0;
     transform: scale(1.018);
-    transition: opacity 0.3s ease, transform 0.48s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: opacity 0.58s ease, transform 0.72s cubic-bezier(0.25, 1, 0.5, 1);
     will-change: opacity, transform;
 }
 
-.player-img-container img.roster-img-ready,
-.player-img-container img.is-loaded,
-.player-img-container img.loaded {
-    opacity: 0.86 !important;
+.player-img-container img.roster-img-ready {
+    opacity: 0.88 !important;
     transform: scale(1);
 }
 
-.player-card:hover .player-img-container img.roster-img-ready,
-.player-card:hover .player-img-container img.is-loaded,
-.player-card:hover .player-img-container img.loaded {
+.player-card:hover .player-img-container img.roster-img-ready {
     opacity: 1 !important;
     transform: scale(1.05);
 }
@@ -1826,6 +1849,7 @@ html, body {
     }
 
     .vip-photo-wrapper {
+        height: 420px;
         min-height: 420px;
     }
 
@@ -1835,6 +1859,7 @@ html, body {
     }
 
     #vip-title-display { min-height: 92px; }
-    #vip-quote-display { min-height: 78px; }
-    #vip-desc-display { min-height: 150px; }
+    #vip-quote-display { min-height: 78px; max-height: 120px; }
+    #vip-desc-display { min-height: 150px; max-height: 210px; }
 }
+
