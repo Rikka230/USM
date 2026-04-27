@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     if (tabFounder && tabAgency) {
         const doFadeTransition = async (updateContentCallback) => {
-            const elements = ['vip-title-display', 'vip-quote-display', 'vip-desc-display', 'vip-licenses-display', 'vip-img-display'];
+            const elements = ['vip-title-display', 'vip-quote-display', 'vip-desc-display', 'vip-licenses-display'];
             elements.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.opacity = '0';
@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 document.getElementById('vip-licenses-display').style.display = 'flex';
                 
                 const fImg = Cache.get('site_settings')?.founderImg;
-                if(fImg) document.getElementById('vip-img-display').src = fImg;
+                if(fImg) setVipImageSmooth(fImg);
             });
         });
 
@@ -245,7 +245,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     const currLang = localStorage.getItem('usm_lang') || 'fr';
                     document.getElementById('vip-quote-display').textContent = agencyData[`quote_${currLang}`] || '';
                     document.getElementById('vip-desc-display').textContent = agencyData[`desc_${currLang}`] || '';
-                    if(agencyData.image) document.getElementById('vip-img-display').src = agencyData.image;
+                    if(agencyData.image) await setVipImageSmooth(agencyData.image);
                 } else {
                      document.getElementById('vip-desc-display').textContent = 'Informations de l\'agence à venir.';
                      document.getElementById('vip-quote-display').textContent = '';
@@ -255,6 +255,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
 
+
+
+
+function preloadImageUrl(url, timeout = 1200) {
+    return new Promise((resolve) => {
+        if (!url) return resolve(false);
+        const img = new Image();
+        let done = false;
+        const finish = (ok) => {
+            if (done) return;
+            done = true;
+            resolve(ok);
+        };
+        img.onload = () => finish(true);
+        img.onerror = () => finish(false);
+        setTimeout(() => finish(false), timeout);
+        img.src = url;
+    });
+}
+
+async function setVipImageSmooth(nextUrl) {
+    const img = document.getElementById('vip-img-display');
+    if (!img || !nextUrl || img.src === nextUrl) return;
+    await preloadImageUrl(nextUrl);
+    img.classList.add('vip-image-switching');
+    requestAnimationFrame(() => {
+        img.src = nextUrl;
+        img.onload = () => img.classList.remove('vip-image-switching');
+        setTimeout(() => img.classList.remove('vip-image-switching'), 520);
+    });
+}
 
 function stabilizeFounderAgencyPanel() {
     const section = document.querySelector('.founder-vip-section');
@@ -364,6 +395,39 @@ function stabilizeFounderAgencyPanel() {
     }, { threshold: 0.1 });
     
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    
+
+function setupDynamicImageReveal() {
+    const selector = '.player-card img, .player-img, .card-player img, .talent-card img, .roster-card img, .press-card img, .article-card img, .video-card img';
+    const prepare = (img) => {
+        if (!img || img.dataset.fadeReady === 'true') return;
+        img.dataset.fadeReady = 'true';
+        img.classList.add('soft-load-img');
+        const reveal = () => img.classList.add('is-loaded');
+        if (img.complete && img.naturalWidth > 0) reveal();
+        else {
+            img.addEventListener('load', reveal, { once: true });
+            img.addEventListener('error', reveal, { once: true });
+        }
+    };
+
+    document.querySelectorAll(selector).forEach(prepare);
+
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (!(node instanceof HTMLElement)) return;
+                if (node.matches?.(selector)) prepare(node);
+                node.querySelectorAll?.(selector).forEach(prepare);
+            });
+        });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
+    setupDynamicImageReveal();
 
     const startApp = async () => {
         LoadingUI.showServices();

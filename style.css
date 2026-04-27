@@ -1700,3 +1700,28 @@ html, body {
         min-height: 130px;
     }
 }
+
+
+/* ================= IMAGE REVEAL CONTROLLED ================= */
+#vip-img-display {
+    transition: opacity 0.42s ease, filter 0.42s ease, transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#vip-img-display.vip-image-switching {
+    opacity: 0.18;
+    filter: blur(6px) brightness(0.82);
+    transform: scale(1.012);
+}
+
+.soft-load-img {
+    opacity: 0;
+    filter: blur(6px);
+    transform: scale(1.015);
+    transition: opacity 0.42s ease, filter 0.42s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.soft-load-img.is-loaded {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+}
