@@ -1,7 +1,12 @@
 name: Patch admin logout
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - loading-prep
+    paths:
+      - tools/patch-admin-logout.cjs
+      - .github/workflows/patch-admin-logout.yml
 
 permissions:
   contents: write
