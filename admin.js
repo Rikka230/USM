@@ -107,6 +107,46 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
+
+/* ================= 2B. DÉCONNEXION ADMIN ================= */
+const logoutBtn = document.getElementById('logout-btn');
+
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+        const originalContent = logoutBtn.innerHTML;
+
+        try {
+            logoutBtn.disabled = true;
+            logoutBtn.style.opacity = '0.7';
+            logoutBtn.innerHTML = 'Déconnexion...';
+
+            await signOut(auth);
+            localStorage.clear();
+
+            const dashboard = document.getElementById('dashboard');
+            const loginScreen = document.getElementById('login-screen');
+
+            if (dashboard) {
+                dashboard.classList.add('hidden');
+                dashboard.style.display = 'none';
+            }
+
+            if (loginScreen) {
+                loginScreen.classList.remove('hidden');
+                loginScreen.style.display = 'flex';
+            }
+
+            window.location.replace('admin.html');
+        } catch (error) {
+            console.error('Erreur de déconnexion:', error);
+            logoutBtn.disabled = false;
+            logoutBtn.style.opacity = '1';
+            logoutBtn.innerHTML = originalContent;
+            alert('Impossible de vous déconnecter. Rechargez la page puis réessayez.');
+        }
+    });
+}
+
 /* ================= 3. NAVIGATION ET CHARGEMENT SETTINGS ================= */
 function hideAllSections() {
     ['manage-players-section', 'form-player-section', 'settings-section', 'manage-services-section', 'form-service-section', 'manage-presse-section', 'form-video-section', 'form-article-section', 'manage-social-section', 'manage-marquee-section'].forEach(id => {
