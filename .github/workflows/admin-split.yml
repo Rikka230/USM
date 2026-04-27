@@ -1,0 +1,35 @@
+name: Split admin modules
+
+on:
+  push:
+    branches:
+      - loading-prep
+    paths:
+      - tools/split-admin.cjs
+
+permissions:
+  contents: write
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout loading-prep
+        uses: actions/checkout@v4
+        with:
+          ref: loading-prep
+
+      - name: Split admin.js into modules
+        run: node tools/split-admin.cjs
+
+      - name: Commit modular admin files
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add admin.js admin/modules tools .github/workflows
+          git commit -m "refactor: split admin script into modules"
+          git push origin HEAD:loading-prep
