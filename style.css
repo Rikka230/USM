@@ -1697,7 +1697,7 @@ html, body {
     }
 
     #vip-desc-display {
-        min-height: 130px;
+        min-height: 150px;
     }
 }
 
@@ -1729,7 +1729,7 @@ html, body {
 
 /* ================= STABILITÉ VIP FONDATEUR / AGENCE V2 ================= */
 .founder-vip-section {
-    min-height: clamp(590px, 43vw, 700px);
+    min-height: clamp(620px, 44vw, 720px);
     align-items: stretch;
     contain: paint;
 }
@@ -1779,7 +1779,7 @@ html, body {
 }
 
 .vip-content {
-    min-height: 530px;
+    min-height: 560px;
     justify-content: center;
 }
 
@@ -1791,12 +1791,12 @@ html, body {
 }
 
 #vip-desc-display {
-    min-height: 130px;
+    min-height: 150px;
 }
 
 #vip-licenses-display {
     display: flex !important;
-    min-height: 48px;
+    min-height: 52px;
     opacity: 1;
     visibility: visible;
     transition: opacity 0.25s ease, visibility 0.25s ease;
@@ -1827,4 +1827,10 @@ html, body {
     #vip-desc-display {
         min-height: 150px;
     }
+}
+
+
+.vip-content-switching {
+    opacity: 0 !important;
+    transform: translateY(8px);
 }

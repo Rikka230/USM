@@ -189,7 +189,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             setTimeout(async () => {
                 await updateContentCallback();
                 stabilizeFounderAgencyPanel();
-        setupFounderAgencyPrewarm(tabFounder, tabAgency);
                 setTimeout(stabilizeFounderAgencyPanel, 40);
                 elements.forEach(id => {
                     const el = document.getElementById(id);
@@ -199,6 +198,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
 
         stabilizeFounderAgencyPanel();
+        setupFounderAgencyPrewarm(tabFounder, tabAgency);
 
         tabFounder.addEventListener('click', () => {
             if (tabFounder.style.background === 'var(--usm-pink)') return;
@@ -564,7 +564,11 @@ function setupDynamicImageReveal() {
         LoadingUI.showServices();
         LoadingUI.showPresse();
         await loadSettings(); 
+        warmFounderAssets();
+        warmAgencyAssets();
+        stabilizeFounderAgencyPanel();
         updateContent(localStorage.getItem('usm_lang') || currentLang);
+        requestAnimationFrame(stabilizeFounderAgencyPanel);
         await loadSocialLinks();
         await loadServices(); 
         await loadPlayers('gardien'); 
