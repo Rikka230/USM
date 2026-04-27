@@ -175,52 +175,78 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!translations[currentLang]) currentLang = 'fr';
     if(langSelect) langSelect.value = currentLang;
 
-    // LOGIQUE DES ONGLETS AGENCE / FONDATEUR - HARD FIX
-    const tabFounder = document.getElementById('tab-founder');
-    const tabAgency = document.getElementById('tab-agency');
+    // LOGIQUE DES ONGLETS AGENCE / FONDATEUR - REBUILD PROPRE
+    const vipTabs = {
+        founder: document.getElementById('tab-founder'),
+        agency: document.getElementById('tab-agency')
+    };
+
+    const vipEls = {
+        section: document.querySelector('.founder-vip-section'),
+        photoWrapper: document.querySelector('.vip-photo-wrapper'),
+        image: document.getElementById('vip-img-display'),
+        content: document.querySelector('.vip-content'),
+        title: document.getElementById('vip-title-display'),
+        quote: document.getElementById('vip-quote-display'),
+        desc: document.getElementById('vip-desc-display'),
+        licenses: document.getElementById('vip-licenses-display')
+    };
 
     const vipImageCache = new Map();
     let vipAgencyPromise = null;
-    let vipSwitchToken = 0;
+    let vipSwitchId = 0;
+    let currentVipMode = 'founder';
 
-    function waitFrame() {
-        return new Promise(resolve => requestAnimationFrame(resolve));
-    }
+    const nextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
 
-    function normalizeVipUrl(url) {
+    const normalizeVipUrl = (url) => {
         if (!url) return '';
         try { return new URL(url, window.location.href).href; }
         catch (e) { return url; }
-    }
+    };
 
-    function preloadVipImage(url) {
+    const preloadVipImage = (url) => {
         const normalizedUrl = normalizeVipUrl(url);
         if (!normalizedUrl) return Promise.resolve(false);
         if (vipImageCache.has(normalizedUrl)) return vipImageCache.get(normalizedUrl);
 
         const promise = new Promise((resolve) => {
             const img = new Image();
-            let settled = false;
-            const done = (ok) => {
-                if (settled) return;
-                settled = true;
+            let done = false;
+            const finish = (ok) => {
+                if (done) return;
+                done = true;
                 resolve(ok);
             };
+
             img.decoding = 'async';
             img.onload = async () => {
                 try { if (img.decode) await img.decode(); } catch (e) {}
-                done(true);
+                finish(true);
             };
-            img.onerror = () => done(false);
-            setTimeout(() => done(false), 6000);
+            img.onerror = () => finish(false);
+            setTimeout(() => finish(false), 6500);
             img.src = normalizedUrl;
         });
 
         vipImageCache.set(normalizedUrl, promise);
         return promise;
-    }
+    };
 
-    async function getAgencyDataPrepared() {
+    const getVipLang = () => localStorage.getItem('usm_lang') || currentLang || 'fr';
+
+    const getFounderData = () => {
+        const settings = Cache.get('site_settings') || {};
+        const lang = getVipLang();
+        return {
+            titleHTML: 'Christophe<br><span>Mongai</span>',
+            quote: settings[`founderQuote_${lang}`] || translations[lang]?.vip_quote || '',
+            desc: settings[`founderDesc_${lang}`] || translations[lang]?.vip_desc || '',
+            image: settings.founderImg || vipEls.image?.dataset.currentVipSrc || vipEls.image?.currentSrc || vipEls.image?.src || ''
+        };
+    };
+
+    const getAgencyData = async () => {
         const cached = Cache.get('site_agency');
         if (cached) {
             if (cached.image) preloadVipImage(cached.image);
@@ -231,8 +257,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         vipAgencyPromise = (async () => {
             try {
-                const d = await getDoc(doc(db, 'settings', 'agency'));
-                const data = d.exists() ? d.data() : { empty: true };
+                const snap = await getDoc(doc(db, 'settings', 'agency'));
+                const data = snap.exists() ? snap.data() : { empty: true };
                 Cache.set('site_agency', data);
                 if (data.image) await preloadVipImage(data.image);
                 return data;
@@ -244,200 +270,165 @@ document.addEventListener("DOMContentLoaded", async () => {
         })();
 
         return vipAgencyPromise;
-    }
+    };
 
-    function getFounderImageUrl() {
-        const settings = Cache.get('site_settings');
-        const img = document.getElementById('vip-img-display');
-        return settings?.founderImg || img?.dataset.currentVipSrc || img?.currentSrc || img?.src || '';
-    }
+    const setVipTabsState = (mode) => {
+        if (!vipTabs.founder || !vipTabs.agency) return;
+        const isFounder = mode === 'founder';
+        vipTabs.founder.classList.toggle('active', isFounder);
+        vipTabs.agency.classList.toggle('active', !isFounder);
+        vipTabs.founder.style.background = isFounder ? 'var(--usm-pink)' : 'rgba(255,255,255,0.1)';
+        vipTabs.founder.style.color = isFounder ? '#fff' : '#aaa';
+        vipTabs.agency.style.background = !isFounder ? 'var(--usm-pink)' : 'rgba(255,255,255,0.1)';
+        vipTabs.agency.style.color = !isFounder ? '#fff' : '#aaa';
+    };
 
-    function warmFounderAssets() {
-        const url = getFounderImageUrl();
-        if (url) preloadVipImage(url);
-    }
-
-    function warmAgencyAssets() {
-        getAgencyDataPrepared();
-    }
-
-    function setVipTabState(target) {
-        if (!tabFounder || !tabAgency) return;
-        const isFounder = target === 'founder';
-        tabFounder.classList.toggle('active', isFounder);
-        tabAgency.classList.toggle('active', !isFounder);
-        tabFounder.style.background = isFounder ? 'var(--usm-pink)' : 'rgba(255,255,255,0.1)';
-        tabFounder.style.color = isFounder ? '#fff' : '#aaa';
-        tabAgency.style.background = !isFounder ? 'var(--usm-pink)' : 'rgba(255,255,255,0.1)';
-        tabAgency.style.color = !isFounder ? '#fff' : '#aaa';
-    }
-
-    function setVipTextHidden(hidden) {
-        ['vip-title-display', 'vip-quote-display', 'vip-desc-display', 'vip-licenses-display'].forEach((id) => {
-            const el = document.getElementById(id);
-            if (el) el.classList.toggle('vip-content-switching', hidden);
+    const setVipTextHidden = (hidden) => {
+        [vipEls.title, vipEls.quote, vipEls.desc, vipEls.licenses].forEach(el => {
+            if (el) el.classList.toggle('vip-panel-switching', hidden);
         });
-    }
+    };
 
-    function setVipLicensesVisible(isVisible) {
-        const licenses = document.getElementById('vip-licenses-display');
-        if (!licenses) return;
-        licenses.style.display = 'flex';
-        licenses.classList.toggle('vip-licenses-hidden', !isVisible);
-        licenses.setAttribute('aria-hidden', String(!isVisible));
-    }
+    const setVipLicensesVisible = (visible) => {
+        if (!vipEls.licenses) return;
+        vipEls.licenses.style.display = 'flex';
+        vipEls.licenses.classList.toggle('vip-licenses-hidden', !visible);
+        vipEls.licenses.setAttribute('aria-hidden', String(!visible));
+    };
 
-    function lockVipLayout() {
-        const section = document.querySelector('.founder-vip-section');
-        const content = document.querySelector('.vip-content');
-        const photo = document.querySelector('.vip-photo-wrapper');
-        const title = document.getElementById('vip-title-display');
-        const quote = document.getElementById('vip-quote-display');
-        const desc = document.getElementById('vip-desc-display');
-        const licenses = document.getElementById('vip-licenses-display');
-        if (!section || !content) return;
-
+    const lockVipLayout = () => {
+        if (!vipEls.section || !vipEls.content) return;
         const mobile = window.matchMedia('(max-width: 768px)').matches;
-        const sectionBase = mobile ? 0 : 640;
-        const contentBase = mobile ? 520 : 580;
+        const sectionMin = mobile ? 0 : 640;
+        const contentMin = mobile ? 500 : 560;
 
         if (!mobile) {
-            const h = Math.max(sectionBase, Math.ceil(section.getBoundingClientRect().height));
-            section.style.minHeight = h + 'px';
-            if (photo) photo.style.minHeight = h + 'px';
+            const measuredSection = Math.ceil(vipEls.section.getBoundingClientRect().height);
+            const finalSection = Math.max(sectionMin, measuredSection || 0);
+            vipEls.section.style.minHeight = `${finalSection}px`;
+            if (vipEls.photoWrapper) vipEls.photoWrapper.style.minHeight = `${finalSection}px`;
         }
 
-        content.style.minHeight = Math.max(contentBase, Math.ceil(content.getBoundingClientRect().height)) + 'px';
-        if (title) title.style.minHeight = Math.max(96, Math.ceil(title.getBoundingClientRect().height)) + 'px';
-        if (quote) quote.style.minHeight = Math.max(76, Math.ceil(quote.getBoundingClientRect().height)) + 'px';
-        if (desc) desc.style.minHeight = Math.max(mobile ? 170 : 155, Math.ceil(desc.getBoundingClientRect().height)) + 'px';
-        if (licenses) licenses.style.minHeight = Math.max(54, Math.ceil(licenses.getBoundingClientRect().height)) + 'px';
-    }
+        const measuredContent = Math.ceil(vipEls.content.getBoundingClientRect().height);
+        vipEls.content.style.minHeight = `${Math.max(contentMin, measuredContent || 0)}px`;
+        if (vipEls.title) vipEls.title.style.minHeight = `${Math.max(92, Math.ceil(vipEls.title.getBoundingClientRect().height) || 0)}px`;
+        if (vipEls.quote) vipEls.quote.style.minHeight = `${Math.max(mobile ? 78 : 66, Math.ceil(vipEls.quote.getBoundingClientRect().height) || 0)}px`;
+        if (vipEls.desc) vipEls.desc.style.minHeight = `${Math.max(mobile ? 150 : 128, Math.ceil(vipEls.desc.getBoundingClientRect().height) || 0)}px`;
+        if (vipEls.licenses) vipEls.licenses.style.minHeight = `${Math.max(48, Math.ceil(vipEls.licenses.getBoundingClientRect().height) || 0)}px`;
+    };
 
-    async function setVipImageSmooth(nextUrl) {
-        const baseImg = document.getElementById('vip-img-display');
-        if (!baseImg || !nextUrl) return;
+    const setVipImageSmooth = async (nextUrl) => {
+        if (!vipEls.image || !vipEls.photoWrapper || !nextUrl) return;
+        const normalizedNext = normalizeVipUrl(nextUrl);
+        const current = normalizeVipUrl(vipEls.image.dataset.currentVipSrc || vipEls.image.currentSrc || vipEls.image.src);
+        if (!normalizedNext || normalizedNext === current) return;
 
-        const normalizedNextUrl = normalizeVipUrl(nextUrl);
-        const currentUrl = normalizeVipUrl(baseImg.dataset.currentVipSrc || baseImg.currentSrc || baseImg.src);
-        if (currentUrl === normalizedNextUrl) return;
+        await preloadVipImage(normalizedNext);
 
-        await preloadVipImage(normalizedNextUrl);
-
-        const wrapper = baseImg.closest('.vip-photo-wrapper');
-        if (!wrapper) {
-            baseImg.src = normalizedNextUrl;
-            baseImg.dataset.currentVipSrc = normalizedNextUrl;
-            return;
-        }
-
-        wrapper.querySelectorAll('.vip-img-crossfade-layer').forEach(layer => layer.remove());
+        vipEls.photoWrapper.querySelectorAll('.vip-crossfade-layer').forEach(layer => layer.remove());
 
         const layer = new Image();
-        layer.className = 'vip-img-crossfade-layer';
-        layer.alt = baseImg.alt || '';
+        layer.className = 'vip-crossfade-layer';
+        layer.alt = vipEls.image.alt || '';
         layer.decoding = 'async';
-        layer.src = normalizedNextUrl;
-        wrapper.appendChild(layer);
+        layer.src = normalizedNext;
+        vipEls.photoWrapper.appendChild(layer);
 
-        await waitFrame();
+        await nextFrame();
         layer.classList.add('is-active');
 
-        window.clearTimeout(baseImg._vipSwapTimer);
-        baseImg._vipSwapTimer = window.setTimeout(() => {
-            baseImg.src = normalizedNextUrl;
-            baseImg.dataset.currentVipSrc = normalizedNextUrl;
+        clearTimeout(vipEls.image._vipSwapTimer);
+        vipEls.image._vipSwapTimer = setTimeout(() => {
+            vipEls.image.src = normalizedNext;
+            vipEls.image.dataset.currentVipSrc = normalizedNext;
             layer.remove();
         }, 520);
-    }
+    };
 
-    async function showFounderVip() {
-        const token = ++vipSwitchToken;
-        setVipTabState('founder');
+    const showFounderVip = async () => {
+        if (currentVipMode === 'founder') return;
+        currentVipMode = 'founder';
+        const switchId = ++vipSwitchId;
+        const founder = getFounderData();
+
+        setVipTabsState('founder');
         setVipTextHidden(true);
-        await waitFrame();
-        if (token !== vipSwitchToken) return;
+        await nextFrame();
+        if (switchId !== vipSwitchId) return;
 
-        const lang = localStorage.getItem('usm_lang') || 'fr';
-        const title = document.getElementById('vip-title-display');
-        const quote = document.getElementById('vip-quote-display');
-        const desc = document.getElementById('vip-desc-display');
-        if (title) title.innerHTML = 'Christophe<br><span>Mongai</span>';
-        if (quote) quote.textContent = translations[lang].vip_quote || '...';
-        if (desc) desc.textContent = translations[lang].vip_desc || '';
+        if (vipEls.title) vipEls.title.innerHTML = founder.titleHTML;
+        if (vipEls.quote) vipEls.quote.textContent = founder.quote || '';
+        if (vipEls.desc) vipEls.desc.textContent = founder.desc || '';
         setVipLicensesVisible(true);
+        if (founder.image) await setVipImageSmooth(founder.image);
 
-        const founderUrl = getFounderImageUrl();
-        if (founderUrl) await setVipImageSmooth(founderUrl);
-        if (token !== vipSwitchToken) return;
-
+        if (switchId !== vipSwitchId) return;
         lockVipLayout();
         setVipTextHidden(false);
-    }
+    };
 
-    async function showAgencyVip() {
-        const token = ++vipSwitchToken;
-        setVipTabState('agency');
+    const showAgencyVip = async () => {
+        if (currentVipMode === 'agency') return;
+        currentVipMode = 'agency';
+        const switchId = ++vipSwitchId;
+
+        setVipTabsState('agency');
         setVipTextHidden(true);
-        await waitFrame();
-        if (token !== vipSwitchToken) return;
+        await nextFrame();
+        if (switchId !== vipSwitchId) return;
 
-        const title = document.getElementById('vip-title-display');
-        const quote = document.getElementById('vip-quote-display');
-        const desc = document.getElementById('vip-desc-display');
-        if (title) title.innerHTML = 'L\\'Agence<br><span>USM Football</span>';
-        if (quote) quote.textContent = '';
-        if (desc) desc.textContent = '';
+        if (vipEls.title) vipEls.title.innerHTML = "L'Agence<br><span>USM Football</span>";
+        if (vipEls.quote) vipEls.quote.textContent = '';
+        if (vipEls.desc) vipEls.desc.textContent = '';
         setVipLicensesVisible(false);
         lockVipLayout();
 
-        const agencyData = await getAgencyDataPrepared();
-        if (token !== vipSwitchToken) return;
+        const agency = await getAgencyData();
+        if (switchId !== vipSwitchId) return;
 
-        const lang = localStorage.getItem('usm_lang') || 'fr';
-        if (agencyData && !agencyData.empty) {
-            if (quote) quote.textContent = agencyData['quote_' + lang] || '';
-            if (desc) desc.textContent = agencyData['desc_' + lang] || '';
-            if (agencyData.image) await setVipImageSmooth(agencyData.image);
+        const lang = getVipLang();
+        if (agency && !agency.empty) {
+            if (vipEls.quote) vipEls.quote.textContent = agency[`quote_${lang}`] || '';
+            if (vipEls.desc) vipEls.desc.textContent = agency[`desc_${lang}`] || '';
+            if (agency.image) await setVipImageSmooth(agency.image);
         } else {
-            if (desc) desc.textContent = 'Informations de l\\'agence à venir.';
-            if (quote) quote.textContent = '';
+            if (vipEls.desc) vipEls.desc.textContent = "Informations de l'agence à venir.";
         }
 
-        if (token !== vipSwitchToken) return;
+        if (switchId !== vipSwitchId) return;
         lockVipLayout();
         setVipTextHidden(false);
-    }
+    };
 
-    function setupVipPrewarm() {
-        if (tabAgency) ['pointerenter', 'mouseenter', 'mouseover', 'focus', 'touchstart'].forEach(eventName => {
-            tabAgency.addEventListener(eventName, warmAgencyAssets, { passive: true });
+    const warmFounderAssets = () => {
+        const image = getFounderData().image;
+        if (image) preloadVipImage(image);
+    };
+
+    const warmAgencyAssets = () => {
+        getAgencyData();
+    };
+
+    if (vipTabs.founder && vipTabs.agency && vipEls.section) {
+        setVipTabsState('founder');
+        setVipLicensesVisible(true);
+        lockVipLayout();
+
+        vipTabs.founder.addEventListener('click', showFounderVip);
+        vipTabs.agency.addEventListener('click', showAgencyVip);
+
+        ['pointerenter', 'mouseenter', 'focus', 'touchstart'].forEach(eventName => {
+            vipTabs.founder.addEventListener(eventName, warmFounderAssets, { passive: true });
+            vipTabs.agency.addEventListener(eventName, warmAgencyAssets, { passive: true });
         });
-        if (tabFounder) ['pointerenter', 'mouseenter', 'mouseover', 'focus', 'touchstart'].forEach(eventName => {
-            tabFounder.addEventListener(eventName, warmFounderAssets, { passive: true });
-        });
-        const idle = window.requestIdleCallback || ((callback) => setTimeout(callback, 300));
+
+        const idle = window.requestIdleCallback || ((callback) => setTimeout(callback, 350));
         idle(() => {
             warmFounderAssets();
             warmAgencyAssets();
             lockVipLayout();
         });
-    }
-
-    if (tabFounder && tabAgency) {
-        lockVipLayout();
-        setupVipPrewarm();
         window.addEventListener('resize', lockVipLayout);
-
-        tabFounder.addEventListener('click', () => {
-            if (tabFounder.classList.contains('active')) return;
-            showFounderVip();
-        });
-
-        tabAgency.addEventListener('click', () => {
-            if (tabAgency.classList.contains('active')) return;
-            showAgencyVip();
-        });
     }
 
     const updateContent = (lang) => {
@@ -566,6 +557,7 @@ function setupDynamicImageReveal() {
         await loadSocialLinks();
         await loadServices(); 
         await loadPlayers('gardien'); 
+        ['defenseur', 'milieu', 'attaquant', 'feminine', 'coach'].forEach(cat => setTimeout(() => warmRosterCategory(cat), 400));
         await loadSingleServicePage(); 
     };
     startApp();
@@ -583,6 +575,7 @@ function loadSmoothImage(selector, url, finalOpacity = '1') {
             LoadingUI.imageLoaded(img);
         };
         img.src = url;
+        if (selector === '.vip-photo-wrapper img' || img.id === 'vip-img-display') img.dataset.currentVipSrc = url;
         if (img.complete) {
             img.style.opacity = finalOpacity;
             LoadingUI.imageLoaded(img);
@@ -808,6 +801,99 @@ async function loadSingleServicePage() {
     } catch(e) { console.error("Erreur Service: ", e); }
 }
 /* ================= 8. CHARGEMENT OPTIMISÉ DU ROSTER ================= */
+
+const rosterImageCache = new Map();
+
+function preloadRosterImage(url, timeout = 4500) {
+    if (!url) return Promise.resolve(false);
+    if (rosterImageCache.has(url)) return rosterImageCache.get(url);
+
+    const promise = new Promise((resolve) => {
+        const img = new Image();
+        let done = false;
+        const finish = (ok) => {
+            if (done) return;
+            done = true;
+            resolve(ok);
+        };
+        img.decoding = 'async';
+        img.onload = async () => {
+            try { if (img.decode) await img.decode(); } catch (e) {}
+            finish(true);
+        };
+        img.onerror = () => finish(false);
+        setTimeout(() => finish(false), timeout);
+        img.src = url;
+    });
+
+    rosterImageCache.set(url, promise);
+    return promise;
+}
+
+async function preloadRosterImages(players, limit = 10, timeout = 1200) {
+    const urls = (players || []).slice(0, limit).map(player => player.image_url).filter(Boolean);
+    if (!urls.length) return;
+    await Promise.race([
+        Promise.all(urls.map(url => preloadRosterImage(url))),
+        new Promise(resolve => setTimeout(resolve, timeout))
+    ]);
+}
+
+function rosterHue(seed = 'USM') {
+    let hash = 0;
+    for (const char of seed) hash = ((hash << 5) - hash) + char.charCodeAt(0);
+    return Math.abs(hash) % 360;
+}
+
+function escapeHTML(value = '') {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function prepareRosterImages(scope = document) {
+    scope.querySelectorAll('.player-img-container img').forEach((img) => {
+        if (img.dataset.rosterPrepared === 'true') return;
+        img.dataset.rosterPrepared = 'true';
+        const reveal = () => {
+            img.classList.add('roster-img-ready');
+            img.closest('.player-img-container')?.classList.add('roster-holder-ready');
+        };
+        if (img.complete && img.naturalWidth > 0) reveal();
+        else {
+            img.addEventListener('load', reveal, { once: true });
+            img.addEventListener('error', reveal, { once: true });
+            preloadRosterImage(img.currentSrc || img.src).then(reveal);
+        }
+    });
+}
+
+function getPlayerPlaceholderStyle(player) {
+    const hue = rosterHue(player.name || player.image_url || 'USM');
+    return `--roster-hue:${hue};`;
+}
+
+async function warmRosterCategory(category) {
+    if (!category) return;
+    let players = Cache.get(`players_${category}`);
+    if (!players) {
+        try {
+            const q = query(collection(db, "players"), where("category", "==", category));
+            const snap = await getDocs(q);
+            players = [];
+            snap.forEach(docSnap => players.push(docSnap.data()));
+            players.sort((a, b) => (a.order || 999) - (b.order || 999));
+            Cache.set(`players_${category}`, players);
+        } catch (e) {
+            return;
+        }
+    }
+    preloadRosterImages(players, 14, 1600);
+}
+
 let allPlayersData = []; 
 let currentFrontCat = 'gardien'; 
 let currentFrontSearch = '';
@@ -819,26 +905,30 @@ async function loadPlayers(category = 'gardien') {
     
     currentFrontCat = category;
     let players = Cache.get(`players_${category}`);
+    const previousHeight = Math.ceil(container.getBoundingClientRect().height);
+    if (previousHeight > 80) container.style.minHeight = `${previousHeight}px`;
+    container.classList.add('roster-is-preparing');
     
     if(!players) {
         try {
-            const { query, collection, getDocs, where } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
             const q = query(collection(db, "players"), where("category", "==", category));
-            
             const querySnapshot = await getDocs(q); 
             players = [];
             querySnapshot.forEach((docSnap) => players.push(docSnap.data())); 
             players.sort((a, b) => (a.order || 999) - (b.order || 999));
-            
             Cache.set(`players_${category}`, players);
         } catch (error) { 
             container.innerHTML = '<p style="color:red; text-align:center;">Erreur base de données.</p>'; 
+            container.classList.remove('roster-is-preparing');
             return;
         }
     }
     
+    await preloadRosterImages(players, 10, 1400);
     allPlayersData = players;
-    renderCategorySlider(); 
+    renderCategorySlider();
+    container.classList.remove('roster-is-preparing');
+    setTimeout(() => { container.style.minHeight = ''; }, 450);
 }
 
 function renderCategorySlider() {
@@ -857,10 +947,16 @@ function renderCategorySlider() {
     let sliderHTML = `<div class="category-block reveal visible"><div class="category-header"><h3 class="category-title" style="color: #fff; text-transform:none;">${currentFrontSearch.length > 0 ? `Résultats pour "${currentFrontSearch}"` : `✦ <span style="color:var(--usm-pink)">${filteredPlayers.length}</span> Profils`}</h3><div class="slider-controls"><button class="slider-btn prev-btn">❮</button><button class="slider-btn next-btn">❯</button></div></div><div class="slider-container"><div class="horizontal-scroller" id="active-scroller">`;
     
     filteredPlayers.forEach(player => { 
-        sliderHTML += `<div class="player-card"><div class="player-img-container"><img src="${player.image_url}" alt="${player.name}" loading="lazy"></div><div class="player-info"><div><h3>${player.name}</h3>${currentFrontSearch.length > 0 ? `<p style="color:#888; font-size:0.75rem; text-transform:uppercase; margin-top:2px;">${player.category}</p>` : ''}${player.transfermarkt ? `<a href="${player.transfermarkt}" target="_blank" style="color:var(--usm-pink); font-size:0.8rem; text-decoration:none; display:inline-block; margin-top:5px;">🔗 Transfermarkt</a>` : ''}</div></div><div style="padding: 0 15px 15px;"><div class="player-stat">${player.stat || ''}</div></div></div>`; 
+        const playerName = escapeHTML(player.name || '');
+        const playerCategory = escapeHTML(player.category || '');
+        const playerStat = escapeHTML(player.stat || '');
+        const playerImage = escapeHTML(player.image_url || '');
+        const playerTransfermarkt = escapeHTML(player.transfermarkt || '');
+        sliderHTML += `<div class="player-card"><div class="player-img-container roster-gradient-holder" style="${getPlayerPlaceholderStyle(player)}"><img src="${playerImage}" alt="${playerName}" decoding="async" loading="eager"></div><div class="player-info"><div><h3>${playerName}</h3>${currentFrontSearch.length > 0 ? `<p style="color:#888; font-size:0.75rem; text-transform:uppercase; margin-top:2px;">${playerCategory}</p>` : ''}${playerTransfermarkt ? `<a href="${playerTransfermarkt}" target="_blank" rel="noopener" style="color:var(--usm-pink); font-size:0.8rem; text-decoration:none; display:inline-block; margin-top:5px;">🔗 Transfermarkt</a>` : ''}</div></div><div style="padding: 0 15px 15px;"><div class="player-stat">${playerStat}</div></div></div>`; 
     });
     
     container.innerHTML = sliderHTML + `</div></div></div>`;
+    prepareRosterImages(container);
     
     const scroller = document.getElementById('active-scroller');
     const prevBtn = document.querySelector('.prev-btn');
@@ -872,6 +968,9 @@ function renderCategorySlider() {
 
 function setupTabs() { 
     document.querySelectorAll('.filter-btn').forEach(tab => { 
+        ['pointerenter', 'mouseenter', 'focus', 'touchstart'].forEach(eventName => {
+            tab.addEventListener(eventName, () => warmRosterCategory(tab.getAttribute('data-tab')), { passive: true });
+        });
         tab.addEventListener('click', (e) => { 
             const fSearch = document.getElementById('front-search');
             if(fSearch) fSearch.value = ''; 
@@ -909,6 +1008,7 @@ if(searchInput) {
                 }
                 
                 allPlayersData = all; 
+                await preloadRosterImages(allPlayersData, 12, 1200);
                 renderCategorySlider(); 
                 
             } else if (currentFrontSearch.length === 0) {
@@ -1267,23 +1367,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     marqueeObserver.observe(marqueeSection);
 });
-
-// ================= SWITCH D'ANIMATION BOUTONS VIP =================
-const btnFounder = document.getElementById('tab-founder');
-const btnAgency = document.getElementById('tab-agency');
-
-if (btnFounder && btnAgency) {
-    btnFounder.addEventListener('click', () => {
-        btnFounder.classList.add('active');    // Coupe la lumière sur Fondateur
-        btnAgency.classList.remove('active');  // Allume la lumière sur Agence
-    });
-
-    btnAgency.addEventListener('click', () => {
-        btnAgency.classList.add('active');     // Coupe la lumière sur Agence
-        btnFounder.classList.remove('active'); // Allume la lumière sur Fondateur
-    });
-}
-
 
 // Public loading safety flag
 document.addEventListener('DOMContentLoaded', () => document.body.classList.add('dom-ready'));

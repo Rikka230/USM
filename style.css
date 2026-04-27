@@ -1659,9 +1659,9 @@ html, body {
     min-height: 320px;
 }
 
-/* ================= HARD FIX VIP FONDATEUR / AGENCE ================= */
+/* ================= FINAL SMOOTH FIX - VIP + ROSTER ================= */
 .founder-vip-section {
-    min-height: clamp(640px, 45vw, 760px);
+    min-height: clamp(620px, 44vw, 720px);
     align-items: stretch;
     contain: paint;
 }
@@ -1681,12 +1681,11 @@ html, body {
 
 #vip-img-display {
     opacity: 1 !important;
-    transition: none !important;
     position: relative;
     z-index: 0;
 }
 
-.vip-img-crossfade-layer {
+.vip-crossfade-layer {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -1701,7 +1700,7 @@ html, body {
     will-change: opacity;
 }
 
-.vip-img-crossfade-layer.is-active {
+.vip-crossfade-layer.is-active {
     opacity: 1;
 }
 
@@ -1711,7 +1710,7 @@ html, body {
 }
 
 .vip-content {
-    min-height: 580px;
+    min-height: 560px;
     justify-content: center;
 }
 
@@ -1719,24 +1718,24 @@ html, body {
 #vip-quote-display,
 #vip-desc-display,
 #vip-licenses-display {
-    transition: opacity 0.24s ease, transform 0.24s ease;
+    transition: opacity 0.22s ease, transform 0.22s ease;
 }
 
-.vip-content-switching {
+.vip-panel-switching {
     opacity: 0 !important;
-    transform: translateY(8px);
+    transform: translateY(6px);
 }
 
-#vip-title-display { min-height: 96px; }
-#vip-quote-display { min-height: 76px; }
-#vip-desc-display { min-height: 155px; }
+#vip-title-display { min-height: 92px; }
+#vip-quote-display { min-height: 66px; }
+#vip-desc-display { min-height: 128px; }
 
 #vip-licenses-display {
     display: flex !important;
-    min-height: 54px;
+    min-height: 48px;
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.24s ease, visibility 0.24s ease;
+    transition: opacity 0.22s ease, visibility 0.22s ease;
 }
 
 #vip-licenses-display.vip-licenses-hidden,
@@ -1744,6 +1743,80 @@ html, body {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
+}
+
+#roster-categories-container {
+    transition: min-height 0.35s ease;
+}
+
+#roster-categories-container.roster-is-preparing {
+    pointer-events: none;
+}
+
+.player-img-container {
+    position: relative;
+    background:
+        radial-gradient(circle at 30% 18%, hsla(var(--roster-hue, 330), 76%, 45%, 0.42), transparent 38%),
+        radial-gradient(circle at 75% 82%, rgba(216, 0, 86, 0.22), transparent 44%),
+        linear-gradient(135deg, #17171f 0%, #08080c 72%);
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.player-img-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(110deg, rgba(255,255,255,0.03), rgba(255,255,255,0.11), rgba(255,255,255,0.03));
+    transform: translateX(-120%);
+    animation: rosterSoftSweep 1.55s ease-in-out infinite;
+    opacity: 0.7;
+}
+
+.player-img-container::after {
+    content: '';
+    position: absolute;
+    inset: -8%;
+    z-index: 0;
+    background:
+        radial-gradient(circle at 42% 26%, hsla(var(--roster-hue, 330), 72%, 48%, 0.33), transparent 42%),
+        linear-gradient(160deg, rgba(255,255,255,0.08), transparent 62%);
+    filter: blur(18px) saturate(1.2);
+    opacity: 0.8;
+}
+
+.player-img-container.roster-holder-ready::before {
+    opacity: 0;
+    animation-play-state: paused;
+}
+
+.player-img-container img {
+    position: relative;
+    z-index: 1;
+    opacity: 0;
+    transform: scale(1.018);
+    transition: opacity 0.3s ease, transform 0.48s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: opacity, transform;
+}
+
+.player-img-container img.roster-img-ready,
+.player-img-container img.is-loaded,
+.player-img-container img.loaded {
+    opacity: 0.86 !important;
+    transform: scale(1);
+}
+
+.player-card:hover .player-img-container img.roster-img-ready,
+.player-card:hover .player-img-container img.is-loaded,
+.player-card:hover .player-img-container img.loaded {
+    opacity: 1 !important;
+    transform: scale(1.05);
+}
+
+@keyframes rosterSoftSweep {
+    0% { transform: translateX(-120%); }
+    100% { transform: translateX(120%); }
 }
 
 @media (max-width: 768px) {
@@ -1757,11 +1830,11 @@ html, body {
     }
 
     .vip-content {
-        min-height: 520px;
+        min-height: 500px;
         padding: 42px 28px;
     }
 
-    #vip-title-display { min-height: 96px; }
-    #vip-quote-display { min-height: 84px; }
-    #vip-desc-display { min-height: 170px; }
+    #vip-title-display { min-height: 92px; }
+    #vip-quote-display { min-height: 78px; }
+    #vip-desc-display { min-height: 150px; }
 }
