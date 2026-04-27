@@ -1659,77 +1659,9 @@ html, body {
     min-height: 320px;
 }
 
-
-/* ================= STABILITÉ BLOC FONDATEUR / AGENCE ================= */
+/* ================= HARD FIX VIP FONDATEUR / AGENCE ================= */
 .founder-vip-section {
-    min-height: 560px;
-    contain: layout paint;
-}
-
-.vip-content {
-    min-height: 500px;
-}
-
-#vip-desc-display {
-    min-height: 105px;
-}
-
-#vip-licenses-display {
-    min-height: 44px;
-    transition: opacity 0.25s ease, visibility 0.25s ease;
-}
-
-#vip-licenses-display[style*="display: none"] {
-    display: flex !important;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-}
-
-@media (max-width: 768px) {
-    .founder-vip-section {
-        min-height: auto;
-        contain: paint;
-    }
-
-    .vip-content {
-        min-height: 460px;
-    }
-
-    #vip-desc-display {
-        min-height: 150px;
-    }
-}
-
-
-/* ================= IMAGE REVEAL CONTROLLED ================= */
-#vip-img-display {
-    transition: opacity 0.42s ease, filter 0.42s ease, transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-#vip-img-display.vip-image-switching {
-    opacity: 0.18;
-    filter: blur(6px) brightness(0.82);
-    transform: scale(1.012);
-}
-
-.soft-load-img {
-    opacity: 0;
-    filter: blur(6px);
-    transform: scale(1.015);
-    transition: opacity 0.42s ease, filter 0.42s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.soft-load-img.is-loaded {
-    opacity: 1;
-    filter: blur(0);
-    transform: scale(1);
-}
-
-
-/* ================= STABILITÉ VIP FONDATEUR / AGENCE V2 ================= */
-.founder-vip-section {
-    min-height: clamp(620px, 44vw, 720px);
+    min-height: clamp(640px, 45vw, 760px);
     align-items: stretch;
     contain: paint;
 }
@@ -1765,7 +1697,7 @@ html, body {
     opacity: 0;
     z-index: 1;
     pointer-events: none;
-    transition: opacity 0.42s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: opacity 0.52s cubic-bezier(0.25, 1, 0.5, 1);
     will-change: opacity;
 }
 
@@ -1779,7 +1711,7 @@ html, body {
 }
 
 .vip-content {
-    min-height: 560px;
+    min-height: 580px;
     justify-content: center;
 }
 
@@ -1787,19 +1719,24 @@ html, body {
 #vip-quote-display,
 #vip-desc-display,
 #vip-licenses-display {
-    transition: opacity 0.28s ease, transform 0.28s ease;
+    transition: opacity 0.24s ease, transform 0.24s ease;
 }
 
-#vip-desc-display {
-    min-height: 150px;
+.vip-content-switching {
+    opacity: 0 !important;
+    transform: translateY(8px);
 }
+
+#vip-title-display { min-height: 96px; }
+#vip-quote-display { min-height: 76px; }
+#vip-desc-display { min-height: 155px; }
 
 #vip-licenses-display {
     display: flex !important;
-    min-height: 52px;
+    min-height: 54px;
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.25s ease, visibility 0.25s ease;
+    transition: opacity 0.24s ease, visibility 0.24s ease;
 }
 
 #vip-licenses-display.vip-licenses-hidden,
@@ -1820,17 +1757,11 @@ html, body {
     }
 
     .vip-content {
-        min-height: 470px;
+        min-height: 520px;
         padding: 42px 28px;
     }
 
-    #vip-desc-display {
-        min-height: 150px;
-    }
-}
-
-
-.vip-content-switching {
-    opacity: 0 !important;
-    transform: translateY(8px);
+    #vip-title-display { min-height: 96px; }
+    #vip-quote-display { min-height: 84px; }
+    #vip-desc-display { min-height: 170px; }
 }
