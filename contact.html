@@ -15,7 +15,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="Assets/favicon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="Assets/favicon-16.png">
     <link rel="apple-touch-icon" href="Assets/apple-touch-icon.png">
-    <link rel="stylesheet" href="style.css?v=contact-phone-1">
+    <link rel="stylesheet" href="style.css?v=contact-brevo-1">
 </head>
 <body>
     <aside class="sticky-social-bar">
@@ -88,7 +88,7 @@
 
             <div class="bento-card reveal contact-form-box">
                 <h2 data-i18n="contact_form_title">Envoyer un message</h2>
-                <form class="public-form">
+                <form class="public-form" id="contact-form" data-endpoint="/api/sendContactEmail">
                     <input type="text" name="name" autocomplete="name" data-i18n-placeholder="contact_ph_name" placeholder="Votre nom complet" required>
                     <input type="email" name="email" autocomplete="email" data-i18n-placeholder="contact_ph_email" placeholder="Votre adresse email" required>
                     <input type="tel" name="phone" autocomplete="tel" data-i18n-placeholder="contact_ph_phone" placeholder="Votre numéro de téléphone" required>
@@ -179,7 +179,7 @@
     </nav>
     </footer>
 
-    <script type="module" src="main.js?v=contact-phone-1"></script>
-    <script src="contact-mailto.js?v=contact-phone-1"></script>
+    <script type="module" src="main.js?v=contact-brevo-1"></script>
+    <script src="contact-brevo.js?v=contact-brevo-1"></script>
 </body>
 </html>

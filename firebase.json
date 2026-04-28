@@ -6,7 +6,8 @@
       ".firebaserc",
       "**/.*",
       "**/node_modules/**",
-      "docs/**"
+      "docs/**",
+      "functions/**"
     ],
     "cleanUrls": false,
     "trailingSlash": false,
@@ -48,6 +49,13 @@
       }
     ],
     "rewrites": [
+      {
+        "source": "/api/sendContactEmail",
+        "function": {
+          "functionId": "sendContactEmail",
+          "region": "europe-west1"
+        }
+      },
       {
         "source": "/favicon.ico",
         "destination": "/Assets/favicon.png"
@@ -216,6 +224,17 @@
           }
         ]
       }
+    ]
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs20",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      "*.local"
     ]
   }
 }
