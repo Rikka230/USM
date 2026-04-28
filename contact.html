@@ -15,7 +15,11 @@
     <link rel="icon" type="image/png" sizes="32x32" href="Assets/favicon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="Assets/favicon-16.png">
     <link rel="apple-touch-icon" href="Assets/apple-touch-icon.png">
+<<<<<<< HEAD
     <link rel="stylesheet" href="style.css?v=contact-mailto-1">
+=======
+    <link rel="stylesheet" href="style.css?v=contact-phone-1">
+>>>>>>> e7b446390739bdd826da2cce0dd1949c529deaa9
 </head>
 <body>
     <aside class="sticky-social-bar">
@@ -89,14 +93,17 @@
             <div class="bento-card reveal contact-form-box">
                 <h2 data-i18n="contact_form_title">Envoyer un message</h2>
                 <form class="public-form">
-                    <input type="text" data-i18n-placeholder="contact_ph_name" placeholder="Votre nom complet" required>
-                    <input type="email" data-i18n-placeholder="contact_ph_email" placeholder="Votre adresse email" required>
-                    <select required>
+                    <input type="text" name="name" autocomplete="name" data-i18n-placeholder="contact_ph_name" placeholder="Votre nom complet" required>
+                    <input type="email" name="email" autocomplete="email" data-i18n-placeholder="contact_ph_email" placeholder="Votre adresse email" required>
+                    <input type="tel" name="phone" autocomplete="tel" data-i18n-placeholder="contact_ph_phone" placeholder="Votre numéro de téléphone" required>
+                    <select name="profile" required>
                         <option value="joueur" data-i18n="contact_opt_player">Je suis un joueur</option>
                         <option value="club" data-i18n="contact_opt_club">Je représente un club</option>
+                        <option value="coach" data-i18n="contact_opt_coach">Je suis coach</option>
+                        <option value="staff" data-i18n="contact_opt_staff">Je suis membre du staff</option>
                         <option value="autre" data-i18n="contact_opt_other">Autre demande</option>
                     </select>
-                    <textarea rows="5" data-i18n-placeholder="contact_ph_msg" placeholder="Votre message..." required></textarea>
+                    <textarea name="message" rows="5" data-i18n-placeholder="contact_ph_msg" placeholder="Votre message..." required></textarea>
                     <button type="submit" class="btn-premium" data-i18n="contact_btn_send" style="width: 100%; padding: 15px; font-size: 1.1rem; border-radius: 8px;">Envoyer le message</button>
                 </form>
             </div>
@@ -176,7 +183,12 @@
     </nav>
     </footer>
 
+<<<<<<< HEAD
     <script type="module" src="main.js?v=contact-mailto-1"></script>
     <script src="contact-mailto.js?v=contact-mailto-1"></script>
+=======
+    <script type="module" src="main.js?v=contact-phone-1"></script>
+    <script src="contact-mailto.js?v=contact-phone-1"></script>
+>>>>>>> e7b446390739bdd826da2cce0dd1949c529deaa9
 </body>
 </html>

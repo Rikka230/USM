@@ -8,6 +8,8 @@ function getValue(form, selector) {
 function requestLabel(value) {
   if (value === "joueur") return "Je suis un joueur";
   if (value === "club") return "Je représente un club";
+  if (value === "coach") return "Je suis coach";
+  if (value === "staff") return "Je suis membre du staff";
   if (value === "autre") return "Autre demande";
   return value || "Non précisé";
 }
@@ -39,13 +41,14 @@ function initContactMailFallback() {
   form.addEventListener("submit", function (event) {
     event.preventDefault();
 
-    const name = getValue(form, 'input[type="text"]');
-    const email = getValue(form, 'input[type="email"]');
-    const type = getValue(form, "select");
-    const message = getValue(form, "textarea");
+    const name = getValue(form, 'input[name="name"], input[type="text"]');
+    const email = getValue(form, 'input[name="email"], input[type="email"]');
+    const phone = getValue(form, 'input[name="phone"], input[type="tel"]');
+    const type = getValue(form, 'select[name="profile"], select');
+    const message = getValue(form, 'textarea[name="message"], textarea');
 
-    if (!name || !email || !message) {
-      createNotice(form, "Merci de remplir votre nom, votre email et votre message avant l’envoi.", true);
+    if (!name || !email || !phone || !message) {
+      createNotice(form, "Merci de remplir votre nom, votre email, votre téléphone et votre message avant l’envoi.", true);
       return;
     }
 
@@ -57,6 +60,7 @@ function initContactMailFallback() {
       "",
       "Nom : " + name,
       "Email : " + email,
+      "Téléphone : " + phone,
       "Profil : " + requestLabel(type),
       "",
       "Message :",

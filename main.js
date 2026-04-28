@@ -118,8 +118,8 @@ const translations = {
         contact_phone: "Téléphone", contact_phone_val: "+33 492 90 90 25",
         contact_email: "Email", contact_email_val: "contact@usmfootball.com",
         contact_form_title: "Envoyer un message",
-        contact_ph_name: "Votre nom complet", contact_ph_email: "Votre adresse email",
-        contact_opt_player: "Je suis un joueur", contact_opt_club: "Je représente un club", contact_opt_other: "Autre demande",
+        contact_ph_name: "Votre nom complet", contact_ph_email: "Votre adresse email", contact_ph_phone: "Votre numéro de téléphone",
+        contact_opt_player: "Je suis un joueur", contact_opt_club: "Je représente un club", contact_opt_coach: "Je suis coach", contact_opt_staff: "Je suis membre du staff", contact_opt_other: "Autre demande",
         contact_ph_msg: "Votre message...", contact_btn_send: "Envoyer le message",
         back_services: "❮ Retour à l'accueil", other_services: "Naviguer"
     },
@@ -139,8 +139,8 @@ const translations = {
         contact_phone: "Phone", contact_phone_val: "+33 492 90 90 25",
         contact_email: "Email", contact_email_val: "contact@usmfootball.com",
         contact_form_title: "Send a message",
-        contact_ph_name: "Your full name", contact_ph_email: "Your email address",
-        contact_opt_player: "I am a player", contact_opt_club: "I represent a club", contact_opt_other: "Other request",
+        contact_ph_name: "Your full name", contact_ph_email: "Your email address", contact_ph_phone: "Your phone number",
+        contact_opt_player: "I am a player", contact_opt_club: "I represent a club", contact_opt_coach: "I am a coach", contact_opt_staff: "I am a staff member", contact_opt_other: "Other request",
         contact_ph_msg: "Your message...", contact_btn_send: "Send message",
         back_services: "❮ Back to Home", other_services: "Navigate"
     },
@@ -160,8 +160,8 @@ const translations = {
         contact_phone: "Teléfono", contact_phone_val: "+33 492 90 90 25",
         contact_email: "Email", contact_email_val: "contact@usmfootball.com",
         contact_form_title: "Enviar un mensaje",
-        contact_ph_name: "Tu nombre completo", contact_ph_email: "Tu correo electrónico",
-        contact_opt_player: "Soy jugador", contact_opt_club: "Represento a un club", contact_opt_other: "Otra consulta",
+        contact_ph_name: "Tu nombre completo", contact_ph_email: "Tu correo electrónico", contact_ph_phone: "Tu número de teléfono",
+        contact_opt_player: "Soy jugador", contact_opt_club: "Represento a un club", contact_opt_coach: "Soy entrenador", contact_opt_staff: "Soy miembro del staff", contact_opt_other: "Otra consulta",
         contact_ph_msg: "Tu mensaje...", contact_btn_send: "Enviar mensaje",
         back_services: "❮ Volver al inicio", other_services: "Navegar"
     },
@@ -181,8 +181,8 @@ const translations = {
         contact_phone: "Telefone", contact_phone_val: "+33 492 90 90 25",
         contact_email: "Email", contact_email_val: "contact@usmfootball.com",
         contact_form_title: "Enviar uma mensagem",
-        contact_ph_name: "Seu nome completo", contact_ph_email: "Seu endereço de email",
-        contact_opt_player: "Sou jogador", contact_opt_club: "Represento um clube", contact_opt_other: "Outro pedido",
+        contact_ph_name: "Seu nome completo", contact_ph_email: "Seu endereço de email", contact_ph_phone: "Seu número de telefone",
+        contact_opt_player: "Sou jogador", contact_opt_club: "Represento um clube", contact_opt_coach: "Sou treinador", contact_opt_staff: "Sou membro da equipa", contact_opt_other: "Outro pedido",
         contact_ph_msg: "Sua mensagem...", contact_btn_send: "Enviar mensagem",
         back_services: "❮ Voltar ao Início", other_services: "Navegar"
     }
