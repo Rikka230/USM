@@ -1911,3 +1911,121 @@ html, body {
         margin-bottom: var(--front-section-gap) !important;
     }
 }
+/* ==========================================================================
+   HOTFIX URGENT - VIP text overflow + service cards top alignment
+   Date: 2026-04-28
+   ========================================================================== */
+
+/* Le script public force parfois une hauteur fixe inline sur certains écrans.
+   Ces règles reprennent la main pour laisser le bloc respirer. */
+.founder-vip-section {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    align-items: stretch !important;
+}
+
+.founder-vip-section .vip-content {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    justify-content: flex-start !important;
+    overflow: visible !important;
+    padding: clamp(34px, 4vw, 60px) !important;
+}
+
+.founder-vip-section .vip-photo-wrapper {
+    height: auto !important;
+    min-height: clamp(520px, 42vw, 680px) !important;
+    max-height: none !important;
+    align-self: stretch !important;
+}
+
+.founder-vip-section .vip-tabs {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    margin-bottom: clamp(14px, 2vw, 22px) !important;
+}
+
+.founder-vip-section .vip-name {
+    font-size: clamp(2.6rem, 4.2vw, 4.15rem) !important;
+    line-height: 0.95 !important;
+    margin-bottom: clamp(12px, 1.4vw, 18px) !important;
+    overflow-wrap: anywhere;
+}
+
+.founder-vip-section .vip-quote {
+    font-size: clamp(1.05rem, 1.45vw, 1.35rem) !important;
+    line-height: 1.36 !important;
+    margin-bottom: clamp(16px, 2vw, 24px) !important;
+}
+
+.founder-vip-section .vip-desc {
+    font-size: clamp(0.95rem, 1.05vw, 1.08rem) !important;
+    line-height: 1.55 !important;
+    margin-bottom: clamp(16px, 2vw, 24px) !important;
+}
+
+/* Les cartes services doivent présenter le texte en haut du bloc. */
+#services-container .bento-service-card {
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+}
+
+#services-container .srv-card-content {
+    width: 100% !important;
+}
+
+#services-container .srv-card-arrow {
+    margin-top: auto !important;
+}
+
+@media (max-width: 1180px) {
+    .founder-vip-section {
+        max-width: calc(100vw - 40px) !important;
+    }
+
+    .founder-vip-section .vip-content {
+        padding: 36px !important;
+    }
+
+    .founder-vip-section .vip-name {
+        font-size: clamp(2.25rem, 4vw, 3.35rem) !important;
+    }
+
+    .founder-vip-section .vip-quote {
+        font-size: clamp(1rem, 1.35vw, 1.2rem) !important;
+    }
+}
+
+@media (max-width: 900px) {
+    .founder-vip-section {
+        overflow: hidden !important;
+    }
+
+    .founder-vip-section .vip-photo-wrapper {
+        min-height: 420px !important;
+    }
+
+    .founder-vip-section .vip-content {
+        padding: 32px 24px !important;
+    }
+}
+
+@media (max-width: 560px) {
+    .founder-vip-section .vip-photo-wrapper {
+        min-height: 360px !important;
+    }
+
+    .founder-vip-section .vip-name {
+        font-size: clamp(2rem, 12vw, 2.75rem) !important;
+    }
+
+    .founder-vip-section .vip-quote {
+        font-size: 1rem !important;
+    }
+
+    #services-container .bento-service-card {
+        height: 300px !important;
+    }
+}
