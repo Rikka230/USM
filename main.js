@@ -19,7 +19,14 @@ const app = initializeApp(firebaseConfig);
 
 const firebaseHost = window.location.hostname;
 const isFirebasePreviewHost = firebaseHost.startsWith('usm-football-b56ba--') && firebaseHost.endsWith('.web.app');
-const isStableFirebaseHost = ['usm-football-b56ba.web.app', 'usm-football-b56ba.firebaseapp.com', 'usmfootball.com', 'www.usmfootball.com', 'localhost', '127.0.0.1'].includes(firebaseHost);
+const isStableFirebaseHost = [
+  'usm-football-b56ba.web.app',
+  'usm-football-b56ba.firebaseapp.com',
+  'usmfootball.com',
+  'www.usmfootball.com',
+  'localhost',
+  '127.0.0.1'
+].includes(firebaseHost);
 
 // --- BOUCLIER ANTI-DDOS (APP CHECK + RECAPTCHA V3) ---
 if (isStableFirebaseHost) {
