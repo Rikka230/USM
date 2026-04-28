@@ -17,14 +17,30 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
+const firebaseHost = window.location.hostname;
+const isFirebasePreviewHost = firebaseHost.startsWith('usm-football-b56ba--') && firebaseHost.endsWith('.web.app');
+const isStableFirebaseHost = ['usm-football-b56ba.web.app', 'usm-football-b56ba.firebaseapp.com', 'usmfootball.com', 'www.usmfootball.com', 'localhost', '127.0.0.1'].includes(firebaseHost);
+
 // --- BOUCLIER ANTI-DDOS (APP CHECK + RECAPTCHA V3) ---
-const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider('6LdF2rUsAAAAAOUCVKJt2DCDKWQIEQXHyBkYETT1'),
-  isTokenAutoRefreshEnabled: true
-});
+if (isStableFirebaseHost) {
+  try {
+    initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider('6LdF2rUsAAAAAOUCVKJt2DCDKWQIEQXHyBkYETT1'),
+      isTokenAutoRefreshEnabled: true
+    });
+  } catch (error) {
+    console.warn('App Check non initialise:', error);
+  }
+} else if (isFirebasePreviewHost) {
+  console.info('App Check ignore sur preview Firebase:', firebaseHost);
+}
 
 const db = getFirestore(app);
-const analytics = getAnalytics(app);
+let analytics = null;
+if (isStableFirebaseHost) {
+  try { analytics = getAnalytics(app); }
+  catch (error) { console.warn('Analytics non initialise:', error); }
+}
 
 /* ================= 2. SYSTEME DE CACHE ANTI-COÛT ================= */
 const CACHE_TIME_24H = 1000 * 60 * 60 * 24; 
@@ -93,7 +109,7 @@ const translations = {
         contact_title: "Contact", contact_subtitle: "Discutons de votre avenir.",
         contact_info_title: "Nos Coordonnées", contact_hq: "Siège Social", contact_hq_val: "351, chemin des Gourettes - 06370 Mouans-Sartoux - France",
         contact_phone: "Téléphone", contact_phone_val: "+33 492 90 90 25",
-        contact_email: "Email", contact_email_val: "contact@usm-football.com",
+        contact_email: "Email", contact_email_val: "contact@usmfootball.com",
         contact_form_title: "Envoyer un message",
         contact_ph_name: "Votre nom complet", contact_ph_email: "Votre adresse email",
         contact_opt_player: "Je suis un joueur", contact_opt_club: "Je représente un club", contact_opt_other: "Autre demande",
@@ -114,7 +130,7 @@ const translations = {
         contact_title: "Contact", contact_subtitle: "Let's discuss your future.",
         contact_info_title: "Our Details", contact_hq: "Headquarters", contact_hq_val: "351, chemin des Gourettes - 06370 Mouans-Sartoux - France",
         contact_phone: "Phone", contact_phone_val: "+33 492 90 90 25",
-        contact_email: "Email", contact_email_val: "contact@usm-football.com",
+        contact_email: "Email", contact_email_val: "contact@usmfootball.com",
         contact_form_title: "Send a message",
         contact_ph_name: "Your full name", contact_ph_email: "Your email address",
         contact_opt_player: "I am a player", contact_opt_club: "I represent a club", contact_opt_other: "Other request",
@@ -135,7 +151,7 @@ const translations = {
         contact_title: "Contacto", contact_subtitle: "Hablemos de tu futuro.",
         contact_info_title: "Nuestros Datos", contact_hq: "Sede Central", contact_hq_val: "351, chemin des Gourettes - 06370 Mouans-Sartoux - Francia",
         contact_phone: "Teléfono", contact_phone_val: "+33 492 90 90 25",
-        contact_email: "Email", contact_email_val: "contact@usm-football.com",
+        contact_email: "Email", contact_email_val: "contact@usmfootball.com",
         contact_form_title: "Enviar un mensaje",
         contact_ph_name: "Tu nombre completo", contact_ph_email: "Tu correo electrónico",
         contact_opt_player: "Soy jugador", contact_opt_club: "Represento a un club", contact_opt_other: "Otra consulta",
@@ -156,7 +172,7 @@ const translations = {
         contact_title: "Contato", contact_subtitle: "Vamos discutir o seu futuro.",
         contact_info_title: "Nossos Dados", contact_hq: "Sede", contact_hq_val: "351, chemin des Gourettes - 06370 Mouans-Sartoux - França",
         contact_phone: "Telefone", contact_phone_val: "+33 492 90 90 25",
-        contact_email: "Email", contact_email_val: "contact@usm-football.com",
+        contact_email: "Email", contact_email_val: "contact@usmfootball.com",
         contact_form_title: "Enviar uma mensagem",
         contact_ph_name: "Seu nome completo", contact_ph_email: "Seu endereço de email",
         contact_opt_player: "Sou jogador", contact_opt_club: "Represento um clube", contact_opt_other: "Outro pedido",
