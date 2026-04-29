@@ -41,3 +41,10 @@ Le chiffre “Abonnés cumulés” est recalculé automatiquement avec les champ
 - Les chiffres de la grille stats restent sur une seule ligne pour éviter l'empilement vertical.
 - Les sous-titres des cartes services reçoivent un fond sombre léger et un liseré rose pour rester lisibles sur les images.
 - Cache-bust front passé en `stats-services-readability-1`.
+
+
+## Correctif lisibilité bloc Confiance
+
+- Le titre du bloc reste simplement `Confiance`.
+- La notion de joueurs est affichée dans la description basse : `Joueurs accompagnés depuis 1998.`
+- Le chiffre central reste `1 000+` via le champ statistique existant.
