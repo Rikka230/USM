@@ -840,22 +840,75 @@ body {
 }
 
 /* ================= 10. PAGE CONTACT ================= */
-.contact-section { padding: var(--spacing-main); max-width: 1200px; margin: 0 auto 80px; }
-.contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; }
-.contact-info { align-items: flex-start; text-align: left; justify-content: flex-start; }
-.contact-form-box { align-items: stretch; text-align: left; justify-content: flex-start; }
+.contact-section {
+    width: min(100%, 1240px);
+    margin: 0 auto 80px;
+    padding: clamp(22px, 4vw, 48px);
+    box-sizing: border-box;
+}
+.contact-grid {
+    display: grid;
+    grid-template-columns: minmax(270px, 0.78fr) minmax(360px, 1.22fr);
+    gap: clamp(18px, 3vw, 34px);
+    align-items: start;
+}
+.contact-info,
+.contact-form-box {
+    min-height: auto;
+    align-items: stretch;
+    text-align: left;
+    justify-content: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+}
+.contact-info {
+    gap: clamp(18px, 2.5vw, 28px);
+    padding: clamp(26px, 3.2vw, 42px);
+}
+.contact-form-box {
+    padding: clamp(24px, 3vw, 40px);
+}
+.contact-info h2,
+.contact-form-box h2 {
+    margin-bottom: clamp(12px, 2vw, 20px) !important;
+}
+.contact-info-item {
+    margin-top: 0;
+    padding: 18px 0 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+.contact-info-item h3 {
+    color: var(--usm-pink);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+.contact-info-item p {
+    color: #fff;
+    font-size: clamp(1rem, 1.4vw, 1.18rem);
+    font-weight: 800;
+    line-height: 1.35;
+    word-break: break-word;
+}
+.contact-info-item a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.25s ease, text-shadow 0.25s ease;
+}
+.contact-info-item a:hover {
+    color: var(--usm-pink);
+    text-shadow: 0 0 18px rgba(216, 0, 86, 0.35);
+}
 
-.contact-info-item { margin-top: 25px; }
-.contact-info-item h3 { color: var(--usm-pink); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
-.contact-info-item p { color: #fff; font-size: 1.2rem; font-weight: bold; }
-
-.public-form { display: flex; flex-direction: column; gap: 15px; width: 100%; margin-top: 20px; }
+.public-form { display: flex; flex-direction: column; gap: 15px; width: 100%; margin-top: 18px; }
 .contact-form-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
 .public-form input, .public-form select, .public-form textarea { 
     width: 100%; padding: 15px; border-radius: 8px; 
     background: rgba(0,0,0,0.4); border: 1px solid var(--surface-border); 
     color: white; font-size: 1rem; transition: 0.3s; font-family: inherit;
 }
+.public-form textarea { resize: vertical; min-height: 118px; }
 .public-form input:focus, .public-form select:focus, .public-form textarea:focus { 
     border-color: var(--usm-pink); outline: none; background: rgba(216, 0, 86, 0.05); box-shadow: 0 0 15px rgba(216,0,86,0.2);
 }
@@ -1061,8 +1114,13 @@ html, body {
     .player-img-container { height: 280px; }
 
     /* 9. PAGES INTERNES */
-    .contact-grid { grid-template-columns: 1fr; }
+    .contact-section { padding: 18px 14px 72px; margin-bottom: 40px; }
+    .contact-grid { grid-template-columns: 1fr; gap: 18px; }
+    .contact-info, .contact-form-box { padding: 24px 18px; }
+    .contact-info { gap: 16px; }
     .contact-form-row { grid-template-columns: 1fr; }
+    .contact-consent { font-size: 0.82rem; }
+    .contact-rgpd-note { font-size: 0.74rem; }
     .service-page-layout { flex-direction: column; padding: 15px; width: 100%; box-sizing: border-box; }
     .service-sidebar { flex: 1 1 100%; }
     .service-hero h1 { font-size: 2rem; }
@@ -1098,6 +1156,13 @@ html, body {
     .data-label {
         font-size: 0.75rem;
     }
+}
+
+@media (max-width: 480px) {
+    .contact-section { padding-inline: 10px; }
+    .contact-info, .contact-form-box { padding: 22px 14px; border-radius: 22px; }
+    .contact-info-item p { font-size: 0.98rem; }
+    .public-form input, .public-form select, .public-form textarea { padding: 13px 12px; font-size: 0.92rem; }
 }
 
 /* ================= 15. PAGE PRESSE ================= */
