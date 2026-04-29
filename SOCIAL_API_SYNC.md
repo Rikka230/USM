@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USM Admin Dashboard</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-body">
+
+    <div id="auth-loader" class="fullscreen-loader">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Eagle_white_icon.svg/1024px-Eagle_white_icon.svg.png" id="admin-loader-img" alt="USM" style="max-width: 150px; height: auto;" class="pulse-anim">
+    </div>
+    
+    <script>
+        try {
+            const settingsCache = localStorage.getItem('site_settings');
+            if (settingsCache) {
+                const parsed = JSON.parse(settingsCache);
+                if (parsed && parsed.data && parsed.data.logoHero) {
+                    const img = document.getElementById('admin-loader-img');
+                    img.src = parsed.data.logoHero;
+                    img.style.width = '180px';
+                }
+            }
+        } catch(e) {}
+    </script>
+
+    <div id="login-screen" class="hidden">
+        <form id="login-form">
+            <h2>USM SYSTEM</h2>
+            <p id="login-error" style="color: #ff4444; text-align: center; font-size: 0.9rem; margin: 0; display: none; background: rgba(255,0,0,0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(255,0,0,0.3);">Identifiants incorrects.</p>
+            
+            <input type="email" id="admin-email" placeholder="Email" required>
+            <input type="password" id="admin-pwd" placeholder="Mot de passe" required>
+            <button type="submit">Connexion</button>
+        </form>
+    </div>
+
+    <div id="dashboard" class="hidden">
+        
+        <aside class="sidebar">
+            <h2 class="pink-accent" style="text-align: center; margin-bottom: 20px; font-size: 1.5rem; letter-spacing: 2px;">USM SYSTEM</h2>
+            
+            <div class="sidebar-top-group">
+                <a href="index.html" class="sidebar-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    Retour site
+                </a>
+                <button id="btn-force-cache" class="sidebar-btn danger">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    Vider le Cache
+                </button>
+                <button id="logout-btn" class="sidebar-btn danger">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Déconnexion
+                </button>
+            </div>
+            
+            <div class="sidebar-bottom-group">
+                <button id="nav-manage" class="sidebar-btn active">Joueurs</button>
+                <button id="nav-services" class="sidebar-btn">Services</button>
+                <button id="nav-presse" class="sidebar-btn">Presse</button>
+                <button id="nav-social" class="sidebar-btn">Réseaux</button>
+                <button id="nav-marquee" class="sidebar-btn">Images Déco</button>
+                <button id="nav-settings" class="sidebar-btn">Paramètres</button>
+            </div>
+        </aside>
+
+        <main class="admin-content">
+            
+            <section id="manage-players-section">
+                <header style="margin-bottom: 25px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                        <h1 style="margin: 0;">Gérer le Roster</h1>
+                        <button id="btn-show-add-form" style="background:var(--usm-pink); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold; transition:0.3s;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Ajouter un profil
+                        </button>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; background: rgba(255,255,255,0.02); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--surface-border);">
+                        <div class="admin-tabs" style="margin:0; gap:8px;">
+                            <button class="admin-tab active" data-cat="gardien">Gardiens</button>
+                            <button class="admin-tab" data-cat="defenseur">Défenseurs</button>
+                            <button class="admin-tab" data-cat="milieu">Milieux</button>
+                            <button class="admin-tab" data-cat="attaquant">Attaquants</button>
+                            <button class="admin-tab" data-cat="feminine">Féminines</button>
+                            <button class="admin-tab" data-cat="coach">Coachs</button>
+                        </div>
+                        <input type="text" id="search-bar" placeholder="🔍 Rechercher un joueur..." style="padding:10px 20px; border-radius:30px; border:1px solid #444; background:#111; color:#fff; width: 250px;">
+                    </div>
+                </header>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead><tr><th>Ordre</th><th>Photo</th><th>Nom</th><th>Action</th></tr></thead>
+                        <tbody id="admin-players-list"></tbody>
+                    </table>
+                </div>
+                <div id="pagination-controls" style="display:flex; gap:10px; margin-top:20px; justify-content:center;"></div>
+            </section>
+
+            <section id="form-player-section" class="hidden">
+                <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h1 id="form-title">Créer un Profil</h1>
+                    <button class="btn-cancel" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Annuler
+                    </button>
+                </header>
+                <form id="content-form" class="bento-form">
+                    <input type="hidden" id="edit-player-id">
+                    <input type="hidden" id="existing-image-url">
+                    <input type="text" id="player-name" placeholder="Nom du Joueur" required>
+                    <input type="text" id="player-stat" placeholder="Statistique (ex: 150 Sélections)">
+                    <input type="url" id="player-tm" placeholder="Lien Transfermarkt (Optionnel)">
+                    <select id="player-category">
+                        <option value="gardien">Gardien</option><option value="defenseur">Défenseur</option>
+                        <option value="milieu">Milieu</option><option value="attaquant">Attaquant</option>
+                        <option value="feminine">Féminine</option><option value="coach">Coach & Staff</option>
+                    </select>
+                    
+                    <div id="drop-zone" class="drop-zone"><p>Glissez une photo ici</p><input type="file" id="media-upload" accept="image/*" hidden></div>
+                    
+                    <div id="cropper-ui" class="hidden" style="background: rgba(25,25,30,0.6); padding: 25px; border-radius: 12px; border: 1px solid var(--surface-border);">
+                        <h3 class="pink-accent" style="font-size: 1rem; margin-bottom: 20px;">Cadrage de la carte</h3>
+                        <div style="display: flex; gap: 30px; flex-wrap: wrap; align-items: center;">
+                            <div style="flex: 0 0 auto; margin: 0 auto;"><canvas id="crop-canvas" width="240" height="320" style="border-radius: 12px; background: #000; border: 1px solid #444; box-shadow: 0 10px 30px rgba(0,0,0,0.5); cursor: grab;"></canvas></div>
+                            <div style="flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 250px;">
+                                <div><label style="color:#aaa; font-size:0.85rem; display:flex; justify-content:space-between; margin-bottom: 8px;">Zoom <span id="val-zoom" style="color:var(--usm-pink); font-weight:bold;">100%</span></label><input type="range" id="crop-zoom" min="0.1" max="3" step="0.01" value="1" style="width: 100%;"></div>
+                                <div><label style="color:#aaa; font-size:0.85rem; display:flex; justify-content:space-between; margin-bottom: 8px;">Axe Horizontal <span id="val-x" style="color:var(--usm-pink); font-weight:bold;">0</span></label><input type="range" id="crop-x" min="-1000" max="1000" step="1" value="0" style="width: 100%;"></div>
+                                <div><label style="color:#aaa; font-size:0.85rem; display:flex; justify-content:space-between; margin-bottom: 8px;">Axe Vertical <span id="val-y" style="color:var(--usm-pink); font-weight:bold;">0</span></label><input type="range" id="crop-y" min="-1000" max="1000" step="1" value="0" style="width: 100%;"></div>
+                                <div style="display:flex; gap: 10px; margin-top: 10px;">
+                                    <button type="button" id="btn-reset-crop" style="flex:1; background: #333; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight:bold;">Centrer</button>
+                                    <button type="button" id="btn-cancel-crop" style="flex:1; background: rgba(255,0,0,0.1); color: #ff4444; border: 1px solid #ff4444; padding: 12px; border-radius: 8px; cursor: pointer; font-weight:bold;">Annuler</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button type="button" class="btn-cancel" style="flex:1; background:#333; color:white; border:none; padding:20px; border-radius:8px; font-weight:bold; cursor:pointer;">Annuler</button>
+                        <button type="submit" id="publish-btn" class="btn-publish" style="flex:2;">Enregistrer le Joueur</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="manage-services-section" class="hidden">
+                <header style="margin-bottom: 25px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                        <h1 style="margin: 0;">Gérer les Services</h1>
+                        <button id="btn-add-service" style="background:var(--usm-pink); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Ajouter un Service
+                        </button>
+                    </div>
+                </header>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead><tr><th>Ordre</th><th>Titre (FR)</th><th>Action</th></tr></thead>
+                        <tbody id="admin-services-list"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="form-service-section" class="hidden">
+                <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h1 id="service-form-title">Créer un Service</h1>
+                    <button class="btn-cancel-service" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Annuler
+                    </button>
+                </header>
+                <form id="service-form" class="bento-form">
+                    <input type="hidden" id="edit-service-id">
+                    <input type="hidden" id="existing-srv-img">
+
+                    <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Photo du Service</label>
+                    <div id="drop-zone-srv" class="drop-zone">
+                        <p>Glissez la photo du service ici</p>
+                        <input type="file" id="srv-upload" accept="image/*" hidden>
+                    </div>
+
+                    <div class="lang-tabs admin-tabs" style="margin-top: 20px; margin-bottom: 15px;">
+                        <button type="button" class="admin-tab lang-tab-srv active" data-lang="fr">🇫🇷 Français</button>
+                        <button type="button" class="admin-tab lang-tab-srv" data-lang="en">🇬🇧 English</button>
+                        <button type="button" class="admin-tab lang-tab-srv" data-lang="es">🇪🇸 Español</button>
+                        <button type="button" class="admin-tab lang-tab-srv" data-lang="pt">🇵🇹 Português</button>
+                    </div>
+
+                    <div id="lang-srv-fr" class="lang-content-srv">
+                        <input type="text" id="srv-title-fr" placeholder="Titre (FR)" required>
+                        <input type="text" id="srv-subtitle-fr" placeholder="Sous-titre (FR)" style="margin-top:10px;">
+                        <textarea id="srv-desc-fr" rows="4" placeholder="Description (FR)" style="margin-top:10px;"></textarea>
+                        <input type="text" id="srv-seo-fr" placeholder="Mots-clés SEO (FR)" style="margin-top:10px;">
+                    </div>
+                    <div id="lang-srv-en" class="lang-content-srv hidden">
+                        <input type="text" id="srv-title-en" placeholder="Title (EN)">
+                        <input type="text" id="srv-subtitle-en" placeholder="Subtitle (EN)" style="margin-top:10px;">
+                        <textarea id="srv-desc-en" rows="4" placeholder="Description (EN)" style="margin-top:10px;"></textarea>
+                        <input type="text" id="srv-seo-en" placeholder="SEO Keywords (EN)" style="margin-top:10px;">
+                    </div>
+                    <div id="lang-srv-es" class="lang-content-srv hidden">
+                        <input type="text" id="srv-title-es" placeholder="Título (ES)">
+                        <input type="text" id="srv-subtitle-es" placeholder="Subtítulo (ES)" style="margin-top:10px;">
+                        <textarea id="srv-desc-es" rows="4" placeholder="Descripción (ES)" style="margin-top:10px;"></textarea>
+                        <input type="text" id="srv-seo-es" placeholder="Palabras clave SEO (ES)" style="margin-top:10px;">
+                    </div>
+                    <div id="lang-srv-pt" class="lang-content-srv hidden">
+                        <input type="text" id="srv-title-pt" placeholder="Título (PT)">
+                        <input type="text" id="srv-subtitle-pt" placeholder="Subtítulo (PT)" style="margin-top:10px;">
+                        <textarea id="srv-desc-pt" rows="4" placeholder="Descrição (PT)" style="margin-top:10px;"></textarea>
+                        <input type="text" id="srv-seo-pt" placeholder="Palavras-chave SEO (PT)" style="margin-top:10px;">
+                    </div>
+
+                    <button type="submit" id="save-service-btn" class="btn-publish" style="margin-top: 20px;">Enregistrer le Service</button>
+                </form>
+            </section>
+
+            <section id="settings-section" class="hidden">
+                <header><h1>Identité & Paramètres</h1></header>
+                <form id="settings-form">
+                    <div class="settings-grid">
+                        
+                        <div class="settings-col">
+                            <h3 class="pink-accent">Chiffres Clés (Bento Grid)</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                                <div><label>Activité & Transactions</label><input type="text" id="stat-1"></div>
+                                <div><label>Confiance</label><input type="text" id="stat-2"></div>
+                                <div><label>Impact Digital</label><input type="text" id="stat-3"></div>
+                                <div><label>Réseau Mondial</label><input type="text" id="stat-4"></div>
+                            </div>
+
+                            <h3 class="pink-accent" style="margin-top: 40px;">Visuels Principaux</h3>
+                            <label>Logo Navbar (Haut gauche)</label>
+                            <div id="drop-zone-nav" class="drop-zone">
+                                <p>Glissez le logo Navbar ici</p>
+                                <input type="file" id="logo-nav-upload" accept="image/*" hidden>
+                            </div>
+                            <input type="hidden" id="existing-logo-nav">
+
+                            <label style="margin-top:15px;">Logo Géant (Hero Accueil)</label>
+                            <div id="drop-zone-hero" class="drop-zone">
+                                <p>Glissez l'aigle/logo géant ici</p>
+                                <input type="file" id="logo-hero-upload" accept="image/*" hidden>
+                            </div>
+                            <input type="hidden" id="existing-logo-hero">
+                        </div>
+
+                        <div class="settings-col">
+                            <h3 class="pink-accent">Le Fondateur (VIP)</h3>
+                            <div class="lang-tabs admin-tabs" id="founder-lang-tabs" style="margin-bottom: 15px;">
+                                <button type="button" class="admin-tab lang-tab active" data-lang="fr">🇫🇷 Français</button>
+                                <button type="button" class="admin-tab lang-tab" data-lang="en">🇬🇧 English</button>
+                                <button type="button" class="admin-tab lang-tab" data-lang="es">🇪🇸 Español</button>
+                                <button type="button" class="admin-tab lang-tab" data-lang="pt">🇵🇹 Português</button>
+                            </div>
+                            <label>Citation / Slogan</label>
+                            <textarea id="founder-quote" rows="2" placeholder="Une phrase d'accroche..."></textarea>
+                            <label style="margin-top:15px;">Description détaillée</label>
+                            <textarea id="founder-desc" rows="6" placeholder="Parcours du fondateur..."></textarea>
+                            
+                            <label style="margin-top:15px;">Photo du Fondateur</label>
+                            <div id="drop-zone-founder" class="drop-zone">
+                                <p>Glissez la photo du fondateur ici</p>
+                                <input type="file" id="founder-upload" accept="image/*" hidden>
+                            </div>
+                            <input type="hidden" id="existing-founder-img">
+
+                            <h3 class="pink-accent" style="margin-top: 40px; border-top: 1px solid #333; padding-top: 30px;">L'Agence USM</h3>
+                            <div class="lang-tabs admin-tabs" id="agency-lang-tabs" style="margin-bottom: 15px;">
+                                <button type="button" class="admin-tab lang-tab active" data-lang="fr">🇫🇷 Français</button>
+                                <button type="button" class="admin-tab lang-tab" data-lang="en">🇬🇧 English</button>
+                                <button type="button" class="admin-tab lang-tab" data-lang="es">🇪🇸 Español</button>
+                                <button type="button" class="admin-tab lang-tab" data-lang="pt">🇵🇹 Português</button>
+                            </div>
+                            <label>Citation / Slogan de l'Agence</label>
+                            <input type="text" id="agency-quote" placeholder="Notre philosophie...">
+                            
+                            <label style="margin-top:15px;">Description détaillée de l'Agence</label>
+                            <textarea id="agency-desc" rows="6" placeholder="Présentation de l'équipe..."></textarea>
+
+                            <label style="margin-top:15px;">Photo de l'Agence</label>
+                            <div id="drop-zone-agency" class="drop-zone">
+                                <p>Glissez la photo de l'agence ici</p>
+                                <input type="file" id="agency-upload" accept="image/*" hidden>
+                            </div>
+                            <input type="hidden" id="existing-agency-img">
+                        </div>
+
+                    </div>
+                    <button type="submit" id="save-settings-btn" class="btn-publish" style="margin-top: 40px; width: 100%; padding: 15px; font-size: 1.1rem;">Enregistrer les paramètres</button>
+                </form>
+            </section>
+
+            <section id="manage-presse-section" class="hidden">
+                <header style="margin-bottom: 25px;">
+                    <h1 style="margin: 0;">Gérer la Presse</h1>
+                </header>
+
+                <div style="display: flex; gap: 40px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                            <h2 class="pink-accent" style="margin:0; font-size: 1.2rem;">Vidéos (Passages TV)</h2>
+                            <button id="btn-add-video" style="background:var(--usm-pink); color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer; font-weight:bold;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Ajouter
+                            </button>
+                        </div>
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead><tr><th>Titre</th><th>Action</th></tr></thead>
+                                <tbody id="admin-videos-list"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="flex: 1; min-width: 300px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                            <h2 class="pink-accent" style="margin:0; font-size: 1.2rem;">Articles (Images)</h2>
+                            <button id="btn-add-article" style="background:var(--usm-pink); color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer; font-weight:bold;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Ajouter
+                            </button>
+                        </div>
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead><tr><th>Aperçu</th><th>Action</th></tr></thead>
+                                <tbody id="admin-articles-list"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="form-video-section" class="hidden">
+                <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h1 id="form-video-title">Ajouter une Vidéo</h1>
+                    <button class="btn-cancel-presse" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Annuler
+                    </button>
+                </header>
+                <form id="video-form" class="bento-form">
+                    <input type="hidden" id="edit-video-id"> <label style="color:#aaa; font-size:0.85rem;">Titre de la vidéo</label>
+                    <input type="text" id="video-title" required>
+                    <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Lien YouTube</label>
+                    <input type="url" id="video-url" placeholder="https://www.youtube.com/watch?v=..." required>
+                    <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Description (Optionnel)</label>
+                    <textarea id="video-desc" rows="4" placeholder="Description affichée à côté de la vidéo..."></textarea>
+                    
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button type="submit" id="save-video-btn" class="btn-publish" style="flex:1;">Enregistrer la vidéo</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="form-article-section" class="hidden">
+                <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                    <h1 id="form-article-title">Ajouter un Article</h1>
+                    <button class="btn-cancel-presse" style="background:#333; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:text-bottom; margin-right:5px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Annuler
+                    </button>
+                </header>
+                <form id="article-form" class="bento-form">
+                    <input type="hidden" id="edit-article-id">
+                    <input type="hidden" id="existing-article-img">
+                    <label style="color:#aaa; font-size:0.85rem;">Titre de l'article</label>
+                    <input type="text" id="article-title" required>
+                    
+                    <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Lien de l'article (Optionnel, URL externe)</label>
+                    <input type="url" id="article-link" placeholder="https://www.lequipe.fr/..."> <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Description ou Extrait</label>
+                    <textarea id="article-desc" rows="4" placeholder="Extrait de l'article..."></textarea>
+                    
+                    <label style="color:#aaa; font-size:0.85rem; margin-top:10px;">Page du journal (Format portrait recommandé)</label>
+                    <div id="drop-zone-article" class="drop-zone">
+                        <p>Glissez la photo de l'article ici</p>
+                        <input type="file" id="article-upload" accept="image/*" hidden>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button type="submit" id="save-article-btn" class="btn-publish" style="flex:1;">Enregistrer l'article</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="manage-social-section" class="hidden">
+                <header style="margin-bottom: 25px;">
+                    <h1 style="margin: 0;">Réseaux Sociaux</h1>
+                    <p style="color: #aaa; margin-top: 10px;">Gérez les liens de vos réseaux sociaux ici. Laissez un champ vide pour masquer automatiquement l'icône correspondante sur le site public.</p>
+                </header>
+                <form id="social-form" class="bento-form" style="max-width: 980px;">
+                    <p style="color:#aaa; font-size:0.95rem; line-height:1.6; margin:0 0 18px;">
+                        Pour chaque réseau, renseignez le lien du compte USM et, si besoin, le lien du compte Christophe Mongai. Si les deux liens existent, le site public affichera une petite bulle de choix au clic.
+                    </p>
+                    <p id="social-admin-status" role="status" aria-live="polite" style="display:none; color:#aaa; font-size:0.88rem; line-height:1.45; margin:0 0 18px; padding:10px 12px; border-radius:12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);"></p>
+
+                    <div class="social-admin-grid" style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:18px;">
+
+                        <div class="social-admin-card" style="border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:18px; background:rgba(255,255,255,0.03);">
+                            <h3 style="margin:0 0 14px; color:#fff;">TikTok</h3>
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Lien USM</label>
+                            <input type="url" id="social-tiktok-usm" placeholder="https://www.tiktok.com/@usm...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Lien Christophe Mongai</label>
+                            <input type="url" id="social-tiktok-christophe" placeholder="https://www.tiktok.com/@...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés USM</label>
+                            <input type="number" min="0" id="social-tiktok-usm-followers" placeholder="Ex : 120000">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés Christophe</label>
+                            <input type="number" min="0" id="social-tiktok-christophe-followers" placeholder="Ex : 45000">
+                        </div>
+                        <div class="social-admin-card" style="border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:18px; background:rgba(255,255,255,0.03);">
+                            <h3 style="margin:0 0 14px; color:#fff;">LinkedIn</h3>
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Lien USM</label>
+                            <input type="url" id="social-linkedin-usm" placeholder="https://www.linkedin.com/company/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Lien Christophe Mongai</label>
+                            <input type="url" id="social-linkedin-christophe" placeholder="https://www.linkedin.com/in/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés USM</label>
+                            <input type="number" min="0" id="social-linkedin-usm-followers" placeholder="Ex : 120000">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés Christophe</label>
+                            <input type="number" min="0" id="social-linkedin-christophe-followers" placeholder="Ex : 45000">
+                        </div>
+                        <div class="social-admin-card" style="border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:18px; background:rgba(255,255,255,0.03);">
+                            <h3 style="margin:0 0 14px; color:#fff;">Instagram</h3>
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Lien USM</label>
+                            <input type="url" id="social-instagram-usm" placeholder="https://www.instagram.com/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Lien Christophe Mongai</label>
+                            <input type="url" id="social-instagram-christophe" placeholder="https://www.instagram.com/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés USM</label>
+                            <input type="number" min="0" id="social-instagram-usm-followers" placeholder="Ex : 120000">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés Christophe</label>
+                            <input type="number" min="0" id="social-instagram-christophe-followers" placeholder="Ex : 45000">
+                        </div>
+                        <div class="social-admin-card" style="border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:18px; background:rgba(255,255,255,0.03);">
+                            <h3 style="margin:0 0 14px; color:#fff;">Facebook</h3>
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Lien USM</label>
+                            <input type="url" id="social-facebook-usm" placeholder="https://www.facebook.com/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Lien Christophe Mongai</label>
+                            <input type="url" id="social-facebook-christophe" placeholder="https://www.facebook.com/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés USM</label>
+                            <input type="number" min="0" id="social-facebook-usm-followers" placeholder="Ex : 120000">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés Christophe</label>
+                            <input type="number" min="0" id="social-facebook-christophe-followers" placeholder="Ex : 45000">
+                        </div>
+                        <div class="social-admin-card" style="border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:18px; background:rgba(255,255,255,0.03);">
+                            <h3 style="margin:0 0 14px; color:#fff;">YouTube</h3>
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Lien USM</label>
+                            <input type="url" id="social-youtube-usm" placeholder="https://www.youtube.com/@...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Lien Christophe Mongai</label>
+                            <input type="url" id="social-youtube-christophe" placeholder="https://www.youtube.com/@...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés USM</label>
+                            <input type="number" min="0" id="social-youtube-usm-followers" placeholder="Ex : 120000">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés Christophe</label>
+                            <input type="number" min="0" id="social-youtube-christophe-followers" placeholder="Ex : 45000">
+                        </div>
+                        <div class="social-admin-card" style="border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:18px; background:rgba(255,255,255,0.03);">
+                            <h3 style="margin:0 0 14px; color:#fff;">X</h3>
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Lien USM</label>
+                            <input type="url" id="social-x-usm" placeholder="https://x.com/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Lien Christophe Mongai</label>
+                            <input type="url" id="social-x-christophe" placeholder="https://x.com/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés USM</label>
+                            <input type="number" min="0" id="social-x-usm-followers" placeholder="Ex : 120000">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés Christophe</label>
+                            <input type="number" min="0" id="social-x-christophe-followers" placeholder="Ex : 45000">
+                        </div>
+                    </div>
+
+                    <p style="color:#888; font-size:0.85rem; line-height:1.5; margin:18px 0 0;">
+                        Le chiffre “Abonnés cumulés” du site est calculé automatiquement avec les valeurs abonnés renseignées ici. YouTube peut être synchronisé par API quand la clé serveur est configurée.
+                    </p>
+                    <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-top:20px;">
+                        <button type="button" id="sync-youtube-api-btn" class="btn-secondary" style="border:1px solid rgba(255,255,255,0.16); background:rgba(255,255,255,0.06); color:#fff; border-radius:12px; padding:12px 16px; cursor:pointer;">Synchroniser YouTube API</button>
+                        <button type="submit" id="save-social-btn" class="btn-publish">Enregistrer les Réseaux</button>
+                    </div>
+                    <p id="social-api-sync-details" style="display:none; color:#aaa; font-size:0.84rem; line-height:1.5; margin:12px 0 0;"></p>
+                </form>
+            </section>
+
+            <section id="manage-marquee-section" class="hidden">
+                <header style="margin-bottom: 25px;">
+                    <h1 style="margin: 0;">Images Décoratives (Banderole)</h1>
+                    <p style="color: #aaa; margin-top: 10px;">Ajoutez des photos pour la banderole défilante. Limité aux 20 dernières photos pour les performances.</p>
+                </header>
+                
+                <form id="marquee-form" class="bento-form" style="margin-bottom: 40px; max-width: 400px;">
+                    <div id="drop-zone-marquee" class="drop-zone">
+                        <p>Glissez une nouvelle image ici</p>
+                        <input type="file" id="marquee-upload" accept="image/*" hidden>
+                    </div>
+                    <button type="submit" id="save-marquee-btn" class="btn-publish" style="margin-top: 20px;">Ajouter à la banderole</button>
+                </form>
+
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead><tr><th>Aperçu</th><th>Action</th></tr></thead>
+                        <tbody id="admin-marquee-list"></tbody>
+                    </table>
+                </div>
+            </section>
+            
+        </main>
+    </div>
+
+    <script type="module" src="admin.js?v=social-api-youtube-1"></script>
+</body>
+</html>
