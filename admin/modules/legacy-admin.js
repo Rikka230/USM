@@ -1365,6 +1365,74 @@ if (dashboardAdmin) {
 
 /* ================= 9. GESTION DES RÉSEAUX SOCIAUX ================= */
 
+const SOCIAL_ADMIN_PLATFORMS = ['tiktok', 'linkedin', 'instagram', 'facebook', 'youtube', 'x'];
+const SOCIAL_ADMIN_TARGETS = ['usm', 'christophe'];
+
+function getSocialAdminInput(platform, target, suffix = '') {
+    const id = suffix ? `social-${platform}-${target}-${suffix}` : `social-${platform}-${target}`;
+    return document.getElementById(id);
+}
+
+function readSocialValue(data, platform, target) {
+    if (!data) return '';
+    const directKey = `${platform}_${target}`;
+    const legacyValue = target === 'usm' && typeof data[platform] === 'string' ? data[platform] : '';
+    return data?.[platform]?.[target] || data[directKey] || legacyValue || '';
+}
+
+function readSocialFollowers(data, platform, target) {
+    if (!data) return '';
+    const directKey = `${platform}_${target}_followers`;
+    return data?.followers?.[platform]?.[target] || data[directKey] || '';
+}
+
+function setSocialAdminValues(data = {}) {
+    SOCIAL_ADMIN_PLATFORMS.forEach((platform) => {
+        SOCIAL_ADMIN_TARGETS.forEach((target) => {
+            const urlInput = getSocialAdminInput(platform, target);
+            const followersInput = getSocialAdminInput(platform, target, 'followers');
+            if (urlInput) urlInput.value = readSocialValue(data, platform, target);
+            if (followersInput) followersInput.value = readSocialFollowers(data, platform, target);
+        });
+    });
+}
+
+function normalizeSocialAdminUrl(value) {
+    return String(value || '').trim();
+}
+
+function normalizeSocialAdminFollowers(value) {
+    const number = Number.parseInt(String(value || '').replace(/\s/g, ''), 10);
+    return Number.isFinite(number) && number > 0 ? number : 0;
+}
+
+function buildSocialAdminPayload() {
+    const payload = {
+        updatedAt: new Date(),
+        source: 'admin',
+        followers: {}
+    };
+
+    SOCIAL_ADMIN_PLATFORMS.forEach((platform) => {
+        payload[platform] = {};
+        payload.followers[platform] = {};
+
+        SOCIAL_ADMIN_TARGETS.forEach((target) => {
+            const url = normalizeSocialAdminUrl(getSocialAdminInput(platform, target)?.value);
+            const followers = normalizeSocialAdminFollowers(getSocialAdminInput(platform, target, 'followers')?.value);
+
+            payload[platform][target] = url;
+            payload.followers[platform][target] = followers;
+            payload[`${platform}_${target}`] = url;
+            payload[`${platform}_${target}_followers`] = followers;
+        });
+
+        payload[`${platform}_followers`] = payload[`${platform}_usm_followers`];
+    });
+
+    return payload;
+}
+
 const navSocial = document.getElementById('nav-social');
 if(navSocial) {
     navSocial.addEventListener('click', async (e) => {
@@ -1375,14 +1443,7 @@ if(navSocial) {
 
         try {
             const docSnap = await getDoc(doc(db, "settings", "social")); 
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                document.getElementById('social-tiktok').value = data.tiktok || '';
-                document.getElementById('social-linkedin').value = data.linkedin || '';
-                document.getElementById('social-instagram').value = data.instagram || '';
-                document.getElementById('social-facebook').value = data.facebook || '';
-                document.getElementById('social-youtube').value = data.youtube || '';
-            }
+            setSocialAdminValues(docSnap.exists() ? docSnap.data() : {});
         } catch (error) { console.error("Erreur chargement réseaux:", error); }
     });
 }
@@ -1396,19 +1457,14 @@ if(socialForm) {
         btn.disabled = true;
 
         try {
-            const payload = {
-                tiktok: document.getElementById('social-tiktok').value,
-                linkedin: document.getElementById('social-linkedin').value,
-                instagram: document.getElementById('social-instagram').value,
-                facebook: document.getElementById('social-facebook').value,
-                youtube: document.getElementById('social-youtube').value,
-                timestamp: new Date()
-            };
+            const payload = buildSocialAdminPayload();
 
-            await setDoc(doc(db, "settings", "social"), payload);
+            await setDoc(doc(db, "settings", "social"), payload, { merge: true });
             
             clearPublicCache(); 
-            localStorage.removeItem('site_social'); 
+            localStorage.removeItem('site_social');
+            localStorage.removeItem('site_social_picker_v1');
+            localStorage.removeItem('site_social_picker_v2');
             
             alert("Réseaux sociaux mis à jour avec succès !");
         } catch(err) {

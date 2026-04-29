@@ -738,7 +738,7 @@ async function loadSettings() {
 }
 
 /* ================= 5.5 RÉSEAUX SOCIAUX + IMPACT DIGITAL LIVE ================= */
-const SOCIAL_CACHE_KEY = 'site_social_picker_v1';
+const SOCIAL_CACHE_KEY = 'site_social_picker_v2';
 
 const SOCIAL_PLATFORMS = [
     { key: 'tiktok', title: 'TikTok' },
