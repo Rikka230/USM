@@ -274,10 +274,19 @@ async function syncContactToBrevo({ firstName, lastName, profession, email, phon
     return;
   }
 
-  const attributes = {
+  const profileLabel = PROFILE_LABELS[profile] || "Autre demande";
+
+  const baseAttributes = {
     FIRSTNAME: firstName,
-    LASTNAME: lastName,
-    JOB_TITLE: profession
+    LASTNAME: lastName
+  };
+
+  const enrichmentAttributes = {
+    PROFESSION: profession,
+    PROFILE_TYPE: profile,
+    PROFILE_LABEL: profileLabel,
+    PHONE_SMS_OPTIN: Boolean(smsConsent),
+    CONTACT_SOURCE: "Site USM Football"
   };
 
   const controller = new AbortController();
@@ -289,7 +298,7 @@ async function syncContactToBrevo({ firstName, lastName, profession, email, phon
       url: BREVO_CONTACTS_URL,
       body: {
         email,
-        attributes,
+        attributes: baseAttributes,
         listIds,
         updateEnabled: true
       },
@@ -313,9 +322,38 @@ async function syncContactToBrevo({ firstName, lastName, profession, email, phon
       contactId: responseBody?.id || "updated-or-unknown",
       listIds,
       profile,
+      profileLabel,
       smsConsent: Boolean(smsConsent),
       submittedAt: requestMeta.submittedAt
     });
+
+    const enrichmentUpdateUrl = BREVO_CONTACTS_URL + "/" + encodeURIComponent(email);
+    const { response: enrichmentResponse, responseBody: enrichmentResponseBody } = await sendBrevoContactRequest({
+      method: "PUT",
+      url: enrichmentUpdateUrl,
+      body: {
+        attributes: enrichmentAttributes
+      },
+      signal: controller.signal
+    });
+
+    if (!enrichmentResponse.ok) {
+      logger.error("Brevo contact enrichment failed", {
+        status: enrichmentResponse.status,
+        body: enrichmentResponseBody,
+        email,
+        profile,
+        profileLabel,
+        submittedAt: requestMeta.submittedAt
+      });
+    } else {
+      logger.info("Brevo contact enrichment synced", {
+        email,
+        profile,
+        profileLabel,
+        submittedAt: requestMeta.submittedAt
+      });
+    }
 
     if (!smsConsent) {
       logger.info("Brevo SMS attribute sync skipped because consent is not granted", { email, profile });
