@@ -737,9 +737,321 @@ async function loadSettings() {
     }
 }
 
-/* ================= 5.5 CHARGEMENT DES RÉSEAUX SOCIAUX ================= */
+/* ================= 5.5 RÉSEAUX SOCIAUX + IMPACT DIGITAL LIVE ================= */
+const SOCIAL_CACHE_KEY = 'site_social_picker_v1';
+
+const SOCIAL_PLATFORMS = [
+    { key: 'tiktok', title: 'TikTok' },
+    { key: 'linkedin', title: 'LinkedIn' },
+    { key: 'instagram', title: 'Instagram' },
+    { key: 'facebook', title: 'Facebook' },
+    { key: 'youtube', title: 'YouTube' },
+    { key: 'x', title: 'X' }
+];
+
+const SOCIAL_TARGETS = [
+    { key: 'usm', label: 'USM' },
+    { key: 'christophe', label: 'Christophe Mongai' }
+];
+
+const SOCIAL_ICON_SVG = {
+    x: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16"></path><path d="M20 4L4 20"></path></svg>'
+};
+
+function normalizeSocialUrl(value) {
+    const url = String(value || '').trim();
+    if (!url || url === '#') return '';
+    if (/^https?:\/\//i.test(url)) return url;
+    if (/^www\./i.test(url)) return `https://${url}`;
+    return url;
+}
+
+function readNestedValue(source, path) {
+    if (!source || !Array.isArray(path)) return undefined;
+    return path.reduce((current, key) => {
+        if (current && Object.prototype.hasOwnProperty.call(current, key)) return current[key];
+        return undefined;
+    }, source);
+}
+
+function getSocialUrl(socialData, platformKey, targetKey) {
+    const titleKey = platformKey.charAt(0).toUpperCase() + platformKey.slice(1);
+    const targetTitle = targetKey.charAt(0).toUpperCase() + targetKey.slice(1);
+
+    const candidatePaths = [
+        [platformKey, targetKey],
+        [targetKey, platformKey],
+        [`${platformKey}_${targetKey}`],
+        [`${targetKey}_${platformKey}`],
+        [`${platformKey}${targetTitle}`],
+        [`${targetKey}${titleKey}`]
+    ];
+
+    if (targetKey === 'christophe') {
+        candidatePaths.push(
+            [platformKey, 'mongai'],
+            ['mongai', platformKey],
+            [`${platformKey}_mongai`],
+            [`mongai_${platformKey}`],
+            [`cm_${platformKey}`],
+            [`${platformKey}_cm`],
+            [`christopheMongai${titleKey}`],
+            [`${platformKey}ChristopheMongai`]
+        );
+    }
+
+    if (targetKey === 'usm') {
+        candidatePaths.push([platformKey]);
+    }
+
+    for (const path of candidatePaths) {
+        const value = readNestedValue(socialData, path);
+        const normalizedUrl = normalizeSocialUrl(value);
+        if (normalizedUrl) return normalizedUrl;
+    }
+
+    return '';
+}
+
+function getSocialChoices(socialData, platformKey) {
+    return SOCIAL_TARGETS
+        .map(target => ({ ...target, url: getSocialUrl(socialData, platformKey, target.key) }))
+        .filter(choice => Boolean(choice.url));
+}
+
+function createSocialIcon(platform, className) {
+    const link = document.createElement('a');
+    link.href = '#';
+    link.className = className;
+    link.title = platform.title;
+    link.setAttribute('aria-label', platform.title);
+    link.dataset.socialPlatform = platform.key;
+    link.innerHTML = SOCIAL_ICON_SVG[platform.key] || '';
+    return link;
+}
+
+function ensureExtraSocialIcons() {
+    const xPlatform = SOCIAL_PLATFORMS.find(platform => platform.key === 'x');
+    if (!xPlatform) return;
+
+    document.querySelectorAll('.sticky-social-bar').forEach(container => {
+        if (!container.querySelector('[data-social-platform="x"], .sticky-icon[title="X"]')) {
+            container.appendChild(createSocialIcon(xPlatform, 'sticky-icon'));
+        }
+    });
+
+    document.querySelectorAll('.social-links-container').forEach(container => {
+        if (!container.querySelector('[data-social-platform="x"], .social-icon[title="X"]')) {
+            container.appendChild(createSocialIcon(xPlatform, 'social-icon'));
+        }
+    });
+
+    document.querySelectorAll('.mobile-bottom-bar').forEach(container => {
+        if (!container.querySelector('[data-social-platform="x"], .mobile-bar-icon[title="X"]')) {
+            container.appendChild(createSocialIcon(xPlatform, 'mobile-bar-icon dyn-social'));
+        }
+    });
+}
+
+function getSocialIcons(platform) {
+    return document.querySelectorAll([
+        `[data-social-platform="${platform.key}"]`,
+        `.social-icon[title="${platform.title}"]`,
+        `.sticky-icon[title="${platform.title}"]`,
+        `.dyn-social[title="${platform.title}"]`,
+        `.mobile-bar-icon[title="${platform.title}"]`
+    ].join(','));
+}
+
+function closeSocialPicker() {
+    const picker = document.querySelector('.social-choice-popover');
+    if (picker) picker.remove();
+    document.querySelectorAll('[data-social-open="true"]').forEach(el => el.removeAttribute('data-social-open'));
+}
+
+function openSocialUrl(url) {
+    window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+function showSocialPicker(anchor, platform, choices) {
+    closeSocialPicker();
+
+    const picker = document.createElement('div');
+    picker.className = 'social-choice-popover';
+    picker.setAttribute('role', 'dialog');
+    picker.setAttribute('aria-label', `${platform.title} - choisir un compte`);
+
+    picker.innerHTML = `
+        <div class="social-choice-title">${platform.title}</div>
+        <div class="social-choice-actions">
+            ${choices.map(choice => `<button type="button" class="social-choice-btn" data-url="${choice.url.replace(/"/g, '&quot;')}">${choice.label}</button>`).join('')}
+        </div>
+    `;
+
+    document.body.appendChild(picker);
+    anchor.dataset.socialOpen = 'true';
+
+    picker.querySelectorAll('.social-choice-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const url = button.dataset.url;
+            closeSocialPicker();
+            if (url) openSocialUrl(url);
+        });
+    });
+
+    const rect = anchor.getBoundingClientRect();
+    const pickerRect = picker.getBoundingClientRect();
+    const padding = 12;
+    const left = Math.min(
+        Math.max(padding, rect.left + rect.width / 2 - pickerRect.width / 2),
+        window.innerWidth - pickerRect.width - padding
+    );
+    const topCandidate = rect.top - pickerRect.height - 12;
+    const top = topCandidate > padding ? topCandidate : Math.min(rect.bottom + 12, window.innerHeight - pickerRect.height - padding);
+
+    picker.style.left = `${left}px`;
+    picker.style.top = `${Math.max(padding, top)}px`;
+
+    setTimeout(() => {
+        document.addEventListener('click', handleOutsideSocialPicker, { once: true });
+        document.addEventListener('keydown', handleEscapeSocialPicker, { once: true });
+    }, 0);
+}
+
+function handleOutsideSocialPicker(event) {
+    if (!event.target.closest('.social-choice-popover') && !event.target.closest('[data-social-platform], .social-icon, .sticky-icon, .dyn-social')) {
+        closeSocialPicker();
+        return;
+    }
+    document.addEventListener('click', handleOutsideSocialPicker, { once: true });
+}
+
+function handleEscapeSocialPicker(event) {
+    if (event.key === 'Escape') closeSocialPicker();
+    else document.addEventListener('keydown', handleEscapeSocialPicker, { once: true });
+}
+
+function parseFollowerNumber(value) {
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    const raw = String(value || '').trim().toLowerCase();
+    if (!raw) return 0;
+
+    const hasK = /\bk\b|k$/.test(raw);
+    const hasM = /\bm\b|m$/.test(raw);
+    const hasB = /\bb\b|b$/.test(raw);
+    const multiplier = hasB ? 1_000_000_000 : hasM ? 1_000_000 : hasK ? 1_000 : 1;
+
+    let normalized = raw
+        .replace(/\+/g, '')
+        .replace(/followers|abonnés|abonnes|subs|subscribers/gi, '')
+        .replace(/\s/g, '')
+        .replace(/[^0-9,\.]/g, '');
+
+    if (!normalized) return 0;
+
+    if (multiplier > 1) {
+        normalized = normalized.replace(',', '.');
+    } else if (normalized.includes(',') && normalized.includes('.')) {
+        normalized = normalized.replace(/,/g, '');
+    } else if (normalized.includes(',') && /^\d{1,3}(,\d{3})+$/.test(normalized)) {
+        normalized = normalized.replace(/,/g, '');
+    } else if (normalized.includes('.') && /^\d{1,3}(\.\d{3})+$/.test(normalized)) {
+        normalized = normalized.replace(/\./g, '');
+    } else if (normalized.includes(',')) {
+        normalized = normalized.replace(',', '.');
+    }
+
+    const parsed = Number.parseFloat(normalized);
+    return Number.isFinite(parsed) ? Math.round(parsed * multiplier) : 0;
+}
+
+function readFollowerCandidates(socialData, platformKey, targetKey) {
+    const titleKey = platformKey.charAt(0).toUpperCase() + platformKey.slice(1);
+    const targetTitle = targetKey.charAt(0).toUpperCase() + targetKey.slice(1);
+    const paths = [
+        [platformKey, targetKey, 'followers'],
+        [platformKey, `${targetKey}Followers`],
+        ['followers', platformKey, targetKey],
+        ['followers', targetKey, platformKey],
+        [`${platformKey}_${targetKey}_followers`],
+        [`${targetKey}_${platformKey}_followers`],
+        [`${platformKey}${targetTitle}Followers`],
+        [`${targetKey}${titleKey}Followers`]
+    ];
+
+    if (targetKey === 'christophe') {
+        paths.push(
+            [platformKey, 'mongai', 'followers'],
+            ['followers', platformKey, 'mongai'],
+            [`${platformKey}_mongai_followers`],
+            [`mongai_${platformKey}_followers`],
+            [`cm_${platformKey}_followers`],
+            [`${platformKey}_cm_followers`]
+        );
+    }
+
+    return paths.map(path => parseFollowerNumber(readNestedValue(socialData, path))).filter(value => value > 0);
+}
+
+function readPlatformFollowers(socialData, platformKey) {
+    const titleKey = platformKey.charAt(0).toUpperCase() + platformKey.slice(1);
+    const detailed = SOCIAL_TARGETS.flatMap(target => readFollowerCandidates(socialData, platformKey, target.key));
+    if (detailed.length) return detailed.reduce((sum, value) => sum + value, 0);
+
+    const totalPaths = [
+        [platformKey, 'followers'],
+        ['followers', platformKey],
+        [`${platformKey}_followers`],
+        [`${platformKey}Followers`],
+        [`total_${platformKey}_followers`],
+        [`${titleKey}Followers`]
+    ];
+
+    return totalPaths
+        .map(path => parseFollowerNumber(readNestedValue(socialData, path)))
+        .filter(value => value > 0)
+        .slice(0, 1)
+        .reduce((sum, value) => sum + value, 0);
+}
+
+function formatFollowersTotal(total) {
+    if (!Number.isFinite(total) || total <= 0) return '';
+    if (total >= 1_000_000) {
+        const value = total / 1_000_000;
+        const decimals = value < 10 ? 1 : 0;
+        return `+${value.toFixed(decimals).replace('.', ',')}M`;
+    }
+    if (total >= 100_000) {
+        return `+${Math.round(total / 1000)}K`;
+    }
+    return `+${new Intl.NumberFormat('fr-FR').format(Math.round(total))}`;
+}
+
+function updateDigitalImpactFromSocialData(socialData) {
+    const statEl = document.getElementById('stat-3');
+    if (!statEl || !socialData) return;
+
+    const platformTotal = SOCIAL_PLATFORMS
+        .map(platform => readPlatformFollowers(socialData, platform.key))
+        .reduce((sum, value) => sum + value, 0);
+
+    const fallbackTotal = parseFollowerNumber(
+        socialData.totalFollowers || socialData.followersTotal || socialData.total_followers || socialData.abonnes_total
+    );
+
+    const total = platformTotal || fallbackTotal;
+    const formattedTotal = formatFollowersTotal(total);
+
+    if (formattedTotal) {
+        statEl.textContent = formattedTotal;
+        statEl.title = `${new Intl.NumberFormat('fr-FR').format(Math.round(total))} abonnés cumulés`;
+        statEl.dataset.liveFollowers = 'true';
+    }
+}
+
 async function loadSocialLinks() {
-    let socialData = Cache.get('site_social');
+    ensureExtraSocialIcons();
+    let socialData = Cache.get(SOCIAL_CACHE_KEY);
     
     if (!socialData) {
         try {
@@ -747,7 +1059,7 @@ async function loadSocialLinks() {
             const docSnap = await getDoc(doc(db, "settings", "social"));
             if (docSnap.exists()) {
                 socialData = docSnap.data();
-                Cache.set('site_social', socialData);
+                Cache.set(SOCIAL_CACHE_KEY, socialData);
             }
         } catch (e) { 
             console.error("Erreur chargement réseaux:", e); 
@@ -755,29 +1067,45 @@ async function loadSocialLinks() {
         }
     }
 
-    if (socialData) {
-        const platforms = [
-            { key: 'tiktok', title: 'TikTok' },
-            { key: 'linkedin', title: 'LinkedIn' },
-            { key: 'instagram', title: 'Instagram' },
-            { key: 'facebook', title: 'Facebook' },
-            { key: 'youtube', title: 'YouTube' }
-        ];
+    if (!socialData) return;
 
-        platforms.forEach(platform => {
-            const icons = document.querySelectorAll(`.social-icon[title="${platform.title}"], .sticky-icon[title="${platform.title}"], .dyn-social[title="${platform.title}"]`);
-            const url = socialData[platform.key];
-            
-            icons.forEach(iconEl => {
-                if (url && url.trim() !== '') {
-                    iconEl.href = url;
-                    iconEl.style.display = 'flex'; 
-                } else {
-                    iconEl.style.display = 'none'; 
+    updateDigitalImpactFromSocialData(socialData);
+
+    SOCIAL_PLATFORMS.forEach(platform => {
+        const icons = getSocialIcons(platform);
+        const choices = getSocialChoices(socialData, platform.key);
+        const primaryUrl = choices[0]?.url || '';
+        
+        icons.forEach(iconEl => {
+            iconEl.dataset.socialPlatform = platform.key;
+            iconEl.dataset.socialTitle = platform.title;
+            iconEl.removeAttribute('target');
+            iconEl.rel = 'noopener noreferrer';
+
+            if (!choices.length) {
+                iconEl.style.display = 'none';
+                iconEl.href = '#';
+                return;
+            }
+
+            iconEl.href = primaryUrl;
+            iconEl.style.display = 'flex';
+            iconEl.setAttribute('aria-haspopup', choices.length > 1 ? 'dialog' : 'false');
+
+            if (iconEl.dataset.socialPickerBound === 'true') return;
+            iconEl.dataset.socialPickerBound = 'true';
+            iconEl.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                const latestChoices = getSocialChoices(socialData, platform.key);
+                if (latestChoices.length <= 1) {
+                    if (latestChoices[0]?.url) openSocialUrl(latestChoices[0].url);
+                    return;
                 }
+                showSocialPicker(iconEl, platform, latestChoices);
             });
         });
-    }
+    });
 }
 
 /* ================= 6. CHARGEMENT DES SERVICES AVEC CACHE ================= */
