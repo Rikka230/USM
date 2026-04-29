@@ -33,3 +33,11 @@ Le chiffre “Abonnés cumulés” est recalculé automatiquement avec les champ
 - Sauvegarde admin sécurisée avec garde-fous contre les erreurs `Cannot read properties...`.
 - Cache-bust passé en `social-picker-stats-4`.
 - Sous-titres des cartes Services forcés en majuscules côté CSS.
+
+
+## Correctif lisibilité stats / services - 2026-04-29
+
+- Renommage du libellé `Confiance & Roster` en `Confiance (+1000 joueurs)`.
+- Les chiffres de la grille stats restent sur une seule ligne pour éviter l'empilement vertical.
+- Les sous-titres des cartes services reçoivent un fond sombre léger et un liseré rose pour rester lisibles sur les images.
+- Cache-bust front passé en `stats-services-readability-1`.

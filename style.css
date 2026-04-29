@@ -2188,3 +2188,81 @@ html, body {
         font-size: 0.95rem;
     }
 }
+
+
+/* ==========================================================================
+   STATS + SERVICES READABILITY FIX
+   Date: 2026-04-29
+   - Les chiffres restent sur une seule ligne au lieu de se casser verticalement.
+   - Les sous-titres des services gagnent un fond lisible sur les images.
+   ========================================================================== */
+.data-huge {
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    word-break: keep-all !important;
+    text-wrap: nowrap;
+    font-size: clamp(1.45rem, 2.15vw, 2.85rem) !important;
+    line-height: 1 !important;
+    letter-spacing: -1.35px !important;
+    max-width: 100% !important;
+}
+
+@media (max-width: 850px) {
+    .data-huge {
+        font-size: clamp(1.05rem, 5.6vw, 1.75rem) !important;
+        letter-spacing: -0.85px !important;
+        padding-inline: 0 !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .data-huge {
+        font-size: clamp(0.98rem, 6vw, 1.42rem) !important;
+        letter-spacing: -0.55px !important;
+    }
+}
+
+#services-container .bento-service-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg,
+            rgba(0, 0, 0, 0.86) 0%,
+            rgba(0, 0, 0, 0.62) 34%,
+            rgba(0, 0, 0, 0.30) 58%,
+            rgba(0, 0, 0, 0.86) 100%);
+}
+
+#services-container .srv-card-content h3 {
+    line-height: 1.16 !important;
+    text-shadow: 0 3px 16px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.95) !important;
+}
+
+#services-container .srv-card-content p {
+    width: fit-content;
+    max-width: 100%;
+    padding: 8px 10px;
+    border-left: 2px solid rgba(216, 0, 86, 0.95);
+    border-radius: 10px;
+    background: rgba(3, 3, 6, 0.55);
+    color: #fff !important;
+    font-size: clamp(0.82rem, 0.9vw, 0.95rem) !important;
+    font-weight: 700;
+    letter-spacing: 0.15px;
+    line-height: 1.34 !important;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.95) !important;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+@media (max-width: 850px) {
+    #services-container .srv-card-content p {
+        padding: 7px 9px;
+        font-size: 0.76rem !important;
+        line-height: 1.28 !important;
+        -webkit-line-clamp: 2;
+    }
+}
