@@ -380,27 +380,85 @@
                     <h1 style="margin: 0;">Réseaux Sociaux</h1>
                     <p style="color: #aaa; margin-top: 10px;">Gérez les liens de vos réseaux sociaux ici. Laissez un champ vide pour masquer automatiquement l'icône correspondante sur le site public.</p>
                 </header>
-                <form id="social-form" class="bento-form" style="max-width: 600px;">
-                    <div>
-                        <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">TikTok</label>
-                        <input type="url" id="social-tiktok" placeholder="https://www.tiktok.com/@...">
+                <form id="social-form" class="bento-form" style="max-width: 980px;">
+                    <p style="color:#aaa; font-size:0.95rem; line-height:1.6; margin:0 0 18px;">
+                        Pour chaque réseau, renseignez le lien du compte USM et, si besoin, le lien du compte Christophe Mongai. Si les deux liens existent, le site public affichera une petite bulle de choix au clic.
+                    </p>
+                    <p id="social-admin-status" role="status" aria-live="polite" style="display:none; color:#aaa; font-size:0.88rem; line-height:1.45; margin:0 0 18px; padding:10px 12px; border-radius:12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);"></p>
+
+                    <div class="social-admin-grid" style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:18px;">
+
+                        <div class="social-admin-card" style="border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:18px; background:rgba(255,255,255,0.03);">
+                            <h3 style="margin:0 0 14px; color:#fff;">TikTok</h3>
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Lien USM</label>
+                            <input type="url" id="social-tiktok-usm" placeholder="https://www.tiktok.com/@usm...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Lien Christophe Mongai</label>
+                            <input type="url" id="social-tiktok-christophe" placeholder="https://www.tiktok.com/@...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés USM</label>
+                            <input type="number" min="0" id="social-tiktok-usm-followers" placeholder="Ex : 120000">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés Christophe</label>
+                            <input type="number" min="0" id="social-tiktok-christophe-followers" placeholder="Ex : 45000">
+                        </div>
+                        <div class="social-admin-card" style="border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:18px; background:rgba(255,255,255,0.03);">
+                            <h3 style="margin:0 0 14px; color:#fff;">LinkedIn</h3>
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Lien USM</label>
+                            <input type="url" id="social-linkedin-usm" placeholder="https://www.linkedin.com/company/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Lien Christophe Mongai</label>
+                            <input type="url" id="social-linkedin-christophe" placeholder="https://www.linkedin.com/in/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés USM</label>
+                            <input type="number" min="0" id="social-linkedin-usm-followers" placeholder="Ex : 120000">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés Christophe</label>
+                            <input type="number" min="0" id="social-linkedin-christophe-followers" placeholder="Ex : 45000">
+                        </div>
+                        <div class="social-admin-card" style="border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:18px; background:rgba(255,255,255,0.03);">
+                            <h3 style="margin:0 0 14px; color:#fff;">Instagram</h3>
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Lien USM</label>
+                            <input type="url" id="social-instagram-usm" placeholder="https://www.instagram.com/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Lien Christophe Mongai</label>
+                            <input type="url" id="social-instagram-christophe" placeholder="https://www.instagram.com/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés USM</label>
+                            <input type="number" min="0" id="social-instagram-usm-followers" placeholder="Ex : 120000">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés Christophe</label>
+                            <input type="number" min="0" id="social-instagram-christophe-followers" placeholder="Ex : 45000">
+                        </div>
+                        <div class="social-admin-card" style="border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:18px; background:rgba(255,255,255,0.03);">
+                            <h3 style="margin:0 0 14px; color:#fff;">Facebook</h3>
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Lien USM</label>
+                            <input type="url" id="social-facebook-usm" placeholder="https://www.facebook.com/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Lien Christophe Mongai</label>
+                            <input type="url" id="social-facebook-christophe" placeholder="https://www.facebook.com/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés USM</label>
+                            <input type="number" min="0" id="social-facebook-usm-followers" placeholder="Ex : 120000">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés Christophe</label>
+                            <input type="number" min="0" id="social-facebook-christophe-followers" placeholder="Ex : 45000">
+                        </div>
+                        <div class="social-admin-card" style="border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:18px; background:rgba(255,255,255,0.03);">
+                            <h3 style="margin:0 0 14px; color:#fff;">YouTube</h3>
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Lien USM</label>
+                            <input type="url" id="social-youtube-usm" placeholder="https://www.youtube.com/@...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Lien Christophe Mongai</label>
+                            <input type="url" id="social-youtube-christophe" placeholder="https://www.youtube.com/@...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés USM</label>
+                            <input type="number" min="0" id="social-youtube-usm-followers" placeholder="Ex : 120000">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés Christophe</label>
+                            <input type="number" min="0" id="social-youtube-christophe-followers" placeholder="Ex : 45000">
+                        </div>
+                        <div class="social-admin-card" style="border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:18px; background:rgba(255,255,255,0.03);">
+                            <h3 style="margin:0 0 14px; color:#fff;">X</h3>
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Lien USM</label>
+                            <input type="url" id="social-x-usm" placeholder="https://x.com/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Lien Christophe Mongai</label>
+                            <input type="url" id="social-x-christophe" placeholder="https://x.com/...">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés USM</label>
+                            <input type="number" min="0" id="social-x-usm-followers" placeholder="Ex : 120000">
+                            <label style="color:#aaa; font-size:0.85rem; display:block; margin:12px 0 5px;">Abonnés Christophe</label>
+                            <input type="number" min="0" id="social-x-christophe-followers" placeholder="Ex : 45000">
+                        </div>
                     </div>
-                    <div>
-                        <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">LinkedIn</label>
-                        <input type="url" id="social-linkedin" placeholder="https://www.linkedin.com/company/...">
-                    </div>
-                    <div>
-                        <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Instagram</label>
-                        <input type="url" id="social-instagram" placeholder="https://www.instagram.com/...">
-                    </div>
-                    <div>
-                        <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">Facebook</label>
-                        <input type="url" id="social-facebook" placeholder="https://www.facebook.com/...">
-                    </div>
-                    <div>
-                        <label style="color:#aaa; font-size:0.85rem; display:block; margin-bottom:5px;">YouTube</label>
-                        <input type="url" id="social-youtube" placeholder="https://www.youtube.com/channel/...">
-                    </div>
+
+                    <p style="color:#888; font-size:0.85rem; line-height:1.5; margin:18px 0 0;">
+                        Le chiffre “Abonnés cumulés” du site est calculé automatiquement avec les valeurs abonnés renseignées ici.
+                    </p>
                     <button type="submit" id="save-social-btn" class="btn-publish" style="margin-top: 20px;">Enregistrer les Réseaux</button>
                 </form>
             </section>
@@ -430,6 +488,6 @@
         </main>
     </div>
 
-    <script type="module" src="admin.js"></script>
+    <script type="module" src="admin.js?v=social-picker-stats-4"></script>
 </body>
 </html>
