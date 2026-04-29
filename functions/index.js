@@ -135,7 +135,7 @@ function getBrevoContactListIds() {
     .filter((item) => Number.isInteger(item) && item > 0);
 }
 
-function createTextEmail({ firstName, lastName, profession, email, phone, profileLabel, message, requestMeta }) {
+function createTextEmail({ firstName, lastName, profession, email, phone, smsConsent, profileLabel, message, requestMeta }) {
   return [
     "Nouvelle demande de contact depuis le site USM Football.",
     "",
@@ -145,6 +145,7 @@ function createTextEmail({ firstName, lastName, profession, email, phone, profil
     `Profession : ${profession}`,
     `Email : ${email}`,
     `Téléphone : ${phone}`,
+    `Consentement téléphone/SMS : ${smsConsent ? "Oui" : "Non"}`,
     `Profil : ${profileLabel}`,
     "",
     "Message :",
@@ -159,7 +160,7 @@ function createTextEmail({ firstName, lastName, profession, email, phone, profil
   ].join("\n");
 }
 
-function createHtmlEmail({ firstName, lastName, profession, email, phone, profileLabel, message, requestMeta }) {
+function createHtmlEmail({ firstName, lastName, profession, email, phone, smsConsent, profileLabel, message, requestMeta }) {
   const safeMessage = escapeHtml(message).replace(/\n/g, "<br>");
   const safeSource = requestMeta.source || requestMeta.referer || "Non précisée";
 
@@ -170,6 +171,7 @@ function createHtmlEmail({ firstName, lastName, profession, email, phone, profil
     ["Profession", escapeHtml(profession)],
     ["Email", `<a href=\"mailto:${escapeHtml(email)}\" style=\"color:#ffffff;text-decoration:none;\">${escapeHtml(email)}</a>`],
     ["Téléphone", `<a href=\"tel:${escapeHtml(phone)}\" style=\"color:#ffffff;text-decoration:none;\">${escapeHtml(phone)}</a>`],
+    ["Consentement téléphone/SMS", smsConsent ? "Oui" : "Non"],
     ["Profil", escapeHtml(profileLabel)]
   ]
     .map(([label, value]) => `
@@ -248,7 +250,23 @@ async function readBrevoResponse(response) {
   }
 }
 
-async function syncContactToBrevo({ firstName, lastName, profession, email, phone, profile, privacyConsent, requestMeta }) {
+async function sendBrevoContactRequest({ method, url, body, signal }) {
+  const response = await fetch(url, {
+    method,
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json",
+      "api-key": BREVO_API_KEY.value()
+    },
+    body: JSON.stringify(body),
+    signal
+  });
+
+  const responseBody = await readBrevoResponse(response);
+  return { response, responseBody };
+}
+
+async function syncContactToBrevo({ firstName, lastName, profession, email, phone, profile, privacyConsent, smsConsent, requestMeta }) {
   const listIds = getBrevoContactListIds();
 
   if (!listIds.length) {
@@ -256,36 +274,27 @@ async function syncContactToBrevo({ firstName, lastName, profession, email, phon
     return;
   }
 
-  const smsPhone = formatPhoneForBrevo(phone);
   const attributes = {
     FIRSTNAME: firstName,
     LASTNAME: lastName,
     JOB_TITLE: profession
   };
 
-  if (smsPhone) attributes.SMS = smsPhone;
-
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), CONTACT_SYNC_TIMEOUT_MS);
 
   try {
-    const response = await fetch(BREVO_CONTACTS_URL, {
+    const { response, responseBody } = await sendBrevoContactRequest({
       method: "POST",
-      headers: {
-        accept: "application/json",
-        "content-type": "application/json",
-        "api-key": BREVO_API_KEY.value()
-      },
-      body: JSON.stringify({
+      url: BREVO_CONTACTS_URL,
+      body: {
         email,
         attributes,
         listIds,
         updateEnabled: true
-      }),
+      },
       signal: controller.signal
     });
-
-    const responseBody = await readBrevoResponse(response);
 
     if (!response.ok) {
       logger.error("Brevo contact sync failed", {
@@ -294,6 +303,7 @@ async function syncContactToBrevo({ firstName, lastName, profession, email, phon
         email,
         profile,
         privacyConsent: Boolean(privacyConsent),
+        smsConsent: Boolean(smsConsent),
         submittedAt: requestMeta.submittedAt
       });
       return;
@@ -302,6 +312,47 @@ async function syncContactToBrevo({ firstName, lastName, profession, email, phon
     logger.info("Brevo contact synced", {
       contactId: responseBody?.id || "updated-or-unknown",
       listIds,
+      profile,
+      smsConsent: Boolean(smsConsent),
+      submittedAt: requestMeta.submittedAt
+    });
+
+    if (!smsConsent) {
+      logger.info("Brevo SMS attribute sync skipped because consent is not granted", { email, profile });
+      return;
+    }
+
+    const smsPhone = formatPhoneForBrevo(phone);
+    if (!smsPhone) {
+      logger.warn("Brevo SMS attribute sync skipped because phone cannot be normalized", { email, phone });
+      return;
+    }
+
+    const smsUpdateUrl = BREVO_CONTACTS_URL + "/" + encodeURIComponent(email);
+    const { response: smsResponse, responseBody: smsResponseBody } = await sendBrevoContactRequest({
+      method: "PUT",
+      url: smsUpdateUrl,
+      body: {
+        attributes: {
+          SMS: smsPhone
+        }
+      },
+      signal: controller.signal
+    });
+
+    if (!smsResponse.ok) {
+      logger.error("Brevo SMS attribute sync failed", {
+        status: smsResponse.status,
+        body: smsResponseBody,
+        email,
+        profile,
+        submittedAt: requestMeta.submittedAt
+      });
+      return;
+    }
+
+    logger.info("Brevo SMS attribute synced", {
+      email,
       profile,
       submittedAt: requestMeta.submittedAt
     });
@@ -362,6 +413,7 @@ exports.sendContactEmail = onRequest(
     const profile = normalizeString(payload.profile, 30);
     const message = normalizeMessage(payload.message);
     const privacyConsent = payload.privacyConsent === true || payload.privacyConsent === "true" || payload.privacyConsent === "on";
+    const smsConsent = payload.smsConsent === true || payload.smsConsent === "true" || payload.smsConsent === "on";
     const honeypot = normalizeString(payload.company, 120);
     const startedAt = Number(payload.formStartedAt || 0);
 
@@ -420,6 +472,7 @@ exports.sendContactEmail = onRequest(
       profession,
       email,
       phone,
+      smsConsent,
       profileLabel,
       message,
       requestMeta
@@ -481,6 +534,7 @@ exports.sendContactEmail = onRequest(
         phone,
         profile,
         privacyConsent,
+        smsConsent,
         requestMeta
       });
 

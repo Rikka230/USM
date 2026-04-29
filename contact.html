@@ -15,7 +15,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="Assets/favicon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="Assets/favicon-16.png">
     <link rel="apple-touch-icon" href="Assets/apple-touch-icon.png">
-    <link rel="stylesheet" href="style.css?v=contact-layout-3">
+    <link rel="stylesheet" href="style.css?v=contact-sms-optin-1">
 </head>
 <body>
     <aside class="sticky-social-bar">
@@ -102,7 +102,11 @@
                         <input type="checkbox" name="privacyConsent" required>
                         <span data-i18n="contact_privacy_consent">J’accepte que mes informations soient utilisées par USM Football pour répondre à ma demande.</span>
                     </label>
-                    <p class="contact-rgpd-note" data-i18n="contact_rgpd_note">Vos données sont transmises à USM Football et enregistrées dans Brevo Contacts afin de traiter votre demande. Elles ne sont pas vendues ni utilisées pour un démarchage sans lien avec votre message.</p>
+                    <label class="contact-consent contact-consent-secondary">
+                        <input type="checkbox" name="smsConsent">
+                        <span data-i18n="contact_sms_consent">J’accepte aussi que mon numéro de téléphone soit utilisé par USM Football pour me recontacter par téléphone ou SMS au sujet de ma demande.</span>
+                    </label>
+                    <p class="contact-rgpd-note" data-i18n="contact_rgpd_note">Vos données sont transmises à USM Football et enregistrées dans Brevo Contacts afin de traiter votre demande. Si vous cochez l’option téléphone/SMS, votre numéro pourra aussi être enregistré dans Brevo pour permettre un recontact lié à votre demande. Vos données ne sont pas vendues.</p>
                     <button type="submit" class="btn-premium" data-i18n="contact_btn_send" style="width: 100%; padding: 15px; font-size: 1.1rem; border-radius: 8px;">Envoyer le message</button>
                 </form>
             </div>
@@ -178,7 +182,7 @@
     </nav>
     </footer>
 
-    <script type="module" src="main.js?v=contact-layout-3"></script>
-    <script src="contact-brevo.js?v=contact-layout-3"></script>
+    <script type="module" src="main.js?v=contact-sms-optin-1"></script>
+    <script src="contact-brevo.js?v=contact-sms-optin-1"></script>
 </body>
 </html>

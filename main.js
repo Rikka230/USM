@@ -120,7 +120,7 @@ const translations = {
         contact_form_title: "Envoyer un message",
         contact_ph_first_name: "Votre prénom", contact_ph_name: "Votre nom", contact_ph_profession: "Votre profession", contact_ph_email: "Votre adresse email", contact_ph_phone: "Votre numéro de téléphone",
         contact_opt_player: "Je suis un joueur", contact_opt_club: "Je représente un club", contact_opt_coach: "Je suis coach", contact_opt_staff: "Je suis membre du staff", contact_opt_other: "Autre demande",
-        contact_ph_msg: "Votre message...", contact_privacy_consent: "J’accepte que mes informations soient utilisées par USM Football pour répondre à ma demande.", contact_rgpd_note: "Vos données sont transmises à USM Football et enregistrées dans Brevo Contacts afin de traiter votre demande. Elles ne sont pas vendues ni utilisées pour un démarchage sans lien avec votre message.", contact_btn_send: "Envoyer le message",
+        contact_ph_msg: "Votre message...", contact_privacy_consent: "J’accepte que mes informations soient utilisées par USM Football pour répondre à ma demande.", contact_sms_consent: "J’accepte aussi que mon numéro de téléphone soit utilisé par USM Football pour me recontacter par téléphone ou SMS au sujet de ma demande.", contact_rgpd_note: "Vos données sont transmises à USM Football et enregistrées dans Brevo Contacts afin de traiter votre demande. Si vous cochez l’option téléphone/SMS, votre numéro pourra aussi être enregistré dans Brevo pour permettre un recontact lié à votre demande. Vos données ne sont pas vendues.", contact_btn_send: "Envoyer le message",
         back_services: "❮ Retour à l'accueil", other_services: "Naviguer"
     },
     en: {
@@ -141,7 +141,7 @@ const translations = {
         contact_form_title: "Send a message",
         contact_ph_first_name: "Your first name", contact_ph_name: "Your last name", contact_ph_profession: "Your profession", contact_ph_email: "Your email address", contact_ph_phone: "Your phone number",
         contact_opt_player: "I am a player", contact_opt_club: "I represent a club", contact_opt_coach: "I am a coach", contact_opt_staff: "I am a staff member", contact_opt_other: "Other request",
-        contact_ph_msg: "Your message...", contact_privacy_consent: "I agree that my information may be used by USM Football to respond to my request.", contact_rgpd_note: "Your data is sent to USM Football and saved in Brevo Contacts to process your request. It is not sold or used for unrelated prospecting.", contact_btn_send: "Send message",
+        contact_ph_msg: "Your message...", contact_privacy_consent: "I agree that my information may be used by USM Football to respond to my request.", contact_sms_consent: "I also agree that my phone number may be used by USM Football to contact me by phone or SMS about my request.", contact_rgpd_note: "Your data is sent to USM Football and saved in Brevo Contacts to process your request. If you tick the phone/SMS option, your number may also be saved in Brevo to allow follow-up related to your request. Your data is not sold.", contact_btn_send: "Send message",
         back_services: "❮ Back to Home", other_services: "Navigate"
     },
     es: {
@@ -162,7 +162,7 @@ const translations = {
         contact_form_title: "Enviar un mensaje",
         contact_ph_first_name: "Tu nombre", contact_ph_name: "Tus apellidos", contact_ph_profession: "Tu profesión", contact_ph_email: "Tu correo electrónico", contact_ph_phone: "Tu número de teléfono",
         contact_opt_player: "Soy jugador", contact_opt_club: "Represento a un club", contact_opt_coach: "Soy entrenador", contact_opt_staff: "Soy miembro del staff", contact_opt_other: "Otra consulta",
-        contact_ph_msg: "Tu mensaje...", contact_privacy_consent: "Acepto que USM Football utilice mi información para responder a mi solicitud.", contact_rgpd_note: "Tus datos se transmiten a USM Football y se guardan en Brevo Contacts para tratar tu solicitud. No se venden ni se utilizan para prospección sin relación con tu mensaje.", contact_btn_send: "Enviar mensaje",
+        contact_ph_msg: "Tu mensaje...", contact_privacy_consent: "Acepto que USM Football utilice mi información para responder a mi solicitud.", contact_sms_consent: "También acepto que USM Football use mi número para contactarme por teléfono o SMS sobre mi solicitud.", contact_rgpd_note: "Tus datos se transmiten a USM Football y se guardan en Brevo Contacts para tratar tu solicitud. Si marcas la opción teléfono/SMS, tu número también podrá guardarse en Brevo para un seguimiento relacionado con tu solicitud. Tus datos no se venden.", contact_btn_send: "Enviar mensaje",
         back_services: "❮ Volver al inicio", other_services: "Navegar"
     },
     pt: {
@@ -183,7 +183,7 @@ const translations = {
         contact_form_title: "Enviar uma mensagem",
         contact_ph_first_name: "Seu primeiro nome", contact_ph_name: "Seu sobrenome", contact_ph_profession: "Sua profissão", contact_ph_email: "Seu endereço de email", contact_ph_phone: "Seu número de telefone",
         contact_opt_player: "Sou jogador", contact_opt_club: "Represento um clube", contact_opt_coach: "Sou treinador", contact_opt_staff: "Sou membro da equipa", contact_opt_other: "Outro pedido",
-        contact_ph_msg: "Sua mensagem...", contact_privacy_consent: "Aceito que as minhas informações sejam usadas pela USM Football para responder ao meu pedido.", contact_rgpd_note: "Os seus dados são transmitidos à USM Football e guardados no Brevo Contacts para tratar o seu pedido. Não são vendidos nem usados para prospeção sem relação com a sua mensagem.", contact_btn_send: "Enviar mensagem",
+        contact_ph_msg: "Sua mensagem...", contact_privacy_consent: "Aceito que as minhas informações sejam usadas pela USM Football para responder ao meu pedido.", contact_sms_consent: "Também aceito que a USM Football use o meu número para me contactar por telefone ou SMS sobre o meu pedido.", contact_rgpd_note: "Os seus dados são transmitidos à USM Football e guardados no Brevo Contacts para tratar o seu pedido. Se marcar a opção telefone/SMS, o seu número também poderá ser guardado no Brevo para permitir um acompanhamento relacionado com o seu pedido. Os seus dados não são vendidos.", contact_btn_send: "Enviar mensagem",
         back_services: "❮ Voltar ao Início", other_services: "Navegar"
     }
 };
