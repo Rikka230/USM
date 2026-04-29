@@ -54,14 +54,20 @@ const CACHE_TIME_24H = 1000 * 60 * 60 * 24;
 
 const Cache = {
     get: (key) => {
-        const item = localStorage.getItem(key);
-        if (!item) return null;
-        const parsed = JSON.parse(item);
-        if (Date.now() - parsed.timestamp > CACHE_TIME_24H) {
+        try {
+            const item = localStorage.getItem(key);
+            if (!item) return null;
+            const parsed = JSON.parse(item);
+            if (!parsed || typeof parsed !== 'object') return null;
+            if (Date.now() - parsed.timestamp > CACHE_TIME_24H) {
+                localStorage.removeItem(key);
+                return null;
+            }
+            return parsed.data;
+        } catch (error) {
             localStorage.removeItem(key);
             return null;
         }
-        return parsed.data;
     },
     set: (key, data) => localStorage.setItem(key, JSON.stringify({timestamp: Date.now(), data}))
 };
@@ -759,11 +765,13 @@ const SOCIAL_ICON_SVG = {
 };
 
 function normalizeSocialUrl(value) {
-    const url = String(value || '').trim();
+    if (typeof value !== 'string') return '';
+    const url = value.trim();
     if (!url || url === '#') return '';
     if (/^https?:\/\//i.test(url)) return url;
     if (/^www\./i.test(url)) return `https://${url}`;
-    return url;
+    if (/^[a-z0-9.-]+\.[a-z]{2,}(\/|$)/i.test(url)) return `https://${url}`;
+    return '';
 }
 
 function readNestedValue(source, path) {
@@ -870,7 +878,17 @@ function closeSocialPicker() {
 }
 
 function openSocialUrl(url) {
-    window.open(url, '_blank', 'noopener,noreferrer');
+    const safeUrl = normalizeSocialUrl(url);
+    if (!safeUrl) return;
+    window.open(safeUrl, '_blank', 'noopener,noreferrer');
+}
+
+function escapeSocialAttribute(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 }
 
 function showSocialPicker(anchor, platform, choices) {
@@ -884,7 +902,7 @@ function showSocialPicker(anchor, platform, choices) {
     picker.innerHTML = `
         <div class="social-choice-title">${platform.title}</div>
         <div class="social-choice-actions">
-            ${choices.map(choice => `<button type="button" class="social-choice-btn" data-url="${choice.url.replace(/"/g, '&quot;')}">${choice.label}</button>`).join('')}
+            ${choices.map(choice => `<button type="button" class="social-choice-btn" data-url="${escapeSocialAttribute(choice.url)}">${choice.label}</button>`).join('')}
         </div>
     `;
 
@@ -990,7 +1008,10 @@ function readFollowerCandidates(socialData, platformKey, targetKey) {
         );
     }
 
-    return paths.map(path => parseFollowerNumber(readNestedValue(socialData, path))).filter(value => value > 0);
+    return paths
+        .map(path => parseFollowerNumber(readNestedValue(socialData, path)))
+        .filter(value => value > 0)
+        .slice(0, 1);
 }
 
 function readPlatformFollowers(socialData, platformKey) {
@@ -1063,11 +1084,11 @@ async function loadSocialLinks() {
             }
         } catch (e) { 
             console.error("Erreur chargement réseaux:", e); 
-            return; 
+            socialData = {};
         }
     }
 
-    if (!socialData) return;
+    if (!socialData) socialData = {};
 
     updateDigitalImpactFromSocialData(socialData);
 
