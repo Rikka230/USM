@@ -136,6 +136,7 @@ function getPayload(form) {
     profile: getValue(form, 'select[name="profile"], select'),
     message: getValue(form, 'textarea[name="message"], textarea'),
     privacyConsent: getChecked(form, 'input[name="privacyConsent"]'),
+    smsConsent: getChecked(form, 'input[name="smsConsent"]'),
     source: window.location.href,
     pageTitle: document.title,
     company: getValue(form, 'input[name="company"]'),
