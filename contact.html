@@ -15,7 +15,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="Assets/favicon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="Assets/favicon-16.png">
     <link rel="apple-touch-icon" href="Assets/apple-touch-icon.png">
-    <link rel="stylesheet" href="style.css?v=contact-brevo-1">
+    <link rel="stylesheet" href="style.css?v=contact-brevo-2">
 </head>
 <body>
     <aside class="sticky-social-bar">
@@ -89,7 +89,11 @@
             <div class="bento-card reveal contact-form-box">
                 <h2 data-i18n="contact_form_title">Envoyer un message</h2>
                 <form class="public-form" id="contact-form" data-endpoint="/api/sendContactEmail">
-                    <input type="text" name="name" autocomplete="name" data-i18n-placeholder="contact_ph_name" placeholder="Votre nom complet" required>
+                    <div class="contact-form-row">
+                        <input type="text" name="firstName" autocomplete="given-name" data-i18n-placeholder="contact_ph_first_name" placeholder="Votre prénom" required>
+                        <input type="text" name="name" autocomplete="family-name" data-i18n-placeholder="contact_ph_name" placeholder="Votre nom" required>
+                    </div>
+                    <input type="text" name="profession" autocomplete="organization-title" data-i18n-placeholder="contact_ph_profession" placeholder="Votre profession" required>
                     <input type="email" name="email" autocomplete="email" data-i18n-placeholder="contact_ph_email" placeholder="Votre adresse email" required>
                     <input type="tel" name="phone" autocomplete="tel" data-i18n-placeholder="contact_ph_phone" placeholder="Votre numéro de téléphone" required>
                     <select name="profile" required>
@@ -100,6 +104,11 @@
                         <option value="autre" data-i18n="contact_opt_other">Autre demande</option>
                     </select>
                     <textarea name="message" rows="5" data-i18n-placeholder="contact_ph_msg" placeholder="Votre message..." required></textarea>
+                    <label class="contact-consent">
+                        <input type="checkbox" name="privacyConsent" required>
+                        <span data-i18n="contact_privacy_consent">J’accepte que mes informations soient utilisées par USM Football pour répondre à ma demande.</span>
+                    </label>
+                    <p class="contact-rgpd-note" data-i18n="contact_rgpd_note">Vos données sont transmises à USM Football et enregistrées dans Brevo Contacts afin de traiter votre demande. Elles ne sont pas vendues ni utilisées pour un démarchage sans lien avec votre message.</p>
                     <button type="submit" class="btn-premium" data-i18n="contact_btn_send" style="width: 100%; padding: 15px; font-size: 1.1rem; border-radius: 8px;">Envoyer le message</button>
                 </form>
             </div>
@@ -179,7 +188,7 @@
     </nav>
     </footer>
 
-    <script type="module" src="main.js?v=contact-brevo-1"></script>
-    <script src="contact-brevo.js?v=contact-brevo-1"></script>
+    <script type="module" src="main.js?v=contact-brevo-2"></script>
+    <script src="contact-brevo.js?v=contact-brevo-2"></script>
 </body>
 </html>
