@@ -354,6 +354,7 @@ body {
     font-size: 0.95rem; color: #eee; line-height: 1.5; 
     display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; 
     text-shadow: 0 2px 15px rgba(0,0,0,0.9);
+    text-transform: uppercase;
 }
 
 #services-container .srv-card-arrow { 

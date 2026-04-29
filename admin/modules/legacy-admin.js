@@ -1373,17 +1373,56 @@ function getSocialAdminInput(platform, target, suffix = '') {
     return document.getElementById(id);
 }
 
+function setSocialAdminStatus(message = '', type = 'info') {
+    const status = document.getElementById('social-admin-status');
+    if (!status) return;
+
+    status.textContent = message;
+    status.style.display = message ? 'block' : 'none';
+
+    const colorMap = {
+        info: '#aaa',
+        success: '#75f0a5',
+        warning: '#ffd37a',
+        error: '#ff8a8a'
+    };
+    const borderMap = {
+        info: 'rgba(255,255,255,0.08)',
+        success: 'rgba(117,240,165,0.28)',
+        warning: 'rgba(255,211,122,0.28)',
+        error: 'rgba(255,138,138,0.32)'
+    };
+
+    status.style.color = colorMap[type] || colorMap.info;
+    status.style.borderColor = borderMap[type] || borderMap.info;
+}
+
+function isPlainObject(value) {
+    return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
 function readSocialValue(data, platform, target) {
-    if (!data) return '';
+    if (!isPlainObject(data)) return '';
+
     const directKey = `${platform}_${target}`;
-    const legacyValue = target === 'usm' && typeof data[platform] === 'string' ? data[platform] : '';
-    return data?.[platform]?.[target] || data[directKey] || legacyValue || '';
+    const platformData = data[platform];
+    const nestedValue = isPlainObject(platformData) ? platformData[target] : '';
+    const legacyValue = target === 'usm' && typeof platformData === 'string' ? platformData : '';
+
+    return String(nestedValue || data[directKey] || legacyValue || '').trim();
 }
 
 function readSocialFollowers(data, platform, target) {
-    if (!data) return '';
+    if (!isPlainObject(data)) return '';
+
     const directKey = `${platform}_${target}_followers`;
-    return data?.followers?.[platform]?.[target] || data[directKey] || '';
+    const followersRoot = isPlainObject(data.followers) ? data.followers : {};
+    const platformFollowers = isPlainObject(followersRoot[platform]) ? followersRoot[platform] : {};
+    const nestedValue = platformFollowers[target];
+    const directValue = data[directKey];
+
+    const value = nestedValue ?? directValue ?? '';
+    return value === 0 ? '' : String(value).trim();
 }
 
 function setSocialAdminValues(data = {}) {
@@ -1391,6 +1430,7 @@ function setSocialAdminValues(data = {}) {
         SOCIAL_ADMIN_TARGETS.forEach((target) => {
             const urlInput = getSocialAdminInput(platform, target);
             const followersInput = getSocialAdminInput(platform, target, 'followers');
+
             if (urlInput) urlInput.value = readSocialValue(data, platform, target);
             if (followersInput) followersInput.value = readSocialFollowers(data, platform, target);
         });
@@ -1433,54 +1473,81 @@ function buildSocialAdminPayload() {
     return payload;
 }
 
+async function loadSocialAdminSettings() {
+    setSocialAdminStatus('Chargement des réseaux depuis Firebase...', 'info');
+
+    try {
+        const docSnap = await getDoc(doc(db, 'settings', 'social'));
+        const data = docSnap.exists() ? docSnap.data() : {};
+
+        setSocialAdminValues(data);
+        setSocialAdminStatus(
+            docSnap.exists()
+                ? 'Réseaux chargés depuis Firebase. Tu peux modifier puis enregistrer.'
+                : 'Aucun réglage social trouvé dans Firebase pour le moment. Remplis les champs puis enregistre pour créer settings/social.',
+            docSnap.exists() ? 'success' : 'warning'
+        );
+    } catch (error) {
+        console.error('Erreur chargement réseaux:', error);
+        setSocialAdminStatus(`Erreur lecture Firebase : ${error.message || error.code || error}`, 'error');
+    }
+}
+
 const navSocial = document.getElementById('nav-social');
-if(navSocial) {
+if (navSocial) {
     navSocial.addEventListener('click', async (e) => {
         document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
-        e.target.classList.add('active');
-        hideAllSections();
-        document.getElementById('manage-social-section').classList.remove('hidden');
+        const clickedButton = e.currentTarget || navSocial;
+        clickedButton.classList.add('active');
 
-        try {
-            const docSnap = await getDoc(doc(db, "settings", "social")); 
-            setSocialAdminValues(docSnap.exists() ? docSnap.data() : {});
-        } catch (error) { console.error("Erreur chargement réseaux:", error); }
+        hideAllSections();
+        const socialSection = document.getElementById('manage-social-section');
+        if (socialSection) socialSection.classList.remove('hidden');
+
+        localStorage.setItem('admin_active_tab', 'nav-social');
+        await loadSocialAdminSettings();
     });
 }
 
 const socialForm = document.getElementById('social-form');
-if(socialForm) {
+if (socialForm) {
     socialForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('save-social-btn');
-        btn.textContent = "Sauvegarde en cours...";
-        btn.disabled = true;
+        const originalText = btn?.textContent || 'Enregistrer les Réseaux';
+
+        if (btn) {
+            btn.textContent = 'Sauvegarde en cours...';
+            btn.disabled = true;
+        }
+        setSocialAdminStatus('Enregistrement dans Firebase...', 'info');
 
         try {
             const payload = buildSocialAdminPayload();
+            await setDoc(doc(db, 'settings', 'social'), payload, { merge: true });
 
-            await setDoc(doc(db, "settings", "social"), payload, { merge: true });
-            
-            clearPublicCache(); 
+            clearPublicCache();
             localStorage.removeItem('site_social');
             localStorage.removeItem('site_social_picker_v1');
             localStorage.removeItem('site_social_picker_v2');
-            
-            alert("Réseaux sociaux mis à jour avec succès !");
-        } catch(err) {
-            alert("Erreur : " + err.message);
+
+            setSocialAdminStatus('Réseaux sociaux enregistrés avec succès dans Firebase.', 'success');
+            alert('Réseaux sociaux mis à jour avec succès !');
+        } catch (err) {
+            console.error('Erreur sauvegarde réseaux:', err);
+            setSocialAdminStatus(`Erreur écriture Firebase : ${err.message || err.code || err}`, 'error');
+            alert('Erreur : ' + (err.message || err.code || err));
         } finally {
-            btn.textContent = "Enregistrer les Réseaux";
-            btn.disabled = false;
+            if (btn) {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
         }
     });
 }
 
 if (!navBtnIds.includes('nav-social')) {
     navBtnIds.push('nav-social');
-    navSocial.addEventListener('click', () => {
-        localStorage.setItem('admin_active_tab', 'nav-social');
-    });
 }
 
 /* ================= 10. GESTION BANDEROLE IMAGES ================= */

@@ -3,4 +3,4 @@
    Modular entrypoint
    ========================================================================== */
 
-import './admin/modules/legacy-admin.js?v=social-picker-stats-3';
+import './admin/modules/legacy-admin.js?v=social-picker-stats-4';

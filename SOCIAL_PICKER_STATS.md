@@ -24,3 +24,12 @@ Le chiffre “Abonnés cumulés” est recalculé automatiquement avec les champ
 - Évite le double comptage des abonnés quand les valeurs existent à la fois en format plat et en format imbriqué.
 - Sécurise la lecture des URLs sociales : seules les URLs web exploitables sont utilisées.
 - Ajoute un cache-bust sur les scripts/styles pour que la preview Firebase affiche immédiatement la version test.
+
+
+## Patch 4 — admin réseaux + sous-titres services
+
+- Ajout d'un statut visible dans l'onglet admin Réseaux pour confirmer la lecture/écriture Firebase ou afficher l'erreur exacte.
+- Lecture admin rendue compatible avec les anciens formats plats et les nouveaux formats imbriqués de `settings/social`.
+- Sauvegarde admin sécurisée avec garde-fous contre les erreurs `Cannot read properties...`.
+- Cache-bust passé en `social-picker-stats-4`.
+- Sous-titres des cartes Services forcés en majuscules côté CSS.
