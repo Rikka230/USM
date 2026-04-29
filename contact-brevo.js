@@ -3,6 +3,7 @@ const CONTACT_ENDPOINT = "/api/sendContactEmail";
 const CONTACT_MESSAGES = {
   fr: {
     required: "Merci de remplir tous les champs obligatoires avant l’envoi.",
+    privacyRequired: "Merci de confirmer l’utilisation de vos informations pour traiter votre demande.",
     invalidEmail: "Merci d’indiquer une adresse email valide.",
     invalidPhone: "Merci d’indiquer un numéro de téléphone valide.",
     shortMessage: "Merci d’ajouter un message un peu plus détaillé.",
@@ -13,6 +14,7 @@ const CONTACT_MESSAGES = {
   },
   en: {
     required: "Please complete all required fields before sending.",
+    privacyRequired: "Please confirm that your information may be used to process your request.",
     invalidEmail: "Please enter a valid email address.",
     invalidPhone: "Please enter a valid phone number.",
     shortMessage: "Please add a slightly more detailed message.",
@@ -23,6 +25,7 @@ const CONTACT_MESSAGES = {
   },
   es: {
     required: "Por favor, completa todos los campos obligatorios antes de enviar.",
+    privacyRequired: "Confirma que tu información puede utilizarse para tratar tu solicitud.",
     invalidEmail: "Por favor, introduce una dirección de email válida.",
     invalidPhone: "Por favor, introduce un número de teléfono válido.",
     shortMessage: "Por favor, añade un mensaje un poco más detallado.",
@@ -33,6 +36,7 @@ const CONTACT_MESSAGES = {
   },
   pt: {
     required: "Preencha todos os campos obrigatórios antes de enviar.",
+    privacyRequired: "Confirme que as suas informações podem ser usadas para tratar o seu pedido.",
     invalidEmail: "Indique um endereço de email válido.",
     invalidPhone: "Indique um número de telefone válido.",
     shortMessage: "Adicione uma mensagem um pouco mais detalhada.",
@@ -59,6 +63,11 @@ function getValue(form, selector) {
   return field && field.value ? field.value.trim() : "";
 }
 
+function getChecked(form, selector) {
+  const field = form.querySelector(selector);
+  return Boolean(field && field.checked);
+}
+
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
@@ -75,14 +84,12 @@ function createOrUpdateNotice(form, message, type) {
     notice.className = "contact-mail-notice";
     notice.setAttribute("role", "status");
     notice.setAttribute("aria-live", "polite");
-    notice.style.marginTop = "14px";
-    notice.style.fontSize = "0.92rem";
-    notice.style.lineHeight = "1.45";
     form.appendChild(notice);
   }
 
   notice.textContent = message;
-  notice.style.color = type === "error" ? "#ff6b8a" : "rgba(255,255,255,0.78)";
+  notice.classList.remove("is-error", "is-success", "is-info");
+  notice.classList.add(`is-${type || "info"}`);
 }
 
 function ensureAntiSpamFields(form) {
@@ -121,11 +128,16 @@ function setSubmitState(button, isSending) {
 
 function getPayload(form) {
   return {
-    name: getValue(form, 'input[name="name"], input[type="text"]'),
+    firstName: getValue(form, 'input[name="firstName"]'),
+    name: getValue(form, 'input[name="name"], input[name="lastName"]'),
+    profession: getValue(form, 'input[name="profession"]'),
     email: getValue(form, 'input[name="email"], input[type="email"]'),
     phone: getValue(form, 'input[name="phone"], input[type="tel"]'),
     profile: getValue(form, 'select[name="profile"], select'),
     message: getValue(form, 'textarea[name="message"], textarea'),
+    privacyConsent: getChecked(form, 'input[name="privacyConsent"]'),
+    source: window.location.href,
+    pageTitle: document.title,
     company: getValue(form, 'input[name="company"]'),
     formStartedAt: Number(getValue(form, 'input[name="formStartedAt"]') || 0)
   };
@@ -134,9 +146,10 @@ function getPayload(form) {
 function validatePayload(payload) {
   const messages = getMessages();
 
-  if (!payload.name || !payload.email || !payload.phone || !payload.profile || !payload.message) {
+  if (!payload.firstName || !payload.name || !payload.profession || !payload.email || !payload.phone || !payload.profile || !payload.message) {
     return messages.required;
   }
+  if (!payload.privacyConsent) return messages.privacyRequired;
   if (!isValidEmail(payload.email)) return messages.invalidEmail;
   if (!isValidPhone(payload.phone)) return messages.invalidPhone;
   if (payload.message.length < 10) return messages.shortMessage;
@@ -177,7 +190,7 @@ async function submitContactForm(form, button) {
     form.reset();
     ensureAntiSpamFields(form);
   } catch (error) {
-    createOrUpdateNotice(form, error.message || messages.error, "error");
+    createOrUpdateNotice(form, messages.error, "error");
   } finally {
     setSubmitState(button, false);
   }
