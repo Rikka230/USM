@@ -1323,7 +1323,7 @@ function renderOtherServices(currentId, lang, options = {}) {
         const title = srv[`title_${lang}`] || srv.title_fr || 'Service';
         const isActive = srv.id === currentId ? 'active' : '';
         html += `
-        <a href="page-dynamique.html?id=${encodeURIComponent(srv.id)}" class="sidebar-srv-link ${isActive}" data-service-id="${escapeHtml(srv.id)}" aria-current="${srv.id === currentId ? 'page' : 'false'}">
+        <a href="page-dynamique.html?id=${encodeURIComponent(srv.id)}" class="sidebar-srv-link ${isActive}" data-service-id="${escapeHTML(srv.id)}" aria-current="${srv.id === currentId ? 'page' : 'false'}">
             <span>${title}</span><span>➔</span>
         </a>`;
     });
