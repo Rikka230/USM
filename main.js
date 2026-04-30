@@ -1383,6 +1383,27 @@ function setServiceSwitchState(isSwitching) {
     document.body.classList.toggle('is-service-switching', isSwitching);
 }
 
+function scrollServicePageToTop(options = {}) {
+    if (options.popstate || options.scrollToTop === false) return;
+
+    const hero = document.querySelector('.service-hero');
+    const navbar = document.querySelector('.navbar');
+    const navHeight = navbar ? navbar.getBoundingClientRect().height : 0;
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const behavior = prefersReducedMotion ? 'auto' : 'smooth';
+
+    let targetTop = 0;
+    if (hero) {
+        targetTop = Math.max(0, hero.getBoundingClientRect().top + window.scrollY - navHeight - 4);
+    }
+
+    window.scrollTo({
+        top: targetTop,
+        left: 0,
+        behavior
+    });
+}
+
 function normalizeServiceImageUrl(url) {
     if (!url) return '';
     try { return new URL(url, window.location.href).href; }
@@ -1547,8 +1568,11 @@ window.USMServicePage = {
 
         if (nextId === currentId && !options.forceReload) {
             renderOtherServices(nextId, localStorage.getItem('usm_lang') || 'fr', { preserveDom: true });
+            scrollServicePageToTop(options);
             return true;
         }
+
+        scrollServicePageToTop(options);
 
         if (options.replace) {
             history.replaceState({ usmPjax: true, usmServiceId: nextId }, '', url.href);
