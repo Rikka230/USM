@@ -51,7 +51,7 @@ if (isStableFirebaseHost) {
 
 /* ================= 2. SYSTEME DE CACHE ANTI-COÛT ================= */
 const CACHE_TIME_24H = 1000 * 60 * 60 * 24;
-const FRONT_CACHE_VERSION = 'main-post-audit-4';
+const FRONT_CACHE_VERSION = 'main-post-audit-6';
 const FRONT_CACHE_VERSION_KEY = 'usm_front_cache_version';
 
 function syncFrontCacheVersion() {
@@ -2392,14 +2392,37 @@ function initMarqueeImages() {
             }
         }
 
+        const normalizeMarqueeCrop = (raw) => {
+            const crop = raw && typeof raw === 'object' ? raw : {};
+            const clamp = (value, min, max, fallback = 0) => {
+                const number = Number(value);
+                if (!Number.isFinite(number)) return fallback;
+                return Math.min(max, Math.max(min, number));
+            };
+            return {
+                x: clamp(crop.x, -45, 45, 0),
+                y: clamp(crop.y, -45, 45, 0),
+                zoom: clamp(crop.zoom, 0.55, 3, 1)
+            };
+        };
+
+        const normalizeMarqueeItem = (item) => {
+            if (typeof item === 'string') return { image_url: item, crop: normalizeMarqueeCrop(null) };
+            const data = item && typeof item === 'object' ? item : {};
+            return {
+                image_url: data.image_url || data.url || '',
+                crop: normalizeMarqueeCrop(data.crop || data.marquee_crop)
+            };
+        };
+
         if (!marqueeData) {
             try {
                 const { collection, getDocs, limit, query } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
                 const q = query(collection(db, "marquee_images"), limit(20));
                 const snap = await getDocs(q);
                 marqueeData = [];
-                snap.forEach(doc => marqueeData.push(doc.data().image_url));
-                
+                snap.forEach(doc => marqueeData.push(normalizeMarqueeItem(doc.data())));
+
                 if (marqueeData.length > 0) {
                     localStorage.setItem('site_marquee', JSON.stringify({timestamp: Date.now(), data: marqueeData}));
                 }
@@ -2407,16 +2430,21 @@ function initMarqueeImages() {
         }
 
         if (marqueeData && marqueeData.length > 0) {
-            const itemsHTML = marqueeData.map(url => `
-                <div class="marquee-item">
-                    <img src="${url}" loading="lazy" alt="Gallery">
-                </div>
-            `).join('');
+            marqueeData = marqueeData.map(normalizeMarqueeItem).filter(item => item.image_url);
+            const itemsHTML = marqueeData.map(item => {
+                const crop = item.crop;
+                return `
+                    <div class="marquee-item" style="--marquee-x:${crop.x}%; --marquee-y:${crop.y}%; --marquee-zoom:${crop.zoom};">
+                        <img src="${escapeHTML(item.image_url)}" loading="lazy" alt="Gallery">
+                    </div>
+                `;
+            }).join('');
 
             marqueeTrack.innerHTML = itemsHTML + itemsHTML;
         } else {
             marqueeSection.style.display = 'none'; 
         }
+
     };
 
     const marqueeObserver = new IntersectionObserver((entries) => {

@@ -674,3 +674,217 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         font-size: clamp(1.6rem, 8vw, 2.7rem);
     }
 }
+
+
+/* ================= MARQUEE / IMAGES DÉCO — STUDIO CROP ================= */
+.marquee-admin-header {
+    margin-bottom: 25px;
+}
+
+.marquee-admin-header p {
+    color: #aaa;
+    margin-top: 10px;
+    max-width: 980px;
+    line-height: 1.55;
+}
+
+#manage-marquee-section {
+    width: 100%;
+}
+
+.marquee-admin-form {
+    width: 100% !important;
+    max-width: none !important;
+    margin-bottom: 34px !important;
+}
+
+.marquee-studio-admin {
+    width: 100%;
+    padding: clamp(22px, 2.2vw, 34px);
+    border: 1px solid rgba(216, 0, 86, 0.24);
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.025));
+    box-shadow: 0 24px 54px rgba(0, 0, 0, 0.28);
+}
+
+.marquee-studio-admin-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 22px;
+    margin-bottom: 22px;
+}
+
+.marquee-studio-admin-head h3 {
+    margin: 0 0 8px;
+    color: var(--usm-pink);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.marquee-studio-admin-head p {
+    margin: 0;
+    color: #a9a9b2;
+    font-size: 0.95rem;
+    line-height: 1.58;
+    max-width: 920px;
+}
+
+.marquee-studio-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.marquee-cancel-btn {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+.marquee-studio-grid {
+    display: grid;
+    grid-template-columns: minmax(260px, 360px) minmax(320px, 1fr);
+    gap: 22px;
+    align-items: start;
+}
+
+.marquee-upload-panel,
+.marquee-crop-panel {
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.085);
+    border-radius: 22px;
+    background: rgba(6, 6, 10, 0.68);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035), 0 14px 34px rgba(0, 0, 0, 0.24);
+}
+
+.marquee-drop-zone {
+    min-height: 220px;
+}
+
+.marquee-upload-panel .btn-publish {
+    margin-top: 16px;
+    width: 100%;
+}
+
+.marquee-crop-frame,
+.marquee-admin-row-preview {
+    position: relative;
+    overflow: hidden;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    background: #09090c;
+    user-select: none;
+    touch-action: none;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
+}
+
+.marquee-crop-frame {
+    width: min(100%, 360px);
+    aspect-ratio: 280 / 380;
+    cursor: grab;
+}
+
+.marquee-crop-frame.is-dragging {
+    cursor: grabbing;
+}
+
+.marquee-crop-frame::before {
+    content: 'Glisser pour positionner · molette pour zoomer';
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    z-index: 4;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.52);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.marquee-crop-frame:hover::before,
+.marquee-crop-frame.is-dragging::before {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.marquee-crop-frame img,
+.marquee-admin-row-preview img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform-origin: center center;
+    pointer-events: none;
+}
+
+.marquee-crop-frame img {
+    transform: translate(var(--marquee-admin-x, 0%), var(--marquee-admin-y, 0%)) scale(var(--marquee-admin-zoom, 1));
+    display: none;
+}
+
+.marquee-admin-row-preview {
+    width: 74px;
+    height: 100px;
+}
+
+.marquee-admin-row-preview img {
+    transform: translate(var(--marquee-admin-x, 0%), var(--marquee-admin-y, 0%)) scale(var(--marquee-admin-zoom, 1));
+}
+
+.marquee-preview-empty {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #777;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-size: 0.8rem;
+    text-align: center;
+    padding: 18px;
+}
+
+.marquee-table-container {
+    width: 100%;
+}
+
+.marquee-admin-table th:nth-child(1),
+.marquee-admin-table td:nth-child(1) {
+    width: 120px;
+}
+
+.marquee-edit-btn {
+    border: 1px solid rgba(255,255,255,0.16);
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    border-radius: 10px;
+    padding: 9px 12px;
+    cursor: pointer;
+    font-weight: 800;
+}
+
+@media (max-width: 980px) {
+    .marquee-studio-admin-head {
+        flex-direction: column;
+    }
+
+    .marquee-studio-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .marquee-crop-frame {
+        width: min(100%, 340px);
+    }
+}

@@ -1596,17 +1596,22 @@ html, body {
     overflow: hidden;
     flex-shrink: 0;
     border: 1px solid rgba(255,255,255,0.05);
+    position: relative;
+    background: #08080b;
 }
 .marquee-item img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transform-origin: center center;
+    transform: translate(var(--marquee-x, 0%), var(--marquee-y, 0%)) scale(var(--marquee-zoom, 1));
     filter: grayscale(80%) brightness(0.6);
-    transition: all 0.5s ease;
+    transition: filter 0.5s ease;
 }
 .marquee-item img:hover {
     filter: grayscale(0%) brightness(1);
-    transform: scale(1.05);
 }
 
 @keyframes scrollMarquee {

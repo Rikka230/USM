@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>USM Admin Dashboard</title>
-    <link rel="stylesheet" href="admin.css?v=service-crop-1">
+    <link rel="stylesheet" href="admin.css?v=service-crop-6">
 </head>
 <body class="admin-body">
 
@@ -517,22 +517,55 @@
             </section>
 
             <section id="manage-marquee-section" class="hidden">
-                <header style="margin-bottom: 25px;">
-                    <h1 style="margin: 0;">Images Décoratives (Banderole)</h1>
-                    <p style="color: #aaa; margin-top: 10px;">Ajoutez des photos pour la banderole défilante. Limité aux 20 dernières photos pour les performances.</p>
-                </header>
-                
-                <form id="marquee-form" class="bento-form" style="margin-bottom: 40px; max-width: 400px;">
-                    <div id="drop-zone-marquee" class="drop-zone">
-                        <p>Glissez une nouvelle image ici</p>
-                        <input type="file" id="marquee-upload" accept="image/*" hidden>
+                <header class="marquee-admin-header">
+                    <div>
+                        <h1 style="margin: 0;">Images Décoratives</h1>
+                        <p>Ajoutez et cadrez les photos de la banderole défilante. Le rendu ci-dessous reprend le format réel du site : glissez l’image pour la déplacer, utilisez la molette pour zoomer.</p>
                     </div>
-                    <button type="submit" id="save-marquee-btn" class="btn-publish" style="margin-top: 20px;">Ajouter à la banderole</button>
+                </header>
+
+                <form id="marquee-form" class="bento-form marquee-admin-form">
+                    <div class="marquee-studio-admin">
+                        <div class="marquee-studio-admin-head">
+                            <div>
+                                <h3>Studio image déco</h3>
+                                <p id="marquee-editor-status">Sélectionnez une image ou cliquez sur “Cadrer” dans la liste pour ajuster une image existante.</p>
+                            </div>
+                            <div class="marquee-studio-actions">
+                                <button type="button" id="btn-reset-marquee-crop" class="service-crop-reset-btn">Réinitialiser le cadrage</button>
+                                <button type="button" id="btn-cancel-marquee-edit" class="service-crop-reset-btn marquee-cancel-btn hidden">Annuler l’édition</button>
+                            </div>
+                        </div>
+
+                        <div class="marquee-studio-grid">
+                            <div class="marquee-upload-panel">
+                                <div id="drop-zone-marquee" class="drop-zone marquee-drop-zone">
+                                    <p>Glissez une nouvelle image ici</p>
+                                    <input type="file" id="marquee-upload" accept="image/*" hidden>
+                                </div>
+                                <button type="submit" id="save-marquee-btn" class="btn-publish">Ajouter à la banderole</button>
+                            </div>
+
+                            <article class="marquee-crop-panel">
+                                <div class="service-crop-preview-head">
+                                    <div>
+                                        <div class="service-crop-kicker">Prévisualisation</div>
+                                        <div class="service-crop-label">Format image déco</div>
+                                    </div>
+                                    <div class="service-crop-format">Format banderole</div>
+                                </div>
+                                <div id="marquee-crop-frame" class="marquee-crop-frame marquee-crop-preview" data-crop-kind="marquee">
+                                    <img id="marquee-preview-img" alt="Aperçu image décorative">
+                                    <div class="marquee-preview-empty">Aucune image sélectionnée</div>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
                 </form>
 
-                <div class="table-container">
-                    <table class="admin-table">
-                        <thead><tr><th>Aperçu</th><th>Action</th></tr></thead>
+                <div class="table-container marquee-table-container">
+                    <table class="admin-table marquee-admin-table">
+                        <thead><tr><th>Aperçu cadré</th><th>Cadrage</th><th>Action</th></tr></thead>
                         <tbody id="admin-marquee-list"></tbody>
                     </table>
                 </div>
@@ -541,6 +574,6 @@
         </main>
     </div>
 
-    <script type="module" src="admin.js?v=service-crop-4"></script>
+    <script type="module" src="admin.js?v=service-crop-6"></script>
 </body>
 </html>

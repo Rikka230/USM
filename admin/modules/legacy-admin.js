@@ -22,7 +22,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-let optimizedImages = { founder: null, nav: null, hero: null, service: null, agency: null };
+let optimizedImages = { founder: null, nav: null, hero: null, service: null, agency: null, marquee: null };
 
 function clearPublicCache() { localStorage.clear(); }
 
@@ -245,7 +245,7 @@ if(navSettings) {
                     }
                 } catch(e) { console.error("Erreur agence:", e); }
                 
-                optimizedImages = { founder: null, nav: null, hero: null, service: null, agency: null };
+                optimizedImages = { founder: null, nav: null, hero: null, service: null, agency: null, marquee: null };
             }
         } catch (error) { console.error(error); }
     });
@@ -305,6 +305,12 @@ function processStandardImage(file, zoneElement, targetKey) {
                 resetServiceCrop('card');
                 resetServiceCrop('hero');
                 updateServiceCropPreview();
+            }
+            if (targetKey === 'marquee') {
+                setMarqueeEditMode(null);
+                setMarqueeCropImage(optimizedImages[targetKey]);
+                resetMarqueeCrop();
+                updateMarqueeCropPreview();
             }
         };
         img.src = event.target.result;
@@ -1280,7 +1286,7 @@ if(settingsForm) {
             if(document.getElementById('existing-logo-hero')) document.getElementById('existing-logo-hero').value = finalHeroUrl;
             if(document.getElementById('existing-agency-img')) document.getElementById('existing-agency-img').value = finalAgencyUrl;
 
-            optimizedImages = { founder: null, nav: null, hero: null, service: null, agency: null, article: null };
+            optimizedImages = { founder: null, nav: null, hero: null, service: null, agency: null, article: null, marquee: null };
             localStorage.removeItem('site_agency');
             clearPublicCache();
             alert("Identité et Paramètres mis à jour avec succès !");
@@ -1910,35 +1916,228 @@ if(navMarquee) {
     });
 }
 
-setupDropZone('drop-zone-marquee', 'marquee-upload', 'marquee');
+const MARQUEE_CROP_DEFAULT = { x: 0, y: 0, zoom: 1 };
+let marqueeCropState = {
+    imageUrl: '',
+    editId: null,
+    crop: { ...MARQUEE_CROP_DEFAULT }
+};
+
+function normalizeMarqueeCrop(raw) {
+    const crop = raw && typeof raw === 'object' ? raw : {};
+    return {
+        x: clampServiceCropValue(crop.x, -45, 45, 0),
+        y: clampServiceCropValue(crop.y, -45, 45, 0),
+        zoom: clampServiceCropValue(crop.zoom, 0.55, 3, 1)
+    };
+}
+
+function serializeMarqueeCrop(raw) {
+    const crop = normalizeMarqueeCrop(raw);
+    return {
+        x: Number(crop.x.toFixed(2)),
+        y: Number(crop.y.toFixed(2)),
+        zoom: Number(crop.zoom.toFixed(2))
+    };
+}
+
+function applyMarqueeCropToFrame(frame = document.getElementById('marquee-crop-frame')) {
+    const crop = normalizeMarqueeCrop(marqueeCropState.crop);
+    marqueeCropState.crop = crop;
+    if (!frame) return;
+    frame.style.setProperty('--marquee-admin-x', `${crop.x}%`);
+    frame.style.setProperty('--marquee-admin-y', `${crop.y}%`);
+    frame.style.setProperty('--marquee-admin-zoom', String(crop.zoom));
+}
+
+function updateMarqueeCropPreview() {
+    const frame = document.getElementById('marquee-crop-frame');
+    const img = document.getElementById('marquee-preview-img');
+    const empty = frame?.querySelector('.marquee-preview-empty');
+
+    if (img) {
+        if (marqueeCropState.imageUrl) {
+            img.src = marqueeCropState.imageUrl;
+            img.style.display = 'block';
+        } else {
+            img.removeAttribute('src');
+            img.style.display = 'none';
+        }
+    }
+    if (empty) empty.style.display = marqueeCropState.imageUrl ? 'none' : 'grid';
+
+    applyMarqueeCropToFrame(frame);
+    updateMarqueeEditorStatus();
+}
+
+function setMarqueeCropImage(url = '') {
+    marqueeCropState.imageUrl = url || '';
+    updateMarqueeCropPreview();
+}
+
+function setMarqueeEditMode(id = null) {
+    marqueeCropState.editId = id;
+    const saveBtn = document.getElementById('save-marquee-btn');
+    const cancelBtn = document.getElementById('btn-cancel-marquee-edit');
+    if (saveBtn) saveBtn.textContent = id ? 'Enregistrer le cadrage' : 'Ajouter à la banderole';
+    if (cancelBtn) cancelBtn.classList.toggle('hidden', !id);
+    updateMarqueeEditorStatus();
+}
+
+function updateMarqueeEditorStatus() {
+    const status = document.getElementById('marquee-editor-status');
+    if (!status) return;
+    if (marqueeCropState.editId) {
+        status.textContent = 'Édition d’une image existante : glissez dans l’aperçu, utilisez la molette pour zoomer, puis enregistrez le cadrage.';
+    } else if (marqueeCropState.imageUrl) {
+        status.textContent = 'Nouvelle image prête : ajustez le cadrage dans l’aperçu avant de l’ajouter à la banderole.';
+    } else {
+        status.textContent = 'Sélectionnez une image ou cliquez sur “Cadrer” dans la liste pour ajuster une image existante.';
+    }
+}
+
+function resetMarqueeCrop() {
+    marqueeCropState.crop = { ...MARQUEE_CROP_DEFAULT };
+    applyMarqueeCropToFrame();
+}
+
+function clearMarqueeEditor() {
+    marqueeCropState = {
+        imageUrl: '',
+        editId: null,
+        crop: { ...MARQUEE_CROP_DEFAULT }
+    };
+    optimizedImages.marquee = null;
+    const dropZone = document.getElementById('drop-zone-marquee');
+    if (dropZone) {
+        const freshZone = dropZone.cloneNode(false);
+        freshZone.className = dropZone.className;
+        freshZone.id = dropZone.id;
+        freshZone.innerHTML = `<p>Glissez une nouvelle image ici</p><input type="file" id="marquee-upload" accept="image/*" hidden>`;
+        dropZone.replaceWith(freshZone);
+        setupDropZone('drop-zone-marquee', 'marquee-upload', 'marquee');
+    }
+    setMarqueeEditMode(null);
+    updateMarqueeCropPreview();
+}
+
+function bindMarqueeCropFrame() {
+    const frame = document.getElementById('marquee-crop-frame');
+    if (!frame || frame.dataset.cropBound === 'true') return;
+    frame.dataset.cropBound = 'true';
+
+    let isDragging = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    const startDrag = (clientX, clientY) => {
+        if (!marqueeCropState.imageUrl) return;
+        isDragging = true;
+        lastX = clientX;
+        lastY = clientY;
+        frame.classList.add('is-dragging');
+    };
+
+    const moveDrag = (clientX, clientY) => {
+        if (!isDragging) return;
+        const rect = frame.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const dx = ((clientX - lastX) / rect.width) * 100;
+        const dy = ((clientY - lastY) / rect.height) * 100;
+        marqueeCropState.crop.x = clampServiceCropValue(marqueeCropState.crop.x + dx, -45, 45, 0);
+        marqueeCropState.crop.y = clampServiceCropValue(marqueeCropState.crop.y + dy, -45, 45, 0);
+        lastX = clientX;
+        lastY = clientY;
+        applyMarqueeCropToFrame(frame);
+    };
+
+    const endDrag = () => {
+        isDragging = false;
+        frame.classList.remove('is-dragging');
+    };
+
+    frame.addEventListener('mousedown', (event) => startDrag(event.clientX, event.clientY));
+    window.addEventListener('mousemove', (event) => moveDrag(event.clientX, event.clientY));
+    window.addEventListener('mouseup', endDrag);
+
+    frame.addEventListener('wheel', (event) => {
+        if (!marqueeCropState.imageUrl) return;
+        event.preventDefault();
+        const direction = event.deltaY > 0 ? -1 : 1;
+        marqueeCropState.crop.zoom = clampServiceCropValue(marqueeCropState.crop.zoom + direction * 0.08, 0.55, 3, 1);
+        applyMarqueeCropToFrame(frame);
+    }, { passive: false });
+
+    frame.addEventListener('touchstart', (event) => {
+        if (event.touches.length !== 1) return;
+        event.preventDefault();
+        startDrag(event.touches[0].clientX, event.touches[0].clientY);
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (event) => {
+        if (!isDragging || event.touches.length !== 1) return;
+        event.preventDefault();
+        moveDrag(event.touches[0].clientX, event.touches[0].clientY);
+    }, { passive: false });
+
+    window.addEventListener('touchend', endDrag);
+}
+
+bindMarqueeCropFrame();
+
+const btnResetMarqueeCrop = document.getElementById('btn-reset-marquee-crop');
+if (btnResetMarqueeCrop) btnResetMarqueeCrop.addEventListener('click', resetMarqueeCrop);
+
+const btnCancelMarqueeEdit = document.getElementById('btn-cancel-marquee-edit');
+if (btnCancelMarqueeEdit) btnCancelMarqueeEdit.addEventListener('click', clearMarqueeEditor);
 
 async function loadAdminMarquee() {
     const list = document.getElementById('admin-marquee-list');
     if(!list) return;
-    list.innerHTML = '<tr><td colspan="2">Chargement...</td></tr>';
+    list.innerHTML = '<tr><td colspan="3">Chargement...</td></tr>';
     try {
         const snap = await getDocs(collection(db, "marquee_images"));
         allMarqueeImages = [];
         snap.forEach(docSnap => allMarqueeImages.push({ id: docSnap.id, ...docSnap.data() }));
         allMarqueeImages.sort((a, b) => b.timestamp - a.timestamp); 
-        
+
         list.innerHTML = '';
-        if(allMarqueeImages.length === 0) { list.innerHTML = '<tr><td colspan="2" style="color:#aaa;">Aucune image.</td></tr>'; return; }
-        
+        if(allMarqueeImages.length === 0) { list.innerHTML = '<tr><td colspan="3" style="color:#aaa;">Aucune image.</td></tr>'; return; }
+
         allMarqueeImages.forEach((img) => {
+            const crop = normalizeMarqueeCrop(img.crop || img.marquee_crop);
             list.innerHTML += `
                 <tr>
-                    <td><img src="${img.image_url}" style="height:60px; border-radius:6px; object-fit:cover;"></td>
+                    <td>
+                        <div class="marquee-admin-row-preview" style="--marquee-admin-x:${crop.x}%; --marquee-admin-y:${crop.y}%; --marquee-admin-zoom:${crop.zoom};">
+                            <img src="${img.image_url}" alt="Aperçu image déco">
+                        </div>
+                    </td>
+                    <td>
+                        <button class="btn-secondary marquee-edit-btn" onclick="editMarqueeCrop('${img.id}')">Cadrer</button>
+                    </td>
                     <td><button class="btn-delete" onclick="deleteMarquee('${img.id}')">Supprimer</button></td>
                 </tr>`;
         });
-    } catch(e) { list.innerHTML = '<tr><td colspan="2" style="color:red;">Erreur.</td></tr>'; }
+    } catch(e) { list.innerHTML = '<tr><td colspan="3" style="color:red;">Erreur.</td></tr>'; }
 }
+
+window.editMarqueeCrop = (id) => {
+    const item = allMarqueeImages.find(img => img.id === id);
+    if (!item) return;
+    optimizedImages.marquee = null;
+    marqueeCropState.imageUrl = item.image_url || '';
+    marqueeCropState.crop = normalizeMarqueeCrop(item.crop || item.marquee_crop);
+    setMarqueeEditMode(id);
+    updateMarqueeCropPreview();
+    document.getElementById('marquee-crop-frame')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
 
 window.deleteMarquee = async (id) => {
     if(confirm("Supprimer cette image de la banderole ?")) {
         await deleteDoc(doc(db, "marquee_images", id));
         localStorage.removeItem('site_marquee'); 
+        if (marqueeCropState.editId === id) clearMarqueeEditor();
         loadAdminMarquee();
     }
 };
@@ -1947,19 +2146,38 @@ const marqueeForm = document.getElementById('marquee-form');
 if(marqueeForm) {
     marqueeForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if(!optimizedImages.marquee) { alert("Veuillez sélectionner une image."); return; }
-        
         const btn = document.getElementById('save-marquee-btn');
+        if (!btn) return;
+
+        if (marqueeCropState.editId) {
+            btn.disabled = true; btn.textContent = "Sauvegarde...";
+            try {
+                await updateDoc(doc(db, "marquee_images", marqueeCropState.editId), {
+                    crop: serializeMarqueeCrop(marqueeCropState.crop)
+                });
+                localStorage.removeItem('site_marquee');
+                clearMarqueeEditor();
+                loadAdminMarquee();
+            } catch(err) { alert("Erreur: " + err.message); }
+            finally { btn.disabled = false; btn.textContent = "Ajouter à la banderole"; }
+            return;
+        }
+
+        if(!optimizedImages.marquee) { alert("Veuillez sélectionner une image."); return; }
+
         btn.disabled = true; btn.textContent = "Upload...";
         try {
             const r = ref(storage, `marquee/${Date.now()}.webp`);
             await uploadString(r, optimizedImages.marquee, 'data_url');
             const url = await getDownloadURL(r);
-            
-            await addDoc(collection(db, "marquee_images"), { image_url: url, timestamp: Date.now() });
-            
-            optimizedImages.marquee = null;
-            document.getElementById('drop-zone-marquee').innerHTML = `<p>Glissez une nouvelle image ici</p><input type="file" id="marquee-upload" accept="image/*" hidden>`;
+
+            await addDoc(collection(db, "marquee_images"), {
+                image_url: url,
+                crop: serializeMarqueeCrop(marqueeCropState.crop),
+                timestamp: Date.now()
+            });
+
+            clearMarqueeEditor();
             localStorage.removeItem('site_marquee');
             loadAdminMarquee();
         } catch(err) { alert("Erreur: " + err.message); }
