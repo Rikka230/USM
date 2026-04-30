@@ -350,3 +350,189 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     #cropper-ui { width: 100% !important; padding: 15px !important; box-sizing: border-box !important; }
     #crop-canvas { width: 100% !important; max-width: 280px !important; margin: 0 auto !important; display: block !important; touch-action: none !important; }
 }
+
+/* ================= SERVICE IMAGE PREVIEW + CROP ================= */
+.service-crop-admin {
+    margin-top: 18px;
+    padding: 22px;
+    border: 1px solid rgba(216, 0, 86, 0.24);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.035);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
+}
+
+.service-crop-admin-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+
+.service-crop-admin-head h3 {
+    margin: 0 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.service-crop-admin-head p {
+    margin: 0;
+    color: #aaa;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.service-crop-reset-btn {
+    flex: 0 0 auto;
+    border: 1px solid rgba(216, 0, 86, 0.35);
+    background: rgba(216, 0, 86, 0.12);
+    color: #fff;
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.service-crop-grid {
+    display: grid;
+    grid-template-columns: minmax(260px, 0.8fr) minmax(320px, 1.2fr);
+    gap: 22px;
+    align-items: start;
+}
+
+.service-crop-panel {
+    min-width: 0;
+}
+
+.service-crop-label {
+    margin-bottom: 10px;
+    color: #fff;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+    letter-spacing: 1px;
+}
+
+.service-crop-frame {
+    position: relative;
+    overflow: hidden;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #09090c;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
+}
+
+.service-crop-frame.is-dragging {
+    cursor: grabbing;
+}
+
+.service-crop-frame img {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform-origin: center center;
+    transform: translate(calc(-50% + var(--crop-x, 0%)), calc(-50% + var(--crop-y, 0%))) scale(var(--crop-zoom, 1));
+    pointer-events: none;
+    max-height: none !important;
+}
+
+.admin-service-card-preview {
+    aspect-ratio: 1 / 1;
+    width: min(100%, 320px);
+}
+
+.admin-service-hero-preview {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    min-height: 230px;
+}
+
+.admin-service-card-overlay,
+.admin-service-hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.admin-service-card-overlay {
+    background: linear-gradient(180deg, rgba(0,0,0,0.09), rgba(0,0,0,0.02) 52%, rgba(0,0,0,0.12));
+}
+
+.admin-service-hero-overlay {
+    background: linear-gradient(to top, rgba(5,5,7,0.13), rgba(5,5,7,0.025) 65%, rgba(5,5,7,0.01));
+}
+
+.admin-service-card-copy,
+.admin-service-hero-copy {
+    position: absolute;
+    left: 22px;
+    right: 22px;
+    bottom: 22px;
+    z-index: 2;
+    text-shadow: 0 3px 16px rgba(0, 0, 0, 0.88), 0 1px 3px rgba(0,0,0,0.9);
+}
+
+.admin-service-card-copy strong,
+.admin-service-hero-copy strong {
+    display: block;
+    color: #fff;
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.08;
+}
+
+.admin-service-card-copy strong { font-size: 1.45rem; }
+.admin-service-hero-copy strong { font-size: clamp(1.6rem, 4vw, 3rem); }
+
+.admin-service-card-copy span,
+.admin-service-hero-copy span {
+    display: block;
+    margin-top: 8px;
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 0.92rem;
+    line-height: 1.35;
+}
+
+.service-crop-controls {
+    display: grid;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.service-crop-controls label {
+    display: grid;
+    gap: 7px;
+    color: #aaa;
+    font-size: 0.83rem;
+    font-weight: 700;
+}
+
+.service-crop-controls label span {
+    color: var(--usm-pink);
+    font-weight: 900;
+    margin-left: 6px;
+}
+
+.service-crop-controls input[type="range"] {
+    width: 100%;
+}
+
+@media (max-width: 900px) {
+    .service-crop-admin-head,
+    .service-crop-grid {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+    }
+
+    .admin-service-card-preview,
+    .admin-service-hero-preview {
+        width: 100%;
+    }
+}

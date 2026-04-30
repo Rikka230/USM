@@ -300,6 +300,12 @@ function processStandardImage(file, zoneElement, targetKey) {
             const fileInput = zoneElement.querySelector('input[type="file"]');
             zoneElement.innerHTML = `<img src="${optimizedImages[targetKey]}" style="max-height: 80px; border-radius: 8px;"> <p style="color:var(--usm-pink); font-size:11px; margin-top:5px;">✓ Prêt</p>`;
             if (fileInput) zoneElement.appendChild(fileInput);
+            if (targetKey === 'service') {
+                setServiceCropImage(optimizedImages[targetKey]);
+                resetServiceCrop('card');
+                resetServiceCrop('hero');
+                updateServiceCropPreview();
+            }
         };
         img.src = event.target.result;
     };
@@ -313,6 +319,208 @@ setupDropZone('drop-zone-srv', 'srv-upload', 'service');
 setupDropZone('drop-zone-article', 'article-upload', 'article');
 setupDropZone('drop-zone-agency', 'agency-upload', 'agency');
 setupDropZone('drop-zone-marquee', 'marquee-upload', 'marquee'); 
+
+
+/* ================= 3B. CADRAGE VISUEL DES SERVICES ================= */
+const SERVICE_CROP_DEFAULT = { x: 0, y: 0, zoom: 1 };
+let serviceCropState = {
+    imageUrl: '',
+    card: { ...SERVICE_CROP_DEFAULT },
+    hero: { ...SERVICE_CROP_DEFAULT }
+};
+
+function clampServiceCropValue(value, min, max, fallback = 0) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return fallback;
+    return Math.min(max, Math.max(min, number));
+}
+
+function normalizeServiceCropSettings(raw) {
+    const crop = raw && typeof raw === 'object' ? raw : {};
+    return {
+        x: clampServiceCropValue(crop.x, -45, 45, 0),
+        y: clampServiceCropValue(crop.y, -45, 45, 0),
+        zoom: clampServiceCropValue(crop.zoom, 1, 2.6, 1)
+    };
+}
+
+function serializeServiceCropSettings(crop) {
+    const normalized = normalizeServiceCropSettings(crop);
+    return {
+        x: Number(normalized.x.toFixed(2)),
+        y: Number(normalized.y.toFixed(2)),
+        zoom: Number(normalized.zoom.toFixed(2))
+    };
+}
+
+function getActiveServiceLang() {
+    return document.querySelector('.lang-tab-srv.active')?.dataset.lang || 'fr';
+}
+
+function getServicePreviewText() {
+    const lang = getActiveServiceLang();
+    const title = document.getElementById(`srv-title-${lang}`)?.value || document.getElementById('srv-title-fr')?.value || 'TITRE SERVICE';
+    const subtitle = document.getElementById(`srv-subtitle-${lang}`)?.value || document.getElementById('srv-subtitle-fr')?.value || 'Sous-titre du service';
+    return { title, subtitle };
+}
+
+function updateServiceCropCopyPreview() {
+    const { title, subtitle } = getServicePreviewText();
+    ['card', 'hero'].forEach((kind) => {
+        const titleEl = document.getElementById(`srv-preview-${kind}-title`);
+        const subEl = document.getElementById(`srv-preview-${kind}-subtitle`);
+        if (titleEl) titleEl.textContent = title;
+        if (subEl) subEl.textContent = subtitle;
+    });
+}
+
+function setServiceCropImage(url = '') {
+    serviceCropState.imageUrl = url || '';
+    const ui = document.getElementById('service-crop-ui');
+    if (ui) ui.classList.toggle('hidden', !serviceCropState.imageUrl);
+
+    ['card', 'hero'].forEach((kind) => {
+        const img = document.getElementById(`srv-${kind}-preview-img`);
+        if (!img) return;
+        if (serviceCropState.imageUrl) {
+            img.src = serviceCropState.imageUrl;
+            img.style.display = 'block';
+        } else {
+            img.removeAttribute('src');
+            img.style.display = 'none';
+        }
+    });
+
+    updateServiceCropPreview();
+}
+
+function updateServiceCropSlider(kind) {
+    const crop = serviceCropState[kind];
+    if (!crop) return;
+    const zoom = document.getElementById(`srv-${kind}-zoom`);
+    const x = document.getElementById(`srv-${kind}-x`);
+    const y = document.getElementById(`srv-${kind}-y`);
+    if (zoom) zoom.value = crop.zoom;
+    if (x) x.value = crop.x;
+    if (y) y.value = crop.y;
+
+    const zoomVal = document.getElementById(`srv-${kind}-zoom-val`);
+    const xVal = document.getElementById(`srv-${kind}-x-val`);
+    const yVal = document.getElementById(`srv-${kind}-y-val`);
+    if (zoomVal) zoomVal.textContent = `${Math.round(crop.zoom * 100)}%`;
+    if (xVal) xVal.textContent = `${Math.round(crop.x)}`;
+    if (yVal) yVal.textContent = `${Math.round(crop.y)}`;
+}
+
+function applyServiceCropToFrame(kind) {
+    const crop = normalizeServiceCropSettings(serviceCropState[kind]);
+    serviceCropState[kind] = crop;
+    const frame = document.querySelector(`.service-crop-frame[data-crop-kind="${kind}"]`);
+    if (frame) {
+        frame.style.setProperty('--crop-x', `${crop.x}%`);
+        frame.style.setProperty('--crop-y', `${crop.y}%`);
+        frame.style.setProperty('--crop-zoom', String(crop.zoom));
+    }
+    updateServiceCropSlider(kind);
+}
+
+function updateServiceCropPreview() {
+    applyServiceCropToFrame('card');
+    applyServiceCropToFrame('hero');
+    updateServiceCropCopyPreview();
+}
+
+function resetServiceCrop(kind) {
+    if (!serviceCropState[kind]) return;
+    serviceCropState[kind] = { ...SERVICE_CROP_DEFAULT };
+    applyServiceCropToFrame(kind);
+}
+
+function hydrateServiceCropStateFromService(srv = {}) {
+    serviceCropState.card = normalizeServiceCropSettings(srv.card_crop || srv.serviceCardCrop || srv.cardCrop);
+    serviceCropState.hero = normalizeServiceCropSettings(srv.hero_crop || srv.serviceHeroCrop || srv.heroCrop);
+    setServiceCropImage(srv.image_url || '');
+}
+
+['card', 'hero'].forEach((kind) => {
+    ['zoom', 'x', 'y'].forEach((axis) => {
+        const input = document.getElementById(`srv-${kind}-${axis}`);
+        if (!input) return;
+        input.addEventListener('input', (event) => {
+            const nextValue = parseFloat(event.target.value);
+            if (axis === 'zoom') serviceCropState[kind].zoom = clampServiceCropValue(nextValue, 1, 2.6, 1);
+            if (axis === 'x') serviceCropState[kind].x = clampServiceCropValue(nextValue, -45, 45, 0);
+            if (axis === 'y') serviceCropState[kind].y = clampServiceCropValue(nextValue, -45, 45, 0);
+            applyServiceCropToFrame(kind);
+        });
+    });
+
+    const frame = document.querySelector(`.service-crop-frame[data-crop-kind="${kind}"]`);
+    if (!frame) return;
+
+    let isServiceCropDragging = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    const startDrag = (clientX, clientY) => {
+        if (!serviceCropState.imageUrl) return;
+        isServiceCropDragging = true;
+        lastX = clientX;
+        lastY = clientY;
+        frame.classList.add('is-dragging');
+    };
+
+    const moveDrag = (clientX, clientY) => {
+        if (!isServiceCropDragging) return;
+        const rect = frame.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const dx = ((clientX - lastX) / rect.width) * 100;
+        const dy = ((clientY - lastY) / rect.height) * 100;
+        serviceCropState[kind].x = clampServiceCropValue(serviceCropState[kind].x + dx, -45, 45, 0);
+        serviceCropState[kind].y = clampServiceCropValue(serviceCropState[kind].y + dy, -45, 45, 0);
+        lastX = clientX;
+        lastY = clientY;
+        applyServiceCropToFrame(kind);
+    };
+
+    const endDrag = () => {
+        isServiceCropDragging = false;
+        frame.classList.remove('is-dragging');
+    };
+
+    frame.addEventListener('mousedown', (event) => startDrag(event.clientX, event.clientY));
+    window.addEventListener('mousemove', (event) => moveDrag(event.clientX, event.clientY));
+    window.addEventListener('mouseup', endDrag);
+
+    frame.addEventListener('touchstart', (event) => {
+        if (event.touches.length !== 1) return;
+        event.preventDefault();
+        startDrag(event.touches[0].clientX, event.touches[0].clientY);
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (event) => {
+        if (!isServiceCropDragging || event.touches.length !== 1) return;
+        event.preventDefault();
+        moveDrag(event.touches[0].clientX, event.touches[0].clientY);
+    }, { passive: false });
+
+    window.addEventListener('touchend', endDrag);
+});
+
+const btnResetServiceCrops = document.getElementById('btn-reset-service-crops');
+if (btnResetServiceCrops) {
+    btnResetServiceCrops.addEventListener('click', () => {
+        resetServiceCrop('card');
+        resetServiceCrop('hero');
+    });
+}
+
+['fr', 'en', 'es', 'pt'].forEach((lang) => {
+    ['title', 'subtitle'].forEach((field) => {
+        const el = document.getElementById(`srv-${field}-${lang}`);
+        if (el) el.addEventListener('input', updateServiceCropCopyPreview);
+    });
+});
 
 let cropState = { img: null, zoom: 1, x: 0, y: 0, baseScale: 1 };
 const playerDropZone = document.getElementById('drop-zone');
@@ -813,6 +1021,10 @@ if(btnAddSrv) {
         
         prefillImageZone('drop-zone-srv', 'existing-srv-img', '', 'Glissez la photo du service ici'); 
         optimizedImages.service = null;
+        serviceCropState.card = { ...SERVICE_CROP_DEFAULT };
+        serviceCropState.hero = { ...SERVICE_CROP_DEFAULT };
+        setServiceCropImage('');
+        updateServiceCropCopyPreview();
         hideAllSections(); 
         const secFS = document.getElementById('form-service-section');
         if(secFS) secFS.classList.remove('hidden');
@@ -836,6 +1048,7 @@ function editService(id) {
     
     prefillImageZone('drop-zone-srv', 'existing-srv-img', srv.image_url, 'Glissez la photo du service ici'); 
     optimizedImages.service = null;
+    hydrateServiceCropStateFromService(srv);
     
     ['fr', 'en', 'es', 'pt'].forEach(l => { 
         const t = document.getElementById(`srv-title-${l}`);
@@ -853,6 +1066,7 @@ function editService(id) {
     hideAllSections(); 
     const secFS = document.getElementById('form-service-section');
     if(secFS) secFS.classList.remove('hidden');
+    updateServiceCropCopyPreview();
 }
 
 async function deleteService(id) { 
@@ -895,7 +1109,12 @@ if(srvForm) {
                 finalSrvUrl = await getDownloadURL(r); 
             }
             
-            const payload = { image_url: finalSrvUrl, timestamp: new Date() };
+            const payload = {
+                image_url: finalSrvUrl,
+                card_crop: serializeServiceCropSettings(serviceCropState.card),
+                hero_crop: serializeServiceCropSettings(serviceCropState.hero),
+                timestamp: new Date()
+            };
             ['fr', 'en', 'es', 'pt'].forEach(l => { 
                 const t = document.getElementById(`srv-title-${l}`);
                 if(t) payload[`title_${l}`] = t.value; 
@@ -1076,6 +1295,7 @@ document.querySelectorAll('.lang-tab-srv').forEach(tab => {
         const lang = e.target.getAttribute('data-lang');
         const content = document.getElementById(`lang-srv-${lang}`);
         if(content) content.classList.remove('hidden');
+        updateServiceCropCopyPreview();
     });
 });
 

@@ -51,7 +51,7 @@ if (isStableFirebaseHost) {
 
 /* ================= 2. SYSTEME DE CACHE ANTI-COÛT ================= */
 const CACHE_TIME_24H = 1000 * 60 * 60 * 24;
-const FRONT_CACHE_VERSION = 'pjax-front-10-audit-1';
+const FRONT_CACHE_VERSION = 'pjax-front-10-audit-2';
 const FRONT_CACHE_VERSION_KEY = 'usm_front_cache_version';
 
 function syncFrontCacheVersion() {
@@ -834,6 +834,40 @@ function loadSmoothImage(selector, url, finalOpacity = '1') {
     if (img.complete && img.naturalWidth !== 0) markImageReady();
 }
 
+
+function splitStatPlusValue(value, options = {}) {
+    const raw = String(value ?? '').trim();
+    if (!raw) return { text: '', number: '', hasPlus: false };
+    const allowPlus = options.allowPlus !== false;
+    const hasPlus = allowPlus && (raw.startsWith('+') || raw.endsWith('+'));
+    const number = raw.replace(/\+/g, '').trim();
+    return {
+        text: hasPlus ? `${number}+` : number,
+        number,
+        hasPlus
+    };
+}
+
+function renderStatValue(statEl, value, options = {}) {
+    if (!statEl) return;
+    const parsed = splitStatPlusValue(value, options);
+    statEl.classList.toggle('has-stat-plus', parsed.hasPlus);
+    statEl.removeAttribute('data-live-followers');
+
+    if (!parsed.text) {
+        statEl.textContent = '';
+        return;
+    }
+
+    if (parsed.hasPlus) {
+        statEl.innerHTML = `<span class="stat-number-main">${escapeHTML(parsed.number)}</span><span class="stat-number-plus" aria-hidden="true">+</span>`;
+        statEl.setAttribute('aria-label', parsed.text);
+    } else {
+        statEl.textContent = parsed.text;
+        statEl.removeAttribute('aria-label');
+    }
+}
+
 async function loadSettings() {
     let data = Cache.get('site_settings');
     if(!data) {
@@ -847,8 +881,8 @@ async function loadSettings() {
     }
     if(data) {
         ['stat1', 'stat2', 'stat3', 'stat4'].forEach(s => { 
-            if(data[s] && document.getElementById(`stat-${s.replace('stat','')}`)) 
-                document.getElementById(`stat-${s.replace('stat','')}`).textContent = data[s]; 
+            const statEl = document.getElementById(`stat-${s.replace('stat','')}`);
+            if(data[s] && statEl) renderStatValue(statEl, data[s], { allowPlus: true }); 
         });
         
         if(data.logoNav) {
@@ -1168,12 +1202,12 @@ function formatFollowersTotal(total) {
     if (total >= 1_000_000) {
         const value = total / 1_000_000;
         const decimals = value < 10 ? 1 : 0;
-        return `${value.toFixed(decimals).replace('.', ',')}M+`;
+        return `${value.toFixed(decimals).replace('.', ',')}M`;
     }
     if (total >= 100_000) {
-        return `${Math.round(total / 1000)}K+`;
+        return `${Math.round(total / 1000)}K`;
     }
-    return `${new Intl.NumberFormat('fr-FR').format(Math.round(total))}+`;
+    return `${new Intl.NumberFormat('fr-FR').format(Math.round(total))}`;
 }
 
 function updateDigitalImpactFromSocialData(socialData) {
@@ -1192,11 +1226,7 @@ function updateDigitalImpactFromSocialData(socialData) {
     const formattedTotal = formatFollowersTotal(total);
 
     if (formattedTotal) {
-        const hasPlus = formattedTotal.endsWith('+');
-        const numberPart = hasPlus ? formattedTotal.slice(0, -1) : formattedTotal;
-        statEl.innerHTML = hasPlus
-            ? `<span class="stat-number-main">${escapeHTML(numberPart)}</span><span class="stat-number-plus" aria-hidden="true">+</span>`
-            : escapeHTML(formattedTotal);
+        renderStatValue(statEl, formattedTotal, { allowPlus: false });
         statEl.setAttribute('aria-label', formattedTotal);
         statEl.title = `${new Intl.NumberFormat('fr-FR').format(Math.round(total))} abonnés cumulés`;
         statEl.dataset.liveFollowers = 'true';
@@ -1298,10 +1328,11 @@ function renderServices() {
     allServicesData.forEach(srv => {
         const title = srv[`title_${currentLang}`] || srv.title_fr || 'Service';
         const sub = srv[`subtitle_${currentLang}`] || srv.subtitle_fr || '';
-        const bgImg = srv.image_url ? `url('${srv.image_url}')` : 'none';
+        const cardCrop = getServiceCardCrop(srv);
+        const bgImg = srv.image_url ? `url('${escapeStyleUrl(srv.image_url)}')` : 'none';
         html += `
-        <a href="page-dynamique.html?id=${srv.id}" class="bento-service-card" style="background-image: linear-gradient(to top, rgba(5,5,7,0.34) 0%, rgba(5,5,7,0.04) 100%), ${bgImg}; background-size: cover; background-position: center;">
-            <div class="srv-card-content"><h3>${title}</h3><p>${sub}</p></div>
+        <a href="page-dynamique.html?id=${encodeURIComponent(srv.id)}" class="bento-service-card" style="--srv-bg-image: ${bgImg}; --srv-card-img-x: ${cardCrop.x}%; --srv-card-img-y: ${cardCrop.y}%; --srv-card-img-zoom: ${cardCrop.zoom};">
+            <div class="srv-card-content"><h3>${escapeHTML(title)}</h3><p>${escapeHTML(sub)}</p></div>
             <div class="srv-card-arrow">En savoir plus ➔</div>
         </a>`;
     });
@@ -1440,14 +1471,50 @@ function normalizeServiceImageUrl(url) {
     catch (error) { return url; }
 }
 
+function normalizeServiceCropSettings(raw) {
+    const crop = raw && typeof raw === 'object' ? raw : {};
+    const clamp = (value, min, max, fallback) => {
+        const number = Number(value);
+        if (!Number.isFinite(number)) return fallback;
+        return Math.min(max, Math.max(min, number));
+    };
+    return {
+        x: clamp(crop.x, -45, 45, 0),
+        y: clamp(crop.y, -45, 45, 0),
+        zoom: clamp(crop.zoom, 1, 2.6, 1)
+    };
+}
+
+function getServiceCardCrop(srv = {}) {
+    return normalizeServiceCropSettings(srv.card_crop || srv.serviceCardCrop || srv.cardCrop);
+}
+
+function getServiceHeroCrop(srv = {}) {
+    return normalizeServiceCropSettings(srv.hero_crop || srv.serviceHeroCrop || srv.heroCrop);
+}
+
+function escapeStyleUrl(url = '') {
+    return String(url).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '');
+}
+
+function applyServiceHeroCrop(cropData) {
+    const hero = document.querySelector('.service-hero');
+    if (!hero) return;
+    const crop = normalizeServiceCropSettings(cropData);
+    hero.style.setProperty('--srv-hero-img-x', `${crop.x}%`);
+    hero.style.setProperty('--srv-hero-img-y', `${crop.y}%`);
+    hero.style.setProperty('--srv-hero-img-zoom', String(crop.zoom));
+}
+
 function updateServiceHeroImage(url, titleText, options = {}) {
     const imgEl = document.getElementById('srv-hero-img');
     if (!imgEl || !url) return;
 
     imgEl.alt = titleText || 'Service USM';
+    applyServiceHeroCrop(options.crop);
 
     if (!options.soft) {
-        loadSmoothImage('#srv-hero-img', url, '0.56');
+        loadSmoothImage('#srv-hero-img', url, '0.96');
         return;
     }
 
@@ -1473,7 +1540,7 @@ function updateServiceHeroImage(url, titleText, options = {}) {
     imgEl.onerror = null;
     imgEl.classList.remove('loaded', 'usm-smooth-image-ready', 'service-hero-img-ready');
     imgEl.classList.add('service-hero-img-live', 'service-hero-img-switching');
-    imgEl.style.setProperty('--final-opacity', '0.56');
+    imgEl.style.setProperty('--final-opacity', '0.96');
     imgEl.style.opacity = '0';
 
     const finish = async () => {
@@ -1484,7 +1551,7 @@ function updateServiceHeroImage(url, titleText, options = {}) {
         requestAnimationFrame(() => {
             imgEl.classList.remove('service-hero-img-switching');
             imgEl.classList.add('loaded', 'service-hero-img-ready');
-            imgEl.style.opacity = '0.56';
+            imgEl.style.opacity = '0.96';
 
             if (ghost) {
                 ghost.classList.add('is-fading-out');
@@ -1560,7 +1627,7 @@ async function loadSingleServicePage(options = {}) {
             const descText = srv[`desc_${currentLang}`] || srv.desc_fr || "";
             const seoText = srv[`seo_${currentLang}`] || srv.seo_fr || "";
 
-            if(srv.image_url) updateServiceHeroImage(srv.image_url, titleText, { soft: softTransition });
+            if(srv.image_url) updateServiceHeroImage(srv.image_url, titleText, { soft: softTransition, crop: getServiceHeroCrop(srv) });
             else {
                 const imgEl = document.getElementById('srv-hero-img');
                 if (imgEl) imgEl.alt = titleText;

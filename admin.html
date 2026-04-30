@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>USM Admin Dashboard</title>
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="admin.css?v=service-crop-1">
 </head>
 <body class="admin-body">
 
@@ -173,6 +173,52 @@
                     <div id="drop-zone-srv" class="drop-zone">
                         <p>Glissez la photo du service ici</p>
                         <input type="file" id="srv-upload" accept="image/*" hidden>
+                    </div>
+
+                    <div id="service-crop-ui" class="service-crop-admin hidden">
+                        <div class="service-crop-admin-head">
+                            <div>
+                                <h3 class="pink-accent">Prévisualisation & cadrage</h3>
+                                <p>Réglez ici le rendu de l’image sur la carte d’accueil et sur la page service. Glissez directement dans l’aperçu ou utilisez les sliders.</p>
+                            </div>
+                            <button type="button" id="btn-reset-service-crops" class="service-crop-reset-btn">Réinitialiser</button>
+                        </div>
+
+                        <div class="service-crop-grid">
+                            <article class="service-crop-panel" data-crop-kind="card">
+                                <div class="service-crop-label">Bloc service accueil</div>
+                                <div class="admin-service-card-preview service-crop-frame" data-crop-kind="card">
+                                    <img id="srv-card-preview-img" alt="Aperçu carte service">
+                                    <div class="admin-service-card-overlay"></div>
+                                    <div class="admin-service-card-copy">
+                                        <strong id="srv-preview-card-title">TITRE SERVICE</strong>
+                                        <span id="srv-preview-card-subtitle">Sous-titre du service</span>
+                                    </div>
+                                </div>
+                                <div class="service-crop-controls">
+                                    <label>Zoom <span id="srv-card-zoom-val">100%</span><input type="range" id="srv-card-zoom" min="1" max="2.6" step="0.01" value="1"></label>
+                                    <label>Horizontal <span id="srv-card-x-val">0</span><input type="range" id="srv-card-x" min="-45" max="45" step="0.5" value="0"></label>
+                                    <label>Vertical <span id="srv-card-y-val">0</span><input type="range" id="srv-card-y" min="-45" max="45" step="0.5" value="0"></label>
+                                </div>
+                            </article>
+
+                            <article class="service-crop-panel" data-crop-kind="hero">
+                                <div class="service-crop-label">Image page dynamique</div>
+                                <div class="admin-service-hero-preview service-crop-frame" data-crop-kind="hero">
+                                    <img id="srv-hero-preview-img" alt="Aperçu page dynamique">
+                                    <div class="admin-service-hero-overlay"></div>
+                                    <div class="admin-service-hero-copy">
+                                        <strong id="srv-preview-hero-title">TITRE SERVICE</strong>
+                                        <span id="srv-preview-hero-subtitle">Sous-titre du service</span>
+                                    </div>
+                                </div>
+                                <div class="service-crop-controls">
+                                    <label>Zoom <span id="srv-hero-zoom-val">100%</span><input type="range" id="srv-hero-zoom" min="1" max="2.6" step="0.01" value="1"></label>
+                                    <label>Horizontal <span id="srv-hero-x-val">0</span><input type="range" id="srv-hero-x" min="-45" max="45" step="0.5" value="0"></label>
+                                    <label>Vertical <span id="srv-hero-y-val">0</span><input type="range" id="srv-hero-y" min="-45" max="45" step="0.5" value="0"></label>
+                                </div>
+                            </article>
+                        </div>
                     </div>
 
                     <div class="lang-tabs admin-tabs" style="margin-top: 20px; margin-bottom: 15px;">
@@ -492,6 +538,6 @@
         </main>
     </div>
 
-    <script type="module" src="admin.js?v=social-api-youtube-1"></script>
+    <script type="module" src="admin.js?v=service-crop-1"></script>
 </body>
 </html>
