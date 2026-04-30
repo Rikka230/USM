@@ -689,14 +689,9 @@ function setupDynamicImageReveal() {
     startApp();
 }
 
-window.USMFrontInit = initUSMFrontPage;
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initUSMFrontPage);
-} else {
-    initUSMFrontPage();
-}
-document.addEventListener('usm:page-ready', initUSMFrontPage);
-/* <-- 🪄 INIT PUBLIC REJOUABLE POUR PJAX */
+/* INIT PUBLIC REJOUABLE POUR PJAX
+   Lance en fin de fichier pour eviter les references avant initialisation
+   sur le premier chargement complet. */
 
 /* ================= 5. CHARGEMENT PARAMÈTRES AVEC CACHE ================= */
 
@@ -1882,3 +1877,12 @@ document.addEventListener('usm:page-ready', initMarqueeImages);
 function markPublicDomReady() { document.body.classList.add('dom-ready'); }
 document.addEventListener('DOMContentLoaded', markPublicDomReady);
 document.addEventListener('usm:page-ready', markPublicDomReady);
+
+/* ================= 11. BOOTSTRAP PUBLIC PJAX SAFE ================= */
+window.USMFrontInit = initUSMFrontPage;
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initUSMFrontPage, { once: true });
+} else {
+    initUSMFrontPage();
+}
+document.addEventListener('usm:page-ready', initUSMFrontPage);
