@@ -2641,7 +2641,7 @@ body.pjax-page-enter .massive-eagle-wrapper,
     width: clamp(300px, 60vw, 800px);
     margin-bottom: 20px;
     opacity: 1 !important;
-    transform: translateZ(0) !important;
+    transform: translateZ(0);
     will-change: transform !important;
     transform-style: flat !important;
     backface-visibility: hidden !important;
@@ -2700,6 +2700,10 @@ body.pjax-page-enter .massive-eagle-wrapper img,
 html.usm-pjax-loading::after {
     z-index: 90 !important;
 }
+
+/* ================= PJAX FRONT 9.2 — Massive logo animé restauré ================= */
+/* Important : ne jamais figer transform avec !important sur le wrapper.
+   L'animation main actuelle flotte via @keyframes float, qui anime aussi transform. */
 
 html.usm-pjax-loading::before {
     z-index: 99999 !important;
