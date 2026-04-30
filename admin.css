@@ -352,22 +352,50 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 }
 
 /* ================= SERVICE IMAGE PREVIEW + CROP ================= */
+#form-service-section {
+    width: 100%;
+    max-width: none;
+}
+
+#service-form {
+    width: 100% !important;
+    max-width: none !important;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#service-form > label,
+#service-form > .drop-zone,
+#service-form > .lang-tabs,
+#service-form > .lang-content-srv,
+#service-form > #save-service-btn {
+    width: min(760px, 100%);
+}
+
+#service-crop-ui {
+    width: 100%;
+    max-width: none;
+}
+
 .service-crop-admin {
     margin-top: 20px;
-    padding: 24px;
-    border: 1px solid rgba(216, 0, 86, 0.22);
-    border-radius: 22px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.025));
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.26);
-    overflow: hidden;
+    width: 100%;
+    max-width: none;
+    padding: clamp(22px, 2.2vw, 34px);
+    border: 1px solid rgba(216, 0, 86, 0.24);
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.025));
+    box-shadow: 0 24px 54px rgba(0, 0, 0, 0.28);
+    overflow: visible;
 }
 
 .service-crop-admin-head {
     display: flex;
     justify-content: space-between;
-    gap: 18px;
+    gap: 22px;
     align-items: flex-start;
-    margin-bottom: 18px;
+    margin-bottom: 22px;
 }
 
 .service-crop-admin-head h3 {
@@ -379,18 +407,18 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 .service-crop-admin-head p {
     margin: 0;
     color: #a9a9b2;
-    font-size: 0.93rem;
-    line-height: 1.55;
-    max-width: 850px;
+    font-size: 0.95rem;
+    line-height: 1.58;
+    max-width: 920px;
 }
 
 .service-crop-reset-btn {
     flex: 0 0 auto;
-    border: 1px solid rgba(216, 0, 86, 0.4);
+    border: 1px solid rgba(216, 0, 86, 0.42);
     background: rgba(216, 0, 86, 0.12);
     color: #fff;
     border-radius: 999px;
-    padding: 10px 16px;
+    padding: 11px 18px;
     font-weight: 800;
     cursor: pointer;
     transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
@@ -398,32 +426,34 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 
 .service-crop-reset-btn:hover {
     transform: translateY(-1px);
-    background: rgba(216, 0, 86, 0.2);
-    border-color: rgba(216, 0, 86, 0.58);
+    background: rgba(216, 0, 86, 0.22);
+    border-color: rgba(216, 0, 86, 0.62);
 }
 
 .service-crop-workbench {
     display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(300px, 0.8fr);
-    gap: 20px;
+    grid-template-columns: minmax(320px, 380px) minmax(620px, 1fr) minmax(310px, 360px);
+    grid-template-areas:
+        "card hero cardControls"
+        "card hero heroControls";
+    gap: 22px;
     align-items: start;
+    width: 100%;
 }
 
-.service-crop-stage,
-.service-crop-side {
-    display: grid;
-    gap: 18px;
-    min-width: 0;
-}
+.service-crop-panel-card { grid-area: card; }
+.service-crop-panel-hero { grid-area: hero; }
+.service-crop-card-controls { grid-area: cardControls; }
+.service-crop-hero-controls { grid-area: heroControls; }
 
 .service-crop-preview-card,
 .service-crop-control-card {
     min-width: 0;
-    padding: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    background: rgba(6, 6, 10, 0.66);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 14px 34px rgba(0, 0, 0, 0.22);
+    padding: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.085);
+    border-radius: 22px;
+    background: rgba(6, 6, 10, 0.68);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035), 0 14px 34px rgba(0, 0, 0, 0.24);
 }
 
 .service-crop-preview-head {
@@ -431,11 +461,11 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 
 .service-crop-preview-head--controls {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .service-crop-kicker {
@@ -444,14 +474,14 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 1.1px;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
 }
 
 .service-crop-label {
     color: #fff;
     font-weight: 900;
     text-transform: uppercase;
-    font-size: 0.92rem;
+    font-size: 0.94rem;
     letter-spacing: 0.7px;
     line-height: 1.2;
 }
@@ -460,9 +490,9 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     flex: 0 0 auto;
     padding: 7px 10px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #bbb;
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    color: #c4c4c4;
     font-size: 0.72rem;
     font-weight: 800;
     text-transform: uppercase;
@@ -473,7 +503,7 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     position: relative;
     overflow: hidden;
     border-radius: 18px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.13);
     background: #09090c;
     cursor: grab;
     user-select: none;
@@ -501,14 +531,15 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 }
 
 .admin-service-card-preview {
+    width: 100%;
     aspect-ratio: 1 / 1;
-    width: min(100%, 320px);
+    min-height: 320px;
 }
 
 .admin-service-hero-preview {
     width: 100%;
-    aspect-ratio: 16 / 5;
-    min-height: 0;
+    aspect-ratio: 16 / 8;
+    min-height: clamp(360px, 32vw, 560px);
 }
 
 .admin-service-card-overlay,
@@ -520,19 +551,19 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 }
 
 .admin-service-card-overlay {
-    background: linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.02) 52%, rgba(0,0,0,0.12));
+    background: linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.02) 52%, rgba(0,0,0,0.13));
 }
 
 .admin-service-hero-overlay {
-    background: linear-gradient(to top, rgba(5,5,7,0.2), rgba(5,5,7,0.05) 62%, rgba(5,5,7,0.015));
+    background: linear-gradient(to top, rgba(5,5,7,0.22), rgba(5,5,7,0.055) 62%, rgba(5,5,7,0.018));
 }
 
 .admin-service-card-copy,
 .admin-service-hero-copy {
     position: absolute;
-    left: 20px;
-    right: 20px;
-    bottom: 20px;
+    left: 22px;
+    right: 22px;
+    bottom: 22px;
     z-index: 2;
     text-shadow: 0 3px 16px rgba(0, 0, 0, 0.88), 0 1px 3px rgba(0,0,0,0.9);
 }
@@ -547,13 +578,13 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 }
 
 .admin-service-card-copy strong {
-    font-size: 1.55rem;
-    max-width: 220px;
+    font-size: clamp(1.35rem, 2.2vw, 2rem);
+    max-width: 260px;
 }
 
 .admin-service-hero-copy strong {
-    font-size: clamp(1.6rem, 3.2vw, 3.6rem);
-    max-width: min(70%, 460px);
+    font-size: clamp(2.2rem, 4.6vw, 5rem);
+    max-width: min(78%, 720px);
 }
 
 .admin-service-card-copy span,
@@ -561,25 +592,29 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     display: inline-block;
     margin-top: 10px;
     color: #fff;
-    background: rgba(5, 5, 7, 0.34);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(5, 5, 7, 0.38);
+    border: 1px solid rgba(255, 255, 255, 0.11);
     border-radius: 12px;
-    padding: 7px 11px;
-    font-size: 0.92rem;
+    padding: 8px 12px;
+    font-size: 0.94rem;
     line-height: 1.35;
-    max-width: 92%;
+    max-width: 94%;
+}
+
+.admin-service-hero-copy span {
+    font-size: clamp(1rem, 1.55vw, 1.35rem);
 }
 
 .service-crop-controls {
     display: grid;
-    gap: 14px;
+    gap: 16px;
 }
 
 .service-crop-controls label {
     display: grid;
-    gap: 7px;
+    gap: 8px;
     color: #a7a7af;
-    font-size: 0.85rem;
+    font-size: 0.86rem;
     font-weight: 700;
 }
 
@@ -593,13 +628,37 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     width: 100%;
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1420px) {
     .service-crop-workbench {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(300px, 380px) minmax(500px, 1fr);
+        grid-template-areas:
+            "card hero"
+            "cardControls heroControls";
     }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1050px) {
+    .service-crop-workbench {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "card"
+            "cardControls"
+            "hero"
+            "heroControls";
+    }
+
+    .admin-service-card-preview {
+        min-height: 0;
+        max-width: 420px;
+    }
+
+    .admin-service-hero-preview {
+        aspect-ratio: 16 / 9;
+        min-height: 300px;
+    }
+}
+
+@media (max-width: 700px) {
     .service-crop-admin {
         padding: 18px;
     }
@@ -608,21 +667,12 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         flex-direction: column;
     }
 
-    .admin-service-card-preview {
-        width: 100%;
-        max-width: 100%;
-    }
-
     .admin-service-hero-preview {
-        aspect-ratio: 16 / 6;
-    }
-
-    .admin-service-card-copy strong {
-        max-width: 100%;
+        min-height: 260px;
     }
 
     .admin-service-hero-copy strong {
         max-width: 100%;
-        font-size: clamp(1.4rem, 7vw, 2.4rem);
+        font-size: clamp(1.6rem, 8vw, 2.7rem);
     }
 }

@@ -3,4 +3,4 @@
    Modular entrypoint
    ========================================================================== */
 
-import './admin/modules/legacy-admin.js?v=service-crop-2';
+import './admin/modules/legacy-admin.js?v=service-crop-4';

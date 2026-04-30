@@ -51,7 +51,7 @@ if (isStableFirebaseHost) {
 
 /* ================= 2. SYSTEME DE CACHE ANTI-COÛT ================= */
 const CACHE_TIME_24H = 1000 * 60 * 60 * 24;
-const FRONT_CACHE_VERSION = 'pjax-front-10-audit-2';
+const FRONT_CACHE_VERSION = 'main-post-audit-4';
 const FRONT_CACHE_VERSION_KEY = 'usm_front_cache_version';
 
 function syncFrontCacheVersion() {
@@ -839,7 +839,9 @@ function splitStatPlusValue(value, options = {}) {
     const raw = String(value ?? '').trim();
     if (!raw) return { text: '', number: '', hasPlus: false };
     const allowPlus = options.allowPlus !== false;
-    const hasPlus = allowPlus && (raw.startsWith('+') || raw.endsWith('+'));
+    const forcePlus = options.forcePlus === true;
+    const hasExplicitPlus = raw.startsWith('+') || raw.endsWith('+');
+    const hasPlus = allowPlus && (forcePlus || hasExplicitPlus);
     const number = raw.replace(/\+/g, '').trim();
     return {
         text: hasPlus ? `${number}+` : number,
@@ -891,11 +893,8 @@ async function loadSettings() {
             const statEl = document.getElementById(`stat-${s.replace('stat','')}`);
             if (!data[s] || !statEl) return;
 
-            let nextValue = data[s];
             const shouldForcePlus = s === 'stat1' || s === 'stat2' || s === 'stat4';
-            if (shouldForcePlus) nextValue = forceStatTrailingPlus(nextValue);
-
-            renderStatValue(statEl, nextValue, { allowPlus: shouldForcePlus });
+            renderStatValue(statEl, data[s], { allowPlus: shouldForcePlus, forcePlus: shouldForcePlus });
         });
         
         if(data.logoNav) {
