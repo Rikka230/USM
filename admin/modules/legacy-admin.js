@@ -1425,6 +1425,55 @@ function readSocialFollowers(data, platform, target) {
     return value === 0 ? '' : String(value).trim();
 }
 
+function formatSocialSyncDate(value) {
+    if (!value) return '';
+
+    let date = value;
+    if (typeof value.toDate === 'function') {
+        date = value.toDate();
+    } else if (typeof value.seconds === 'number') {
+        date = new Date(value.seconds * 1000);
+    } else if (!(value instanceof Date)) {
+        date = new Date(value);
+    }
+
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
+
+    return new Intl.DateTimeFormat('fr-FR', {
+        dateStyle: 'short',
+        timeStyle: 'short'
+    }).format(date);
+}
+
+function renderSocialApiSyncDetails(data = {}) {
+    const details = document.getElementById('social-api-sync-details');
+    if (!details) return;
+
+    const apiSync = isPlainObject(data.apiSync) ? data.apiSync : {};
+    const status = data.last_api_sync_status || apiSync.status || '';
+    const updatedAt = data.last_api_sync_at || apiSync.updatedAt || '';
+    const errors = Array.isArray(data.last_api_sync_errors)
+        ? data.last_api_sync_errors
+        : Array.isArray(apiSync.errors)
+            ? apiSync.errors
+            : [];
+
+    const formattedDate = formatSocialSyncDate(updatedAt);
+    const statusLabel = {
+        ok: 'OK',
+        partial: 'Partielle',
+        error: 'Erreur'
+    }[status] || status || 'Jamais lancée';
+
+    const errorText = errors.length
+        ? ` · Avertissements : ${errors.map(error => error.message || error.status || String(error)).join(' | ')}`
+        : '';
+
+    details.textContent = `Dernière synchro API YouTube : ${statusLabel}${formattedDate ? ` · ${formattedDate}` : ''}${errorText}`;
+    details.style.display = 'block';
+    details.style.color = status === 'error' ? '#ff8a8a' : status === 'partial' ? '#ffd37a' : '#aaa';
+}
+
 function setSocialAdminValues(data = {}) {
     SOCIAL_ADMIN_PLATFORMS.forEach((platform) => {
         SOCIAL_ADMIN_TARGETS.forEach((target) => {
@@ -1435,6 +1484,8 @@ function setSocialAdminValues(data = {}) {
             if (followersInput) followersInput.value = readSocialFollowers(data, platform, target);
         });
     });
+
+    renderSocialApiSyncDetails(data);
 }
 
 function normalizeSocialAdminUrl(value) {
@@ -1507,6 +1558,70 @@ if (navSocial) {
         localStorage.setItem('admin_active_tab', 'nav-social');
         await loadSocialAdminSettings();
     });
+}
+
+async function refreshSocialStatsFromAdmin() {
+    const btn = document.getElementById('sync-youtube-api-btn');
+    const originalText = btn?.textContent || 'Synchroniser YouTube API';
+
+    if (!auth.currentUser) {
+        setSocialAdminStatus('Connexion admin expirée. Reconnecte-toi avant de synchroniser.', 'error');
+        return;
+    }
+
+    if (btn) {
+        btn.textContent = 'Synchronisation YouTube...';
+        btn.disabled = true;
+        btn.style.opacity = '0.65';
+    }
+
+    setSocialAdminStatus('Synchronisation YouTube via Firebase Function...', 'info');
+
+    try {
+        const token = await auth.currentUser.getIdToken();
+        const response = await fetch('/api/refreshSocialStatsNow', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ provider: 'youtube' })
+        });
+
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result.ok === false) {
+            throw new Error(result.message || `Erreur HTTP ${response.status}`);
+        }
+
+        clearPublicCache();
+        localStorage.removeItem('site_social');
+        localStorage.removeItem('site_social_picker_v1');
+        localStorage.removeItem('site_social_picker_v2');
+
+        const updatedTargets = Number(result.successfulUpdates || 0);
+        setSocialAdminStatus(
+            updatedTargets > 0
+                ? `Synchronisation YouTube terminée : ${updatedTargets} compteur(s) mis à jour.`
+                : 'Synchronisation YouTube terminée, aucun compteur mis à jour. Vérifie les liens YouTube.',
+            result.status === 'error' ? 'warning' : 'success'
+        );
+
+        await loadSocialAdminSettings();
+    } catch (error) {
+        console.error('Erreur synchronisation YouTube API:', error);
+        setSocialAdminStatus(`Erreur synchro YouTube API : ${error.message || error}`, 'error');
+    } finally {
+        if (btn) {
+            btn.textContent = originalText;
+            btn.disabled = false;
+            btn.style.opacity = '';
+        }
+    }
+}
+
+const syncYoutubeApiBtn = document.getElementById('sync-youtube-api-btn');
+if (syncYoutubeApiBtn) {
+    syncYoutubeApiBtn.addEventListener('click', refreshSocialStatsFromAdmin);
 }
 
 const socialForm = document.getElementById('social-form');

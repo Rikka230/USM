@@ -1,8 +1,13 @@
 const { onRequest } = require("firebase-functions/v2/https");
+const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { defineSecret, defineString } = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
+const { initializeApp, getApps } = require("firebase-admin/app");
+const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const { getAuth: getAdminAuth } = require("firebase-admin/auth");
 
 const BREVO_API_KEY = defineSecret("BREVO_API_KEY");
+const YOUTUBE_API_KEY = defineSecret("YOUTUBE_API_KEY");
 const BREVO_CONTACT_LIST_ID = defineString("BREVO_CONTACT_LIST_ID", { default: "" });
 
 const CONTACT_RECIPIENT_EMAIL = "contact@usmfootball.com";
@@ -31,18 +36,33 @@ const rateLimitStore = new Map();
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 const RATE_LIMIT_MAX_REQUESTS = 5;
 const CONTACT_SYNC_TIMEOUT_MS = 7000;
+const SOCIAL_SYNC_TIMEOUT_MS = 12000;
+const SOCIAL_SETTINGS_COLLECTION = "settings";
+const SOCIAL_SETTINGS_DOC = "social";
+const SOCIAL_SYNC_TARGETS = ["usm", "christophe"];
+
+if (!getApps().length) {
+  initializeApp();
+}
+
+const adminDb = getFirestore();
+const adminAuth = getAdminAuth();
+
+function isAllowedFirebasePreviewOrigin(origin) {
+  return /^https:\/\/usm-football-b56ba--[a-z0-9-]+\.web\.app$/i.test(origin);
+}
 
 function setCorsHeaders(req, res) {
   const origin = req.get("origin") || "";
   const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
 
-  if (ALLOWED_ORIGINS.has(origin) || isLocalhost) {
+  if (ALLOWED_ORIGINS.has(origin) || isAllowedFirebasePreviewOrigin(origin) || isLocalhost) {
     res.set("Access-Control-Allow-Origin", origin);
     res.set("Vary", "Origin");
   }
 
   res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.set("Access-Control-Allow-Headers", "Content-Type");
+  res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.set("Access-Control-Max-Age", "3600");
 }
 
@@ -50,6 +70,7 @@ function isAllowedOrigin(req) {
   const origin = req.get("origin") || "";
   if (!origin) return true;
   if (ALLOWED_ORIGINS.has(origin)) return true;
+  if (isAllowedFirebasePreviewOrigin(origin)) return true;
   return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
 }
 
@@ -405,6 +426,322 @@ async function syncContactToBrevo({ firstName, lastName, profession, email, phon
     clearTimeout(timeoutId);
   }
 }
+
+
+function safeReadSocialRoot(data) {
+  return data && typeof data === "object" && !Array.isArray(data) ? data : {};
+}
+
+function readSocialSetting(data, platform, target) {
+  const root = safeReadSocialRoot(data);
+  const directKey = `${platform}_${target}`;
+  const platformData = safeReadSocialRoot(root[platform]);
+  const nestedValue = platformData[target];
+  const legacyValue = target === "usm" && typeof root[platform] === "string" ? root[platform] : "";
+  return normalizeString(nestedValue || root[directKey] || legacyValue || "", 500);
+}
+
+function extractYouTubeLookup(value) {
+  const raw = normalizeString(value, 500);
+  if (!raw) return null;
+
+  if (/^UC[a-zA-Z0-9_-]{20,}$/.test(raw)) {
+    return { type: "id", value: raw };
+  }
+
+  if (/^@[a-zA-Z0-9._-]+$/.test(raw)) {
+    return { type: "forHandle", value: raw };
+  }
+
+  try {
+    const parsed = new URL(raw.startsWith("http") ? raw : `https://${raw}`);
+    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+    if (!host.includes("youtube.com") && host !== "youtu.be") return null;
+
+    const parts = parsed.pathname.split("/").map(part => part.trim()).filter(Boolean);
+    if (!parts.length) return null;
+
+    if (parts[0] === "channel" && parts[1]) {
+      return { type: "id", value: parts[1] };
+    }
+
+    if (parts[0].startsWith("@")) {
+      return { type: "forHandle", value: parts[0] };
+    }
+
+    if (parts[0] === "user" && parts[1]) {
+      return { type: "forUsername", value: parts[1] };
+    }
+  } catch (error) {
+    logger.warn("Unable to parse YouTube URL", { value: raw, message: error.message });
+  }
+
+  return null;
+}
+
+function createAbortSignal(timeoutMs) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  return { controller, timeoutId };
+}
+
+async function fetchYouTubeChannelStats(lookup) {
+  const apiKey = normalizeString(YOUTUBE_API_KEY.value(), 300);
+  if (!apiKey) {
+    throw new Error("YOUTUBE_API_KEY is not configured");
+  }
+
+  const params = new URLSearchParams({
+    part: "snippet,statistics",
+    key: apiKey,
+    maxResults: "1"
+  });
+  params.set(lookup.type, lookup.value);
+
+  const { controller, timeoutId } = createAbortSignal(SOCIAL_SYNC_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(`https://www.googleapis.com/youtube/v3/channels?${params.toString()}`, {
+      method: "GET",
+      headers: { accept: "application/json" },
+      signal: controller.signal
+    });
+
+    const responseText = await response.text();
+    let body = null;
+    try {
+      body = responseText ? JSON.parse(responseText) : null;
+    } catch (error) {
+      body = { raw: responseText.slice(0, 500) };
+    }
+
+    if (!response.ok) {
+      const message = body?.error?.message || `YouTube API HTTP ${response.status}`;
+      const error = new Error(message);
+      error.status = response.status;
+      error.body = body;
+      throw error;
+    }
+
+    const item = Array.isArray(body?.items) ? body.items[0] : null;
+    if (!item) return null;
+
+    const subscriberCount = Number.parseInt(item?.statistics?.subscriberCount || "", 10);
+    if (!Number.isFinite(subscriberCount) || subscriberCount < 0) {
+      return {
+        channelId: item.id || "",
+        title: item?.snippet?.title || "",
+        hiddenSubscriberCount: Boolean(item?.statistics?.hiddenSubscriberCount),
+        subscriberCount: null
+      };
+    }
+
+    return {
+      channelId: item.id || "",
+      title: item?.snippet?.title || "",
+      hiddenSubscriberCount: Boolean(item?.statistics?.hiddenSubscriberCount),
+      subscriberCount
+    };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function refreshSocialStatsFromApis(source = "manual") {
+  const docRef = adminDb.collection(SOCIAL_SETTINGS_COLLECTION).doc(SOCIAL_SETTINGS_DOC);
+  const snapshot = await docRef.get();
+  const socialData = snapshot.exists ? safeReadSocialRoot(snapshot.data()) : {};
+  const updatePayload = {
+    apiSync: {
+      updatedAt: FieldValue.serverTimestamp(),
+      source,
+      status: "ok",
+      providers: {},
+      errors: []
+    },
+    last_api_sync_at: FieldValue.serverTimestamp(),
+    last_api_sync_status: "ok",
+    last_api_sync_errors: [],
+    stats_source: "api+manual",
+    followers: {
+      youtube: {}
+    },
+    api: {
+      youtube: {}
+    }
+  };
+
+  const results = [];
+  const errors = [];
+  let successfulUpdates = 0;
+
+  for (const target of SOCIAL_SYNC_TARGETS) {
+    const url = readSocialSetting(socialData, "youtube", target);
+    const lookup = extractYouTubeLookup(url);
+
+    if (!url) {
+      results.push({ platform: "youtube", target, status: "skipped", reason: "empty_url" });
+      continue;
+    }
+
+    if (!lookup) {
+      const message = `Lien YouTube ${target} non compatible avec l’API`;
+      errors.push({ platform: "youtube", target, message });
+      results.push({ platform: "youtube", target, status: "error", message });
+      continue;
+    }
+
+    try {
+      const stats = await fetchYouTubeChannelStats(lookup);
+      if (!stats || stats.subscriberCount === null) {
+        const message = stats?.hiddenSubscriberCount
+          ? `Abonnés YouTube masqués pour ${target}`
+          : `Chaîne YouTube introuvable pour ${target}`;
+        errors.push({ platform: "youtube", target, message });
+        results.push({ platform: "youtube", target, status: "error", message });
+        continue;
+      }
+
+      const followers = stats.subscriberCount;
+      updatePayload[`youtube_${target}_followers`] = followers;
+      updatePayload[`youtube_${target}_api_followers`] = followers;
+      updatePayload[`youtube_${target}_api_channel_id`] = stats.channelId;
+      updatePayload[`youtube_${target}_api_title`] = stats.title;
+      updatePayload[`youtube_${target}_api_synced_at`] = FieldValue.serverTimestamp();
+      updatePayload.followers.youtube[target] = followers;
+      updatePayload.api.youtube[target] = {
+        followers,
+        channelId: stats.channelId,
+        title: stats.title,
+        lookupType: lookup.type,
+        syncedAt: FieldValue.serverTimestamp(),
+        source: "youtube-data-api-v3"
+      };
+
+      successfulUpdates += 1;
+      results.push({
+        platform: "youtube",
+        target,
+        status: "ok",
+        followers,
+        channelId: stats.channelId,
+        title: stats.title
+      });
+    } catch (error) {
+      const message = error.message || String(error);
+      errors.push({ platform: "youtube", target, message, status: error.status || null });
+      results.push({ platform: "youtube", target, status: "error", message });
+      logger.error("YouTube social stats refresh failed", { target, message, status: error.status || null });
+    }
+  }
+
+  const youtubeStatus = errors.length && successfulUpdates ? "partial" : errors.length ? "error" : "ok";
+  updatePayload.apiSync.status = youtubeStatus;
+  updatePayload.apiSync.providers.youtube = {
+    status: youtubeStatus,
+    updatedAt: FieldValue.serverTimestamp(),
+    updatedTargets: successfulUpdates,
+    totalTargets: SOCIAL_SYNC_TARGETS.length
+  };
+  updatePayload.apiSync.errors = errors.slice(0, 10);
+  updatePayload.last_api_sync_status = youtubeStatus;
+  updatePayload.last_api_sync_errors = errors.slice(0, 10);
+
+  await docRef.set(updatePayload, { merge: true });
+
+  logger.info("Social stats refresh complete", {
+    source,
+    status: youtubeStatus,
+    successfulUpdates,
+    errors: errors.length
+  });
+
+  return {
+    ok: !errors.length || successfulUpdates > 0,
+    status: youtubeStatus,
+    successfulUpdates,
+    results,
+    errors: errors.slice(0, 10)
+  };
+}
+
+async function verifyAdminRequest(req) {
+  const authorization = req.get("authorization") || "";
+  const match = authorization.match(/^Bearer\s+(.+)$/i);
+
+  if (!match) {
+    const error = new Error("Token Firebase manquant.");
+    error.status = 401;
+    throw error;
+  }
+
+  try {
+    return await adminAuth.verifyIdToken(match[1]);
+  } catch (error) {
+    const authError = new Error("Token Firebase invalide ou expiré.");
+    authError.status = 401;
+    throw authError;
+  }
+}
+
+exports.refreshSocialStats = onSchedule(
+  {
+    region: "europe-west1",
+    schedule: "every 12 hours",
+    timeZone: "Europe/Paris",
+    secrets: [YOUTUBE_API_KEY],
+    timeoutSeconds: 60,
+    memory: "256MiB"
+  },
+  async () => {
+    await refreshSocialStatsFromApis("scheduled");
+  }
+);
+
+exports.refreshSocialStatsNow = onRequest(
+  {
+    region: "europe-west1",
+    secrets: [YOUTUBE_API_KEY],
+    timeoutSeconds: 60,
+    memory: "256MiB"
+  },
+  async (req, res) => {
+    setCorsHeaders(req, res);
+    res.set("Cache-Control", "no-store");
+    res.set("X-Content-Type-Options", "nosniff");
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      res.status(405).json({ ok: false, message: "Méthode non autorisée." });
+      return;
+    }
+
+    if (!isAllowedOrigin(req)) {
+      logger.warn("Blocked social stats refresh from unauthorized origin", { origin: req.get("origin") || "unknown" });
+      res.status(403).json({ ok: false, message: "Origine non autorisée." });
+      return;
+    }
+
+    try {
+      const decodedToken = await verifyAdminRequest(req);
+      const result = await refreshSocialStatsFromApis("manual-admin");
+      res.status(200).json({
+        ok: true,
+        message: result.status === "ok" ? "Synchronisation YouTube terminée." : "Synchronisation YouTube terminée avec avertissements.",
+        requestedBy: decodedToken.email || decodedToken.uid,
+        ...result
+      });
+    } catch (error) {
+      const status = error.status || 500;
+      logger.error("Manual social stats refresh failed", { message: error.message, status });
+      res.status(status).json({ ok: false, message: error.message || "Erreur synchronisation réseaux sociaux." });
+    }
+  }
+);
 
 exports.sendContactEmail = onRequest(
   {

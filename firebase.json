@@ -57,6 +57,13 @@
         }
       },
       {
+        "source": "/api/refreshSocialStatsNow",
+        "function": {
+          "functionId": "refreshSocialStatsNow",
+          "region": "europe-west1"
+        }
+      },
+      {
         "source": "/favicon.ico",
         "destination": "/Assets/favicon.png"
       }

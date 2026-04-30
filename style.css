@@ -2266,3 +2266,17 @@ html, body {
         -webkit-line-clamp: 2;
     }
 }
+
+/* Fix lisibilité stat Impact Digital : force le rang mondial sur une ligne dédiée */
+.data-label[data-i18n="stat_3_label"] {
+    white-space: pre-line;
+    line-height: 1.35;
+    min-height: 54px;
+}
+
+@media (max-width: 768px) {
+    .data-label[data-i18n="stat_3_label"] {
+        min-height: 48px;
+        line-height: 1.28;
+    }
+}
