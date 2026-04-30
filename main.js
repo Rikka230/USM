@@ -50,7 +50,32 @@ if (isStableFirebaseHost) {
 }
 
 /* ================= 2. SYSTEME DE CACHE ANTI-COÛT ================= */
-const CACHE_TIME_24H = 1000 * 60 * 60 * 24; 
+const CACHE_TIME_24H = 1000 * 60 * 60 * 24;
+const FRONT_CACHE_VERSION = 'pjax-front-9-9';
+const FRONT_CACHE_VERSION_KEY = 'usm_front_cache_version';
+
+function syncFrontCacheVersion() {
+    try {
+        const previousVersion = localStorage.getItem(FRONT_CACHE_VERSION_KEY);
+        if (previousVersion === FRONT_CACHE_VERSION) return;
+
+        [
+            'site_settings',
+            'site_agency',
+            'site_services',
+            'site_players',
+            'site_presse',
+            'site_marquee',
+            'site_social_picker_v2'
+        ].forEach(key => localStorage.removeItem(key));
+
+        localStorage.setItem(FRONT_CACHE_VERSION_KEY, FRONT_CACHE_VERSION);
+    } catch (error) {
+        console.warn('Refresh cache front ignore:', error);
+    }
+}
+
+syncFrontCacheVersion();
 
 const Cache = {
     get: (key) => {
@@ -1143,12 +1168,12 @@ function formatFollowersTotal(total) {
     if (total >= 1_000_000) {
         const value = total / 1_000_000;
         const decimals = value < 10 ? 1 : 0;
-        return `+${value.toFixed(decimals).replace('.', ',')}M`;
+        return `${value.toFixed(decimals).replace('.', ',')}M+`;
     }
     if (total >= 100_000) {
-        return `+${Math.round(total / 1000)}K`;
+        return `${Math.round(total / 1000)}K+`;
     }
-    return `+${new Intl.NumberFormat('fr-FR').format(Math.round(total))}`;
+    return `${new Intl.NumberFormat('fr-FR').format(Math.round(total))}+`;
 }
 
 function updateDigitalImpactFromSocialData(socialData) {
