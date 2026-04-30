@@ -51,7 +51,7 @@ if (isStableFirebaseHost) {
 
 /* ================= 2. SYSTEME DE CACHE ANTI-COÛT ================= */
 const CACHE_TIME_24H = 1000 * 60 * 60 * 24;
-const FRONT_CACHE_VERSION = 'main-post-audit-6';
+const FRONT_CACHE_VERSION = 'main-post-audit-7';
 const FRONT_CACHE_VERSION_KEY = 'usm_front_cache_version';
 
 function syncFrontCacheVersion() {

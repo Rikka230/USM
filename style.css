@@ -3451,3 +3451,89 @@ body.service-page .service-hero-img-ghost {
     object-fit: contain !important;
     background: #050507 !important;
 }
+
+/* ================= POST AUDIT 7 — Images déco non-croppées + mentions légales PJAX ================= */
+.marquee-item {
+    background:
+        linear-gradient(45deg, rgba(255,255,255,0.028) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(255,255,255,0.028) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.028) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.028) 75%),
+        #08080b;
+    background-size: 22px 22px;
+    background-position: 0 0, 0 11px, 11px -11px, -11px 0;
+}
+
+.marquee-item img {
+    object-fit: contain !important;
+}
+
+.legal-container {
+    max-width: 900px;
+    margin: 150px auto 100px;
+    padding: 50px;
+    background: var(--surface);
+    border: 1px solid rgba(216, 0, 86, 0.2);
+    border-radius: var(--card-radius);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    position: relative;
+    z-index: 10;
+}
+
+.legal-container h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: #fff;
+    text-align: center;
+    margin-bottom: 50px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.legal-container h2 {
+    color: var(--usm-pink);
+    font-size: 1.5rem;
+    margin-top: 40px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(216, 0, 86, 0.2);
+    padding-bottom: 10px;
+}
+
+.legal-container p,
+.legal-container ul {
+    color: #ccc;
+    line-height: 1.8;
+    font-size: 1.05rem;
+    margin-bottom: 15px;
+}
+
+.legal-container ul {
+    padding-left: 20px;
+}
+
+.legal-container li {
+    margin-bottom: 8px;
+}
+
+.legal-container a {
+    color: var(--usm-pink);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.legal-container a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .legal-container {
+        margin: 115px 16px 90px;
+        padding: 28px 20px;
+        border-radius: 22px;
+    }
+
+    .legal-container h1 {
+        margin-bottom: 32px;
+    }
+}
