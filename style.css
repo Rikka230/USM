@@ -2363,7 +2363,82 @@ body.pjax-page-enter .hero-massive > p {
     }
 }
 
+/* ================= PJAX FRONT 9.4 — Navigation douce entre services ================= */
+body.service-page.is-service-switching .service-hero-content,
+body.service-page.is-service-switching .service-main-content,
+body.service-page.is-service-switching .service-sidebar {
+    opacity: 0.38;
+    transform: translateY(8px);
+    filter: blur(3px);
+    transition: opacity 0.22s ease, transform 0.22s ease, filter 0.22s ease;
+}
+
+body.service-page .service-hero-content,
+body.service-page .service-main-content,
+body.service-page .service-sidebar {
+    transition: opacity 0.42s ease, transform 0.48s cubic-bezier(0.22, 1, 0.36, 1), filter 0.42s ease;
+}
+
+body.service-page .service-hero-img-live,
+body.service-page .service-hero-img-ghost {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+body.service-page .service-hero-img-live {
+    z-index: 0;
+    transform: scale(1);
+    transition: opacity 0.72s ease, transform 1.05s cubic-bezier(0.22, 1, 0.36, 1), filter 0.72s ease;
+}
+
+body.service-page .service-hero-img-live.service-hero-img-switching {
+    opacity: 0 !important;
+    transform: scale(1.025);
+    filter: blur(5px);
+}
+
+body.service-page .service-hero-img-live.service-hero-img-ready {
+    opacity: 0.4 !important;
+    transform: scale(1);
+    filter: blur(0);
+}
+
+body.service-page .service-hero-img-ghost {
+    z-index: 0;
+    opacity: 0.4;
+    transform: scale(1);
+    transition: opacity 0.78s ease, filter 0.78s ease;
+}
+
+body.service-page .service-hero-img-ghost.is-fading-out {
+    opacity: 0;
+    filter: blur(4px);
+}
+
+body.service-page .sidebar-srv-link[aria-current="page"] {
+    border-color: var(--usm-pink);
+    background: rgba(216, 0, 86, 0.14);
+    color: var(--usm-pink);
+}
+
 @media (prefers-reduced-motion: reduce) {
+    body.service-page.is-service-switching .service-hero-content,
+    body.service-page.is-service-switching .service-main-content,
+    body.service-page.is-service-switching .service-sidebar,
+    body.service-page .service-hero-img-live,
+    body.service-page .service-hero-img-ghost {
+        opacity: 1 !important;
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+        filter: none !important;
+    }
+
     html.usm-pjax-loading::before,
     html.usm-pjax-loading::after,
     body.pjax-page-enter main,

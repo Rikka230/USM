@@ -1293,15 +1293,37 @@ function renderServices() {
     }
 }
 
-function renderOtherServices(currentId, lang) {
+function renderOtherServices(currentId, lang, options = {}) {
     const container = document.getElementById('other-services-container'); 
     if(!container) return;
+
+    const preserveDom = options.preserveDom === true && container.querySelector('.sidebar-srv-link');
+
+    if (preserveDom) {
+        const linksByServiceId = new Map(
+            Array.from(container.querySelectorAll('.sidebar-srv-link[data-service-id]'))
+                .map((link) => [link.dataset.serviceId, link])
+        );
+
+        allServicesData.forEach(srv => {
+            const link = linksByServiceId.get(srv.id);
+            if (!link) return;
+            const title = srv[`title_${lang}`] || srv.title_fr || 'Service';
+            const titleSpan = link.querySelector('span:first-child');
+            if (titleSpan) titleSpan.textContent = title;
+            link.href = `page-dynamique.html?id=${encodeURIComponent(srv.id)}`;
+            link.classList.toggle('active', srv.id === currentId);
+            link.setAttribute('aria-current', srv.id === currentId ? 'page' : 'false');
+        });
+        return;
+    }
+
     let html = '';
     allServicesData.forEach(srv => {
         const title = srv[`title_${lang}`] || srv.title_fr || 'Service';
         const isActive = srv.id === currentId ? 'active' : '';
         html += `
-        <a href="page-dynamique.html?id=${srv.id}" class="sidebar-srv-link ${isActive}">
+        <a href="page-dynamique.html?id=${encodeURIComponent(srv.id)}" class="sidebar-srv-link ${isActive}" data-service-id="${escapeHtml(srv.id)}" aria-current="${srv.id === currentId ? 'page' : 'false'}">
             <span>${title}</span><span>➔</span>
         </a>`;
     });
@@ -1327,35 +1349,147 @@ function setServicePageRevealState(isLoading) {
     });
 }
 
-async function loadSingleServicePage() {
-    setServicePageRevealState(true);
+const serviceSoftDelay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+let serviceSwitchId = 0;
+
+function isServicePageUrl(url) {
+    try {
+        const parsedUrl = url instanceof URL ? url : new URL(url, window.location.href);
+        const normalizedPath = parsedUrl.pathname.endsWith('/') ? `${parsedUrl.pathname}index.html` : parsedUrl.pathname;
+        return normalizedPath.endsWith('/page-dynamique.html') || normalizedPath === '/page-dynamique.html';
+    } catch (error) {
+        return false;
+    }
+}
+
+function getCurrentServiceIdFromUrl() {
+    return new URLSearchParams(window.location.search).get('id') || '';
+}
+
+function canSoftNavigateService(rawUrl) {
+    try {
+        const url = new URL(rawUrl, window.location.href);
+        if (url.origin !== window.location.origin) return false;
+        if (!isServicePageUrl(url)) return false;
+        if (!document.body.classList.contains('service-page')) return false;
+        if (!document.getElementById('srv-page-title') || !document.getElementById('srv-hero-img')) return false;
+        return Boolean(url.searchParams.get('id'));
+    } catch (error) {
+        return false;
+    }
+}
+
+function setServiceSwitchState(isSwitching) {
+    document.body.classList.toggle('is-service-switching', isSwitching);
+}
+
+function normalizeServiceImageUrl(url) {
+    if (!url) return '';
+    try { return new URL(url, window.location.href).href; }
+    catch (error) { return url; }
+}
+
+function updateServiceHeroImage(url, titleText, options = {}) {
+    const imgEl = document.getElementById('srv-hero-img');
+    if (!imgEl || !url) return;
+
+    imgEl.alt = titleText || 'Service USM';
+
+    if (!options.soft) {
+        loadSmoothImage('#srv-hero-img', url, '0.4');
+        return;
+    }
+
+    const nextUrl = normalizeServiceImageUrl(url);
+    const currentUrl = normalizeServiceImageUrl(imgEl.currentSrc || imgEl.getAttribute('src') || imgEl.src || '');
+    if (currentUrl === nextUrl) return;
+
+    const hero = imgEl.closest('.service-hero');
+    let ghost = null;
+
+    if (hero && currentUrl && !currentUrl.startsWith('data:image/gif')) {
+        ghost = imgEl.cloneNode(false);
+        ghost.removeAttribute('id');
+        ghost.removeAttribute('data-usm-smooth-image');
+        ghost.removeAttribute('data-fade-ready');
+        ghost.className = 'service-hero-img-ghost';
+        ghost.setAttribute('aria-hidden', 'true');
+        ghost.src = currentUrl;
+        hero.insertBefore(ghost, imgEl);
+    }
+
+    imgEl.onload = null;
+    imgEl.onerror = null;
+    imgEl.classList.remove('loaded', 'usm-smooth-image-ready', 'service-hero-img-ready');
+    imgEl.classList.add('service-hero-img-live', 'service-hero-img-switching');
+    imgEl.style.setProperty('--final-opacity', '0.4');
+    imgEl.style.opacity = '0';
+
+    const finish = async () => {
+        try {
+            if (imgEl.decode) await imgEl.decode();
+        } catch (error) {}
+
+        requestAnimationFrame(() => {
+            imgEl.classList.remove('service-hero-img-switching');
+            imgEl.classList.add('loaded', 'service-hero-img-ready');
+            imgEl.style.opacity = '0.4';
+
+            if (ghost) {
+                ghost.classList.add('is-fading-out');
+                setTimeout(() => ghost.remove(), 900);
+            }
+        });
+    };
+
+    imgEl.onload = finish;
+    imgEl.onerror = finish;
+    imgEl.src = url;
+
+    if (imgEl.complete && imgEl.naturalWidth > 0) finish();
+}
+
+async function loadSingleServicePage(options = {}) {
+    const softTransition = options.soft === true && document.body.classList.contains('service-page');
+    const switchId = ++serviceSwitchId;
+
+    if (softTransition) {
+        setServiceSwitchState(true);
+        await serviceSoftDelay(130);
+        if (switchId !== serviceSwitchId) return;
+    } else {
+        setServicePageRevealState(true);
+    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const srvId = urlParams.get('id');
     if(!srvId) {
-        setServicePageRevealState(false);
+        if (softTransition) setServiceSwitchState(false);
+        else setServicePageRevealState(false);
         return;
     }
 
     try {
         const docSnap = await getDoc(doc(db, "services", srvId));
+        if (switchId !== serviceSwitchId) return;
+
         if(docSnap.exists()) {
             window.currentServiceId = srvId;
             window.currentServiceData = docSnap.data();
             const srv = window.currentServiceData;
             const currentLang = localStorage.getItem('usm_lang') || 'fr';
-            
+
             const titleText = srv[`title_${currentLang}`] || srv.title_fr || "Service";
             const subText = srv[`subtitle_${currentLang}`] || srv.subtitle_fr || "";
             const descText = srv[`desc_${currentLang}`] || srv.desc_fr || "";
             const seoText = srv[`seo_${currentLang}`] || srv.seo_fr || "";
-            
-            const imgEl = document.getElementById('srv-hero-img');
-            if(imgEl && srv.image_url) { 
-                loadSmoothImage('#srv-hero-img', srv.image_url, '0.4');
-                imgEl.alt = titleText; 
+
+            if(srv.image_url) updateServiceHeroImage(srv.image_url, titleText, { soft: softTransition });
+            else {
+                const imgEl = document.getElementById('srv-hero-img');
+                if (imgEl) imgEl.alt = titleText;
             }
-            
+
             const titleEl = document.getElementById('srv-page-title'); if(titleEl) titleEl.textContent = titleText;
             const subEl = document.getElementById('srv-page-subtitle'); if(subEl) subEl.textContent = subText;
             const descEl = document.getElementById('srv-page-desc'); if(descEl) descEl.textContent = descText;
@@ -1385,7 +1519,7 @@ async function loadSingleServicePage() {
                 metaKeys.content = seoText;
             }
 
-            renderOtherServices(srvId, currentLang);
+            renderOtherServices(srvId, currentLang, { preserveDom: softTransition });
         } else {
             const titleEl = document.getElementById('srv-page-title'); if(titleEl) titleEl.textContent = "Service Introuvable";
             const descEl = document.getElementById('srv-page-desc'); if(descEl) descEl.textContent = "Ce service n'existe pas ou a été supprimé.";
@@ -1393,9 +1527,40 @@ async function loadSingleServicePage() {
     } catch(e) {
         console.error("Erreur Service: ", e);
     } finally {
-        setServicePageRevealState(false);
+        if (switchId !== serviceSwitchId) return;
+        if (softTransition) {
+            requestAnimationFrame(() => setServiceSwitchState(false));
+        } else {
+            setServicePageRevealState(false);
+        }
     }
 }
+
+window.USMServicePage = {
+    canSoftNavigate: canSoftNavigateService,
+    navigateToService(rawUrl, options = {}) {
+        if (!canSoftNavigateService(rawUrl)) return false;
+
+        const url = new URL(rawUrl, window.location.href);
+        const nextId = url.searchParams.get('id') || '';
+        const currentId = getCurrentServiceIdFromUrl();
+
+        if (nextId === currentId && !options.forceReload) {
+            renderOtherServices(nextId, localStorage.getItem('usm_lang') || 'fr', { preserveDom: true });
+            return true;
+        }
+
+        if (options.replace) {
+            history.replaceState({ usmPjax: true, usmServiceId: nextId }, '', url.href);
+        } else if (!options.popstate) {
+            history.pushState({ usmPjax: true, usmServiceId: nextId }, '', url.href);
+        }
+
+        loadSingleServicePage({ soft: true });
+        return true;
+    }
+};
+
 /* ================= 8. CHARGEMENT OPTIMISÉ DU ROSTER ================= */
 
 const rosterImageCache = new Map();

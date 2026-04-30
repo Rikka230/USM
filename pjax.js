@@ -35,6 +35,24 @@
       url.search === window.location.search;
   }
 
+
+  function isServiceSoftNavigation(url) {
+    if (!sameOrigin(url)) return false;
+    if (normalizePath(window.location.pathname) !== "/page-dynamique.html") return false;
+    if (normalizePath(url.pathname) !== "/page-dynamique.html") return false;
+    if (!url.searchParams.get("id")) return false;
+    if (!document.body.classList.contains("service-page")) return false;
+    return true;
+  }
+
+  function tryServiceSoftNavigation(url, options = {}) {
+    if (!isServiceSoftNavigation(url)) return false;
+    const serviceApi = window.USMServicePage;
+    if (!serviceApi || typeof serviceApi.navigateToService !== "function") return false;
+    if (typeof serviceApi.canSoftNavigate === "function" && !serviceApi.canSoftNavigate(url.href)) return false;
+    return serviceApi.navigateToService(url.href, options) === true;
+  }
+
   function shouldHandleLink(link, event) {
     if (!link || event.defaultPrevented) return false;
     if (event.button !== 0) return false;
@@ -441,6 +459,18 @@
 
   document.addEventListener("click", (event) => {
     const link = event.target.closest?.("a[href]");
+
+    if (link && !event.defaultPrevented) {
+      try {
+        const serviceUrl = new URL(link.getAttribute("href") || "", window.location.href);
+        if (tryServiceSoftNavigation(serviceUrl)) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          return;
+        }
+      } catch (_) {}
+    }
+
     const url = shouldHandleLink(link, event);
     if (!url) return;
 
@@ -462,6 +492,7 @@
       window.location.reload();
       return;
     }
+    if (tryServiceSoftNavigation(url, { popstate: true })) return;
     navigateTo(url.href, { replace: true, popstate: true });
   });
 
