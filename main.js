@@ -51,7 +51,7 @@ if (isStableFirebaseHost) {
 
 /* ================= 2. SYSTEME DE CACHE ANTI-COÛT ================= */
 const CACHE_TIME_24H = 1000 * 60 * 60 * 24;
-const FRONT_CACHE_VERSION = 'pjax-front-9-9';
+const FRONT_CACHE_VERSION = 'pjax-front-10-audit-1';
 const FRONT_CACHE_VERSION_KEY = 'usm_front_cache_version';
 
 function syncFrontCacheVersion() {
@@ -1192,7 +1192,12 @@ function updateDigitalImpactFromSocialData(socialData) {
     const formattedTotal = formatFollowersTotal(total);
 
     if (formattedTotal) {
-        statEl.textContent = formattedTotal;
+        const hasPlus = formattedTotal.endsWith('+');
+        const numberPart = hasPlus ? formattedTotal.slice(0, -1) : formattedTotal;
+        statEl.innerHTML = hasPlus
+            ? `<span class="stat-number-main">${escapeHTML(numberPart)}</span><span class="stat-number-plus" aria-hidden="true">+</span>`
+            : escapeHTML(formattedTotal);
+        statEl.setAttribute('aria-label', formattedTotal);
         statEl.title = `${new Intl.NumberFormat('fr-FR').format(Math.round(total))} abonnés cumulés`;
         statEl.dataset.liveFollowers = 'true';
     }
@@ -1295,7 +1300,7 @@ function renderServices() {
         const sub = srv[`subtitle_${currentLang}`] || srv.subtitle_fr || '';
         const bgImg = srv.image_url ? `url('${srv.image_url}')` : 'none';
         html += `
-        <a href="page-dynamique.html?id=${srv.id}" class="bento-service-card" style="background-image: linear-gradient(to top, rgba(5,5,7,0.72) 8%, rgba(5,5,7,0.08) 100%), ${bgImg}; background-size: cover; background-position: center;">
+        <a href="page-dynamique.html?id=${srv.id}" class="bento-service-card" style="background-image: linear-gradient(to top, rgba(5,5,7,0.34) 0%, rgba(5,5,7,0.04) 100%), ${bgImg}; background-size: cover; background-position: center;">
             <div class="srv-card-content"><h3>${title}</h3><p>${sub}</p></div>
             <div class="srv-card-arrow">En savoir plus ➔</div>
         </a>`;
