@@ -1493,7 +1493,7 @@ function normalizeServiceCropSettings(raw) {
     return {
         x: clamp(crop.x, -45, 45, 0),
         y: clamp(crop.y, -45, 45, 0),
-        zoom: clamp(crop.zoom, 1, 2.6, 1)
+        zoom: clamp(crop.zoom, 0.55, 3, 1)
     };
 }
 

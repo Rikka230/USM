@@ -340,7 +340,7 @@ function normalizeServiceCropSettings(raw) {
     return {
         x: clampServiceCropValue(crop.x, -45, 45, 0),
         y: clampServiceCropValue(crop.y, -45, 45, 0),
-        zoom: clampServiceCropValue(crop.zoom, 1, 2.6, 1)
+        zoom: clampServiceCropValue(crop.zoom, 0.55, 3, 1)
     };
 }
 
@@ -448,7 +448,7 @@ function hydrateServiceCropStateFromService(srv = {}) {
         if (!input) return;
         input.addEventListener('input', (event) => {
             const nextValue = parseFloat(event.target.value);
-            if (axis === 'zoom') serviceCropState[kind].zoom = clampServiceCropValue(nextValue, 1, 2.6, 1);
+            if (axis === 'zoom') serviceCropState[kind].zoom = clampServiceCropValue(nextValue, 0.55, 3, 1);
             if (axis === 'x') serviceCropState[kind].x = clampServiceCropValue(nextValue, -45, 45, 0);
             if (axis === 'y') serviceCropState[kind].y = clampServiceCropValue(nextValue, -45, 45, 0);
             applyServiceCropToFrame(kind);
@@ -491,6 +491,15 @@ function hydrateServiceCropStateFromService(srv = {}) {
     frame.addEventListener('mousedown', (event) => startDrag(event.clientX, event.clientY));
     window.addEventListener('mousemove', (event) => moveDrag(event.clientX, event.clientY));
     window.addEventListener('mouseup', endDrag);
+
+    frame.addEventListener('wheel', (event) => {
+        if (!serviceCropState.imageUrl) return;
+        event.preventDefault();
+        const direction = event.deltaY > 0 ? -1 : 1;
+        const nextZoom = serviceCropState[kind].zoom + direction * 0.08;
+        serviceCropState[kind].zoom = clampServiceCropValue(nextZoom, 0.55, 3, 1);
+        applyServiceCropToFrame(kind);
+    }, { passive: false });
 
     frame.addEventListener('touchstart', (event) => {
         if (event.touches.length !== 1) return;

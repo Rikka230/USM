@@ -432,10 +432,9 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 
 .service-crop-workbench {
     display: grid;
-    grid-template-columns: minmax(320px, 380px) minmax(620px, 1fr) minmax(310px, 360px);
+    grid-template-columns: minmax(320px, 380px) minmax(720px, 1fr);
     grid-template-areas:
-        "card hero cardControls"
-        "card hero heroControls";
+        "card hero";
     gap: 22px;
     align-items: start;
     width: 100%;
@@ -443,11 +442,8 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 
 .service-crop-panel-card { grid-area: card; }
 .service-crop-panel-hero { grid-area: hero; }
-.service-crop-card-controls { grid-area: cardControls; }
-.service-crop-hero-controls { grid-area: heroControls; }
 
-.service-crop-preview-card,
-.service-crop-control-card {
+.service-crop-preview-card {
     min-width: 0;
     padding: 18px;
     border: 1px solid rgba(255, 255, 255, 0.085);
@@ -517,6 +513,33 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     cursor: grabbing;
 }
 
+.service-crop-frame::before {
+    content: 'Glisser pour positionner · molette pour zoomer';
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    z-index: 4;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.52);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.service-crop-frame:hover::before,
+.service-crop-frame.is-dragging::before {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 .service-crop-frame img {
     position: absolute;
     left: 50%;
@@ -530,6 +553,10 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     max-height: none !important;
 }
 
+.admin-service-hero-preview img {
+    object-fit: contain;
+}
+
 .admin-service-card-preview {
     width: 100%;
     aspect-ratio: 1 / 1;
@@ -538,8 +565,9 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 
 .admin-service-hero-preview {
     width: 100%;
-    aspect-ratio: 16 / 8;
-    min-height: clamp(360px, 32vw, 560px);
+    aspect-ratio: 21 / 7;
+    min-height: 0;
+    height: auto;
 }
 
 .admin-service-card-overlay,
@@ -605,35 +633,11 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     font-size: clamp(1rem, 1.55vw, 1.35rem);
 }
 
-.service-crop-controls {
-    display: grid;
-    gap: 16px;
-}
-
-.service-crop-controls label {
-    display: grid;
-    gap: 8px;
-    color: #a7a7af;
-    font-size: 0.86rem;
-    font-weight: 700;
-}
-
-.service-crop-controls label span {
-    color: var(--usm-pink);
-    font-weight: 900;
-    margin-left: 6px;
-}
-
-.service-crop-controls input[type="range"] {
-    width: 100%;
-}
-
 @media (max-width: 1420px) {
     .service-crop-workbench {
-        grid-template-columns: minmax(300px, 380px) minmax(500px, 1fr);
+        grid-template-columns: minmax(300px, 380px) minmax(520px, 1fr);
         grid-template-areas:
-            "card hero"
-            "cardControls heroControls";
+            "card hero";
     }
 }
 
@@ -642,9 +646,7 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
         grid-template-columns: 1fr;
         grid-template-areas:
             "card"
-            "cardControls"
-            "hero"
-            "heroControls";
+            "hero";
     }
 
     .admin-service-card-preview {
@@ -653,8 +655,8 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
     }
 
     .admin-service-hero-preview {
-        aspect-ratio: 16 / 9;
-        min-height: 300px;
+        aspect-ratio: 16 / 7;
+        min-height: 0;
     }
 }
 
@@ -665,10 +667,6 @@ body.admin-body { background: var(--bg-admin); color: #fff; display: flex; heigh
 
     .service-crop-admin-head {
         flex-direction: column;
-    }
-
-    .admin-service-hero-preview {
-        min-height: 260px;
     }
 
     .admin-service-hero-copy strong {

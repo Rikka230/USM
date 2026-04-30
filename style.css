@@ -3437,3 +3437,12 @@ body.service-page #srv-page-subtitle {
     text-shadow: 0 2px 16px rgba(0, 0, 0, 0.82);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
+
+
+/* ================= POST AUDIT 5 — Service hero true banner preview/no forced crop ================= */
+body.service-page .service-hero img,
+body.service-page .service-hero-img-live,
+body.service-page .service-hero-img-ghost {
+    object-fit: contain !important;
+    background: #050507 !important;
+}
