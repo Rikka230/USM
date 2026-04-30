@@ -1,65 +1,31 @@
-# USM PJAX Front Optimisation
+# PJAX Front Optimisation - Fix logo persistant
 
-Branche cible : `test-pjax-front-optimisation`
+Correctif incrémental : le moteur PJAX ne remplace plus brutalement tout le `<body>`.
 
 ## Objectif
 
-Ajouter une navigation PJAX sur les pages publiques sans modifier le visuel validé.
+Éviter que le logo PNG de la top bar soit détruit puis recréé à chaque navigation PJAX.
 
-Pages concernées :
+## Principe
 
-- `index.html`
-- `contact.html`
-- `presse.html`
-- `mentions.html`
-- `page-dynamique.html`
+- `header.navbar` est synchronisé avec la page cible, mais les noeuds image déjà chargés sont conservés.
+- `#nav-logo-dyn` reste vivant dans le DOM pendant la transition.
+- `#footer-logo-dyn` est également préservé.
+- Le contenu de page est remplacé séparément, hors chrome persistant : sticky social bar, navbar, footer.
+- Les liens de navigation restent synchronisés avec la page cible.
 
-Page exclue :
+## Cache bust
 
-- `admin.html`
+Les pages publiques chargent maintenant :
 
-## Fonctionnement
-
-Le fichier `pjax.js` intercepte les liens internes vers les pages publiques, récupère la page en HTML, remplace le contenu du `<body>`, met à jour le `<title>` et les metas principales, puis relance l'initialisation front via l'évènement :
-
-```js
-usm:page-ready
+```html
+<script src="pjax.js?v=pjax-front-2"></script>
 ```
 
-Le script conserve une navigation classique en fallback si le chargement PJAX échoue.
+## Pages concernées
 
-## Optimisations incluses
-
-- transitions fluides entre pages ;
-- barre de chargement fine ;
-- préchargement des liens au survol / focus / touch ;
-- réinitialisation des modules dynamiques publics après navigation ;
-- formulaire Brevo compatible PJAX ;
-- roster / recherche / filtres rejouables après navigation ;
-- presse et banderole images rejouables après navigation ;
-- `admin.html` non intercepté pour éviter tout risque côté back-office.
-
-## Test preview
-
-```bash
-firebase hosting:channel:deploy pjax-front --expires 7d
-```
-
-Preview créée :
-
-```txt
-https://usm-football-b56ba--pjax-front-gwc89m4f.web.app
-```
-
-## Points à tester
-
-1. Accueil vers Presse.
-2. Presse vers Contact.
-3. Contact vers Mentions.
-4. Mentions vers Accueil.
-5. Accueil vers un service dynamique.
-6. Navigation retour navigateur.
-7. Formulaire contact après navigation PJAX.
-8. Filtres roster après navigation PJAX.
-9. Réseaux sociaux et bulles de choix.
-10. Admin : doit rester en navigation classique.
+- index.html
+- contact.html
+- presse.html
+- mentions.html
+- page-dynamique.html

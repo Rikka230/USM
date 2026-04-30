@@ -119,6 +119,81 @@
     return { nextBody, deferredScripts };
   }
 
+
+  const PERSISTENT_PAGE_SELECTORS = [
+    "aside.sticky-social-bar",
+    "header.navbar",
+    "footer.usm-universal-footer"
+  ];
+
+  const PERSISTENT_MEDIA_SELECTORS = [
+    "#nav-logo-dyn",
+    "img.nav-logo-dyn",
+    "#footer-logo-dyn"
+  ];
+
+  function isPersistentElement(node) {
+    return node?.nodeType === Node.ELEMENT_NODE && PERSISTENT_PAGE_SELECTORS.some((selector) => node.matches(selector));
+  }
+
+  function isDisposableBodyNode(node) {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      if (node.matches("script")) return false;
+      return !isPersistentElement(node);
+    }
+    return node.nodeType === Node.TEXT_NODE || node.nodeType === Node.COMMENT_NODE;
+  }
+
+  function replaceWithPreservedMedia(currentElement, nextElement) {
+    if (!currentElement || !nextElement) return;
+
+    const nextClone = nextElement.cloneNode(true);
+
+    PERSISTENT_MEDIA_SELECTORS.forEach((selector) => {
+      const currentMedia = currentElement.querySelector(selector);
+      const nextMedia = nextClone.querySelector(selector);
+      if (!currentMedia || !nextMedia) return;
+
+      // Keep already decoded logo nodes alive so they do not flash/reload on PJAX navigation.
+      applyAttributes(currentMedia, nextMedia);
+      nextMedia.parentNode.replaceChild(currentMedia, nextMedia);
+    });
+
+    currentElement.replaceWith(nextClone);
+  }
+
+  function syncPersistentChrome(nextBody) {
+    PERSISTENT_PAGE_SELECTORS.forEach((selector) => {
+      const currentElement = document.body.querySelector(selector);
+      const nextElement = nextBody.querySelector(selector);
+
+      if (currentElement && nextElement) {
+        replaceWithPreservedMedia(currentElement, nextElement);
+        return;
+      }
+
+      if (!currentElement && nextElement) {
+        const firstScript = document.body.querySelector("script");
+        document.body.insertBefore(nextElement.cloneNode(true), firstScript);
+      }
+    });
+  }
+
+  function swapPageContent(nextBody) {
+    Array.from(document.body.childNodes).forEach((node) => {
+      if (isDisposableBodyNode(node)) node.remove();
+    });
+
+    const nextContentNodes = Array.from(nextBody.childNodes).filter(isDisposableBodyNode);
+    const footer = document.body.querySelector("footer.usm-universal-footer");
+    const firstScript = document.body.querySelector("script");
+    const insertionPoint = footer || firstScript;
+
+    nextContentNodes.forEach((node) => {
+      document.body.insertBefore(node.cloneNode(true), insertionPoint);
+    });
+  }
+
   function loadDeferredScripts(srcList) {
     srcList.forEach((src) => {
       const absolute = new URL(src, window.location.href).href;
@@ -203,7 +278,8 @@
 
       syncHead(nextDoc, url);
       applyAttributes(document.body, nextBody);
-      document.body.innerHTML = nextBody.innerHTML;
+      syncPersistentChrome(nextBody);
+      swapPageContent(nextBody);
       document.body.classList.add("pjax-page-enter");
 
       if (!options.replace) history.pushState({ usmPjax: true }, "", url.href);
