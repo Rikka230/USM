@@ -162,10 +162,38 @@
     currentElement.replaceWith(nextClone);
   }
 
+  function syncNavbarState(currentElement, nextElement) {
+    if (!currentElement || !nextElement) return;
+
+    const currentSelect = currentElement.querySelector('#lang-select');
+    const nextSelect = nextElement.querySelector('#lang-select');
+    if (currentSelect && nextSelect) {
+      currentSelect.innerHTML = nextSelect.innerHTML;
+      currentSelect.value = localStorage.getItem('usm_lang') || nextSelect.value || currentSelect.value;
+    }
+
+    const currentLinks = Array.from(currentElement.querySelectorAll('a[href]'));
+    const nextLinks = Array.from(nextElement.querySelectorAll('a[href]'));
+    currentLinks.forEach((link, index) => {
+      const nextLink = nextLinks[index];
+      if (!nextLink) return;
+      link.className = nextLink.className;
+      if (nextLink.getAttribute('aria-current')) link.setAttribute('aria-current', nextLink.getAttribute('aria-current'));
+      else link.removeAttribute('aria-current');
+    });
+  }
+
   function syncPersistentChrome(nextBody) {
     PERSISTENT_PAGE_SELECTORS.forEach((selector) => {
       const currentElement = document.body.querySelector(selector);
       const nextElement = nextBody.querySelector(selector);
+
+      if (currentElement && nextElement && selector === 'header.navbar') {
+        // The top bar must stay physically fixed during PJAX transitions.
+        // Replacing it made the logo re-animate and the blurred background pulse.
+        syncNavbarState(currentElement, nextElement);
+        return;
+      }
 
       if (currentElement && nextElement) {
         replaceWithPreservedMedia(currentElement, nextElement);

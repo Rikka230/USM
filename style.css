@@ -189,14 +189,12 @@ body {
     margin-bottom: 20px;
     position: relative;
     opacity: 0;
-    will-change: transform, opacity; 
-    transform: translate3d(0, 0, 0); 
+    transform: translate3d(0, 0, 0);
     transform-style: preserve-3d;
     backface-visibility: hidden;
-    contain: layout paint;
-    animation: float 7.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-    animation-play-state: paused;
-    transition: opacity 1.18s cubic-bezier(0.22, 1, 0.36, 1);
+    contain: layout paint style;
+    will-change: opacity;
+    transition: opacity 1.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .massive-eagle-wrapper::before {
@@ -213,7 +211,6 @@ body {
 
 .massive-eagle-wrapper.is-hero-logo-ready {
     opacity: 1;
-    animation-play-state: running;
 }
 
 .massive-eagle-wrapper.is-hero-logo-ready::before {
@@ -226,24 +223,20 @@ body {
     height: auto; 
     filter: none;
     opacity: 0.001;
-    transform: translate3d(0, 10px, 0) scale(0.985);
+    transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
     will-change: opacity, transform;
-    transition:
-        opacity 1.12s ease 0.08s,
-        transform 1.22s cubic-bezier(0.22, 1, 0.36, 1) 0.08s;
+    transition: opacity 1.45s cubic-bezier(0.22, 1, 0.36, 1) 0.18s;
 }
 
 .massive-eagle-wrapper.is-hero-logo-ready img {
     opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
+    animation: float 10.8s cubic-bezier(0.45, 0, 0.55, 1) 1.15s infinite;
 }
 
 .massive-eagle-wrapper img.usm-smooth-image,
 .massive-eagle-wrapper img.dynamic-img {
-    transition:
-        opacity 1.12s ease 0.08s,
-        transform 1.22s cubic-bezier(0.22, 1, 0.36, 1) 0.08s;
+    transition: opacity 1.45s cubic-bezier(0.22, 1, 0.36, 1) 0.18s;
 }
 
 .hero-massive h1 { 
@@ -256,7 +249,7 @@ body {
 
 @keyframes float { 
     0%, 100% { transform: translate3d(0, 0px, 0); } 
-    50% { transform: translate3d(0, -14px, 0); } 
+    50% { transform: translate3d(0, -8px, 0); } 
 }
 
 
@@ -2594,5 +2587,69 @@ img.usm-smooth-image.usm-smooth-image-ready {
         opacity: 1 !important;
         transform: none !important;
         filter: none !important;
+    }
+}
+
+
+/* ================= PJAX FRONT 7 — Topbar fixe & massive logo plus doux ================= */
+.navbar,
+.navbar * {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+}
+
+.navbar {
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    will-change: auto;
+    transition: none !important;
+}
+
+.navbar img,
+.logo-nav img,
+.usm-universal-footer img,
+aside.sticky-social-bar img,
+.social-links-container img,
+.social-icon img {
+    opacity: 1 !important;
+    filter: none !important;
+    will-change: auto !important;
+    backface-visibility: hidden;
+    transition: none !important;
+}
+
+.logo-nav img,
+.navbar img#nav-logo-dyn {
+    transform: translateY(-5px) !important;
+}
+
+.usm-universal-footer img,
+aside.sticky-social-bar img,
+.social-links-container img,
+.social-icon img {
+    transform: none !important;
+}
+
+.navbar img.usm-smooth-image,
+.navbar img.dynamic-img,
+.logo-nav img.usm-smooth-image,
+.logo-nav img.dynamic-img,
+.usm-universal-footer img.usm-smooth-image,
+.usm-universal-footer img.dynamic-img {
+    opacity: 1 !important;
+    filter: none !important;
+    transition: none !important;
+}
+
+.usm-pjax-loading .navbar,
+.pjax-page-enter .navbar {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: translate3d(0, 0, 0) !important;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .massive-eagle-wrapper.is-hero-logo-ready img {
+        animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
     }
 }

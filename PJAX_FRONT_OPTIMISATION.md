@@ -53,3 +53,10 @@ Les pages publiques chargent maintenant :
 - Apparition progressive du logo après décodage réel de l’image.
 - Animation `float` légèrement ralentie et moins ample pour retrouver une sensation plus 60 FPS.
 - Cache-bust passé à `pjax-front-6`.
+
+
+## Patch pjax-front-7 — Topbar fixe & massive logo plus fluide
+- La topbar n'est plus remplacée physiquement par PJAX pendant les changements de page.
+- Le logo de navigation et les images de chrome sont exclus des transitions globales d'images.
+- Le massive logo utilise une apparition plus douce, puis un flottement plus lent et moins ample.
+- Cache-bust passé à `pjax-front-7`.

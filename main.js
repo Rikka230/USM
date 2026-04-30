@@ -709,8 +709,12 @@ function loadSmoothImage(selector, url, finalOpacity = '1') {
 
             requestAnimationFrame(() => {
                 if (!isMassiveLogo) {
-                    img.style.opacity = finalOpacity;
-                    LoadingUI.imageLoaded(img);
+                    if (isPersistentChromeImage(img)) {
+                        keepChromeImageFixed(img);
+                    } else {
+                        img.style.opacity = finalOpacity;
+                        LoadingUI.imageLoaded(img);
+                    }
                     return;
                 }
 
@@ -720,7 +724,12 @@ function loadSmoothImage(selector, url, finalOpacity = '1') {
             });
         };
 
-        if (!isMassiveLogo) {
+        const isChromeImage = isPersistentChromeImage(img);
+
+        if (!isMassiveLogo && isChromeImage) {
+            keepChromeImageFixed(img);
+            img.decoding = 'async';
+        } else if (!isMassiveLogo) {
             img.classList.add('dynamic-img');
             img.style.setProperty('--final-opacity', finalOpacity);
         } else {
@@ -1408,11 +1417,40 @@ function getPlayerPlaceholderStyle(player) {
     return `--roster-hue:${hue};`;
 }
 
+function isPersistentChromeImage(img) {
+    if (!img) return false;
+    return Boolean(
+        img.id === 'nav-logo-dyn' ||
+        img.id === 'footer-logo-dyn' ||
+        img.closest('.navbar') ||
+        img.closest('.logo-nav') ||
+        img.closest('.usm-universal-footer') ||
+        img.closest('aside.sticky-social-bar') ||
+        img.closest('.social-links-container') ||
+        img.closest('.social-icon')
+    );
+}
+
+function keepChromeImageFixed(img) {
+    if (!img) return;
+    img.dataset.noSmooth = 'true';
+    img.dataset.usmSmoothImage = 'false';
+    img.classList.remove('dynamic-img', 'loaded', 'usm-smooth-image', 'usm-smooth-image-ready');
+    img.style.removeProperty('--usm-img-delay');
+    img.style.opacity = '';
+    img.style.filter = '';
+}
+
 function prepareSmoothImages(scope = document) {
     const root = scope && typeof scope.querySelectorAll === 'function' ? scope : document;
+
+    root.querySelectorAll('.navbar img, .logo-nav img, footer img, aside.sticky-social-bar img, .social-links-container img, .social-icon img')
+        .forEach(keepChromeImageFixed);
+
     const images = Array.from(root.querySelectorAll('img:not([data-no-smooth])')).filter((img) => {
         if (img.closest('.player-img-container')) return false;
         if (img.closest('.massive-eagle-wrapper')) return false;
+        if (isPersistentChromeImage(img)) return false;
         return true;
     });
 
