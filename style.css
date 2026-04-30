@@ -3537,3 +3537,34 @@ body.service-page .service-hero-img-ghost {
         margin-bottom: 32px;
     }
 }
+
+
+/* ================= POST AUDIT 10 — Massive logo no text caret/focus ================= */
+.hero-massive {
+    user-select: none;
+    -webkit-user-select: none;
+    caret-color: transparent;
+}
+
+.hero-massive * {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.massive-eagle-wrapper,
+.massive-eagle-wrapper img {
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-tap-highlight-color: transparent;
+    caret-color: transparent;
+    cursor: default;
+    outline: none;
+}
+
+.massive-eagle-wrapper img::selection,
+.hero-massive::selection,
+.hero-massive *::selection {
+    background: transparent;
+}
