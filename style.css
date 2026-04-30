@@ -2725,3 +2725,127 @@ html.usm-pjax-loading::before {
     opacity: 1 !important;
     pointer-events: auto;
 }
+
+/* ================= PJAX FRONT 9.3 — Apparition douce pages dynamiques ================= */
+body.service-page .service-hero,
+body.service-page .service-page-layout {
+    will-change: opacity, transform, filter;
+}
+
+body.service-page.is-service-loading .service-hero,
+body.service-page.is-service-loading .service-page-layout {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(10px);
+}
+
+body.service-page.is-service-ready .service-hero {
+    animation: usm-service-hero-in 0.86s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+body.service-page.is-service-ready .service-page-layout {
+    animation: usm-service-layout-in 0.92s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+}
+
+body.service-page.is-service-ready .service-hero-content {
+    animation: usm-service-content-in 0.86s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+body.service-page.is-service-ready .service-main-content {
+    animation: usm-service-content-in 0.86s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+}
+
+body.service-page.is-service-ready .service-sidebar {
+    animation: usm-service-sidebar-in 0.86s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both;
+}
+
+body.service-page.pjax-page-enter main.service-main-content {
+    animation: none;
+}
+
+body.service-page .service-hero img.dynamic-img,
+body.service-page .service-hero img.usm-smooth-image {
+    transform: scale(1.035);
+    transition: opacity 0.95s ease, transform 1.15s cubic-bezier(0.22, 1, 0.36, 1), filter 0.95s ease;
+}
+
+body.service-page .service-hero img.dynamic-img.loaded,
+body.service-page .service-hero img.usm-smooth-image.usm-smooth-image-ready {
+    transform: scale(1);
+}
+
+@keyframes usm-service-hero-in {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.992);
+        filter: blur(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+@keyframes usm-service-layout-in {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+        filter: blur(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+@keyframes usm-service-content-in {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+        filter: blur(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+@keyframes usm-service-sidebar-in {
+    from {
+        opacity: 0;
+        transform: translateX(18px);
+        filter: blur(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+        filter: blur(0);
+    }
+}
+
+@media (max-width: 768px) {
+    body.service-page.is-service-ready .service-sidebar {
+        animation-name: usm-service-content-in;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.service-page.is-service-loading .service-hero,
+    body.service-page.is-service-loading .service-page-layout,
+    body.service-page.is-service-ready .service-hero,
+    body.service-page.is-service-ready .service-page-layout,
+    body.service-page.is-service-ready .service-hero-content,
+    body.service-page.is-service-ready .service-main-content,
+    body.service-page.is-service-ready .service-sidebar,
+    body.service-page .service-hero img.dynamic-img,
+    body.service-page .service-hero img.usm-smooth-image {
+        opacity: 1 !important;
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+        filter: none !important;
+    }
+}

@@ -701,10 +701,10 @@ function setupDynamicImageReveal() {
         requestAnimationFrame(lockVipLayout);
         await loadSocialLinks();
         await loadServices(); 
+        await loadSingleServicePage(); 
         setupRosterControls();
         await loadPlayers('gardien'); 
         ['defenseur', 'milieu', 'attaquant', 'feminine', 'coach'].forEach(cat => setTimeout(() => warmRosterCategory(cat), 400));
-        await loadSingleServicePage(); 
     };
     startApp();
 }
@@ -1309,10 +1309,33 @@ function renderOtherServices(currentId, lang) {
 }
 
 /* ================= 7. PAGE SERVICE UNIQUE ================= */
+function setServicePageRevealState(isLoading) {
+    const isServicePage = Boolean(document.querySelector('.service-hero') && document.getElementById('srv-page-title'));
+    if (!isServicePage) return;
+
+    document.body.classList.add('service-page');
+
+    if (isLoading) {
+        document.body.classList.add('is-service-loading');
+        document.body.classList.remove('is-service-ready');
+        return;
+    }
+
+    document.body.classList.remove('is-service-loading');
+    requestAnimationFrame(() => {
+        document.body.classList.add('is-service-ready');
+    });
+}
+
 async function loadSingleServicePage() {
+    setServicePageRevealState(true);
+
     const urlParams = new URLSearchParams(window.location.search);
     const srvId = urlParams.get('id');
-    if(!srvId) return;
+    if(!srvId) {
+        setServicePageRevealState(false);
+        return;
+    }
 
     try {
         const docSnap = await getDoc(doc(db, "services", srvId));
@@ -1367,7 +1390,11 @@ async function loadSingleServicePage() {
             const titleEl = document.getElementById('srv-page-title'); if(titleEl) titleEl.textContent = "Service Introuvable";
             const descEl = document.getElementById('srv-page-desc'); if(descEl) descEl.textContent = "Ce service n'existe pas ou a été supprimé.";
         }
-    } catch(e) { console.error("Erreur Service: ", e); }
+    } catch(e) {
+        console.error("Erreur Service: ", e);
+    } finally {
+        setServicePageRevealState(false);
+    }
 }
 /* ================= 8. CHARGEMENT OPTIMISÉ DU ROSTER ================= */
 
