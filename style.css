@@ -2924,3 +2924,100 @@ body.service-page .service-hero img.usm-smooth-image.usm-smooth-image-ready {
         filter: none !important;
     }
 }
+
+
+/* ================= PJAX FRONT 9.7 — Page service lisibilité & cadrage image ================= */
+body.service-page .service-hero img,
+body.service-page .service-hero-img-live,
+body.service-page .service-hero-img-ghost {
+    object-position: top center !important;
+    filter: brightness(1.08) contrast(1.03);
+}
+
+body.service-page .service-hero img {
+    opacity: 0.56;
+}
+
+body.service-page .service-hero::after {
+    background:
+        linear-gradient(to top, rgba(5, 5, 7, 0.82) 0%, rgba(5, 5, 7, 0.36) 52%, rgba(5, 5, 7, 0.06) 100%),
+        linear-gradient(to right, rgba(5, 5, 7, 0.34) 0%, rgba(5, 5, 7, 0.06) 55%, rgba(5, 5, 7, 0.22) 100%);
+}
+
+body.service-page .service-hero-img-live,
+body.service-page .service-hero-img-ghost {
+    opacity: 0.56;
+}
+
+body.service-page .service-hero-img-live.service-hero-img-ready {
+    opacity: 0.56 !important;
+}
+
+body.service-page .service-hero-img-ghost.is-fading-out {
+    opacity: 0;
+}
+
+body.service-page .service-main-content {
+    position: relative;
+    padding: clamp(26px, 3vw, 42px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 26px;
+    background:
+        linear-gradient(145deg, rgba(14, 14, 18, 0.76), rgba(20, 16, 22, 0.58)),
+        rgba(5, 5, 7, 0.46);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    overflow: hidden;
+}
+
+body.service-page .service-main-content::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 12% 0%, rgba(216, 0, 86, 0.14), transparent 34%);
+}
+
+body.service-page .service-desc {
+    position: relative;
+    z-index: 1;
+    white-space: normal;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+body.service-page .service-desc p {
+    margin: 0 0 1.15em;
+}
+
+body.service-page .service-desc p:last-child {
+    margin-bottom: 0;
+}
+
+body.service-page .service-desc-final {
+    margin-top: clamp(18px, 2.5vw, 28px) !important;
+    padding: clamp(18px, 2.4vw, 26px);
+    border: 1px solid rgba(216, 0, 86, 0.28);
+    border-left: 4px solid var(--usm-pink);
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(216, 0, 86, 0.16), rgba(255, 255, 255, 0.055));
+    color: #fff;
+    font-weight: 800;
+    line-height: 1.65;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+}
+
+@media (max-width: 768px) {
+    body.service-page .service-hero {
+        min-height: 360px;
+    }
+
+    body.service-page .service-main-content {
+        padding: 24px 20px;
+        border-radius: 22px;
+    }
+
+    body.service-page .service-desc-final {
+        padding: 18px;
+    }
+}

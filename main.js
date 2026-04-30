@@ -1417,7 +1417,7 @@ function updateServiceHeroImage(url, titleText, options = {}) {
     imgEl.alt = titleText || 'Service USM';
 
     if (!options.soft) {
-        loadSmoothImage('#srv-hero-img', url, '0.4');
+        loadSmoothImage('#srv-hero-img', url, '0.56');
         return;
     }
 
@@ -1443,7 +1443,7 @@ function updateServiceHeroImage(url, titleText, options = {}) {
     imgEl.onerror = null;
     imgEl.classList.remove('loaded', 'usm-smooth-image-ready', 'service-hero-img-ready');
     imgEl.classList.add('service-hero-img-live', 'service-hero-img-switching');
-    imgEl.style.setProperty('--final-opacity', '0.4');
+    imgEl.style.setProperty('--final-opacity', '0.56');
     imgEl.style.opacity = '0';
 
     const finish = async () => {
@@ -1454,7 +1454,7 @@ function updateServiceHeroImage(url, titleText, options = {}) {
         requestAnimationFrame(() => {
             imgEl.classList.remove('service-hero-img-switching');
             imgEl.classList.add('loaded', 'service-hero-img-ready');
-            imgEl.style.opacity = '0.4';
+            imgEl.style.opacity = '0.56';
 
             if (ghost) {
                 ghost.classList.add('is-fading-out');
@@ -1468,6 +1468,31 @@ function updateServiceHeroImage(url, titleText, options = {}) {
     imgEl.src = url;
 
     if (imgEl.complete && imgEl.naturalWidth > 0) finish();
+}
+
+function renderServiceDescriptionHTML(descText = '') {
+    const raw = String(descText || '').replace(/\r\n/g, '\n').trim();
+    if (!raw) return '';
+
+    let blocks = raw
+        .split(/\n\s*\n+/)
+        .map((block) => block.trim())
+        .filter(Boolean);
+
+    if (blocks.length <= 1) {
+        const lines = raw
+            .split(/\n+/)
+            .map((line) => line.trim())
+            .filter(Boolean);
+        if (lines.length > 1) blocks = lines;
+    }
+
+    return blocks.map((block, index) => {
+        const isFinal = blocks.length > 1 && index === blocks.length - 1;
+        const className = isFinal ? ' class="service-desc-final"' : '';
+        const safeBlock = escapeHTML(block).replace(/\n/g, '<br>');
+        return `<p${className}>${safeBlock}</p>`;
+    }).join('');
 }
 
 async function loadSingleServicePage(options = {}) {
@@ -1513,7 +1538,7 @@ async function loadSingleServicePage(options = {}) {
 
             const titleEl = document.getElementById('srv-page-title'); if(titleEl) titleEl.textContent = titleText;
             const subEl = document.getElementById('srv-page-subtitle'); if(subEl) subEl.textContent = subText;
-            const descEl = document.getElementById('srv-page-desc'); if(descEl) descEl.textContent = descText;
+            const descEl = document.getElementById('srv-page-desc'); if(descEl) descEl.innerHTML = renderServiceDescriptionHTML(descText);
 
             // 🪄 SEO DYNAMIQUE : Mise à jour du Titre de l'onglet
             document.title = `${titleText} | USM Football`;
