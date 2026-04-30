@@ -162,25 +162,34 @@
     currentElement.replaceWith(nextClone);
   }
 
+  function syncNodeAttributes(currentNode, nextNode) {
+    if (!currentNode || !nextNode) return;
+    Array.from(currentNode.attributes).forEach((attr) => currentNode.removeAttribute(attr.name));
+    Array.from(nextNode.attributes).forEach((attr) => currentNode.setAttribute(attr.name, attr.value));
+  }
+
   function syncNavbarState(currentElement, nextElement) {
     if (!currentElement || !nextElement) return;
 
-    const currentSelect = currentElement.querySelector('#lang-select');
-    const nextSelect = nextElement.querySelector('#lang-select');
-    if (currentSelect && nextSelect) {
-      currentSelect.innerHTML = nextSelect.innerHTML;
-      currentSelect.value = localStorage.getItem('usm_lang') || nextSelect.value || currentSelect.value;
-    }
+    // Keep the existing topbar DOM node alive, but refresh its navigation state.
+    // Previous patch only copied classes, so a header coming from index.html kept href="#agence"
+    // on contact/presse/mentions and the topbar looked broken outside the homepage.
+    const currentItems = Array.from(currentElement.querySelectorAll('a[href], button, select'));
+    const nextItems = Array.from(nextElement.querySelectorAll('a[href], button, select'));
 
-    const currentLinks = Array.from(currentElement.querySelectorAll('a[href]'));
-    const nextLinks = Array.from(nextElement.querySelectorAll('a[href]'));
-    currentLinks.forEach((link, index) => {
-      const nextLink = nextLinks[index];
-      if (!nextLink) return;
-      link.className = nextLink.className;
-      if (nextLink.getAttribute('aria-current')) link.setAttribute('aria-current', nextLink.getAttribute('aria-current'));
-      else link.removeAttribute('aria-current');
+    currentItems.forEach((currentNode, index) => {
+      const nextNode = nextItems[index];
+      if (!nextNode || currentNode.tagName !== nextNode.tagName) return;
+      syncNodeAttributes(currentNode, nextNode);
+
+      if (currentNode.matches('select') && nextNode.matches('select')) {
+        currentNode.innerHTML = nextNode.innerHTML;
+        currentNode.value = localStorage.getItem('usm_lang') || nextNode.value || currentNode.value;
+      }
     });
+
+    const currentMobileMenu = currentElement.querySelector('#nav-links');
+    if (currentMobileMenu) currentMobileMenu.classList.remove('active');
   }
 
   function syncPersistentChrome(nextBody) {

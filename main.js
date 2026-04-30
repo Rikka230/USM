@@ -698,68 +698,69 @@ function setupDynamicImageReveal() {
 
 function loadSmoothImage(selector, url, finalOpacity = '1') {
     const img = document.querySelector(selector);
-    if (img && url) {
-        const isMassiveLogo = Boolean(img.closest('.massive-eagle-wrapper'));
-        const massiveWrapper = isMassiveLogo ? img.closest('.massive-eagle-wrapper') : null;
+    if (!img || !url) return;
 
-        const markImageReady = async () => {
-            try {
-                if (img.decode) await img.decode();
-            } catch (error) {}
+    const isMassiveLogo = Boolean(img.closest('.massive-eagle-wrapper'));
+    const massiveWrapper = isMassiveLogo ? img.closest('.massive-eagle-wrapper') : null;
 
-            requestAnimationFrame(() => {
-                if (!isMassiveLogo) {
-                    if (isPersistentChromeImage(img)) {
-                        keepChromeImageFixed(img);
-                    } else {
-                        img.style.opacity = finalOpacity;
-                        LoadingUI.imageLoaded(img);
-                    }
-                    return;
-                }
+    const normalizedNextUrl = (() => {
+        try { return new URL(url, window.location.href).href; }
+        catch (error) { return url; }
+    })();
 
-                massiveWrapper?.classList.remove('is-hero-logo-loading');
-                massiveWrapper?.classList.add('is-hero-logo-ready');
-                LoadingUI.imageLoaded(img);
-            });
-        };
+    const normalizedCurrentUrl = (() => {
+        try { return new URL(img.currentSrc || img.src || '', window.location.href).href; }
+        catch (error) { return img.currentSrc || img.src || ''; }
+    })();
 
-        const isChromeImage = isPersistentChromeImage(img);
-
-        if (!isMassiveLogo && isChromeImage) {
-            keepChromeImageFixed(img);
-            img.decoding = 'async';
-        } else if (!isMassiveLogo) {
-            img.classList.add('dynamic-img');
-            img.style.setProperty('--final-opacity', finalOpacity);
-        } else {
-            massiveWrapper?.classList.remove('is-hero-logo-ready');
-            massiveWrapper?.classList.add('is-hero-logo-loading');
-            img.dataset.noSmooth = 'true';
-            img.decoding = 'async';
-            img.fetchPriority = 'high';
-            img.removeAttribute('style');
-            img.classList.remove('dynamic-img', 'usm-smooth-image', 'usm-smooth-image-ready');
-        }
-
-        img.onload = markImageReady;
-
-        const normalizedNextUrl = (() => {
-            try { return new URL(url, window.location.href).href; }
-            catch (error) { return url; }
-        })();
-
-        const normalizedCurrentUrl = (() => {
-            try { return new URL(img.currentSrc || img.src || '', window.location.href).href; }
-            catch (error) { return img.currentSrc || img.src || ''; }
-        })();
-
+    // The homepage massive logo must keep the exact current-main animation:
+    // a simple CSS float on the wrapper + the original PNG drop-shadow.
+    // It must not enter the global image fade/translate pipeline.
+    if (isMassiveLogo) {
+        massiveWrapper?.classList.remove('is-hero-logo-loading', 'is-hero-logo-ready');
+        img.dataset.noSmooth = 'true';
+        img.classList.remove('dynamic-img', 'loaded', 'usm-smooth-image', 'usm-smooth-image-ready');
+        img.style.opacity = '';
+        img.style.transform = '';
+        img.style.transition = '';
+        img.style.filter = '';
+        img.decoding = 'async';
+        img.fetchPriority = 'high';
+        img.onload = null;
         if (normalizedCurrentUrl !== normalizedNextUrl) img.src = url;
-
-        if (selector === '.vip-photo-wrapper img' || img.id === 'vip-img-display') img.dataset.currentVipSrc = url;
-
-        if (img.complete && img.naturalWidth !== 0) markImageReady();
+        return;
     }
+
+    const markImageReady = async () => {
+        try {
+            if (img.decode) await img.decode();
+        } catch (error) {}
+
+        requestAnimationFrame(() => {
+            if (isPersistentChromeImage(img)) {
+                keepChromeImageFixed(img);
+            } else {
+                img.style.opacity = finalOpacity;
+                LoadingUI.imageLoaded(img);
+            }
+        });
+    };
+
+    if (isPersistentChromeImage(img)) {
+        keepChromeImageFixed(img);
+        img.decoding = 'async';
+    } else {
+        img.classList.add('dynamic-img');
+        img.style.setProperty('--final-opacity', finalOpacity);
+    }
+
+    img.onload = markImageReady;
+
+    if (normalizedCurrentUrl !== normalizedNextUrl) img.src = url;
+
+    if (selector === '.vip-photo-wrapper img' || img.id === 'vip-img-display') img.dataset.currentVipSrc = url;
+
+    if (img.complete && img.naturalWidth !== 0) markImageReady();
 }
 
 async function loadSettings() {

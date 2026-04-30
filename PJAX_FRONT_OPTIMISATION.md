@@ -60,3 +60,11 @@ Les pages publiques chargent maintenant :
 - Le logo de navigation et les images de chrome sont exclus des transitions globales d'images.
 - Le massive logo utilise une apparition plus douce, puis un flottement plus lent et moins ample.
 - Cache-bust passé à `pjax-front-7`.
+
+## Fix PJAX Front 8 — Massive logo main + topbar cross-page
+
+- Restaure le comportement du massive logo comme sur `main` : animation `float` CSS simple, drop-shadow original, pas de fade/translate JS.
+- Le logo massif est exclu définitivement du pipeline global d’images smooth.
+- La topbar reste physiquement persistante, mais ses `href` sont resynchronisés à chaque page PJAX.
+- Corrige le cas où la navbar issue de `index.html` gardait `href="#agence"` sur les pages `contact`, `presse`, `mentions` ou `page-dynamique`.
+- Cache-bust : `pjax-front-8`.
