@@ -700,25 +700,56 @@ function loadSmoothImage(selector, url, finalOpacity = '1') {
     const img = document.querySelector(selector);
     if (img && url) {
         const isMassiveLogo = Boolean(img.closest('.massive-eagle-wrapper'));
+        const massiveWrapper = isMassiveLogo ? img.closest('.massive-eagle-wrapper') : null;
+
+        const markImageReady = async () => {
+            try {
+                if (img.decode) await img.decode();
+            } catch (error) {}
+
+            requestAnimationFrame(() => {
+                if (!isMassiveLogo) {
+                    img.style.opacity = finalOpacity;
+                    LoadingUI.imageLoaded(img);
+                    return;
+                }
+
+                massiveWrapper?.classList.remove('is-hero-logo-loading');
+                massiveWrapper?.classList.add('is-hero-logo-ready');
+                LoadingUI.imageLoaded(img);
+            });
+        };
+
         if (!isMassiveLogo) {
             img.classList.add('dynamic-img');
             img.style.setProperty('--final-opacity', finalOpacity);
         } else {
+            massiveWrapper?.classList.remove('is-hero-logo-ready');
+            massiveWrapper?.classList.add('is-hero-logo-loading');
             img.dataset.noSmooth = 'true';
             img.decoding = 'async';
+            img.fetchPriority = 'high';
             img.removeAttribute('style');
             img.classList.remove('dynamic-img', 'usm-smooth-image', 'usm-smooth-image-ready');
         }
-        img.onload = () => {
-            if (!isMassiveLogo) img.style.opacity = finalOpacity;
-            LoadingUI.imageLoaded(img);
-        };
-        img.src = url;
+
+        img.onload = markImageReady;
+
+        const normalizedNextUrl = (() => {
+            try { return new URL(url, window.location.href).href; }
+            catch (error) { return url; }
+        })();
+
+        const normalizedCurrentUrl = (() => {
+            try { return new URL(img.currentSrc || img.src || '', window.location.href).href; }
+            catch (error) { return img.currentSrc || img.src || ''; }
+        })();
+
+        if (normalizedCurrentUrl !== normalizedNextUrl) img.src = url;
+
         if (selector === '.vip-photo-wrapper img' || img.id === 'vip-img-display') img.dataset.currentVipSrc = url;
-        if (img.complete) {
-            if (!isMassiveLogo) img.style.opacity = finalOpacity;
-            LoadingUI.imageLoaded(img);
-        }
+
+        if (img.complete && img.naturalWidth !== 0) markImageReady();
     }
 }
 

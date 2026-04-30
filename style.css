@@ -187,28 +187,63 @@ body {
 .massive-eagle-wrapper {
     width: clamp(300px, 60vw, 800px); 
     margin-bottom: 20px;
-    will-change: transform; 
+    position: relative;
+    opacity: 0;
+    will-change: transform, opacity; 
     transform: translate3d(0, 0, 0); 
     transform-style: preserve-3d;
     backface-visibility: hidden;
     contain: layout paint;
-    animation: float 6s ease-in-out infinite;
+    animation: float 7.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation-play-state: paused;
+    transition: opacity 1.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.massive-eagle-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 7% 2% 8%;
+    z-index: -1;
+    background: radial-gradient(circle at 50% 48%, rgba(216, 0, 86, 0.34), transparent 63%);
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.98);
+    transition: opacity 1.25s ease, transform 1.35s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+.massive-eagle-wrapper.is-hero-logo-ready {
+    opacity: 1;
+    animation-play-state: running;
+}
+
+.massive-eagle-wrapper.is-hero-logo-ready::before {
+    opacity: 0.74;
+    transform: translate3d(0, 0, 0) scale(1);
 }
 
 .massive-eagle-wrapper img { 
     width: 100%; 
     height: auto; 
-    filter: drop-shadow(0 0 50px rgba(216,0,86,0.3));
-    transform: translate3d(0, 0, 0);
+    filter: none;
+    opacity: 0.001;
+    transform: translate3d(0, 10px, 0) scale(0.985);
     backface-visibility: hidden;
-    will-change: auto;
+    will-change: opacity, transform;
+    transition:
+        opacity 1.12s ease 0.08s,
+        transform 1.22s cubic-bezier(0.22, 1, 0.36, 1) 0.08s;
+}
+
+.massive-eagle-wrapper.is-hero-logo-ready img {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
 }
 
 .massive-eagle-wrapper img.usm-smooth-image,
 .massive-eagle-wrapper img.dynamic-img {
-    opacity: 1 !important;
-    transform: translate3d(0, 0, 0) !important;
-    transition: none !important;
+    transition:
+        opacity 1.12s ease 0.08s,
+        transform 1.22s cubic-bezier(0.22, 1, 0.36, 1) 0.08s;
 }
 
 .hero-massive h1 { 
@@ -221,7 +256,7 @@ body {
 
 @keyframes float { 
     0%, 100% { transform: translate3d(0, 0px, 0); } 
-    50% { transform: translate3d(0, -20px, 0); } 
+    50% { transform: translate3d(0, -14px, 0); } 
 }
 
 

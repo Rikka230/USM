@@ -44,3 +44,12 @@ Les pages publiques chargent maintenant :
 - Le logo garde son animation `float` dédiée sans transition `transform` concurrente.
 - L'entrée PJAX n'anime plus tout le bloc `.hero-massive`, uniquement le texte secondaire, afin d'éviter de superposer deux animations sur le logo.
 - Cache-bust mis à jour en `pjax-front-5`.
+
+
+## Patch pjax-front-6 — Massive logo plus fluide
+
+- Exclusion du `drop-shadow()` sur le massive logo pour éviter les repaints lourds pendant l’animation.
+- Remplacement du glow par un pseudo-élément plus léger.
+- Apparition progressive du logo après décodage réel de l’image.
+- Animation `float` légèrement ralentie et moins ample pour retrouver une sensation plus 60 FPS.
+- Cache-bust passé à `pjax-front-6`.
