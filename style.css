@@ -191,10 +191,29 @@ body {
     animation: float 6s ease-in-out infinite;
 }
 
+.massive-eagle-wrapper::before,
+.massive-eagle-wrapper.is-hero-logo-ready::before,
+.massive-eagle-wrapper.is-hero-logo-loading::before {
+    content: none;
+    display: none;
+}
+
 .massive-eagle-wrapper img { 
     width: 100%; 
     height: auto; 
+    opacity: 1;
+    transform: none;
+    animation: none;
+    transition: none;
     filter: drop-shadow(0 0 50px rgba(216,0,86,0.3)); 
+}
+
+.massive-eagle-wrapper img.usm-smooth-image,
+.massive-eagle-wrapper img.dynamic-img {
+    opacity: 1;
+    transform: none;
+    animation: none;
+    transition: none;
 }
 
 .hero-massive h1 { 
@@ -2279,4 +2298,748 @@ html, body {
         min-height: 48px;
         line-height: 1.28;
     }
+}
+
+
+/* ================= PJAX FRONT : transitions fluides ================= */
+html.usm-pjax-loading {
+    cursor: progress;
+}
+
+html.usm-pjax-loading::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 99999;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--usm-pink), #ff7abe, transparent);
+    transform-origin: left center;
+    animation: usm-pjax-progress 0.9s ease-in-out infinite;
+    pointer-events: none;
+}
+
+html.usm-pjax-loading::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 99990;
+    background:
+        radial-gradient(circle at 50% 20%, rgba(229, 0, 102, 0.12), transparent 34%),
+        rgba(5, 5, 7, 0.24);
+    backdrop-filter: blur(2px);
+    opacity: 1;
+    pointer-events: none;
+    animation: usm-pjax-veil 0.28s ease both;
+}
+
+body.pjax-page-enter main,
+body.pjax-page-enter .hero-massive > p {
+    animation: usm-pjax-content-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes usm-pjax-progress {
+    0% { transform: scaleX(0.08) translateX(-20%); opacity: 0.45; }
+    45% { transform: scaleX(0.54) translateX(60%); opacity: 1; }
+    100% { transform: scaleX(0.14) translateX(700%); opacity: 0.2; }
+}
+
+@keyframes usm-pjax-veil {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes usm-pjax-content-in {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+        filter: blur(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+/* ================= PJAX FRONT 9.4 — Navigation douce entre services ================= */
+body.service-page.is-service-switching .service-hero-content,
+body.service-page.is-service-switching .service-main-content,
+body.service-page.is-service-switching .service-sidebar {
+    opacity: 0.38;
+    transform: translateY(8px);
+    filter: blur(3px);
+    transition: opacity 0.22s ease, transform 0.22s ease, filter 0.22s ease;
+}
+
+body.service-page .service-hero-content,
+body.service-page .service-main-content,
+body.service-page .service-sidebar {
+    transition: opacity 0.42s ease, transform 0.48s cubic-bezier(0.22, 1, 0.36, 1), filter 0.42s ease;
+}
+
+body.service-page .service-hero-img-live,
+body.service-page .service-hero-img-ghost {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+body.service-page .service-hero-img-live {
+    z-index: 0;
+    transform: scale(1);
+    transition: opacity 0.72s ease, transform 1.05s cubic-bezier(0.22, 1, 0.36, 1), filter 0.72s ease;
+}
+
+body.service-page .service-hero-img-live.service-hero-img-switching {
+    opacity: 0 !important;
+    transform: scale(1.025);
+    filter: blur(5px);
+}
+
+body.service-page .service-hero-img-live.service-hero-img-ready {
+    opacity: 0.4 !important;
+    transform: scale(1);
+    filter: blur(0);
+}
+
+body.service-page .service-hero-img-ghost {
+    z-index: 0;
+    opacity: 0.4;
+    transform: scale(1);
+    transition: opacity 0.78s ease, filter 0.78s ease;
+}
+
+body.service-page .service-hero-img-ghost.is-fading-out {
+    opacity: 0;
+    filter: blur(4px);
+}
+
+body.service-page .sidebar-srv-link[aria-current="page"] {
+    border-color: var(--usm-pink);
+    background: rgba(216, 0, 86, 0.14);
+    color: var(--usm-pink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.service-page.is-service-switching .service-hero-content,
+    body.service-page.is-service-switching .service-main-content,
+    body.service-page.is-service-switching .service-sidebar,
+    body.service-page .service-hero-img-live,
+    body.service-page .service-hero-img-ghost {
+        opacity: 1 !important;
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+        filter: none !important;
+    }
+
+    html.usm-pjax-loading::before,
+    html.usm-pjax-loading::after,
+    body.pjax-page-enter main,
+    body.pjax-page-enter .hero-massive > p {
+        animation: none !important;
+        transition: none !important;
+        filter: none !important;
+        transform: none !important;
+    }
+}
+
+/* ================= PJAX / ROSTER SMOOTHNESS PATCH ================= */
+.horizontal-scroller {
+    align-items: stretch;
+    overflow-x: scroll;
+    overscroll-behavior-x: contain;
+    min-height: 512px;
+    transition: opacity 0.42s ease, transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), filter 0.42s ease;
+}
+
+.category-block,
+.roster-empty-message {
+    will-change: opacity, transform;
+}
+
+#roster-categories-container {
+    transition: min-height 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+}
+
+#roster-categories-container.roster-is-preparing,
+#roster-categories-container.roster-is-swapping {
+    opacity: 0.72;
+}
+
+.roster-transition-enter {
+    opacity: 0;
+    transform: translateY(18px) scale(0.992);
+    filter: blur(8px);
+    transition: opacity 0.48s ease, transform 0.54s cubic-bezier(0.22, 1, 0.36, 1), filter 0.54s ease;
+}
+
+.roster-transition-enter.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+}
+
+.slider-controls {
+    min-width: 100px;
+    justify-content: flex-end;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.32s ease, transform 0.32s ease, filter 0.32s ease;
+}
+
+.slider-controls.is-disabled {
+    opacity: 0.28;
+    filter: grayscale(1);
+}
+
+.slider-btn.is-edge-disabled {
+    opacity: 0.38;
+    cursor: default;
+    transform: none;
+    box-shadow: none;
+}
+
+.slider-btn.is-edge-disabled:hover {
+    background: var(--surface);
+    border-color: var(--surface-border);
+    transform: none;
+    box-shadow: none;
+}
+
+.player-card {
+    min-height: 488px;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(18px) scale(0.988);
+    animation: playerCardSoftIn 0.58s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: calc(var(--card-index, 0) * 32ms);
+}
+
+.player-card:nth-child(1) { --card-index: 0; }
+.player-card:nth-child(2) { --card-index: 1; }
+.player-card:nth-child(3) { --card-index: 2; }
+.player-card:nth-child(4) { --card-index: 3; }
+.player-card:nth-child(5) { --card-index: 4; }
+.player-card:nth-child(6) { --card-index: 5; }
+.player-card:nth-child(7) { --card-index: 6; }
+.player-card:nth-child(8) { --card-index: 7; }
+.player-card:nth-child(9) { --card-index: 8; }
+.player-card:nth-child(10) { --card-index: 9; }
+.player-card:nth-child(n+11) { --card-index: 10; }
+
+.player-info {
+    align-items: flex-start;
+    flex: 1 1 auto;
+    min-height: 96px;
+}
+
+.player-info > div {
+    width: 100%;
+    min-width: 0;
+}
+
+.player-info h3 {
+    min-height: 2.85em;
+    line-height: 1.18;
+    display: flex;
+    align-items: flex-start;
+}
+
+.player-category-label {
+    color: #888;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-top: 2px;
+    letter-spacing: 0.04em;
+}
+
+.player-transfer-link {
+    color: var(--usm-pink);
+    font-size: 0.8rem;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 7px;
+    transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.player-transfer-link:hover {
+    color: #ff4d9d;
+    transform: translateX(3px);
+}
+
+.player-stat-wrap {
+    margin-top: auto;
+    padding: 0 15px 15px;
+    min-height: 48px;
+    display: flex;
+    align-items: flex-end;
+}
+
+.player-stat {
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+img.usm-smooth-image {
+    opacity: 0;
+    transform: translateY(7px) scale(1.01);
+    transition: opacity 0.72s ease var(--usm-img-delay, 0ms), transform 0.78s cubic-bezier(0.22, 1, 0.36, 1) var(--usm-img-delay, 0ms);
+    will-change: opacity, transform;
+}
+
+img.usm-smooth-image.usm-smooth-image-ready {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+@keyframes playerCardSoftIn {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 768px) {
+    .horizontal-scroller {
+        min-height: 448px;
+    }
+
+    .player-card {
+        min-height: 430px;
+    }
+
+    .player-info {
+        min-height: 86px;
+    }
+
+    .player-info h3 {
+        min-height: 2.55em;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .roster-transition-enter,
+    .player-card,
+    img.usm-smooth-image,
+    .horizontal-scroller,
+    #roster-categories-container,
+    .slider-controls {
+        animation: none !important;
+        transition: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+    }
+}
+
+
+/* ================= PJAX FRONT 7 — Topbar fixe & massive logo plus doux ================= */
+.navbar,
+.navbar * {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+}
+
+.navbar {
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    will-change: auto;
+    transition: none !important;
+}
+
+.navbar img,
+.logo-nav img,
+.usm-universal-footer img,
+aside.sticky-social-bar img,
+.social-links-container img,
+.social-icon img {
+    opacity: 1 !important;
+    filter: none !important;
+    will-change: auto !important;
+    backface-visibility: hidden;
+    transition: none !important;
+}
+
+.logo-nav img,
+.navbar img#nav-logo-dyn {
+    transform: translateY(-5px) !important;
+}
+
+.usm-universal-footer img,
+aside.sticky-social-bar img,
+.social-links-container img,
+.social-icon img {
+    transform: none !important;
+}
+
+.navbar img.usm-smooth-image,
+.navbar img.dynamic-img,
+.logo-nav img.usm-smooth-image,
+.logo-nav img.dynamic-img,
+.usm-universal-footer img.usm-smooth-image,
+.usm-universal-footer img.dynamic-img {
+    opacity: 1 !important;
+    filter: none !important;
+    transition: none !important;
+}
+
+.usm-pjax-loading .navbar,
+.pjax-page-enter .navbar {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: translate3d(0, 0, 0) !important;
+}
+
+/* ================= PJAX FRONT 9 — Massive logo isolé + topbar stable ================= */
+.hero-massive {
+    position: relative;
+    isolation: auto;
+}
+
+.massive-eagle-wrapper,
+.massive-eagle-wrapper.reveal,
+.massive-eagle-wrapper.visible,
+.massive-eagle-wrapper.is-hero-logo-ready,
+.massive-eagle-wrapper.is-hero-logo-loading,
+body.pjax-page-enter .massive-eagle-wrapper,
+.usm-pjax-loading .massive-eagle-wrapper {
+    width: clamp(300px, 60vw, 800px);
+    margin-bottom: 20px;
+    opacity: 1 !important;
+    transform: translateZ(0);
+    will-change: transform !important;
+    transform-style: flat !important;
+    backface-visibility: hidden !important;
+    contain: none !important;
+    animation: float 6s ease-in-out infinite !important;
+    animation-play-state: running !important;
+    transition: none !important;
+    filter: none !important;
+}
+
+.massive-eagle-wrapper::before,
+.massive-eagle-wrapper.is-hero-logo-ready::before,
+.massive-eagle-wrapper.is-hero-logo-loading::before {
+    content: none !important;
+    display: none !important;
+}
+
+.massive-eagle-wrapper img,
+.massive-eagle-wrapper.is-hero-logo-ready img,
+.massive-eagle-wrapper.is-hero-logo-loading img,
+.massive-eagle-wrapper img.usm-smooth-image,
+.massive-eagle-wrapper img.usm-smooth-image.usm-smooth-image-ready,
+.massive-eagle-wrapper img.dynamic-img,
+.massive-eagle-wrapper img.loaded,
+body.pjax-page-enter .massive-eagle-wrapper img,
+.usm-pjax-loading .massive-eagle-wrapper img {
+    width: 100%;
+    height: auto;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+    will-change: auto !important;
+    filter: drop-shadow(0 0 50px rgba(216,0,86,0.3)) !important;
+}
+
+.navbar,
+.navbar *,
+.navbar img,
+.logo-nav img,
+.navbar img#nav-logo-dyn {
+    animation: none !important;
+}
+
+.navbar img#nav-logo-dyn,
+.logo-nav img {
+    opacity: 1 !important;
+    filter: none !important;
+    transition: none !important;
+    transform: translateY(-5px) !important;
+}
+
+
+/* ================= PJAX FRONT 9.1 — Topbar au-dessus du voile PJAX ================= */
+/* Le voile de transition doit habiller le contenu, pas recouvrir la topbar persistante. */
+html.usm-pjax-loading::after {
+    z-index: 90 !important;
+}
+
+/* ================= PJAX FRONT 9.2 — Massive logo animé restauré ================= */
+/* Important : ne jamais figer transform avec !important sur le wrapper.
+   L'animation main actuelle flotte via @keyframes float, qui anime aussi transform. */
+
+html.usm-pjax-loading::before {
+    z-index: 99999 !important;
+}
+
+.navbar,
+.usm-pjax-loading .navbar,
+.pjax-page-enter .navbar {
+    z-index: 1000 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    filter: none !important;
+}
+
+.navbar #nav-logo-dyn,
+.logo-nav #nav-logo-dyn {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto;
+}
+
+/* ================= PJAX FRONT 9.3 — Apparition douce pages dynamiques ================= */
+body.service-page .service-hero,
+body.service-page .service-page-layout {
+    will-change: opacity, transform, filter;
+}
+
+body.service-page.is-service-loading .service-hero,
+body.service-page.is-service-loading .service-page-layout {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(10px);
+}
+
+body.service-page.is-service-ready .service-hero {
+    animation: usm-service-hero-in 0.86s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+body.service-page.is-service-ready .service-page-layout {
+    animation: usm-service-layout-in 0.92s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+}
+
+body.service-page.is-service-ready .service-hero-content {
+    animation: usm-service-content-in 0.86s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+body.service-page.is-service-ready .service-main-content {
+    animation: usm-service-content-in 0.86s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+}
+
+body.service-page.is-service-ready .service-sidebar {
+    animation: usm-service-sidebar-in 0.86s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both;
+}
+
+body.service-page.pjax-page-enter main.service-main-content {
+    animation: none;
+}
+
+body.service-page .service-hero img.dynamic-img,
+body.service-page .service-hero img.usm-smooth-image {
+    transform: scale(1.035);
+    transition: opacity 0.95s ease, transform 1.15s cubic-bezier(0.22, 1, 0.36, 1), filter 0.95s ease;
+}
+
+body.service-page .service-hero img.dynamic-img.loaded,
+body.service-page .service-hero img.usm-smooth-image.usm-smooth-image-ready {
+    transform: scale(1);
+}
+
+@keyframes usm-service-hero-in {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.992);
+        filter: blur(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+@keyframes usm-service-layout-in {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+        filter: blur(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+@keyframes usm-service-content-in {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+        filter: blur(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+@keyframes usm-service-sidebar-in {
+    from {
+        opacity: 0;
+        transform: translateX(18px);
+        filter: blur(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+        filter: blur(0);
+    }
+}
+
+@media (max-width: 768px) {
+    body.service-page.is-service-ready .service-sidebar {
+        animation-name: usm-service-content-in;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.service-page.is-service-loading .service-hero,
+    body.service-page.is-service-loading .service-page-layout,
+    body.service-page.is-service-ready .service-hero,
+    body.service-page.is-service-ready .service-page-layout,
+    body.service-page.is-service-ready .service-hero-content,
+    body.service-page.is-service-ready .service-main-content,
+    body.service-page.is-service-ready .service-sidebar,
+    body.service-page .service-hero img.dynamic-img,
+    body.service-page .service-hero img.usm-smooth-image {
+        opacity: 1 !important;
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+        filter: none !important;
+    }
+}
+
+
+/* ================= PJAX FRONT 9.7 — Page service lisibilité & cadrage image ================= */
+body.service-page .service-hero img,
+body.service-page .service-hero-img-live,
+body.service-page .service-hero-img-ghost {
+    object-position: top center !important;
+    filter: brightness(1.08) contrast(1.03);
+}
+
+body.service-page .service-hero img {
+    opacity: 0.56;
+}
+
+body.service-page .service-hero::after {
+    background:
+        linear-gradient(to top, rgba(5, 5, 7, 0.82) 0%, rgba(5, 5, 7, 0.36) 52%, rgba(5, 5, 7, 0.06) 100%),
+        linear-gradient(to right, rgba(5, 5, 7, 0.34) 0%, rgba(5, 5, 7, 0.06) 55%, rgba(5, 5, 7, 0.22) 100%);
+}
+
+body.service-page .service-hero-img-live,
+body.service-page .service-hero-img-ghost {
+    opacity: 0.56;
+}
+
+body.service-page .service-hero-img-live.service-hero-img-ready {
+    opacity: 0.56 !important;
+}
+
+body.service-page .service-hero-img-ghost.is-fading-out {
+    opacity: 0;
+}
+
+body.service-page .service-main-content {
+    position: relative;
+    padding: clamp(26px, 3vw, 42px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 26px;
+    background:
+        linear-gradient(145deg, rgba(14, 14, 18, 0.76), rgba(20, 16, 22, 0.58)),
+        rgba(5, 5, 7, 0.46);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    overflow: hidden;
+}
+
+body.service-page .service-main-content::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 12% 0%, rgba(216, 0, 86, 0.14), transparent 34%);
+}
+
+body.service-page .service-desc {
+    position: relative;
+    z-index: 1;
+    white-space: normal;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+body.service-page .service-desc p {
+    margin: 0 0 1.15em;
+}
+
+body.service-page .service-desc p:last-child {
+    margin-bottom: 0;
+}
+
+body.service-page .service-desc-final {
+    margin-top: clamp(18px, 2.5vw, 28px) !important;
+    padding: clamp(18px, 2.4vw, 26px);
+    border: 1px solid rgba(216, 0, 86, 0.28);
+    border-left: 4px solid var(--usm-pink);
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(216, 0, 86, 0.16), rgba(255, 255, 255, 0.055));
+    color: #fff;
+    font-weight: 800;
+    line-height: 1.65;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+}
+
+@media (max-width: 768px) {
+    body.service-page .service-hero {
+        min-height: 360px;
+    }
+
+    body.service-page .service-main-content {
+        padding: 24px 20px;
+        border-radius: 22px;
+    }
+
+    body.service-page .service-desc-final {
+        padding: 18px;
+    }
+}
+
+
+/* ================= PJAX FRONT 9.8 — Service image depth & index cards polish ================= */
+body.service-page .service-hero {
+    box-shadow:
+        0 34px 90px rgba(0, 0, 0, 0.48),
+        0 14px 34px rgba(216, 0, 86, 0.08),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+
+#services-container .bento-service-card::before {
+    background:
+        linear-gradient(180deg,
+            rgba(0, 0, 0, 0.58) 0%,
+            rgba(0, 0, 0, 0.30) 34%,
+            rgba(0, 0, 0, 0.14) 58%,
+            rgba(0, 0, 0, 0.66) 100%) !important;
+}
+
+#services-container .srv-card-content h3 {
+    text-transform: uppercase !important;
 }

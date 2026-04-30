@@ -50,7 +50,32 @@ if (isStableFirebaseHost) {
 }
 
 /* ================= 2. SYSTEME DE CACHE ANTI-COÛT ================= */
-const CACHE_TIME_24H = 1000 * 60 * 60 * 24; 
+const CACHE_TIME_24H = 1000 * 60 * 60 * 24;
+const FRONT_CACHE_VERSION = 'pjax-front-9-9';
+const FRONT_CACHE_VERSION_KEY = 'usm_front_cache_version';
+
+function syncFrontCacheVersion() {
+    try {
+        const previousVersion = localStorage.getItem(FRONT_CACHE_VERSION_KEY);
+        if (previousVersion === FRONT_CACHE_VERSION) return;
+
+        [
+            'site_settings',
+            'site_agency',
+            'site_services',
+            'site_players',
+            'site_presse',
+            'site_marquee',
+            'site_social_picker_v2'
+        ].forEach(key => localStorage.removeItem(key));
+
+        localStorage.setItem(FRONT_CACHE_VERSION_KEY, FRONT_CACHE_VERSION);
+    } catch (error) {
+        console.warn('Refresh cache front ignore:', error);
+    }
+}
+
+syncFrontCacheVersion();
 
 const Cache = {
     get: (key) => {
@@ -99,6 +124,7 @@ const LoadingUI = {
         el.dataset.ready = 'true';
         el.classList.remove('is-loading');
         el.classList.add('is-ready', 'progressive-zone');
+        requestAnimationFrame(() => prepareSmoothImages(el));
     },
     imageLoaded(img) {
         if (!img) return;
@@ -198,11 +224,13 @@ window.currentServiceData = null;
 window.currentServiceId = null;
 
 /* ================= 4. LOGIQUE GLOBALE ================= */
-document.addEventListener("DOMContentLoaded", async () => { 
+async function initUSMFrontPage() { 
     const langSelect = document.getElementById('lang-select');
     let currentLang = localStorage.getItem('usm_lang') || 'fr';
     if (!translations[currentLang]) currentLang = 'fr';
     if(langSelect) langSelect.value = currentLang;
+
+    prepareMassiveLogoForMainAnimation(document);
 
     // LOGIQUE DES ONGLETS AGENCE / FONDATEUR - DOUBLE IMAGE STABLE
     const vipTabs = {
@@ -578,19 +606,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    const mobileBtn = document.getElementById('mobile-menu-btn');
-    const closeBtn = document.getElementById('close-menu-btn');
     const navLinks = document.getElementById('nav-links');
-    
-    if (mobileBtn && navLinks) {
-        mobileBtn.addEventListener('click', () => navLinks.classList.add('active'));
-        closeBtn.addEventListener('click', () => navLinks.classList.remove('active'));
-        navLinks.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => navLinks.classList.remove('active'));
-        });
-    }
 
-    // Scroll navbar vraiment centrÃ© sur le module ciblÃ©, pas juste collÃ© sous la navbar.
+    // Scroll navbar vraiment centré sur le module ciblé, pas juste collé sous la navbar.
     const getNavHeight = () => Math.ceil(document.querySelector('.navbar')?.getBoundingClientRect().height || 78);
 
     const getAnchorFocusHeight = (target) => {
@@ -614,18 +632,45 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.scrollTo({ top: nextTop, behavior: 'smooth' });
     };
 
-    document.querySelectorAll('.nav-links a[href^="#"]').forEach(link => {
-        link.addEventListener('click', (event) => {
-            const hash = link.getAttribute('href');
-            if (!hash || hash === '#') return;
-            const target = document.querySelector(hash);
+    const setupTopbarInteractions = () => {
+        const navbar = document.querySelector('header.navbar');
+        const currentNavLinks = document.getElementById('nav-links');
+        if (!navbar || navbar.dataset.usmTopbarBound === 'true') return;
+
+        navbar.dataset.usmTopbarBound = 'true';
+        navbar.addEventListener('click', (event) => {
+            const mobileBtn = event.target.closest?.('#mobile-menu-btn');
+            const closeBtn = event.target.closest?.('#close-menu-btn');
+            const clickedNavLink = event.target.closest?.('#nav-links a[href]');
+
+            if (mobileBtn) {
+                currentNavLinks?.classList.add('active');
+                return;
+            }
+
+            if (closeBtn) {
+                currentNavLinks?.classList.remove('active');
+                return;
+            }
+
+            if (!clickedNavLink) return;
+
+            currentNavLinks?.classList.remove('active');
+
+            const href = clickedNavLink.getAttribute('href') || '';
+            if (!href.startsWith('#') || href === '#') return;
+
+            const targetId = decodeURIComponent(href.slice(1));
+            const target = document.getElementById(targetId);
             if (!target) return;
+
             event.preventDefault();
-            navLinks?.classList.remove('active');
             scrollSectionToVisualCenter(target);
-            if (history.pushState) history.pushState(null, '', hash);
+            if (history.pushState) history.pushState(null, '', href);
         });
-    });
+    };
+
+    setupTopbarInteractions();
     
     updateContent(currentLang);
 
@@ -638,6 +683,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     
 
 function setupDynamicImageReveal() {
+    if (window.__usmDynamicImageRevealReady) return;
+    window.__usmDynamicImageRevealReady = true;
     const selector = '.press-card img, .article-card img, .video-card img';
     const prepare = (img) => {
         if (!img || img.dataset.fadeReady === 'true') return;
@@ -679,31 +726,112 @@ function setupDynamicImageReveal() {
         requestAnimationFrame(lockVipLayout);
         await loadSocialLinks();
         await loadServices(); 
+        await loadSingleServicePage(); 
+        setupRosterControls();
         await loadPlayers('gardien'); 
         ['defenseur', 'milieu', 'attaquant', 'feminine', 'coach'].forEach(cat => setTimeout(() => warmRosterCategory(cat), 400));
-        await loadSingleServicePage(); 
     };
     startApp();
-}); /* <-- 🪄 LA FERMETURE GLOBALE DU DOMCONTENTLOADED EST ICI */
+}
+
+/* INIT PUBLIC REJOUABLE POUR PJAX
+   Lance en fin de fichier pour eviter les references avant initialisation
+   sur le premier chargement complet. */
 
 /* ================= 5. CHARGEMENT PARAMÈTRES AVEC CACHE ================= */
 
+function prepareMassiveLogoForMainAnimation(scope = document) {
+    const root = scope && typeof scope.querySelectorAll === 'function' ? scope : document;
+    const wrappers = [];
+    if (root.matches?.('.massive-eagle-wrapper')) wrappers.push(root);
+    root.querySelectorAll('.massive-eagle-wrapper').forEach((wrapper) => wrappers.push(wrapper));
+
+    wrappers.forEach((wrapper) => {
+        wrapper.dataset.noSmooth = 'true';
+        wrapper.classList.remove('is-hero-logo-loading', 'is-hero-logo-ready');
+        wrapper.style.removeProperty('opacity');
+        wrapper.style.removeProperty('transform');
+        wrapper.style.removeProperty('transition');
+        wrapper.style.removeProperty('filter');
+
+        wrapper.querySelectorAll('img').forEach((img) => {
+            img.dataset.noSmooth = 'true';
+            img.dataset.usmSmoothImage = 'false';
+            img.classList.remove('dynamic-img', 'loaded', 'usm-smooth-image', 'usm-smooth-image-ready', 'soft-load-img', 'is-loaded');
+            img.style.removeProperty('--usm-img-delay');
+            img.style.removeProperty('opacity');
+            img.style.removeProperty('transform');
+            img.style.removeProperty('transition');
+            img.style.removeProperty('filter');
+            img.style.removeProperty('animation');
+            img.decoding = 'async';
+            img.fetchPriority = 'high';
+        });
+    });
+}
+
 function loadSmoothImage(selector, url, finalOpacity = '1') {
     const img = document.querySelector(selector);
-    if (img && url) {
+    if (!img || !url) return;
+
+    if (selector === '#nav-logo-dyn' || img.id === 'nav-logo-dyn') {
+        window.__USM_STABLE_NAV_LOGO_SRC__ = url;
+        img.dataset.stableSrc = url;
+    }
+
+    const isMassiveLogo = Boolean(img.closest('.massive-eagle-wrapper'));
+    const massiveWrapper = isMassiveLogo ? img.closest('.massive-eagle-wrapper') : null;
+
+    const normalizedNextUrl = (() => {
+        try { return new URL(url, window.location.href).href; }
+        catch (error) { return url; }
+    })();
+
+    const normalizedCurrentUrl = (() => {
+        try { return new URL(img.currentSrc || img.src || '', window.location.href).href; }
+        catch (error) { return img.currentSrc || img.src || ''; }
+    })();
+
+    // The homepage massive logo must keep the exact current-main animation:
+    // a simple CSS float on the wrapper + the original PNG drop-shadow.
+    // It must not enter the global image fade/translate pipeline.
+    if (isMassiveLogo) {
+        prepareMassiveLogoForMainAnimation(massiveWrapper || document);
+        img.onload = null;
+        if (normalizedCurrentUrl !== normalizedNextUrl) img.src = url;
+        return;
+    }
+
+    const markImageReady = async () => {
+        try {
+            if (img.decode) await img.decode();
+        } catch (error) {}
+
+        requestAnimationFrame(() => {
+            if (isPersistentChromeImage(img)) {
+                keepChromeImageFixed(img);
+            } else {
+                img.style.opacity = finalOpacity;
+                LoadingUI.imageLoaded(img);
+            }
+        });
+    };
+
+    if (isPersistentChromeImage(img)) {
+        keepChromeImageFixed(img);
+        img.decoding = 'async';
+    } else {
         img.classList.add('dynamic-img');
         img.style.setProperty('--final-opacity', finalOpacity);
-        img.onload = () => {
-            img.style.opacity = finalOpacity;
-            LoadingUI.imageLoaded(img);
-        };
-        img.src = url;
-        if (selector === '.vip-photo-wrapper img' || img.id === 'vip-img-display') img.dataset.currentVipSrc = url;
-        if (img.complete) {
-            img.style.opacity = finalOpacity;
-            LoadingUI.imageLoaded(img);
-        }
     }
+
+    img.onload = markImageReady;
+
+    if (normalizedCurrentUrl !== normalizedNextUrl) img.src = url;
+
+    if (selector === '.vip-photo-wrapper img' || img.id === 'vip-img-display') img.dataset.currentVipSrc = url;
+
+    if (img.complete && img.naturalWidth !== 0) markImageReady();
 }
 
 async function loadSettings() {
@@ -1040,12 +1168,12 @@ function formatFollowersTotal(total) {
     if (total >= 1_000_000) {
         const value = total / 1_000_000;
         const decimals = value < 10 ? 1 : 0;
-        return `+${value.toFixed(decimals).replace('.', ',')}M`;
+        return `${value.toFixed(decimals).replace('.', ',')}M+`;
     }
     if (total >= 100_000) {
-        return `+${Math.round(total / 1000)}K`;
+        return `${Math.round(total / 1000)}K+`;
     }
-    return `+${new Intl.NumberFormat('fr-FR').format(Math.round(total))}`;
+    return `${new Intl.NumberFormat('fr-FR').format(Math.round(total))}+`;
 }
 
 function updateDigitalImpactFromSocialData(socialData) {
@@ -1167,7 +1295,7 @@ function renderServices() {
         const sub = srv[`subtitle_${currentLang}`] || srv.subtitle_fr || '';
         const bgImg = srv.image_url ? `url('${srv.image_url}')` : 'none';
         html += `
-        <a href="page-dynamique.html?id=${srv.id}" class="bento-service-card" style="background-image: linear-gradient(to top, rgba(5,5,7,0.95) 10%, rgba(5,5,7,0.2) 100%), ${bgImg}; background-size: cover; background-position: center;">
+        <a href="page-dynamique.html?id=${srv.id}" class="bento-service-card" style="background-image: linear-gradient(to top, rgba(5,5,7,0.72) 8%, rgba(5,5,7,0.08) 100%), ${bgImg}; background-size: cover; background-position: center;">
             <div class="srv-card-content"><h3>${title}</h3><p>${sub}</p></div>
             <div class="srv-card-arrow">En savoir plus ➔</div>
         </a>`;
@@ -1190,15 +1318,37 @@ function renderServices() {
     }
 }
 
-function renderOtherServices(currentId, lang) {
+function renderOtherServices(currentId, lang, options = {}) {
     const container = document.getElementById('other-services-container'); 
     if(!container) return;
+
+    const preserveDom = options.preserveDom === true && container.querySelector('.sidebar-srv-link');
+
+    if (preserveDom) {
+        const linksByServiceId = new Map(
+            Array.from(container.querySelectorAll('.sidebar-srv-link[data-service-id]'))
+                .map((link) => [link.dataset.serviceId, link])
+        );
+
+        allServicesData.forEach(srv => {
+            const link = linksByServiceId.get(srv.id);
+            if (!link) return;
+            const title = srv[`title_${lang}`] || srv.title_fr || 'Service';
+            const titleSpan = link.querySelector('span:first-child');
+            if (titleSpan) titleSpan.textContent = title;
+            link.href = `page-dynamique.html?id=${encodeURIComponent(srv.id)}`;
+            link.classList.toggle('active', srv.id === currentId);
+            link.setAttribute('aria-current', srv.id === currentId ? 'page' : 'false');
+        });
+        return;
+    }
+
     let html = '';
     allServicesData.forEach(srv => {
         const title = srv[`title_${lang}`] || srv.title_fr || 'Service';
         const isActive = srv.id === currentId ? 'active' : '';
         html += `
-        <a href="page-dynamique.html?id=${srv.id}" class="sidebar-srv-link ${isActive}">
+        <a href="page-dynamique.html?id=${encodeURIComponent(srv.id)}" class="sidebar-srv-link ${isActive}" data-service-id="${escapeHTML(srv.id)}" aria-current="${srv.id === currentId ? 'page' : 'false'}">
             <span>${title}</span><span>➔</span>
         </a>`;
     });
@@ -1206,33 +1356,214 @@ function renderOtherServices(currentId, lang) {
 }
 
 /* ================= 7. PAGE SERVICE UNIQUE ================= */
-async function loadSingleServicePage() {
+function setServicePageRevealState(isLoading) {
+    const isServicePage = Boolean(document.querySelector('.service-hero') && document.getElementById('srv-page-title'));
+    if (!isServicePage) return;
+
+    document.body.classList.add('service-page');
+
+    if (isLoading) {
+        document.body.classList.add('is-service-loading');
+        document.body.classList.remove('is-service-ready');
+        return;
+    }
+
+    document.body.classList.remove('is-service-loading');
+    requestAnimationFrame(() => {
+        document.body.classList.add('is-service-ready');
+    });
+}
+
+const serviceSoftDelay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+let serviceSwitchId = 0;
+
+function isServicePageUrl(url) {
+    try {
+        const parsedUrl = url instanceof URL ? url : new URL(url, window.location.href);
+        const normalizedPath = parsedUrl.pathname.endsWith('/') ? `${parsedUrl.pathname}index.html` : parsedUrl.pathname;
+        return normalizedPath.endsWith('/page-dynamique.html') || normalizedPath === '/page-dynamique.html';
+    } catch (error) {
+        return false;
+    }
+}
+
+function getCurrentServiceIdFromUrl() {
+    return new URLSearchParams(window.location.search).get('id') || '';
+}
+
+function canSoftNavigateService(rawUrl) {
+    try {
+        const url = new URL(rawUrl, window.location.href);
+        if (url.origin !== window.location.origin) return false;
+        if (!isServicePageUrl(url)) return false;
+        if (!document.body.classList.contains('service-page')) return false;
+        if (!document.getElementById('srv-page-title') || !document.getElementById('srv-hero-img')) return false;
+        return Boolean(url.searchParams.get('id'));
+    } catch (error) {
+        return false;
+    }
+}
+
+function setServiceSwitchState(isSwitching) {
+    document.body.classList.toggle('is-service-switching', isSwitching);
+}
+
+function scrollServicePageToTop(options = {}) {
+    if (options.popstate || options.scrollToTop === false) return;
+
+    const hero = document.querySelector('.service-hero');
+    const navbar = document.querySelector('.navbar');
+    const navHeight = navbar ? navbar.getBoundingClientRect().height : 0;
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const behavior = prefersReducedMotion ? 'auto' : 'smooth';
+
+    let targetTop = 0;
+    if (hero) {
+        targetTop = Math.max(0, hero.getBoundingClientRect().top + window.scrollY - navHeight - 4);
+    }
+
+    window.scrollTo({
+        top: targetTop,
+        left: 0,
+        behavior
+    });
+}
+
+function normalizeServiceImageUrl(url) {
+    if (!url) return '';
+    try { return new URL(url, window.location.href).href; }
+    catch (error) { return url; }
+}
+
+function updateServiceHeroImage(url, titleText, options = {}) {
+    const imgEl = document.getElementById('srv-hero-img');
+    if (!imgEl || !url) return;
+
+    imgEl.alt = titleText || 'Service USM';
+
+    if (!options.soft) {
+        loadSmoothImage('#srv-hero-img', url, '0.56');
+        return;
+    }
+
+    const nextUrl = normalizeServiceImageUrl(url);
+    const currentUrl = normalizeServiceImageUrl(imgEl.currentSrc || imgEl.getAttribute('src') || imgEl.src || '');
+    if (currentUrl === nextUrl) return;
+
+    const hero = imgEl.closest('.service-hero');
+    let ghost = null;
+
+    if (hero && currentUrl && !currentUrl.startsWith('data:image/gif')) {
+        ghost = imgEl.cloneNode(false);
+        ghost.removeAttribute('id');
+        ghost.removeAttribute('data-usm-smooth-image');
+        ghost.removeAttribute('data-fade-ready');
+        ghost.className = 'service-hero-img-ghost';
+        ghost.setAttribute('aria-hidden', 'true');
+        ghost.src = currentUrl;
+        hero.insertBefore(ghost, imgEl);
+    }
+
+    imgEl.onload = null;
+    imgEl.onerror = null;
+    imgEl.classList.remove('loaded', 'usm-smooth-image-ready', 'service-hero-img-ready');
+    imgEl.classList.add('service-hero-img-live', 'service-hero-img-switching');
+    imgEl.style.setProperty('--final-opacity', '0.56');
+    imgEl.style.opacity = '0';
+
+    const finish = async () => {
+        try {
+            if (imgEl.decode) await imgEl.decode();
+        } catch (error) {}
+
+        requestAnimationFrame(() => {
+            imgEl.classList.remove('service-hero-img-switching');
+            imgEl.classList.add('loaded', 'service-hero-img-ready');
+            imgEl.style.opacity = '0.56';
+
+            if (ghost) {
+                ghost.classList.add('is-fading-out');
+                setTimeout(() => ghost.remove(), 900);
+            }
+        });
+    };
+
+    imgEl.onload = finish;
+    imgEl.onerror = finish;
+    imgEl.src = url;
+
+    if (imgEl.complete && imgEl.naturalWidth > 0) finish();
+}
+
+function renderServiceDescriptionHTML(descText = '') {
+    const raw = String(descText || '').replace(/\r\n/g, '\n').trim();
+    if (!raw) return '';
+
+    let blocks = raw
+        .split(/\n\s*\n+/)
+        .map((block) => block.trim())
+        .filter(Boolean);
+
+    if (blocks.length <= 1) {
+        const lines = raw
+            .split(/\n+/)
+            .map((line) => line.trim())
+            .filter(Boolean);
+        if (lines.length > 1) blocks = lines;
+    }
+
+    return blocks.map((block, index) => {
+        const isFinal = blocks.length > 1 && index === blocks.length - 1;
+        const className = isFinal ? ' class="service-desc-final"' : '';
+        const safeBlock = escapeHTML(block).replace(/\n/g, '<br>');
+        return `<p${className}>${safeBlock}</p>`;
+    }).join('');
+}
+
+async function loadSingleServicePage(options = {}) {
+    const softTransition = options.soft === true && document.body.classList.contains('service-page');
+    const switchId = ++serviceSwitchId;
+
+    if (softTransition) {
+        setServiceSwitchState(true);
+        await serviceSoftDelay(130);
+        if (switchId !== serviceSwitchId) return;
+    } else {
+        setServicePageRevealState(true);
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const srvId = urlParams.get('id');
-    if(!srvId) return;
+    if(!srvId) {
+        if (softTransition) setServiceSwitchState(false);
+        else setServicePageRevealState(false);
+        return;
+    }
 
     try {
         const docSnap = await getDoc(doc(db, "services", srvId));
+        if (switchId !== serviceSwitchId) return;
+
         if(docSnap.exists()) {
             window.currentServiceId = srvId;
             window.currentServiceData = docSnap.data();
             const srv = window.currentServiceData;
             const currentLang = localStorage.getItem('usm_lang') || 'fr';
-            
+
             const titleText = srv[`title_${currentLang}`] || srv.title_fr || "Service";
             const subText = srv[`subtitle_${currentLang}`] || srv.subtitle_fr || "";
             const descText = srv[`desc_${currentLang}`] || srv.desc_fr || "";
             const seoText = srv[`seo_${currentLang}`] || srv.seo_fr || "";
-            
-            const imgEl = document.getElementById('srv-hero-img');
-            if(imgEl && srv.image_url) { 
-                loadSmoothImage('#srv-hero-img', srv.image_url, '0.4');
-                imgEl.alt = titleText; 
+
+            if(srv.image_url) updateServiceHeroImage(srv.image_url, titleText, { soft: softTransition });
+            else {
+                const imgEl = document.getElementById('srv-hero-img');
+                if (imgEl) imgEl.alt = titleText;
             }
-            
+
             const titleEl = document.getElementById('srv-page-title'); if(titleEl) titleEl.textContent = titleText;
             const subEl = document.getElementById('srv-page-subtitle'); if(subEl) subEl.textContent = subText;
-            const descEl = document.getElementById('srv-page-desc'); if(descEl) descEl.textContent = descText;
+            const descEl = document.getElementById('srv-page-desc'); if(descEl) descEl.innerHTML = renderServiceDescriptionHTML(descText);
 
             // 🪄 SEO DYNAMIQUE : Mise à jour du Titre de l'onglet
             document.title = `${titleText} | USM Football`;
@@ -1259,13 +1590,51 @@ async function loadSingleServicePage() {
                 metaKeys.content = seoText;
             }
 
-            renderOtherServices(srvId, currentLang);
+            renderOtherServices(srvId, currentLang, { preserveDom: softTransition });
         } else {
             const titleEl = document.getElementById('srv-page-title'); if(titleEl) titleEl.textContent = "Service Introuvable";
             const descEl = document.getElementById('srv-page-desc'); if(descEl) descEl.textContent = "Ce service n'existe pas ou a été supprimé.";
         }
-    } catch(e) { console.error("Erreur Service: ", e); }
+    } catch(e) {
+        console.error("Erreur Service: ", e);
+    } finally {
+        if (switchId !== serviceSwitchId) return;
+        if (softTransition) {
+            requestAnimationFrame(() => setServiceSwitchState(false));
+        } else {
+            setServicePageRevealState(false);
+        }
+    }
 }
+
+window.USMServicePage = {
+    canSoftNavigate: canSoftNavigateService,
+    navigateToService(rawUrl, options = {}) {
+        if (!canSoftNavigateService(rawUrl)) return false;
+
+        const url = new URL(rawUrl, window.location.href);
+        const nextId = url.searchParams.get('id') || '';
+        const currentId = getCurrentServiceIdFromUrl();
+
+        if (nextId === currentId && !options.forceReload) {
+            renderOtherServices(nextId, localStorage.getItem('usm_lang') || 'fr', { preserveDom: true });
+            scrollServicePageToTop(options);
+            return true;
+        }
+
+        scrollServicePageToTop(options);
+
+        if (options.replace) {
+            history.replaceState({ usmPjax: true, usmServiceId: nextId }, '', url.href);
+        } else if (!options.popstate) {
+            history.pushState({ usmPjax: true, usmServiceId: nextId }, '', url.href);
+        }
+
+        loadSingleServicePage({ soft: true });
+        return true;
+    }
+};
+
 /* ================= 8. CHARGEMENT OPTIMISÉ DU ROSTER ================= */
 
 const rosterImageCache = new Map();
@@ -1361,6 +1730,111 @@ function getPlayerPlaceholderStyle(player) {
     return `--roster-hue:${hue};`;
 }
 
+function isPersistentChromeImage(img) {
+    if (!img) return false;
+    return Boolean(
+        img.id === 'nav-logo-dyn' ||
+        img.id === 'footer-logo-dyn' ||
+        img.closest('.navbar') ||
+        img.closest('.logo-nav') ||
+        img.closest('.usm-universal-footer') ||
+        img.closest('aside.sticky-social-bar') ||
+        img.closest('.social-links-container') ||
+        img.closest('.social-icon')
+    );
+}
+
+function keepChromeImageFixed(img) {
+    if (!img) return;
+    img.dataset.noSmooth = 'true';
+    img.dataset.usmSmoothImage = 'false';
+    img.classList.remove('dynamic-img', 'loaded', 'usm-smooth-image', 'usm-smooth-image-ready');
+    img.style.removeProperty('--usm-img-delay');
+    img.style.opacity = '';
+    img.style.filter = '';
+
+    if (img.id === 'nav-logo-dyn') {
+        const stableSrc = img.dataset.stableSrc || window.__USM_STABLE_NAV_LOGO_SRC__;
+        if (stableSrc && !(img.getAttribute('src') || '').trim()) {
+            img.setAttribute('src', stableSrc);
+        }
+    }
+}
+
+function prepareSmoothImages(scope = document) {
+    const root = scope && typeof scope.querySelectorAll === 'function' ? scope : document;
+
+    prepareMassiveLogoForMainAnimation(root);
+
+    root.querySelectorAll('.navbar img, .logo-nav img, footer img, aside.sticky-social-bar img, .social-links-container img, .social-icon img')
+        .forEach(keepChromeImageFixed);
+
+    const images = Array.from(root.querySelectorAll('img:not([data-no-smooth])')).filter((img) => {
+        if (img.closest('.player-img-container')) return false;
+        if (img.closest('.massive-eagle-wrapper')) return false;
+        if (isPersistentChromeImage(img)) return false;
+        return true;
+    });
+
+    images.forEach((img, index) => {
+        if (img.dataset.usmSmoothImage === 'true') return;
+        img.dataset.usmSmoothImage = 'true';
+        img.classList.add('usm-smooth-image');
+        img.style.setProperty('--usm-img-delay', `${Math.min(index * 28, 220)}ms`);
+
+        const reveal = () => {
+            requestAnimationFrame(() => img.classList.add('usm-smooth-image-ready'));
+        };
+
+        img.addEventListener('load', reveal, { once: true });
+        img.addEventListener('error', reveal, { once: true });
+
+        if (img.complete) reveal();
+    });
+}
+
+function setRosterMinHeight(container) {
+    if (!container) return;
+    const previousHeight = Math.ceil(container.getBoundingClientRect().height);
+    if (previousHeight > 80) container.style.minHeight = `${previousHeight}px`;
+}
+
+function releaseRosterMinHeight(container, delay = 560) {
+    if (!container) return;
+    setTimeout(() => { container.style.minHeight = ''; }, delay);
+}
+
+function updateRosterSliderState(scroller, prevBtn, nextBtn) {
+    if (!scroller) return;
+    const hasOverflow = scroller.scrollWidth > scroller.clientWidth + 8;
+    const atStart = scroller.scrollLeft <= 8;
+    const atEnd = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 8;
+    const controls = scroller.closest('.category-block')?.querySelector('.slider-controls');
+
+    if (controls) controls.classList.toggle('is-disabled', !hasOverflow);
+    if (prevBtn) prevBtn.classList.toggle('is-edge-disabled', !hasOverflow || atStart);
+    if (nextBtn) nextBtn.classList.toggle('is-edge-disabled', !hasOverflow || atEnd);
+}
+
+function renderRosterContent(container, html) {
+    if (!container) return;
+    setRosterMinHeight(container);
+    container.classList.add('roster-is-swapping');
+    container.innerHTML = html;
+
+    const block = container.querySelector('.category-block, .roster-empty-message');
+    if (block) {
+        block.classList.add('roster-transition-enter');
+        requestAnimationFrame(() => block.classList.add('is-visible'));
+    }
+
+    requestAnimationFrame(() => {
+        prepareSmoothImages(container);
+        container.classList.remove('roster-is-swapping');
+    });
+    releaseRosterMinHeight(container, 620);
+}
+
 async function warmRosterCategory(category) {
     if (!category) return;
     let players = Cache.get(`players_${category}`);
@@ -1393,8 +1867,7 @@ async function loadPlayers(category = 'gardien') {
     }
     currentFrontCat = category;
     let players = Cache.get(`players_${category}`);
-    const previousHeight = Math.ceil(container.getBoundingClientRect().height);
-    if (previousHeight > 80) container.style.minHeight = `${previousHeight}px`;
+    setRosterMinHeight(container);
     container.classList.add('roster-is-preparing');
     
     if(!players) {
@@ -1417,7 +1890,7 @@ async function loadPlayers(category = 'gardien') {
     renderCategorySlider();
     container.dataset.currentRosterCategory = category;
     container.classList.remove('roster-is-preparing');
-    setTimeout(() => { container.style.minHeight = ''; }, 450);
+    releaseRosterMinHeight(container, 620);
 }
 
 function renderCategorySlider() {
@@ -1429,7 +1902,7 @@ function renderCategorySlider() {
         : allPlayersData;
         
     if (filteredPlayers.length === 0) { 
-        container.innerHTML = '<p style="text-align:center; color:#888; padding: 40px;">Aucun joueur trouvé.</p>'; 
+        renderRosterContent(container, '<p class="roster-empty-message" style="text-align:center; color:#888; padding: 40px;">Aucun joueur trouvé.</p>'); 
         return; 
     }
     
@@ -1441,10 +1914,10 @@ function renderCategorySlider() {
         const playerStat = escapeHTML(player.stat || '');
         const playerImage = escapeHTML(player.image_url || '');
         const playerTransfermarkt = escapeHTML(player.transfermarkt || '');
-        sliderHTML += `<div class="player-card"><div class="player-img-container roster-gradient-holder" style="${getPlayerPlaceholderStyle(player)}"><img src="${playerImage}" alt="${playerName}" decoding="async" loading="eager"></div><div class="player-info"><div><h3>${playerName}</h3>${currentFrontSearch.length > 0 ? `<p style="color:#888; font-size:0.75rem; text-transform:uppercase; margin-top:2px;">${playerCategory}</p>` : ''}${playerTransfermarkt ? `<a href="${playerTransfermarkt}" target="_blank" rel="noopener" style="color:var(--usm-pink); font-size:0.8rem; text-decoration:none; display:inline-block; margin-top:5px;">🔗 Transfermarkt</a>` : ''}</div></div><div style="padding: 0 15px 15px;"><div class="player-stat">${playerStat}</div></div></div>`; 
+        sliderHTML += `<div class="player-card"><div class="player-img-container roster-gradient-holder" style="${getPlayerPlaceholderStyle(player)}"><img src="${playerImage}" alt="${playerName}" decoding="async" loading="eager"></div><div class="player-info"><div><h3>${playerName}</h3>${currentFrontSearch.length > 0 ? `<p class="player-category-label">${playerCategory}</p>` : ''}${playerTransfermarkt ? `<a href="${playerTransfermarkt}" target="_blank" rel="noopener" class="player-transfer-link">🔗 Transfermarkt</a>` : ''}</div></div><div class="player-stat-wrap"><div class="player-stat">${playerStat}</div></div></div>`; 
     });
     
-    container.innerHTML = sliderHTML + `</div></div></div>`;
+    renderRosterContent(container, sliderHTML + `</div></div></div>`);
     prepareRosterImages(container);
     
     const scroller = document.getElementById('active-scroller');
@@ -1453,10 +1926,19 @@ function renderCategorySlider() {
     
     if(prevBtn) prevBtn.addEventListener('click', () => scroller.scrollBy({ left: -(scroller.clientWidth * 0.8), behavior: 'smooth' })); 
     if(nextBtn) nextBtn.addEventListener('click', () => scroller.scrollBy({ left: (scroller.clientWidth * 0.8), behavior: 'smooth' }));
+    if (scroller) {
+        const updateState = () => updateRosterSliderState(scroller, prevBtn, nextBtn);
+        requestAnimationFrame(updateState);
+        setTimeout(updateState, 360);
+        scroller.addEventListener('scroll', updateState, { passive: true });
+        window.addEventListener('resize', updateState, { passive: true });
+    }
 }
 
 function setupTabs() { 
     document.querySelectorAll('.filter-btn').forEach(tab => { 
+        if (tab.dataset.rosterTabReady === 'true') return;
+        tab.dataset.rosterTabReady = 'true';
         ['pointerenter', 'mouseenter', 'focus', 'touchstart'].forEach(eventName => {
             tab.addEventListener(eventName, () => warmRosterCategory(tab.getAttribute('data-tab')), { passive: true });
         });
@@ -1470,47 +1952,51 @@ function setupTabs() {
         }); 
     }); 
 }
-setupTabs(); 
 
-const searchInput = document.getElementById('front-search');
-if(searchInput) {
-    searchInput.addEventListener('input', (e) => { 
-        clearTimeout(searchTimeout);
-        
-        // 🪄 OPTIMISATION 1 : Délai augmenté à 600ms (Debounce)
-        searchTimeout = setTimeout(async () => {
-            currentFrontSearch = e.target.value.trim().toLowerCase(); 
-            
-            // 🪄 OPTIMISATION 2 : On ne lance la recherche qu'à partir de 2 caractères minimum
-            if(currentFrontSearch.length >= 2) {
-                document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); 
-                
-                let all = Cache.get('players_all');
-                if (!all) {
-                    try {
-                        const { collection, getDocs } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-                        const querySnapshot = await getDocs(collection(db, "players"));
-                        all = [];
-                        querySnapshot.forEach(d => all.push(d.data()));
-                        Cache.set('players_all', all); 
-                    } catch(err) { console.error("Erreur recherche globale:", err); all = []; }
+function setupRosterControls() {
+    setupTabs();
+
+    const searchInput = document.getElementById('front-search');
+    if(searchInput && searchInput.dataset.rosterSearchReady !== 'true') {
+        searchInput.dataset.rosterSearchReady = 'true';
+        searchInput.addEventListener('input', (e) => { 
+            clearTimeout(searchTimeout);
+
+            // 🪄 OPTIMISATION 1 : Délai augmenté à 600ms (Debounce)
+            searchTimeout = setTimeout(async () => {
+                currentFrontSearch = e.target.value.trim().toLowerCase(); 
+
+                // 🪄 OPTIMISATION 2 : On ne lance la recherche qu'à partir de 2 caractères minimum
+                if(currentFrontSearch.length >= 2) {
+                    document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); 
+
+                    let all = Cache.get('players_all');
+                    if (!all) {
+                        try {
+                            const { collection, getDocs } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+                            const querySnapshot = await getDocs(collection(db, "players"));
+                            all = [];
+                            querySnapshot.forEach(d => all.push(d.data()));
+                            Cache.set('players_all', all); 
+                        } catch(err) { console.error("Erreur recherche globale:", err); all = []; }
+                    }
+
+                    allPlayersData = all; 
+                    await preloadRosterImages(allPlayersData, 20, 1800);
+                    renderCategorySlider(); 
+
+                } else if (currentFrontSearch.length === 0) {
+                    // Si la barre de recherche est vidée, on réaffiche la catégorie sélectionnée
+                    const activeTab = document.querySelector(`.filter-btn[data-tab="${currentFrontCat}"]`);
+                    if(activeTab) activeTab.classList.add('active'); 
+
+                    allPlayersData = Cache.get(`players_${currentFrontCat}`) || [];
+                    if (allPlayersData.length === 0) loadPlayers(currentFrontCat);
+                    else renderCategorySlider();
                 }
-                
-                allPlayersData = all; 
-                await preloadRosterImages(allPlayersData, 20, 1800);
-                renderCategorySlider(); 
-                
-            } else if (currentFrontSearch.length === 0) {
-                // Si la barre de recherche est vidée, on réaffiche la catégorie sélectionnée
-                const activeTab = document.querySelector(`.filter-btn[data-tab="${currentFrontCat}"]`);
-                if(activeTab) activeTab.classList.add('active'); 
-                
-                allPlayersData = Cache.get(`players_${currentFrontCat}`) || [];
-                if (allPlayersData.length === 0) loadPlayers(currentFrontCat);
-                else renderCategorySlider();
-            }
-        }, 600); 
-    });
+            }, 600); 
+        });
+    }
 }
 /* ================= 9. PAGE PRESSE (VIDEOS & ARTICLES) ================= */
 
@@ -1540,6 +2026,7 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
             mediaContainer.innerHTML = `<iframe src="${embedUrl}?autoplay=1" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
         } else {
             mediaContainer.innerHTML = `<img src="${mediaUrl}" alt="Presse">`;
+            prepareSmoothImages(mediaContainer);
         }
         
         titleEl.textContent = title;
@@ -1795,9 +2282,10 @@ async function loadPresseData() {
 
 const startPresse = () => { if(document.getElementById('presse-video-container')) loadPresseData(); };
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', startPresse); } else { startPresse(); }
+document.addEventListener('usm:page-ready', startPresse);
 
 /* ================= 10. BANDEROLE IMAGES (LAZY LOAD & CACHE 1H) ================= */
-document.addEventListener("DOMContentLoaded", () => {
+function initMarqueeImages() {
     const marqueeSection = document.getElementById('marquee-section');
     const marqueeTrack = document.getElementById('marquee-track');
     
@@ -1855,7 +2343,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }, { rootMargin: '300px' });
 
     marqueeObserver.observe(marqueeSection);
-});
+}
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initMarqueeImages); } else { initMarqueeImages(); }
+document.addEventListener('usm:page-ready', initMarqueeImages);
 
 // Public loading safety flag
-document.addEventListener('DOMContentLoaded', () => document.body.classList.add('dom-ready'));
+function markPublicDomReady() { document.body.classList.add('dom-ready'); }
+document.addEventListener('DOMContentLoaded', markPublicDomReady);
+document.addEventListener('usm:page-ready', markPublicDomReady);
+
+function startSmoothPublicImages() {
+    prepareSmoothImages(document);
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startSmoothPublicImages, { once: true });
+} else {
+    startSmoothPublicImages();
+}
+document.addEventListener('usm:page-ready', startSmoothPublicImages);
+
+/* ================= 11. BOOTSTRAP PUBLIC PJAX SAFE ================= */
+window.USMFrontInit = initUSMFrontPage;
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initUSMFrontPage, { once: true });
+} else {
+    initUSMFrontPage();
+}
+document.addEventListener('usm:page-ready', initUSMFrontPage);
