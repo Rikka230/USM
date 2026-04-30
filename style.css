@@ -2693,3 +2693,31 @@ body.pjax-page-enter .massive-eagle-wrapper img,
     transition: none !important;
     transform: translateY(-5px) !important;
 }
+
+
+/* ================= PJAX FRONT 9.1 — Topbar au-dessus du voile PJAX ================= */
+/* Le voile de transition doit habiller le contenu, pas recouvrir la topbar persistante. */
+html.usm-pjax-loading::after {
+    z-index: 90 !important;
+}
+
+html.usm-pjax-loading::before {
+    z-index: 99999 !important;
+}
+
+.navbar,
+.usm-pjax-loading .navbar,
+.pjax-page-enter .navbar {
+    z-index: 1000 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    filter: none !important;
+}
+
+.navbar #nav-logo-dyn,
+.logo-nav #nav-logo-dyn {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto;
+}

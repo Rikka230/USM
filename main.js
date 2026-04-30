@@ -749,6 +749,11 @@ function loadSmoothImage(selector, url, finalOpacity = '1') {
     const img = document.querySelector(selector);
     if (!img || !url) return;
 
+    if (selector === '#nav-logo-dyn' || img.id === 'nav-logo-dyn') {
+        window.__USM_STABLE_NAV_LOGO_SRC__ = url;
+        img.dataset.stableSrc = url;
+    }
+
     const isMassiveLogo = Boolean(img.closest('.massive-eagle-wrapper'));
     const massiveWrapper = isMassiveLogo ? img.closest('.massive-eagle-wrapper') : null;
 
@@ -1481,6 +1486,13 @@ function keepChromeImageFixed(img) {
     img.style.removeProperty('--usm-img-delay');
     img.style.opacity = '';
     img.style.filter = '';
+
+    if (img.id === 'nav-logo-dyn') {
+        const stableSrc = img.dataset.stableSrc || window.__USM_STABLE_NAV_LOGO_SRC__;
+        if (stableSrc && !(img.getAttribute('src') || '').trim()) {
+            img.setAttribute('src', stableSrc);
+        }
+    }
 }
 
 function prepareSmoothImages(scope = document) {

@@ -142,6 +142,47 @@
     "#footer-logo-dyn"
   ];
 
+  const STABLE_NAV_LOGO_KEY = "__USM_STABLE_NAV_LOGO_SRC__";
+
+  function getMeaningfulImageSrc(img) {
+    if (!img) return "";
+    const attrSrc = (img.getAttribute("src") || "").trim();
+    if (attrSrc) return attrSrc;
+
+    const currentSrc = (img.currentSrc || "").trim();
+    if (!currentSrc) return "";
+
+    try {
+      const currentUrl = new URL(currentSrc, window.location.href);
+      const pageUrl = new URL(window.location.href);
+      if (currentUrl.href === pageUrl.href) return "";
+    } catch (_) {}
+
+    return currentSrc;
+  }
+
+  function rememberNavLogoSrc(img) {
+    const src = getMeaningfulImageSrc(img);
+    if (!src) return;
+    window[STABLE_NAV_LOGO_KEY] = src;
+  }
+
+  function restoreNavLogoSrc(img) {
+    if (!img) return;
+    const currentSrc = getMeaningfulImageSrc(img);
+    if (currentSrc) {
+      rememberNavLogoSrc(img);
+      return;
+    }
+
+    const cachedSrc = window[STABLE_NAV_LOGO_KEY];
+    if (cachedSrc) img.setAttribute("src", cachedSrc);
+  }
+
+  function protectCurrentNavLogo() {
+    restoreNavLogoSrc(document.getElementById("nav-logo-dyn"));
+  }
+
   function isPersistentElement(node) {
     return node?.nodeType === Node.ELEMENT_NODE && PERSISTENT_PAGE_SELECTORS.some((selector) => node.matches(selector));
   }
@@ -201,6 +242,9 @@
   function syncNavbarState(currentElement, nextElement) {
     if (!currentElement || !nextElement) return;
 
+    const currentLogo = currentElement.querySelector("#nav-logo-dyn");
+    rememberNavLogoSrc(currentLogo);
+
     // Keep the existing topbar DOM node alive, but refresh its navigation state.
     // Previous patch only copied classes, so a header coming from index.html kept href="#agence"
     // on contact/presse/mentions and the topbar looked broken outside the homepage.
@@ -220,6 +264,8 @@
 
     const currentMobileMenu = currentElement.querySelector('#nav-links');
     if (currentMobileMenu) currentMobileMenu.classList.remove('active');
+
+    restoreNavLogoSrc(currentLogo);
   }
 
   function syncPersistentChrome(nextBody) {
@@ -383,6 +429,15 @@
         .catch(() => {});
     } catch (_) {}
   }
+
+  document.addEventListener("load", (event) => {
+    const target = event.target;
+    if (target?.matches?.("#nav-logo-dyn")) rememberNavLogoSrc(target);
+  }, true);
+
+  document.addEventListener("usm:page-ready", protectCurrentNavLogo);
+  document.addEventListener("usm:pjax-ready", protectCurrentNavLogo);
+  protectCurrentNavLogo();
 
   document.addEventListener("click", (event) => {
     const link = event.target.closest?.("a[href]");
