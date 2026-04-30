@@ -99,6 +99,7 @@ const LoadingUI = {
         el.dataset.ready = 'true';
         el.classList.remove('is-loading');
         el.classList.add('is-ready', 'progressive-zone');
+        requestAnimationFrame(() => prepareSmoothImages(el));
     },
     imageLoaded(img) {
         if (!img) return;
@@ -1368,6 +1369,69 @@ function getPlayerPlaceholderStyle(player) {
     return `--roster-hue:${hue};`;
 }
 
+function prepareSmoothImages(scope = document) {
+    const root = scope && typeof scope.querySelectorAll === 'function' ? scope : document;
+    const images = Array.from(root.querySelectorAll('img:not([data-no-smooth])')).filter((img) => !img.closest('.player-img-container'));
+
+    images.forEach((img, index) => {
+        if (img.dataset.usmSmoothImage === 'true') return;
+        img.dataset.usmSmoothImage = 'true';
+        img.classList.add('usm-smooth-image');
+        img.style.setProperty('--usm-img-delay', `${Math.min(index * 28, 220)}ms`);
+
+        const reveal = () => {
+            requestAnimationFrame(() => img.classList.add('usm-smooth-image-ready'));
+        };
+
+        img.addEventListener('load', reveal, { once: true });
+        img.addEventListener('error', reveal, { once: true });
+
+        if (img.complete) reveal();
+    });
+}
+
+function setRosterMinHeight(container) {
+    if (!container) return;
+    const previousHeight = Math.ceil(container.getBoundingClientRect().height);
+    if (previousHeight > 80) container.style.minHeight = `${previousHeight}px`;
+}
+
+function releaseRosterMinHeight(container, delay = 560) {
+    if (!container) return;
+    setTimeout(() => { container.style.minHeight = ''; }, delay);
+}
+
+function updateRosterSliderState(scroller, prevBtn, nextBtn) {
+    if (!scroller) return;
+    const hasOverflow = scroller.scrollWidth > scroller.clientWidth + 8;
+    const atStart = scroller.scrollLeft <= 8;
+    const atEnd = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 8;
+    const controls = scroller.closest('.category-block')?.querySelector('.slider-controls');
+
+    if (controls) controls.classList.toggle('is-disabled', !hasOverflow);
+    if (prevBtn) prevBtn.classList.toggle('is-edge-disabled', !hasOverflow || atStart);
+    if (nextBtn) nextBtn.classList.toggle('is-edge-disabled', !hasOverflow || atEnd);
+}
+
+function renderRosterContent(container, html) {
+    if (!container) return;
+    setRosterMinHeight(container);
+    container.classList.add('roster-is-swapping');
+    container.innerHTML = html;
+
+    const block = container.querySelector('.category-block, .roster-empty-message');
+    if (block) {
+        block.classList.add('roster-transition-enter');
+        requestAnimationFrame(() => block.classList.add('is-visible'));
+    }
+
+    requestAnimationFrame(() => {
+        prepareSmoothImages(container);
+        container.classList.remove('roster-is-swapping');
+    });
+    releaseRosterMinHeight(container, 620);
+}
+
 async function warmRosterCategory(category) {
     if (!category) return;
     let players = Cache.get(`players_${category}`);
@@ -1400,8 +1464,7 @@ async function loadPlayers(category = 'gardien') {
     }
     currentFrontCat = category;
     let players = Cache.get(`players_${category}`);
-    const previousHeight = Math.ceil(container.getBoundingClientRect().height);
-    if (previousHeight > 80) container.style.minHeight = `${previousHeight}px`;
+    setRosterMinHeight(container);
     container.classList.add('roster-is-preparing');
     
     if(!players) {
@@ -1424,7 +1487,7 @@ async function loadPlayers(category = 'gardien') {
     renderCategorySlider();
     container.dataset.currentRosterCategory = category;
     container.classList.remove('roster-is-preparing');
-    setTimeout(() => { container.style.minHeight = ''; }, 450);
+    releaseRosterMinHeight(container, 620);
 }
 
 function renderCategorySlider() {
@@ -1436,7 +1499,7 @@ function renderCategorySlider() {
         : allPlayersData;
         
     if (filteredPlayers.length === 0) { 
-        container.innerHTML = '<p style="text-align:center; color:#888; padding: 40px;">Aucun joueur trouvé.</p>'; 
+        renderRosterContent(container, '<p class="roster-empty-message" style="text-align:center; color:#888; padding: 40px;">Aucun joueur trouvé.</p>'); 
         return; 
     }
     
@@ -1448,10 +1511,10 @@ function renderCategorySlider() {
         const playerStat = escapeHTML(player.stat || '');
         const playerImage = escapeHTML(player.image_url || '');
         const playerTransfermarkt = escapeHTML(player.transfermarkt || '');
-        sliderHTML += `<div class="player-card"><div class="player-img-container roster-gradient-holder" style="${getPlayerPlaceholderStyle(player)}"><img src="${playerImage}" alt="${playerName}" decoding="async" loading="eager"></div><div class="player-info"><div><h3>${playerName}</h3>${currentFrontSearch.length > 0 ? `<p style="color:#888; font-size:0.75rem; text-transform:uppercase; margin-top:2px;">${playerCategory}</p>` : ''}${playerTransfermarkt ? `<a href="${playerTransfermarkt}" target="_blank" rel="noopener" style="color:var(--usm-pink); font-size:0.8rem; text-decoration:none; display:inline-block; margin-top:5px;">🔗 Transfermarkt</a>` : ''}</div></div><div style="padding: 0 15px 15px;"><div class="player-stat">${playerStat}</div></div></div>`; 
+        sliderHTML += `<div class="player-card"><div class="player-img-container roster-gradient-holder" style="${getPlayerPlaceholderStyle(player)}"><img src="${playerImage}" alt="${playerName}" decoding="async" loading="eager"></div><div class="player-info"><div><h3>${playerName}</h3>${currentFrontSearch.length > 0 ? `<p class="player-category-label">${playerCategory}</p>` : ''}${playerTransfermarkt ? `<a href="${playerTransfermarkt}" target="_blank" rel="noopener" class="player-transfer-link">🔗 Transfermarkt</a>` : ''}</div></div><div class="player-stat-wrap"><div class="player-stat">${playerStat}</div></div></div>`; 
     });
     
-    container.innerHTML = sliderHTML + `</div></div></div>`;
+    renderRosterContent(container, sliderHTML + `</div></div></div>`);
     prepareRosterImages(container);
     
     const scroller = document.getElementById('active-scroller');
@@ -1460,6 +1523,13 @@ function renderCategorySlider() {
     
     if(prevBtn) prevBtn.addEventListener('click', () => scroller.scrollBy({ left: -(scroller.clientWidth * 0.8), behavior: 'smooth' })); 
     if(nextBtn) nextBtn.addEventListener('click', () => scroller.scrollBy({ left: (scroller.clientWidth * 0.8), behavior: 'smooth' }));
+    if (scroller) {
+        const updateState = () => updateRosterSliderState(scroller, prevBtn, nextBtn);
+        requestAnimationFrame(updateState);
+        setTimeout(updateState, 360);
+        scroller.addEventListener('scroll', updateState, { passive: true });
+        window.addEventListener('resize', updateState, { passive: true });
+    }
 }
 
 function setupTabs() { 
@@ -1553,6 +1623,7 @@ window.openPresseLightbox = (type, mediaUrl, title, desc, linkUrl, source, curre
             mediaContainer.innerHTML = `<iframe src="${embedUrl}?autoplay=1" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
         } else {
             mediaContainer.innerHTML = `<img src="${mediaUrl}" alt="Presse">`;
+            prepareSmoothImages(mediaContainer);
         }
         
         titleEl.textContent = title;
@@ -1877,6 +1948,16 @@ document.addEventListener('usm:page-ready', initMarqueeImages);
 function markPublicDomReady() { document.body.classList.add('dom-ready'); }
 document.addEventListener('DOMContentLoaded', markPublicDomReady);
 document.addEventListener('usm:page-ready', markPublicDomReady);
+
+function startSmoothPublicImages() {
+    prepareSmoothImages(document);
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startSmoothPublicImages, { once: true });
+} else {
+    startSmoothPublicImages();
+}
+document.addEventListener('usm:page-ready', startSmoothPublicImages);
 
 /* ================= 11. BOOTSTRAP PUBLIC PJAX SAFE ================= */
 window.USMFrontInit = initUSMFrontPage;

@@ -29,3 +29,10 @@ Les pages publiques chargent maintenant :
 - presse.html
 - mentions.html
 - page-dynamique.html
+
+## Patch roster smoothness
+
+- Uniformise la hauteur des cartes joueurs pour éviter les différences liées aux textes longs.
+- Stabilise la zone roster pendant les changements de catégorie / recherche.
+- Anime l'entrée des cartes joueurs et l'état des contrôles de slider.
+- Ajoute une révélation douce des images publiques sans modifier le visuel final.

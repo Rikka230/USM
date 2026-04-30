@@ -2355,3 +2355,195 @@ body.pjax-page-enter .hero-massive {
         transform: none !important;
     }
 }
+
+/* ================= PJAX / ROSTER SMOOTHNESS PATCH ================= */
+.horizontal-scroller {
+    align-items: stretch;
+    overflow-x: scroll;
+    overscroll-behavior-x: contain;
+    min-height: 512px;
+    transition: opacity 0.42s ease, transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), filter 0.42s ease;
+}
+
+.category-block,
+.roster-empty-message {
+    will-change: opacity, transform;
+}
+
+#roster-categories-container {
+    transition: min-height 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+}
+
+#roster-categories-container.roster-is-preparing,
+#roster-categories-container.roster-is-swapping {
+    opacity: 0.72;
+}
+
+.roster-transition-enter {
+    opacity: 0;
+    transform: translateY(18px) scale(0.992);
+    filter: blur(8px);
+    transition: opacity 0.48s ease, transform 0.54s cubic-bezier(0.22, 1, 0.36, 1), filter 0.54s ease;
+}
+
+.roster-transition-enter.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+}
+
+.slider-controls {
+    min-width: 100px;
+    justify-content: flex-end;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.32s ease, transform 0.32s ease, filter 0.32s ease;
+}
+
+.slider-controls.is-disabled {
+    opacity: 0.28;
+    filter: grayscale(1);
+}
+
+.slider-btn.is-edge-disabled {
+    opacity: 0.38;
+    cursor: default;
+    transform: none;
+    box-shadow: none;
+}
+
+.slider-btn.is-edge-disabled:hover {
+    background: var(--surface);
+    border-color: var(--surface-border);
+    transform: none;
+    box-shadow: none;
+}
+
+.player-card {
+    min-height: 488px;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(18px) scale(0.988);
+    animation: playerCardSoftIn 0.58s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: calc(var(--card-index, 0) * 32ms);
+}
+
+.player-card:nth-child(1) { --card-index: 0; }
+.player-card:nth-child(2) { --card-index: 1; }
+.player-card:nth-child(3) { --card-index: 2; }
+.player-card:nth-child(4) { --card-index: 3; }
+.player-card:nth-child(5) { --card-index: 4; }
+.player-card:nth-child(6) { --card-index: 5; }
+.player-card:nth-child(7) { --card-index: 6; }
+.player-card:nth-child(8) { --card-index: 7; }
+.player-card:nth-child(9) { --card-index: 8; }
+.player-card:nth-child(10) { --card-index: 9; }
+.player-card:nth-child(n+11) { --card-index: 10; }
+
+.player-info {
+    align-items: flex-start;
+    flex: 1 1 auto;
+    min-height: 96px;
+}
+
+.player-info > div {
+    width: 100%;
+    min-width: 0;
+}
+
+.player-info h3 {
+    min-height: 2.85em;
+    line-height: 1.18;
+    display: flex;
+    align-items: flex-start;
+}
+
+.player-category-label {
+    color: #888;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-top: 2px;
+    letter-spacing: 0.04em;
+}
+
+.player-transfer-link {
+    color: var(--usm-pink);
+    font-size: 0.8rem;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 7px;
+    transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.player-transfer-link:hover {
+    color: #ff4d9d;
+    transform: translateX(3px);
+}
+
+.player-stat-wrap {
+    margin-top: auto;
+    padding: 0 15px 15px;
+    min-height: 48px;
+    display: flex;
+    align-items: flex-end;
+}
+
+.player-stat {
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+img.usm-smooth-image {
+    opacity: 0;
+    transform: translateY(7px) scale(1.01);
+    transition: opacity 0.72s ease var(--usm-img-delay, 0ms), transform 0.78s cubic-bezier(0.22, 1, 0.36, 1) var(--usm-img-delay, 0ms);
+    will-change: opacity, transform;
+}
+
+img.usm-smooth-image.usm-smooth-image-ready {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+@keyframes playerCardSoftIn {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 768px) {
+    .horizontal-scroller {
+        min-height: 448px;
+    }
+
+    .player-card {
+        min-height: 430px;
+    }
+
+    .player-info {
+        min-height: 86px;
+    }
+
+    .player-info h3 {
+        min-height: 2.55em;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .roster-transition-enter,
+    .player-card,
+    img.usm-smooth-image,
+    .horizontal-scroller,
+    #roster-categories-container,
+    .slider-controls {
+        animation: none !important;
+        transition: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+    }
+}
