@@ -699,16 +699,24 @@ function setupDynamicImageReveal() {
 function loadSmoothImage(selector, url, finalOpacity = '1') {
     const img = document.querySelector(selector);
     if (img && url) {
-        img.classList.add('dynamic-img');
-        img.style.setProperty('--final-opacity', finalOpacity);
+        const isMassiveLogo = Boolean(img.closest('.massive-eagle-wrapper'));
+        if (!isMassiveLogo) {
+            img.classList.add('dynamic-img');
+            img.style.setProperty('--final-opacity', finalOpacity);
+        } else {
+            img.dataset.noSmooth = 'true';
+            img.decoding = 'async';
+            img.removeAttribute('style');
+            img.classList.remove('dynamic-img', 'usm-smooth-image', 'usm-smooth-image-ready');
+        }
         img.onload = () => {
-            img.style.opacity = finalOpacity;
+            if (!isMassiveLogo) img.style.opacity = finalOpacity;
             LoadingUI.imageLoaded(img);
         };
         img.src = url;
         if (selector === '.vip-photo-wrapper img' || img.id === 'vip-img-display') img.dataset.currentVipSrc = url;
         if (img.complete) {
-            img.style.opacity = finalOpacity;
+            if (!isMassiveLogo) img.style.opacity = finalOpacity;
             LoadingUI.imageLoaded(img);
         }
     }
@@ -1371,7 +1379,11 @@ function getPlayerPlaceholderStyle(player) {
 
 function prepareSmoothImages(scope = document) {
     const root = scope && typeof scope.querySelectorAll === 'function' ? scope : document;
-    const images = Array.from(root.querySelectorAll('img:not([data-no-smooth])')).filter((img) => !img.closest('.player-img-container'));
+    const images = Array.from(root.querySelectorAll('img:not([data-no-smooth])')).filter((img) => {
+        if (img.closest('.player-img-container')) return false;
+        if (img.closest('.massive-eagle-wrapper')) return false;
+        return true;
+    });
 
     images.forEach((img, index) => {
         if (img.dataset.usmSmoothImage === 'true') return;

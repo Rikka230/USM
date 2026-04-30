@@ -36,3 +36,11 @@ Les pages publiques chargent maintenant :
 - Stabilise la zone roster pendant les changements de catégorie / recherche.
 - Anime l'entrée des cartes joueurs et l'état des contrôles de slider.
 - Ajoute une révélation douce des images publiques sans modifier le visuel final.
+
+
+## Patch pjax-front-5
+
+- Le logo massif de la hero est exclu du système global de fade-in des images pour garder une animation GPU stable.
+- Le logo garde son animation `float` dédiée sans transition `transform` concurrente.
+- L'entrée PJAX n'anime plus tout le bloc `.hero-massive`, uniquement le texte secondaire, afin d'éviter de superposer deux animations sur le logo.
+- Cache-bust mis à jour en `pjax-front-5`.
