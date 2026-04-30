@@ -3266,3 +3266,82 @@ body.service-page .service-hero::after {
         linear-gradient(to top, rgba(5, 5, 7, 0.11) 0%, rgba(5, 5, 7, 0.035) 52%, rgba(5, 5, 7, 0.008) 100%),
         linear-gradient(to right, rgba(5, 5, 7, 0.045) 0%, rgba(5, 5, 7, 0.008) 55%, rgba(5, 5, 7, 0.03) 100%) !important;
 }
+
+
+/* ================= POST AUDIT 3 — stats, service CTA, service hero subtitle ================= */
+.data-huge.has-stat-plus {
+    display: inline-flex !important;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.04em;
+    max-width: 100%;
+    min-width: 0;
+    white-space: nowrap !important;
+    overflow: hidden;
+    line-height: 0.98 !important;
+}
+
+.data-huge.has-stat-plus .stat-number-main {
+    display: inline-block;
+    min-width: 0;
+    max-width: calc(100% - 0.4em);
+    overflow: hidden;
+    text-overflow: clip;
+    flex: 1 1 auto;
+}
+
+.data-huge.has-stat-plus .stat-number-plus {
+    display: inline-block;
+    flex: 0 0 auto;
+    font-size: 0.48em;
+    line-height: 1;
+    margin-left: 0.01em;
+    transform: translateY(-0.14em);
+}
+
+@media (max-width: 850px) {
+    .data-huge.has-stat-plus {
+        gap: 0.025em;
+    }
+
+    .data-huge.has-stat-plus .stat-number-plus {
+        font-size: 0.44em;
+    }
+}
+
+#services-container .srv-card-arrow {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(5, 5, 7, 0.56);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(10px);
+    color: #fff !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.3px;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.78);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24);
+}
+
+#services-container .bento-service-card:hover .srv-card-arrow {
+    transform: translateX(8px);
+    background: rgba(216, 0, 86, 0.3);
+    border-color: rgba(216, 0, 86, 0.44);
+}
+
+body.service-page #srv-page-subtitle {
+    display: inline-flex;
+    align-items: center;
+    max-width: min(100%, 780px);
+    margin-top: 14px !important;
+    padding: 10px 16px;
+    border-radius: 14px;
+    background: rgba(5, 5, 7, 0.34);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    color: #fff !important;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}

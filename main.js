@@ -868,6 +868,13 @@ function renderStatValue(statEl, value, options = {}) {
     }
 }
 
+function forceStatTrailingPlus(value) {
+    const raw = String(value ?? '').trim();
+    if (!raw) return '';
+    if (raw.includes('+')) return raw;
+    return /\d/.test(raw) ? `${raw}+` : raw;
+}
+
 async function loadSettings() {
     let data = Cache.get('site_settings');
     if(!data) {
@@ -880,9 +887,15 @@ async function loadSettings() {
         } catch (e) { console.error("Erreur Settings:", e); return; }
     }
     if(data) {
-        ['stat1', 'stat2', 'stat3', 'stat4'].forEach(s => { 
+        ['stat1', 'stat2', 'stat3', 'stat4'].forEach(s => {
             const statEl = document.getElementById(`stat-${s.replace('stat','')}`);
-            if(data[s] && statEl) renderStatValue(statEl, data[s], { allowPlus: true }); 
+            if (!data[s] || !statEl) return;
+
+            let nextValue = data[s];
+            const shouldForcePlus = s === 'stat1' || s === 'stat2' || s === 'stat4';
+            if (shouldForcePlus) nextValue = forceStatTrailingPlus(nextValue);
+
+            renderStatValue(statEl, nextValue, { allowPlus: shouldForcePlus });
         });
         
         if(data.logoNav) {
