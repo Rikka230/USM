@@ -1270,7 +1270,7 @@ function renderServices() {
         const sub = srv[`subtitle_${currentLang}`] || srv.subtitle_fr || '';
         const bgImg = srv.image_url ? `url('${srv.image_url}')` : 'none';
         html += `
-        <a href="page-dynamique.html?id=${srv.id}" class="bento-service-card" style="background-image: linear-gradient(to top, rgba(5,5,7,0.95) 10%, rgba(5,5,7,0.2) 100%), ${bgImg}; background-size: cover; background-position: center;">
+        <a href="page-dynamique.html?id=${srv.id}" class="bento-service-card" style="background-image: linear-gradient(to top, rgba(5,5,7,0.72) 8%, rgba(5,5,7,0.08) 100%), ${bgImg}; background-size: cover; background-position: center;">
             <div class="srv-card-content"><h3>${title}</h3><p>${sub}</p></div>
             <div class="srv-card-arrow">En savoir plus ➔</div>
         </a>`;
