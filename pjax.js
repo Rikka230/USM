@@ -29,6 +29,12 @@
     return PUBLIC_PAGES.has(path);
   }
 
+  function isSameDocument(url) {
+    return sameOrigin(url) &&
+      normalizePath(url.pathname) === normalizePath(window.location.pathname) &&
+      url.search === window.location.search;
+  }
+
   function shouldHandleLink(link, event) {
     if (!link || event.defaultPrevented) return false;
     if (event.button !== 0) return false;
@@ -37,7 +43,7 @@
     if (link.hasAttribute("download") || link.dataset.noPjax === "true") return false;
 
     const href = link.getAttribute("href");
-    if (!href || href.startsWith("mailto:") || href.startsWith("tel:") || href.startsWith("javascript:")) return false;
+    if (!href || href === "#" || href.startsWith("mailto:") || href.startsWith("tel:") || href.startsWith("javascript:")) return false;
 
     let url;
     try { url = new URL(href, window.location.href); }
@@ -45,6 +51,10 @@
 
     if (!sameOrigin(url)) return false;
     if (!isPublicPage(url)) return false;
+
+    // Same-page anchors stay outside PJAX so the custom centered scroll on index
+    // remains in charge and does not fight a second scroll handler.
+    if (url.hash && isSameDocument(url)) return false;
 
     return url;
   }
@@ -144,6 +154,26 @@
     return node.nodeType === Node.TEXT_NODE || node.nodeType === Node.COMMENT_NODE;
   }
 
+  function copyMediaAttributesWithoutReload(currentMedia, nextMedia) {
+    if (!currentMedia || !nextMedia) return;
+
+    const currentSrc = currentMedia.getAttribute('src') || '';
+    const nextSrc = nextMedia.getAttribute('src') || '';
+
+    Array.from(currentMedia.attributes).forEach((attr) => {
+      if (attr.name !== 'src' && attr.name !== 'srcset') currentMedia.removeAttribute(attr.name);
+    });
+
+    Array.from(nextMedia.attributes).forEach((attr) => {
+      if ((attr.name === 'src' || attr.name === 'srcset') && !attr.value) return;
+      currentMedia.setAttribute(attr.name, attr.value);
+    });
+
+    if (!nextSrc && currentSrc) currentMedia.setAttribute('src', currentSrc);
+    currentMedia.dataset.noSmooth = 'true';
+    currentMedia.classList.remove('dynamic-img', 'loaded', 'usm-smooth-image', 'usm-smooth-image-ready');
+  }
+
   function replaceWithPreservedMedia(currentElement, nextElement) {
     if (!currentElement || !nextElement) return;
 
@@ -155,7 +185,7 @@
       if (!currentMedia || !nextMedia) return;
 
       // Keep already decoded logo nodes alive so they do not flash/reload on PJAX navigation.
-      applyAttributes(currentMedia, nextMedia);
+      copyMediaAttributesWithoutReload(currentMedia, nextMedia);
       nextMedia.parentNode.replaceChild(currentMedia, nextMedia);
     });
 

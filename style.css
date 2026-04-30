@@ -181,62 +181,39 @@ body {
     text-align: center; 
     padding: 120px 20px 40px; 
     position: relative;
-    isolation: isolate;
 }
 
 .massive-eagle-wrapper {
     width: clamp(300px, 60vw, 800px); 
     margin-bottom: 20px;
-    position: relative;
-    opacity: 0;
-    transform: translate3d(0, 0, 0);
-    transform-style: preserve-3d;
-    backface-visibility: hidden;
-    contain: layout paint style;
-    will-change: opacity;
-    transition: opacity 1.45s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform; 
+    transform: translateZ(0); 
+    animation: float 6s ease-in-out infinite;
 }
 
-.massive-eagle-wrapper::before {
-    content: "";
-    position: absolute;
-    inset: 7% 2% 8%;
-    z-index: -1;
-    background: radial-gradient(circle at 50% 48%, rgba(216, 0, 86, 0.34), transparent 63%);
-    opacity: 0;
-    transform: translate3d(0, 0, 0) scale(0.98);
-    transition: opacity 1.25s ease, transform 1.35s cubic-bezier(0.22, 1, 0.36, 1);
-    pointer-events: none;
-}
-
-.massive-eagle-wrapper.is-hero-logo-ready {
-    opacity: 1;
-}
-
-.massive-eagle-wrapper.is-hero-logo-ready::before {
-    opacity: 0.74;
-    transform: translate3d(0, 0, 0) scale(1);
+.massive-eagle-wrapper::before,
+.massive-eagle-wrapper.is-hero-logo-ready::before,
+.massive-eagle-wrapper.is-hero-logo-loading::before {
+    content: none;
+    display: none;
 }
 
 .massive-eagle-wrapper img { 
     width: 100%; 
     height: auto; 
-    filter: none;
-    opacity: 0.001;
-    transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-    will-change: opacity, transform;
-    transition: opacity 1.45s cubic-bezier(0.22, 1, 0.36, 1) 0.18s;
-}
-
-.massive-eagle-wrapper.is-hero-logo-ready img {
     opacity: 1;
-    animation: float 10.8s cubic-bezier(0.45, 0, 0.55, 1) 1.15s infinite;
+    transform: none;
+    animation: none;
+    transition: none;
+    filter: drop-shadow(0 0 50px rgba(216,0,86,0.3)); 
 }
 
 .massive-eagle-wrapper img.usm-smooth-image,
 .massive-eagle-wrapper img.dynamic-img {
-    transition: opacity 1.45s cubic-bezier(0.22, 1, 0.36, 1) 0.18s;
+    opacity: 1;
+    transform: none;
+    animation: none;
+    transition: none;
 }
 
 .hero-massive h1 { 
@@ -249,7 +226,7 @@ body {
 
 @keyframes float { 
     0%, 100% { transform: translate3d(0, 0px, 0); } 
-    50% { transform: translate3d(0, -8px, 0); } 
+    50% { transform: translate3d(0, -20px, 0); } 
 }
 
 
@@ -2648,32 +2625,31 @@ aside.sticky-social-bar img,
     transform: translate3d(0, 0, 0) !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .massive-eagle-wrapper.is-hero-logo-ready img {
-        animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
-    }
-}
-
-/* ================= PJAX FRONT 8 — Massive logo main-like + topbar links fixed ================= */
+/* ================= PJAX FRONT 9 — Massive logo isolé + topbar stable ================= */
 .hero-massive {
     position: relative;
     isolation: auto;
 }
 
 .massive-eagle-wrapper,
+.massive-eagle-wrapper.reveal,
+.massive-eagle-wrapper.visible,
 .massive-eagle-wrapper.is-hero-logo-ready,
-.massive-eagle-wrapper.is-hero-logo-loading {
+.massive-eagle-wrapper.is-hero-logo-loading,
+body.pjax-page-enter .massive-eagle-wrapper,
+.usm-pjax-loading .massive-eagle-wrapper {
     width: clamp(300px, 60vw, 800px);
     margin-bottom: 20px;
     opacity: 1 !important;
-    will-change: transform !important;
     transform: translateZ(0) !important;
+    will-change: transform !important;
     transform-style: flat !important;
-    backface-visibility: visible !important;
+    backface-visibility: hidden !important;
     contain: none !important;
     animation: float 6s ease-in-out infinite !important;
     animation-play-state: running !important;
     transition: none !important;
+    filter: none !important;
 }
 
 .massive-eagle-wrapper::before,
@@ -2687,7 +2663,11 @@ aside.sticky-social-bar img,
 .massive-eagle-wrapper.is-hero-logo-ready img,
 .massive-eagle-wrapper.is-hero-logo-loading img,
 .massive-eagle-wrapper img.usm-smooth-image,
-.massive-eagle-wrapper img.dynamic-img {
+.massive-eagle-wrapper img.usm-smooth-image.usm-smooth-image-ready,
+.massive-eagle-wrapper img.dynamic-img,
+.massive-eagle-wrapper img.loaded,
+body.pjax-page-enter .massive-eagle-wrapper img,
+.usm-pjax-loading .massive-eagle-wrapper img {
     width: 100%;
     height: auto;
     opacity: 1 !important;
@@ -2713,4 +2693,3 @@ aside.sticky-social-bar img,
     transition: none !important;
     transform: translateY(-5px) !important;
 }
-

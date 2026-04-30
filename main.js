@@ -205,6 +205,8 @@ async function initUSMFrontPage() {
     if (!translations[currentLang]) currentLang = 'fr';
     if(langSelect) langSelect.value = currentLang;
 
+    prepareMassiveLogoForMainAnimation(document);
+
     // LOGIQUE DES ONGLETS AGENCE / FONDATEUR - DOUBLE IMAGE STABLE
     const vipTabs = {
         founder: document.getElementById('tab-founder'),
@@ -579,19 +581,9 @@ async function initUSMFrontPage() {
         });
     }
 
-    const mobileBtn = document.getElementById('mobile-menu-btn');
-    const closeBtn = document.getElementById('close-menu-btn');
     const navLinks = document.getElementById('nav-links');
-    
-    if (mobileBtn && navLinks) {
-        mobileBtn.addEventListener('click', () => navLinks.classList.add('active'));
-        closeBtn.addEventListener('click', () => navLinks.classList.remove('active'));
-        navLinks.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => navLinks.classList.remove('active'));
-        });
-    }
 
-    // Scroll navbar vraiment centrÃ© sur le module ciblÃ©, pas juste collÃ© sous la navbar.
+    // Scroll navbar vraiment centré sur le module ciblé, pas juste collé sous la navbar.
     const getNavHeight = () => Math.ceil(document.querySelector('.navbar')?.getBoundingClientRect().height || 78);
 
     const getAnchorFocusHeight = (target) => {
@@ -615,18 +607,45 @@ async function initUSMFrontPage() {
         window.scrollTo({ top: nextTop, behavior: 'smooth' });
     };
 
-    document.querySelectorAll('.nav-links a[href^="#"]').forEach(link => {
-        link.addEventListener('click', (event) => {
-            const hash = link.getAttribute('href');
-            if (!hash || hash === '#') return;
-            const target = document.querySelector(hash);
+    const setupTopbarInteractions = () => {
+        const navbar = document.querySelector('header.navbar');
+        const currentNavLinks = document.getElementById('nav-links');
+        if (!navbar || navbar.dataset.usmTopbarBound === 'true') return;
+
+        navbar.dataset.usmTopbarBound = 'true';
+        navbar.addEventListener('click', (event) => {
+            const mobileBtn = event.target.closest?.('#mobile-menu-btn');
+            const closeBtn = event.target.closest?.('#close-menu-btn');
+            const clickedNavLink = event.target.closest?.('#nav-links a[href]');
+
+            if (mobileBtn) {
+                currentNavLinks?.classList.add('active');
+                return;
+            }
+
+            if (closeBtn) {
+                currentNavLinks?.classList.remove('active');
+                return;
+            }
+
+            if (!clickedNavLink) return;
+
+            currentNavLinks?.classList.remove('active');
+
+            const href = clickedNavLink.getAttribute('href') || '';
+            if (!href.startsWith('#') || href === '#') return;
+
+            const targetId = decodeURIComponent(href.slice(1));
+            const target = document.getElementById(targetId);
             if (!target) return;
+
             event.preventDefault();
-            navLinks?.classList.remove('active');
             scrollSectionToVisualCenter(target);
-            if (history.pushState) history.pushState(null, '', hash);
+            if (history.pushState) history.pushState(null, '', href);
         });
-    });
+    };
+
+    setupTopbarInteractions();
     
     updateContent(currentLang);
 
@@ -696,6 +715,36 @@ function setupDynamicImageReveal() {
 
 /* ================= 5. CHARGEMENT PARAMÈTRES AVEC CACHE ================= */
 
+function prepareMassiveLogoForMainAnimation(scope = document) {
+    const root = scope && typeof scope.querySelectorAll === 'function' ? scope : document;
+    const wrappers = [];
+    if (root.matches?.('.massive-eagle-wrapper')) wrappers.push(root);
+    root.querySelectorAll('.massive-eagle-wrapper').forEach((wrapper) => wrappers.push(wrapper));
+
+    wrappers.forEach((wrapper) => {
+        wrapper.dataset.noSmooth = 'true';
+        wrapper.classList.remove('is-hero-logo-loading', 'is-hero-logo-ready');
+        wrapper.style.removeProperty('opacity');
+        wrapper.style.removeProperty('transform');
+        wrapper.style.removeProperty('transition');
+        wrapper.style.removeProperty('filter');
+
+        wrapper.querySelectorAll('img').forEach((img) => {
+            img.dataset.noSmooth = 'true';
+            img.dataset.usmSmoothImage = 'false';
+            img.classList.remove('dynamic-img', 'loaded', 'usm-smooth-image', 'usm-smooth-image-ready', 'soft-load-img', 'is-loaded');
+            img.style.removeProperty('--usm-img-delay');
+            img.style.removeProperty('opacity');
+            img.style.removeProperty('transform');
+            img.style.removeProperty('transition');
+            img.style.removeProperty('filter');
+            img.style.removeProperty('animation');
+            img.decoding = 'async';
+            img.fetchPriority = 'high';
+        });
+    });
+}
+
 function loadSmoothImage(selector, url, finalOpacity = '1') {
     const img = document.querySelector(selector);
     if (!img || !url) return;
@@ -717,15 +766,7 @@ function loadSmoothImage(selector, url, finalOpacity = '1') {
     // a simple CSS float on the wrapper + the original PNG drop-shadow.
     // It must not enter the global image fade/translate pipeline.
     if (isMassiveLogo) {
-        massiveWrapper?.classList.remove('is-hero-logo-loading', 'is-hero-logo-ready');
-        img.dataset.noSmooth = 'true';
-        img.classList.remove('dynamic-img', 'loaded', 'usm-smooth-image', 'usm-smooth-image-ready');
-        img.style.opacity = '';
-        img.style.transform = '';
-        img.style.transition = '';
-        img.style.filter = '';
-        img.decoding = 'async';
-        img.fetchPriority = 'high';
+        prepareMassiveLogoForMainAnimation(massiveWrapper || document);
         img.onload = null;
         if (normalizedCurrentUrl !== normalizedNextUrl) img.src = url;
         return;
@@ -1444,6 +1485,8 @@ function keepChromeImageFixed(img) {
 
 function prepareSmoothImages(scope = document) {
     const root = scope && typeof scope.querySelectorAll === 'function' ? scope : document;
+
+    prepareMassiveLogoForMainAnimation(root);
 
     root.querySelectorAll('.navbar img, .logo-nav img, footer img, aside.sticky-social-bar img, .social-links-container img, .social-icon img')
         .forEach(keepChromeImageFixed);
