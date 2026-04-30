@@ -198,7 +198,7 @@ window.currentServiceData = null;
 window.currentServiceId = null;
 
 /* ================= 4. LOGIQUE GLOBALE ================= */
-document.addEventListener("DOMContentLoaded", async () => { 
+async function initUSMFrontPage() { 
     const langSelect = document.getElementById('lang-select');
     let currentLang = localStorage.getItem('usm_lang') || 'fr';
     if (!translations[currentLang]) currentLang = 'fr';
@@ -638,6 +638,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     
 
 function setupDynamicImageReveal() {
+    if (window.__usmDynamicImageRevealReady) return;
+    window.__usmDynamicImageRevealReady = true;
     const selector = '.press-card img, .article-card img, .video-card img';
     const prepare = (img) => {
         if (!img || img.dataset.fadeReady === 'true') return;
@@ -679,12 +681,22 @@ function setupDynamicImageReveal() {
         requestAnimationFrame(lockVipLayout);
         await loadSocialLinks();
         await loadServices(); 
+        setupRosterControls();
         await loadPlayers('gardien'); 
         ['defenseur', 'milieu', 'attaquant', 'feminine', 'coach'].forEach(cat => setTimeout(() => warmRosterCategory(cat), 400));
         await loadSingleServicePage(); 
     };
     startApp();
-}); /* <-- 🪄 LA FERMETURE GLOBALE DU DOMCONTENTLOADED EST ICI */
+}
+
+window.USMFrontInit = initUSMFrontPage;
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initUSMFrontPage);
+} else {
+    initUSMFrontPage();
+}
+document.addEventListener('usm:page-ready', initUSMFrontPage);
+/* <-- 🪄 INIT PUBLIC REJOUABLE POUR PJAX */
 
 /* ================= 5. CHARGEMENT PARAMÈTRES AVEC CACHE ================= */
 
@@ -1457,6 +1469,8 @@ function renderCategorySlider() {
 
 function setupTabs() { 
     document.querySelectorAll('.filter-btn').forEach(tab => { 
+        if (tab.dataset.rosterTabReady === 'true') return;
+        tab.dataset.rosterTabReady = 'true';
         ['pointerenter', 'mouseenter', 'focus', 'touchstart'].forEach(eventName => {
             tab.addEventListener(eventName, () => warmRosterCategory(tab.getAttribute('data-tab')), { passive: true });
         });
@@ -1470,47 +1484,51 @@ function setupTabs() {
         }); 
     }); 
 }
-setupTabs(); 
 
-const searchInput = document.getElementById('front-search');
-if(searchInput) {
-    searchInput.addEventListener('input', (e) => { 
-        clearTimeout(searchTimeout);
-        
-        // 🪄 OPTIMISATION 1 : Délai augmenté à 600ms (Debounce)
-        searchTimeout = setTimeout(async () => {
-            currentFrontSearch = e.target.value.trim().toLowerCase(); 
-            
-            // 🪄 OPTIMISATION 2 : On ne lance la recherche qu'à partir de 2 caractères minimum
-            if(currentFrontSearch.length >= 2) {
-                document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); 
-                
-                let all = Cache.get('players_all');
-                if (!all) {
-                    try {
-                        const { collection, getDocs } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-                        const querySnapshot = await getDocs(collection(db, "players"));
-                        all = [];
-                        querySnapshot.forEach(d => all.push(d.data()));
-                        Cache.set('players_all', all); 
-                    } catch(err) { console.error("Erreur recherche globale:", err); all = []; }
+function setupRosterControls() {
+    setupTabs();
+
+    const searchInput = document.getElementById('front-search');
+    if(searchInput && searchInput.dataset.rosterSearchReady !== 'true') {
+        searchInput.dataset.rosterSearchReady = 'true';
+        searchInput.addEventListener('input', (e) => { 
+            clearTimeout(searchTimeout);
+
+            // 🪄 OPTIMISATION 1 : Délai augmenté à 600ms (Debounce)
+            searchTimeout = setTimeout(async () => {
+                currentFrontSearch = e.target.value.trim().toLowerCase(); 
+
+                // 🪄 OPTIMISATION 2 : On ne lance la recherche qu'à partir de 2 caractères minimum
+                if(currentFrontSearch.length >= 2) {
+                    document.querySelectorAll('.filter-btn').forEach(t => t.classList.remove('active')); 
+
+                    let all = Cache.get('players_all');
+                    if (!all) {
+                        try {
+                            const { collection, getDocs } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+                            const querySnapshot = await getDocs(collection(db, "players"));
+                            all = [];
+                            querySnapshot.forEach(d => all.push(d.data()));
+                            Cache.set('players_all', all); 
+                        } catch(err) { console.error("Erreur recherche globale:", err); all = []; }
+                    }
+
+                    allPlayersData = all; 
+                    await preloadRosterImages(allPlayersData, 20, 1800);
+                    renderCategorySlider(); 
+
+                } else if (currentFrontSearch.length === 0) {
+                    // Si la barre de recherche est vidée, on réaffiche la catégorie sélectionnée
+                    const activeTab = document.querySelector(`.filter-btn[data-tab="${currentFrontCat}"]`);
+                    if(activeTab) activeTab.classList.add('active'); 
+
+                    allPlayersData = Cache.get(`players_${currentFrontCat}`) || [];
+                    if (allPlayersData.length === 0) loadPlayers(currentFrontCat);
+                    else renderCategorySlider();
                 }
-                
-                allPlayersData = all; 
-                await preloadRosterImages(allPlayersData, 20, 1800);
-                renderCategorySlider(); 
-                
-            } else if (currentFrontSearch.length === 0) {
-                // Si la barre de recherche est vidée, on réaffiche la catégorie sélectionnée
-                const activeTab = document.querySelector(`.filter-btn[data-tab="${currentFrontCat}"]`);
-                if(activeTab) activeTab.classList.add('active'); 
-                
-                allPlayersData = Cache.get(`players_${currentFrontCat}`) || [];
-                if (allPlayersData.length === 0) loadPlayers(currentFrontCat);
-                else renderCategorySlider();
-            }
-        }, 600); 
-    });
+            }, 600); 
+        });
+    }
 }
 /* ================= 9. PAGE PRESSE (VIDEOS & ARTICLES) ================= */
 
@@ -1795,9 +1813,10 @@ async function loadPresseData() {
 
 const startPresse = () => { if(document.getElementById('presse-video-container')) loadPresseData(); };
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', startPresse); } else { startPresse(); }
+document.addEventListener('usm:page-ready', startPresse);
 
 /* ================= 10. BANDEROLE IMAGES (LAZY LOAD & CACHE 1H) ================= */
-document.addEventListener("DOMContentLoaded", () => {
+function initMarqueeImages() {
     const marqueeSection = document.getElementById('marquee-section');
     const marqueeTrack = document.getElementById('marquee-track');
     
@@ -1855,7 +1874,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }, { rootMargin: '300px' });
 
     marqueeObserver.observe(marqueeSection);
-});
+}
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initMarqueeImages); } else { initMarqueeImages(); }
+document.addEventListener('usm:page-ready', initMarqueeImages);
 
 // Public loading safety flag
-document.addEventListener('DOMContentLoaded', () => document.body.classList.add('dom-ready'));
+function markPublicDomReady() { document.body.classList.add('dom-ready'); }
+document.addEventListener('DOMContentLoaded', markPublicDomReady);
+document.addEventListener('usm:page-ready', markPublicDomReady);

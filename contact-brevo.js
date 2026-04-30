@@ -223,3 +223,4 @@ if (document.readyState === "loading") {
 } else {
   initContactBrevoWorkflow();
 }
+document.addEventListener("usm:page-ready", initContactBrevoWorkflow);
