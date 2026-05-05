@@ -2,7 +2,7 @@
   "name": "usm-football-functions",
   "description": "Firebase Functions for USM Football website workflows.",
   "private": true,
-  "main": "index.js",
+  "main": "index-brevo-templates.js",
   "engines": {
     "node": "20"
   },
