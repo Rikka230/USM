@@ -51,7 +51,7 @@ if (isStableFirebaseHost) {
 
 /* ================= 2. SYSTEME DE CACHE ANTI-COÛT ================= */
 const CACHE_TIME_24H = 1000 * 60 * 60 * 24;
-const FRONT_CACHE_VERSION = 'main-post-audit-8';
+const FRONT_CACHE_VERSION = 'main-post-audit-9';
 const FRONT_CACHE_VERSION_KEY = 'usm_front_cache_version';
 
 function syncFrontCacheVersion() {
@@ -2386,13 +2386,9 @@ function initMarqueeImages() {
         const cachedItem = localStorage.getItem('site_marquee');
         
         if (cachedItem) {
-            try {
-                const parsed = JSON.parse(cachedItem);
-                if (parsed && Date.now() - parsed.timestamp < CACHE_TIME_1H) {
-                    marqueeData = parsed.data;
-                }
-            } catch (error) {
-                localStorage.removeItem('site_marquee');
+            const parsed = JSON.parse(cachedItem);
+            if (Date.now() - parsed.timestamp < CACHE_TIME_1H) {
+                marqueeData = parsed.data;
             }
         }
 
@@ -2415,16 +2411,23 @@ function initMarqueeImages() {
             const data = item && typeof item === 'object' ? item : {};
             return {
                 image_url: data.image_url || data.url || '',
-                crop: normalizeMarqueeCrop(data.crop || data.marquee_crop)
+                crop: normalizeMarqueeCrop(data.crop || data.marquee_crop),
+                timestamp: data.timestamp || data.createdAt || 0
             };
         };
 
         if (!marqueeData) {
             try {
-                const { collection, getDocs } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
                 const snap = await getDocs(collection(db, "marquee_images"));
                 marqueeData = [];
-                snap.forEach(doc => marqueeData.push(normalizeMarqueeItem(doc.data())));
+                snap.forEach(docSnap => {
+                    const raw = docSnap.data();
+                    marqueeData.push(normalizeMarqueeItem(raw));
+                });
+
+                marqueeData = marqueeData
+                    .filter(item => item && item.image_url)
+                    .sort((a, b) => (Number(b.timestamp || 0) - Number(a.timestamp || 0)));
 
                 if (marqueeData.length > 0) {
                     localStorage.setItem('site_marquee', JSON.stringify({timestamp: Date.now(), data: marqueeData}));
