@@ -51,7 +51,7 @@ if (isStableFirebaseHost) {
 
 /* ================= 2. SYSTEME DE CACHE ANTI-COÛT ================= */
 const CACHE_TIME_24H = 1000 * 60 * 60 * 24;
-const FRONT_CACHE_VERSION = 'main-post-audit-7';
+const FRONT_CACHE_VERSION = 'main-post-audit-8';
 const FRONT_CACHE_VERSION_KEY = 'usm_front_cache_version';
 
 function syncFrontCacheVersion() {
@@ -2386,9 +2386,13 @@ function initMarqueeImages() {
         const cachedItem = localStorage.getItem('site_marquee');
         
         if (cachedItem) {
-            const parsed = JSON.parse(cachedItem);
-            if (Date.now() - parsed.timestamp < CACHE_TIME_1H) {
-                marqueeData = parsed.data;
+            try {
+                const parsed = JSON.parse(cachedItem);
+                if (parsed && Date.now() - parsed.timestamp < CACHE_TIME_1H) {
+                    marqueeData = parsed.data;
+                }
+            } catch (error) {
+                localStorage.removeItem('site_marquee');
             }
         }
 
@@ -2417,9 +2421,8 @@ function initMarqueeImages() {
 
         if (!marqueeData) {
             try {
-                const { collection, getDocs, limit, query } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-                const q = query(collection(db, "marquee_images"), limit(20));
-                const snap = await getDocs(q);
+                const { collection, getDocs } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+                const snap = await getDocs(collection(db, "marquee_images"));
                 marqueeData = [];
                 snap.forEach(doc => marqueeData.push(normalizeMarqueeItem(doc.data())));
 
