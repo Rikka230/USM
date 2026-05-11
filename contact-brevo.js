@@ -226,23 +226,25 @@ if (document.readyState === "loading") {
 document.addEventListener("usm:page-ready", initContactBrevoWorkflow);
 
 /* ==========================================================================
-   USM FOOTBALL - PUBLIC MARQUEE FULL RENDER FIX
+   USM FOOTBALL - PUBLIC MARQUEE FULL RENDER FIX V3
    --------------------------------------------------------------------------
-   Correctif côté public pour la banderole décorative :
-   - vide l'ancien cache site_marquee ;
-   - relit les images depuis Firestore sans limit(...);
-   - affiche toutes les images valides dans #marquee-track ;
-   - relance le rendu après main.js et après les transitions PJAX.
+   Correctif côté public pour la banderole décorative.
+   Il retire la limite sans casser les règles Firestore : on tente d'abord les
+   requêtes filtrées probables, mais sans limit(...), puis seulement ensuite la
+   lecture brute si les règles l'autorisent.
    ========================================================================== */
-const USM_MARQUEE_FIX_VERSION = "public-marquee-full-2";
+const USM_MARQUEE_FIX_VERSION = "public-marquee-full-3";
 const USM_MARQUEE_COLLECTIONS = [
   "marquee",
   "marquees",
+  "marqueeImages",
+  "marquee_images",
   "images_deco",
   "imagesDeco",
   "decorative_images",
   "decorativeImages",
-  "decoImages"
+  "decoImages",
+  "deco_images"
 ];
 const USM_MARQUEE_IMAGE_FIELDS = [
   "image_url",
@@ -253,6 +255,7 @@ const USM_MARQUEE_IMAGE_FIELDS = [
   "downloadURL",
   "downloadUrl",
   "photo",
+  "photoUrl",
   "media_url",
   "mediaUrl"
 ];
@@ -275,7 +278,7 @@ function getMarqueeSortValue(item, fallbackIndex) {
 function normalizeMarqueeItem(raw, index) {
   const url = getMarqueeImageUrl(raw);
   if (!url) return null;
-  if (raw.active === false || raw.visible === false || raw.enabled === false || raw.isActive === false || raw.public === false) return null;
+  if (raw.active === false || raw.visible === false || raw.enabled === false || raw.isActive === false || raw.public === false || raw.published === false) return null;
 
   const crop = raw.crop || raw.marqueeCrop || raw.crop_settings || raw.cropSettings || {};
 
@@ -299,9 +302,52 @@ function escapeMarqueeAttr(value) {
     .replace(/>/g, "&gt;");
 }
 
+function ensureMarqueeFixStyles() {
+  if (document.getElementById("usm-marquee-fix-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "usm-marquee-fix-styles";
+  style.textContent = `
+    #marquee-section { overflow: hidden; }
+    #marquee-track[data-marquee-fix="${USM_MARQUEE_FIX_VERSION}"] {
+      display: flex !important;
+      align-items: center;
+      gap: clamp(14px, 2vw, 26px);
+      width: max-content;
+      min-width: 100%;
+      animation: usmMarqueeFullLoop 55s linear infinite;
+      will-change: transform;
+    }
+    #marquee-track[data-marquee-fix="${USM_MARQUEE_FIX_VERSION}"] .usm-marquee-item {
+      flex: 0 0 auto;
+      width: clamp(180px, 22vw, 330px);
+      aspect-ratio: 16 / 10;
+      border-radius: 22px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 18px 42px rgba(0,0,0,0.35);
+    }
+    #marquee-track[data-marquee-fix="${USM_MARQUEE_FIX_VERSION}"] .usm-marquee-item img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      transform-origin: center;
+    }
+    @keyframes usmMarqueeFullLoop {
+      from { transform: translate3d(0, 0, 0); }
+      to { transform: translate3d(-50%, 0, 0); }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 function renderAllPublicMarqueeImages(items) {
   const track = document.getElementById("marquee-track");
   if (!track || !Array.isArray(items) || !items.length) return false;
+
+  ensureMarqueeFixStyles();
 
   const loopItems = items.length > 1 ? [...items, ...items] : items;
   track.dataset.marqueeFix = USM_MARQUEE_FIX_VERSION;
@@ -328,39 +374,107 @@ function renderAllPublicMarqueeImages(items) {
   return true;
 }
 
-async function getExistingFirebaseApp(appModule) {
-  for (let i = 0; i < 40; i += 1) {
-    if (appModule.getApps().length) return appModule.getApp();
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
-  return null;
+function getFirebaseConfigForMarquee() {
+  return {
+    apiKey: "AIzaSyDd7OvBbX35PaQPlm6saccOGTQyvI3UEoU",
+    authDomain: "usm-football-b56ba.firebaseapp.com",
+    projectId: "usm-football-b56ba",
+    storageBucket: "usm-football-b56ba.firebasestorage.app",
+    messagingSenderId: "1004955626049",
+    appId: "1:1004955626049:web:1982ac82e68599946f74c0"
+  };
 }
 
-async function fetchCompletePublicMarquee() {
-  const [appModule, firestoreModule] = await Promise.all([
-    import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"),
-    import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js")
-  ]);
+function isStableFirebaseMarqueeHost() {
+  const host = window.location.hostname;
+  return [
+    "usm-football-b56ba.web.app",
+    "usm-football-b56ba.firebaseapp.com",
+    "usmfootball.com",
+    "www.usmfootball.com",
+    "localhost",
+    "127.0.0.1"
+  ].includes(host);
+}
 
-  const app = await getExistingFirebaseApp(appModule);
-  if (!app) return [];
+async function getOrCreateMarqueeFirebaseApp(appModule, appCheckModule) {
+  let app = appModule.getApps().length ? appModule.getApp() : appModule.initializeApp(getFirebaseConfigForMarquee());
 
-  const db = firestoreModule.getFirestore(app);
-
-  for (const collectionName of USM_MARQUEE_COLLECTIONS) {
+  if (isStableFirebaseMarqueeHost() && appCheckModule) {
     try {
-      const snap = await firestoreModule.getDocs(firestoreModule.collection(db, collectionName));
-      const items = snap.docs
-        .map((docSnap, index) => normalizeMarqueeItem({ id: docSnap.id, ...docSnap.data() }, index))
-        .filter(Boolean)
-        .sort((a, b) => a.order - b.order);
-
-      if (items.length) return items;
+      appCheckModule.initializeAppCheck(app, {
+        provider: new appCheckModule.ReCaptchaV3Provider("6LdF2rUsAAAAAOUCVKJt2DCDKWQIEQXHyBkYETT1"),
+        isTokenAutoRefreshEnabled: true
+      });
     } catch (error) {
-      console.warn(`Banderole décorative indisponible depuis ${collectionName}:`, error);
+      // App Check est probablement déjà initialisé par main.js.
     }
   }
 
+  return app;
+}
+
+function uniqueMarqueeItems(items) {
+  const seen = new Set();
+  const unique = [];
+
+  for (const item of items) {
+    const key = item.id || item.image_url;
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    unique.push(item);
+  }
+
+  return unique;
+}
+
+async function readMarqueeCollection(firestoreModule, db, collectionName) {
+  const col = firestoreModule.collection(db, collectionName);
+  const queryAttempts = [
+    firestoreModule.query(col, firestoreModule.where("active", "==", true)),
+    firestoreModule.query(col, firestoreModule.where("visible", "==", true)),
+    firestoreModule.query(col, firestoreModule.where("enabled", "==", true)),
+    firestoreModule.query(col, firestoreModule.where("published", "==", true)),
+    col
+  ];
+
+  let bestItems = [];
+
+  for (const queryAttempt of queryAttempts) {
+    try {
+      const snap = await firestoreModule.getDocs(queryAttempt);
+      const items = snap.docs
+        .map((docSnap, index) => normalizeMarqueeItem({ id: docSnap.id, ...docSnap.data() }, index))
+        .filter(Boolean);
+
+      if (items.length > bestItems.length) bestItems = items;
+    } catch (error) {
+      // Les règles Firestore peuvent refuser les requêtes non filtrées. On essaye la suivante.
+    }
+  }
+
+  return uniqueMarqueeItems(bestItems).sort((a, b) => a.order - b.order);
+}
+
+async function fetchCompletePublicMarquee() {
+  const [appModule, firestoreModule, appCheckModule] = await Promise.all([
+    import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"),
+    import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"),
+    import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js").catch(() => null)
+  ]);
+
+  const app = await getOrCreateMarqueeFirebaseApp(appModule, appCheckModule);
+  const db = firestoreModule.getFirestore(app);
+
+  for (const collectionName of USM_MARQUEE_COLLECTIONS) {
+    const items = await readMarqueeCollection(firestoreModule, db, collectionName);
+    if (items.length) {
+      console.info(`[USM] Banderole décorative : ${items.length} image(s) chargée(s) depuis ${collectionName}, sans limite.`);
+      return items;
+    }
+  }
+
+  console.warn("[USM] Banderole décorative : aucune image publique trouvée.");
   return [];
 }
 
@@ -375,18 +489,20 @@ async function initFullPublicMarquee() {
     localStorage.setItem("site_marquee_public_full", JSON.stringify({
       timestamp: Date.now(),
       version: USM_MARQUEE_FIX_VERSION,
+      count: items.length,
       data: items
     }));
 
     renderAllPublicMarqueeImages(items);
   } catch (error) {
-    console.warn("Correctif banderole décorative non appliqué:", error);
+    console.warn("[USM] Correctif banderole décorative non appliqué:", error);
   }
 }
 
 function scheduleFullPublicMarquee() {
-  window.setTimeout(initFullPublicMarquee, 700);
-  window.setTimeout(initFullPublicMarquee, 2200);
+  window.setTimeout(initFullPublicMarquee, 900);
+  window.setTimeout(initFullPublicMarquee, 2600);
+  window.setTimeout(initFullPublicMarquee, 5200);
 }
 
 if (document.readyState === "loading") {
@@ -395,3 +511,4 @@ if (document.readyState === "loading") {
   scheduleFullPublicMarquee();
 }
 document.addEventListener("usm:page-ready", scheduleFullPublicMarquee);
+
