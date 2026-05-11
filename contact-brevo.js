@@ -224,3 +224,174 @@ if (document.readyState === "loading") {
   initContactBrevoWorkflow();
 }
 document.addEventListener("usm:page-ready", initContactBrevoWorkflow);
+
+/* ==========================================================================
+   USM FOOTBALL - PUBLIC MARQUEE FULL RENDER FIX
+   --------------------------------------------------------------------------
+   Correctif côté public pour la banderole décorative :
+   - vide l'ancien cache site_marquee ;
+   - relit les images depuis Firestore sans limit(...);
+   - affiche toutes les images valides dans #marquee-track ;
+   - relance le rendu après main.js et après les transitions PJAX.
+   ========================================================================== */
+const USM_MARQUEE_FIX_VERSION = "public-marquee-full-2";
+const USM_MARQUEE_COLLECTIONS = [
+  "marquee",
+  "marquees",
+  "images_deco",
+  "imagesDeco",
+  "decorative_images",
+  "decorativeImages",
+  "decoImages"
+];
+const USM_MARQUEE_IMAGE_FIELDS = [
+  "image_url",
+  "imageUrl",
+  "image",
+  "url",
+  "src",
+  "downloadURL",
+  "downloadUrl",
+  "photo",
+  "media_url",
+  "mediaUrl"
+];
+
+function getMarqueeImageUrl(item) {
+  for (const field of USM_MARQUEE_IMAGE_FIELDS) {
+    if (typeof item[field] === "string" && item[field].trim()) return item[field].trim();
+  }
+  return "";
+}
+
+function getMarqueeSortValue(item, fallbackIndex) {
+  const value = item.order ?? item.position ?? item.rank ?? item.sort ?? item.index ?? item.createdAt ?? item.updatedAt;
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim() !== "" && Number.isFinite(Number(value))) return Number(value);
+  if (value && typeof value.toMillis === "function") return value.toMillis();
+  return fallbackIndex;
+}
+
+function normalizeMarqueeItem(raw, index) {
+  const url = getMarqueeImageUrl(raw);
+  if (!url) return null;
+  if (raw.active === false || raw.visible === false || raw.enabled === false || raw.isActive === false || raw.public === false) return null;
+
+  const crop = raw.crop || raw.marqueeCrop || raw.crop_settings || raw.cropSettings || {};
+
+  return {
+    ...raw,
+    image_url: url,
+    order: getMarqueeSortValue(raw, index),
+    crop: {
+      x: Number.isFinite(Number(crop.x)) ? Number(crop.x) : 0,
+      y: Number.isFinite(Number(crop.y)) ? Number(crop.y) : 0,
+      zoom: Number.isFinite(Number(crop.zoom)) ? Math.max(0.4, Number(crop.zoom)) : 1
+    }
+  };
+}
+
+function escapeMarqueeAttr(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function renderAllPublicMarqueeImages(items) {
+  const track = document.getElementById("marquee-track");
+  if (!track || !Array.isArray(items) || !items.length) return false;
+
+  const loopItems = items.length > 1 ? [...items, ...items] : items;
+  track.dataset.marqueeFix = USM_MARQUEE_FIX_VERSION;
+  track.innerHTML = loopItems.map((item, index) => {
+    const url = escapeMarqueeAttr(item.image_url);
+    const alt = escapeMarqueeAttr(item.alt || item.title || "USM Football");
+    const crop = item.crop || {};
+    const x = Number.isFinite(Number(crop.x)) ? Number(crop.x) : 0;
+    const y = Number.isFinite(Number(crop.y)) ? Number(crop.y) : 0;
+    const zoom = Number.isFinite(Number(crop.zoom)) ? Math.max(0.4, Number(crop.zoom)) : 1;
+
+    return `
+      <div class="marquee-item usm-marquee-item" data-marquee-index="${index}">
+        <img
+          src="${url}"
+          alt="${alt}"
+          loading="lazy"
+          decoding="async"
+          style="object-position:calc(50% + ${x}%) calc(50% + ${y}%); transform:scale(${zoom});"
+        >
+      </div>`;
+  }).join("");
+
+  return true;
+}
+
+async function getExistingFirebaseApp(appModule) {
+  for (let i = 0; i < 40; i += 1) {
+    if (appModule.getApps().length) return appModule.getApp();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  return null;
+}
+
+async function fetchCompletePublicMarquee() {
+  const [appModule, firestoreModule] = await Promise.all([
+    import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"),
+    import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js")
+  ]);
+
+  const app = await getExistingFirebaseApp(appModule);
+  if (!app) return [];
+
+  const db = firestoreModule.getFirestore(app);
+
+  for (const collectionName of USM_MARQUEE_COLLECTIONS) {
+    try {
+      const snap = await firestoreModule.getDocs(firestoreModule.collection(db, collectionName));
+      const items = snap.docs
+        .map((docSnap, index) => normalizeMarqueeItem({ id: docSnap.id, ...docSnap.data() }, index))
+        .filter(Boolean)
+        .sort((a, b) => a.order - b.order);
+
+      if (items.length) return items;
+    } catch (error) {
+      console.warn(`Banderole décorative indisponible depuis ${collectionName}:`, error);
+    }
+  }
+
+  return [];
+}
+
+async function initFullPublicMarquee() {
+  if (!document.getElementById("marquee-track")) return;
+
+  try {
+    localStorage.removeItem("site_marquee");
+    const items = await fetchCompletePublicMarquee();
+    if (!items.length) return;
+
+    localStorage.setItem("site_marquee_public_full", JSON.stringify({
+      timestamp: Date.now(),
+      version: USM_MARQUEE_FIX_VERSION,
+      data: items
+    }));
+
+    renderAllPublicMarqueeImages(items);
+  } catch (error) {
+    console.warn("Correctif banderole décorative non appliqué:", error);
+  }
+}
+
+function scheduleFullPublicMarquee() {
+  window.setTimeout(initFullPublicMarquee, 700);
+  window.setTimeout(initFullPublicMarquee, 2200);
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", scheduleFullPublicMarquee);
+} else {
+  scheduleFullPublicMarquee();
+}
+document.addEventListener("usm:page-ready", scheduleFullPublicMarquee);
