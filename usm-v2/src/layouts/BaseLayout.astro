@@ -1,0 +1,29 @@
+---
+import "@/styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  lang?: string;
+}
+
+const {
+  title = "USM Football",
+  description = "Agence de gestion de carrière sportive des footballeurs professionnels.",
+  lang = "fr",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={lang} class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="canonical" href={Astro.url.href} />
+  </head>
+  <body class="min-h-dvh">
+    <slot />
+  </body>
+</html>

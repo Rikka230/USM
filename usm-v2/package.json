@@ -1,0 +1,34 @@
+{
+  "name": "usm-v2",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "USM Football v2 — Astro + React islands + Three.js (front) & admin shadcn/ui",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/react": "^4.2.0",
+    "@astrojs/sitemap": "^3.2.1",
+    "@tailwindcss/vite": "^4.0.0",
+    "astro": "^5.2.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "firebase": "^11.2.0",
+    "lucide-react": "^0.474.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "firebase-admin": "^13.0.2",
+    "tw-animate-css": "^1.2.0",
+    "typescript": "^5.7.0"
+  }
+}

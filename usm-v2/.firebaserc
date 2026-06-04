@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "usm-football-b56ba"
+  },
+  "targets": {
+    "usm-football-b56ba": {
+      "hosting": {
+        "staging": ["usm-v2-staging"]
+      }
+    }
+  }
+}
