@@ -52,6 +52,9 @@ const agencyData = {
   /* Cartes services — tilt 3D au survol (JS pose le transform inline) */
   .services-grid { perspective: 1200px; }
   .bento-service-card { transform-style: preserve-3d; will-change: transform; }
+  /* Parallaxe du texte/bouton par-dessus l'image (flottent en profondeur) */
+  #services-container .srv-card-content { transition: transform 0.15s ease-out; will-change: transform; }
+  #services-container .srv-card-arrow { transition: transform 0.15s ease-out, color 0.3s ease; will-change: transform; }
 
   /* Marquee — légère perspective (sans scale -> pas de débordement) */
   #marquee-section { perspective: 1400px; overflow: hidden; }
@@ -320,13 +323,22 @@ const agencyData = {
       document.querySelectorAll<HTMLElement>(".bento-service-card").forEach((card) => {
         if (card.dataset.tiltBound) return;
         card.dataset.tiltBound = "1";
+        const content = card.querySelector<HTMLElement>(".srv-card-content");
+        const arrow = card.querySelector<HTMLElement>(".srv-card-arrow");
         card.addEventListener("pointermove", (e) => {
           const r = card.getBoundingClientRect();
           const px = (e.clientX - r.left) / r.width - 0.5;
           const py = (e.clientY - r.top) / r.height - 0.5;
           card.style.transform = `perspective(1200px) rotateY(${px * 9}deg) rotateX(${-py * 9}deg) translateY(-6px)`;
+          // Parallaxe : le texte et le bouton flottent au-dessus de l'image
+          if (content) content.style.transform = `translate3d(${px * 16}px, ${py * 16}px, 28px)`;
+          if (arrow) arrow.style.transform = `translate3d(${px * 24}px, ${py * 24}px, 46px)`;
         });
-        card.addEventListener("pointerleave", () => { card.style.transform = ""; });
+        card.addEventListener("pointerleave", () => {
+          card.style.transform = "";
+          if (content) content.style.transform = "";
+          if (arrow) arrow.style.transform = "";
+        });
       });
     }
 

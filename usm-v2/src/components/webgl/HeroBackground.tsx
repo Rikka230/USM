@@ -6,10 +6,9 @@ const PINK = new THREE.Color("#d80056");
 const LIGHT = new THREE.Color("#ff7ab0");
 const WHITE = new THREE.Color("#ffffff");
 
-function Particles({ count, reduced, pointer }: {
+function Particles({ count, reduced }: {
   count: number;
   reduced: boolean;
-  pointer: React.MutableRefObject<{ x: number; y: number }>;
 }) {
   const ref = useRef<THREE.Points>(null);
 
@@ -39,9 +38,9 @@ function Particles({ count, reduced, pointer }: {
       return;
     }
     const t = state.clock.elapsedTime;
-    // Mouvement lent et discret (direction sobre)
-    g.rotation.y = t * 0.016 + pointer.current.x * 0.12;
-    g.rotation.x = THREE.MathUtils.lerp(g.rotation.x, pointer.current.y * 0.08, 0.04);
+    // Dérive automatique lente et discrète — ne suit PAS la souris.
+    g.rotation.y = t * 0.014;
+    g.rotation.x = Math.sin(t * 0.06) * 0.05;
   });
 
   return (
@@ -67,7 +66,6 @@ export default function HeroBackground() {
   const [reduced, setReduced] = useState(false);
   const [count, setCount] = useState(0);
   const [ok, setOk] = useState(true);
-  const pointer = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     try {
@@ -81,12 +79,6 @@ export default function HeroBackground() {
     } catch {
       setOk(false);
     }
-    const onMove = (e: PointerEvent) => {
-      pointer.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-      pointer.current.y = -((e.clientY / window.innerHeight) * 2 - 1);
-    };
-    window.addEventListener("pointermove", onMove, { passive: true });
-    return () => window.removeEventListener("pointermove", onMove);
   }, []);
 
   if (!ok || count === 0) return null;
@@ -100,7 +92,7 @@ export default function HeroBackground() {
       frameloop={reduced ? "demand" : "always"}
       style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
     >
-      <Particles count={count} reduced={reduced} pointer={pointer} />
+      <Particles count={count} reduced={reduced} />
     </Canvas>
   );
 }
