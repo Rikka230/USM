@@ -8,6 +8,8 @@ export default defineConfig({
   // URL du site de staging (mise à jour après création du site Hosting).
   site: 'https://usm-v2-staging.web.app',
   output: 'static',
+  // format 'file' -> /presse.html (servi proprement à /presse par cleanUrls Firebase)
+  build: { format: 'file' },
   i18n: {
     defaultLocale: 'fr',
     locales: ['fr', 'en', 'es', 'pt'],

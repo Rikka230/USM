@@ -1,0 +1,85 @@
+---
+import { t, localizedField, type Locale } from "@/lib/i18n";
+import { localizedPath } from "@/lib/seo";
+import { serviceSlug } from "@/lib/content";
+import type { SiteContent, Service } from "@/lib/types";
+
+interface Props {
+  locale: Locale;
+  content: SiteContent;
+  service: Service;
+}
+const { locale, content, service } = Astro.props;
+
+const title = localizedField(service, "title", locale);
+const subtitle = localizedField(service, "subtitle", locale);
+const desc = localizedField(service, "desc", locale);
+
+// Description multi-paragraphes : un <p> par bloc séparé par \n (HTML échappé par Astro).
+const paragraphs = desc
+  .split(/\n+/)
+  .map((p) => p.trim())
+  .filter(Boolean);
+
+// Crop hero — mêmes variables CSS que la prod (cf. main.js applyServiceHeroCrop +
+// site.css ligne ~3372 : transform: translate(--srv-hero-img-x, --srv-hero-img-y) scale(--srv-hero-img-zoom)).
+// Posées sur la section .service-hero, normalisées (x:0, y:0, zoom:1).
+const hc = service.hero_crop || { x: 0, y: 0, zoom: 1 };
+const heroStyle = `--srv-hero-img-x:${hc.x ?? 0}%;--srv-hero-img-y:${hc.y ?? 0}%;--srv-hero-img-zoom:${hc.zoom ?? 1};`;
+
+// Autres services pour la sidebar (on exclut le service courant).
+const others = content.services.filter((s) => s.id !== service.id);
+---
+
+<section class="service-hero" style={heroStyle}>
+  {service.image_url && (
+    <img id="srv-hero-img" src={service.image_url} alt={title || "Service USM"} decoding="async" />
+  )}
+  <div class="service-hero-content">
+    <a href={localizedPath(locale, "/")} class="btn-back">{t(locale, "back_services")}</a>
+    <h1 id="srv-page-title">{title}</h1>
+    <p id="srv-page-subtitle" class="pink-accent">{subtitle}</p>
+  </div>
+</section>
+
+<div class="service-page-layout">
+  <main class="service-main-content">
+    <div id="srv-page-desc" class="service-desc">
+      {paragraphs.map((p) => <p>{p}</p>)}
+    </div>
+  </main>
+
+  <aside class="service-sidebar">
+    <h3>{t(locale, "other_services")}</h3>
+    <div id="other-services-container">
+      {others.map((s) => (
+        <a
+          href={localizedPath(locale, `/services/${serviceSlug(s)}`)}
+          class="sidebar-srv-link"
+          data-service-id={s.id}
+          aria-current="false"
+        >
+          <span>{localizedField(s, "title", locale)}</span><span>➔</span>
+        </a>
+      ))}
+    </div>
+  </aside>
+</div>
+
+<script>
+  // La feuille de style cible `body.service-page` (état + animations d'entrée).
+  // On reproduit le comportement prod sans toucher au SiteLayout.
+  function initServicePage() {
+    if (!document.querySelector(".service-hero")) return;
+    document.body.classList.add("service-page");
+    document.body.classList.remove("is-service-loading");
+    requestAnimationFrame(() => document.body.classList.add("is-service-ready"));
+  }
+  function cleanupServicePage() {
+    document.body.classList.remove("service-page", "is-service-loading", "is-service-ready");
+  }
+  initServicePage();
+  document.addEventListener("astro:page-load", initServicePage);
+  // Retire la classe quand on quitte la page (View Transitions).
+  document.addEventListener("astro:before-swap", cleanupServicePage);
+</script>

@@ -1,0 +1,24 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import ContactPage from "@/components/pages/ContactPage.astro";
+import { loadSiteContent } from "@/lib/content";
+import { LOCALES, DEFAULT_LOCALE, t, type Locale } from "@/lib/i18n";
+
+export function getStaticPaths() {
+  return LOCALES.filter((l) => l !== DEFAULT_LOCALE).map((l) => ({ params: { lang: l } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const content = await loadSiteContent();
+const title = `${t(locale, "contact_title")} | USM Football`;
+---
+
+<SiteLayout
+  locale={locale}
+  path="/contact"
+  title={title}
+  general={content.general}
+  social={content.social}
+>
+  <ContactPage locale={locale} content={content} />
+</SiteLayout>

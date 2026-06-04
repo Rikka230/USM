@@ -1,0 +1,22 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import PressePage from "@/components/pages/PressePage.astro";
+import { loadSiteContent } from "@/lib/content";
+
+const locale = "fr" as const;
+const content = await loadSiteContent();
+const title = "Presse & Médias | USM Football";
+const description =
+  "Retrouvez toutes les actualités, passages TV et articles de presse concernant l'agence USM Football, notre fondateur et les joueurs de notre roster.";
+---
+
+<SiteLayout
+  locale={locale}
+  path="/presse"
+  title={title}
+  description={description}
+  general={content.general}
+  social={content.social}
+>
+  <PressePage locale={locale} content={content} />
+</SiteLayout>

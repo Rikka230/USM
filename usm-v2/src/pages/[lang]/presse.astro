@@ -1,0 +1,37 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import PressePage from "@/components/pages/PressePage.astro";
+import { loadSiteContent } from "@/lib/content";
+import type { Locale } from "@/lib/i18n";
+
+export function getStaticPaths() {
+  return ["en", "es", "pt"].map((l) => ({ params: { lang: l } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const content = await loadSiteContent();
+
+const titles: Record<Locale, string> = {
+  fr: "Presse & Médias | USM Football",
+  en: "Press & Media | USM Football",
+  es: "Prensa y Medios | USM Football",
+  pt: "Imprensa e Mídia | USM Football",
+};
+const descriptions: Record<Locale, string> = {
+  fr: "Retrouvez toutes les actualités, passages TV et articles de presse concernant l'agence USM Football.",
+  en: "Discover all the news, TV appearances and press articles about the USM Football agency.",
+  es: "Descubre todas las noticias, apariciones en TV y artículos de prensa sobre la agencia USM Football.",
+  pt: "Descubra todas as notícias, aparições na TV e artigos de imprensa sobre a agência USM Football.",
+};
+---
+
+<SiteLayout
+  locale={locale}
+  path="/presse"
+  title={titles[locale]}
+  description={descriptions[locale]}
+  general={content.general}
+  social={content.social}
+>
+  <PressePage locale={locale} content={content} />
+</SiteLayout>

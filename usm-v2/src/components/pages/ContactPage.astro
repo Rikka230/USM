@@ -1,0 +1,381 @@
+---
+import { t, type Locale } from "@/lib/i18n";
+import type { SiteContent } from "@/lib/types";
+
+interface Props {
+  locale: Locale;
+  content: SiteContent;
+}
+
+const { locale } = Astro.props;
+---
+
+<section class="hero-massive usmx-contact-hero">
+  <h1 class="reveal usmx-contact-h1">{t(locale, "contact_title")}</h1>
+  <p class="reveal pink-accent">{t(locale, "contact_subtitle")}</p>
+</section>
+
+<main class="contact-section">
+  <div class="contact-grid">
+    <div class="bento-card reveal contact-info">
+      <h2 class="usmx-mb-20">{t(locale, "contact_info_title")}</h2>
+
+      <div class="contact-info-item">
+        <h3>{t(locale, "contact_phone")}</h3>
+        <p><a href="tel:+33668603001">+33668603001</a></p>
+      </div>
+
+      <div class="contact-info-item">
+        <h3>{t(locale, "contact_email")}</h3>
+        <p><a href="mailto:contact@usmfootball.com">contact@usmfootball.com</a></p>
+      </div>
+    </div>
+
+    <div class="bento-card reveal contact-form-box">
+      <h2>{t(locale, "contact_form_title")}</h2>
+      <form class="public-form" id="contact-form" data-endpoint="/api/sendContactEmail">
+        <div class="contact-form-row">
+          <input
+            type="text"
+            name="firstName"
+            autocomplete="given-name"
+            placeholder={t(locale, "contact_ph_first_name")}
+            data-i18n-placeholder="contact_ph_first_name"
+            required
+          />
+          <input
+            type="text"
+            name="name"
+            autocomplete="family-name"
+            placeholder={t(locale, "contact_ph_name")}
+            data-i18n-placeholder="contact_ph_name"
+            required
+          />
+        </div>
+        <input
+          type="text"
+          name="profession"
+          autocomplete="organization-title"
+          placeholder={t(locale, "contact_ph_profession")}
+          data-i18n-placeholder="contact_ph_profession"
+          required
+        />
+        <input
+          type="email"
+          name="email"
+          autocomplete="email"
+          placeholder={t(locale, "contact_ph_email")}
+          data-i18n-placeholder="contact_ph_email"
+          required
+        />
+        <input
+          type="tel"
+          name="phone"
+          autocomplete="tel"
+          placeholder={t(locale, "contact_ph_phone")}
+          data-i18n-placeholder="contact_ph_phone"
+          required
+        />
+        <select name="profile" required>
+          <option value="joueur">{t(locale, "contact_opt_player")}</option>
+          <option value="club">{t(locale, "contact_opt_club")}</option>
+          <option value="coach">{t(locale, "contact_opt_coach")}</option>
+          <option value="staff">{t(locale, "contact_opt_staff")}</option>
+          <option value="autre">{t(locale, "contact_opt_other")}</option>
+        </select>
+        <textarea
+          name="message"
+          rows="5"
+          placeholder={t(locale, "contact_ph_msg")}
+          data-i18n-placeholder="contact_ph_msg"
+          required></textarea>
+        <label class="contact-consent">
+          <input type="checkbox" name="privacyConsent" required />
+          <span>{t(locale, "contact_privacy_consent")}</span>
+        </label>
+        <label class="contact-consent contact-consent-secondary">
+          <input type="checkbox" name="smsConsent" />
+          <span>{t(locale, "contact_sms_consent")}</span>
+        </label>
+        <p class="contact-rgpd-note">{t(locale, "contact_rgpd_note")}</p>
+
+        {/* Honeypot anti-spam + horodatage d'ouverture du formulaire */}
+        <input
+          type="text"
+          name="company"
+          autocomplete="off"
+          tabindex="-1"
+          aria-hidden="true"
+          class="usmx-honeypot"
+        />
+        <input type="hidden" name="formStartedAt" />
+
+        <button type="submit" class="btn-premium usmx-form-field-lg">
+          {t(locale, "contact_btn_send")}
+        </button>
+      </form>
+    </div>
+  </div>
+</main>
+
+<style>
+  /* Honeypot : invisible pour les humains, ignoré des lecteurs d'écran. */
+  .usmx-honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  // Logique d'envoi du formulaire de contact (portée de contact-brevo.js).
+  type Messages = {
+    required: string;
+    privacyRequired: string;
+    invalidEmail: string;
+    invalidPhone: string;
+    shortMessage: string;
+    sending: string;
+    submit: string;
+    success: string;
+    error: string;
+  };
+
+  const CONTACT_ENDPOINT = "/api/sendContactEmail";
+
+  const CONTACT_MESSAGES: Record<string, Messages> = {
+    fr: {
+      required: "Merci de remplir tous les champs obligatoires avant l’envoi.",
+      privacyRequired: "Merci de confirmer l’utilisation de vos informations pour traiter votre demande.",
+      invalidEmail: "Merci d’indiquer une adresse email valide.",
+      invalidPhone: "Merci d’indiquer un numéro de téléphone valide.",
+      shortMessage: "Merci d’ajouter un message un peu plus détaillé.",
+      sending: "Envoi en cours...",
+      submit: "Envoyer le message",
+      success: "Votre message a bien été envoyé. L’équipe USM Football vous répondra rapidement.",
+      error: "L’envoi est momentanément indisponible. Merci de réessayer ou d’écrire directement à contact@usmfootball.com.",
+    },
+    en: {
+      required: "Please complete all required fields before sending.",
+      privacyRequired: "Please confirm that your information may be used to process your request.",
+      invalidEmail: "Please enter a valid email address.",
+      invalidPhone: "Please enter a valid phone number.",
+      shortMessage: "Please add a slightly more detailed message.",
+      sending: "Sending...",
+      submit: "Send message",
+      success: "Your message has been sent. The USM Football team will get back to you shortly.",
+      error: "Sending is temporarily unavailable. Please try again or write directly to contact@usmfootball.com.",
+    },
+    es: {
+      required: "Por favor, completa todos los campos obligatorios antes de enviar.",
+      privacyRequired: "Confirma que tu información puede utilizarse para tratar tu solicitud.",
+      invalidEmail: "Por favor, introduce una dirección de email válida.",
+      invalidPhone: "Por favor, introduce un número de teléfono válido.",
+      shortMessage: "Por favor, añade un mensaje un poco más detallado.",
+      sending: "Enviando...",
+      submit: "Enviar mensaje",
+      success: "Tu mensaje se ha enviado correctamente. El equipo de USM Football te responderá pronto.",
+      error: "El envío no está disponible temporalmente. Inténtalo de nuevo o escribe directamente a contact@usmfootball.com.",
+    },
+    pt: {
+      required: "Preencha todos os campos obrigatórios antes de enviar.",
+      privacyRequired: "Confirme que as suas informações podem ser usadas para tratar o seu pedido.",
+      invalidEmail: "Indique um endereço de email válido.",
+      invalidPhone: "Indique um número de telefone válido.",
+      shortMessage: "Adicione uma mensagem um pouco mais detalhada.",
+      sending: "A enviar...",
+      submit: "Enviar mensagem",
+      success: "A sua mensagem foi enviada. A equipa USM Football responderá em breve.",
+      error: "O envio está temporariamente indisponível. Tente novamente ou escreva diretamente para contact@usmfootball.com.",
+    },
+  };
+
+  function getCurrentLang(): string {
+    let storedLang: string | null = null;
+    try {
+      storedLang = localStorage.getItem("usm_lang");
+    } catch {
+      storedLang = null;
+    }
+    const htmlLang = document.documentElement.lang;
+    const lang = storedLang || htmlLang || "fr";
+    return CONTACT_MESSAGES[lang] ? lang : "fr";
+  }
+
+  function getMessages(): Messages {
+    return CONTACT_MESSAGES[getCurrentLang()] || CONTACT_MESSAGES.fr;
+  }
+
+  function getValue(form: HTMLFormElement, selector: string): string {
+    const field = form.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(selector);
+    return field && field.value ? field.value.trim() : "";
+  }
+
+  function getChecked(form: HTMLFormElement, selector: string): boolean {
+    const field = form.querySelector<HTMLInputElement>(selector);
+    return Boolean(field && field.checked);
+  }
+
+  function isValidEmail(email: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+  }
+
+  function isValidPhone(phone: string): boolean {
+    const compact = phone.replace(/[\s().-]/g, "");
+    return /^\+?\d{6,18}$/.test(compact);
+  }
+
+  function createOrUpdateNotice(form: HTMLFormElement, message: string, type: string): void {
+    let notice = form.querySelector<HTMLParagraphElement>(".form-notice");
+    if (!notice) {
+      notice = document.createElement("p");
+      notice.className = "form-notice";
+      notice.setAttribute("role", "status");
+      notice.setAttribute("aria-live", "polite");
+      form.appendChild(notice);
+    }
+    notice.textContent = message;
+    notice.classList.remove("is-error", "is-success", "is-info");
+    notice.classList.add(`is-${type || "info"}`);
+  }
+
+  function stampStartedAt(form: HTMLFormElement): void {
+    const startedAt = form.querySelector<HTMLInputElement>('input[name="formStartedAt"]');
+    if (startedAt) startedAt.value = String(Date.now());
+  }
+
+  function setSubmitState(button: HTMLButtonElement | null, isSending: boolean): void {
+    if (!button) return;
+    const messages = getMessages();
+    button.disabled = isSending;
+    button.style.opacity = isSending ? "0.72" : "";
+    button.style.cursor = isSending ? "wait" : "";
+    button.textContent = isSending ? messages.sending : messages.submit;
+  }
+
+  function getPayload(form: HTMLFormElement) {
+    return {
+      firstName: getValue(form, 'input[name="firstName"]'),
+      name: getValue(form, 'input[name="name"], input[name="lastName"]'),
+      profession: getValue(form, 'input[name="profession"]'),
+      email: getValue(form, 'input[name="email"], input[type="email"]'),
+      phone: getValue(form, 'input[name="phone"], input[type="tel"]'),
+      profile: getValue(form, 'select[name="profile"], select'),
+      message: getValue(form, 'textarea[name="message"], textarea'),
+      privacyConsent: getChecked(form, 'input[name="privacyConsent"]'),
+      smsConsent: getChecked(form, 'input[name="smsConsent"]'),
+      source: window.location.href,
+      pageTitle: document.title,
+      company: getValue(form, 'input[name="company"]'),
+      formStartedAt: Number(getValue(form, 'input[name="formStartedAt"]') || 0),
+    };
+  }
+
+  function validatePayload(payload: ReturnType<typeof getPayload>): string {
+    const messages = getMessages();
+    if (
+      !payload.firstName ||
+      !payload.name ||
+      !payload.profession ||
+      !payload.email ||
+      !payload.phone ||
+      !payload.profile ||
+      !payload.message
+    ) {
+      return messages.required;
+    }
+    if (!payload.privacyConsent) return messages.privacyRequired;
+    if (!isValidEmail(payload.email)) return messages.invalidEmail;
+    if (!isValidPhone(payload.phone)) return messages.invalidPhone;
+    if (payload.message.length < 10) return messages.shortMessage;
+    return "";
+  }
+
+  async function submitContactForm(form: HTMLFormElement, button: HTMLButtonElement | null): Promise<void> {
+    const messages = getMessages();
+    const payload = getPayload(form);
+    const validationError = validatePayload(payload);
+
+    if (validationError) {
+      createOrUpdateNotice(form, validationError, "error");
+      return;
+    }
+
+    setSubmitState(button, true);
+    createOrUpdateNotice(form, messages.sending, "info");
+
+    try {
+      const endpoint = form.dataset.endpoint || CONTACT_ENDPOINT;
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok || result.ok === false) {
+        throw new Error(result.message || messages.error);
+      }
+
+      createOrUpdateNotice(form, result.message || messages.success, "success");
+      form.reset();
+      stampStartedAt(form);
+    } catch {
+      createOrUpdateNotice(form, messages.error, "error");
+    } finally {
+      setSubmitState(button, false);
+    }
+  }
+
+  function initContactForm(): void {
+    const form = document.querySelector<HTMLFormElement>("#contact-form.public-form");
+    if (!form || form.dataset.contactReady === "true") return;
+
+    form.dataset.contactReady = "true";
+    form.setAttribute("method", "post");
+    form.setAttribute("action", form.dataset.endpoint || CONTACT_ENDPOINT);
+    stampStartedAt(form);
+
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (typeof form.reportValidity === "function" && !form.reportValidity()) return;
+      submitContactForm(form, button);
+    });
+
+    window.addEventListener("pageshow", () => stampStartedAt(form));
+  }
+
+  function initReveal(): void {
+    const els = document.querySelectorAll<HTMLElement>(".reveal:not(.visible)");
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            io.unobserve(entry.target);
+          }
+        });
+      });
+      els.forEach((el) => io.observe(el));
+    } else {
+      els.forEach((el) => el.classList.add("visible"));
+    }
+  }
+
+  function initContactPage(): void {
+    initContactForm();
+    initReveal();
+  }
+
+  initContactPage();
+  document.addEventListener("astro:page-load", initContactPage);
+</script>

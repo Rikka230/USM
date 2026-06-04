@@ -1,0 +1,46 @@
+---
+import type { Locale } from "@/lib/i18n";
+import type { SiteContent } from "@/lib/types";
+
+interface Props {
+  locale: Locale;
+  content: SiteContent;
+}
+
+// Contenu légal volontairement conservé en français pour toutes les langues.
+const { locale, content } = Astro.props;
+---
+
+<main class="legal-container reveal">
+  <h1>Mentions Légales</h1>
+
+  <h2>1. Éditeur du site</h2>
+  <p>Le présent site est édité par l'Agence <strong>USM FOOTBALL</strong>.</p>
+  <ul>
+    <li><strong>Téléphone :</strong> +33668603001</li>
+    <li><strong>Email :</strong> contact@usmfootball.com</li>
+    <li><strong>Directeur de la publication :</strong> Christophe Mongai</li>
+  </ul>
+
+  <h2>2. Création et développement</h2>
+  <p>La conception, la direction artistique et le développement de ce site ont été réalisés par :</p>
+  <ul>
+    <li><strong>Agence :</strong> Nocx Web - Antony Viard</li>
+    <li><strong>Contact développeur :</strong> <a href="https://www.nocxweb.fr" target="_blank" rel="noopener noreferrer">https://www.nocxweb.fr</a></li>
+  </ul>
+
+  <h2>3. Hébergement</h2>
+  <p>L'infrastructure technique, l'hébergement applicatif et les bases de données du site sont assurés par :</p>
+  <ul>
+    <li><strong>Google Firebase / Firebase Hosting</strong> (Google Ireland Limited) - Gordon House, Barrow Street, Dublin 4, Irlande.</li>
+  </ul>
+
+  <h2>4. Propriété intellectuelle</h2>
+  <p>L'ensemble de ce site relève des législations française et internationale sur le droit d'auteur et la propriété intellectuelle. Tous les droits de reproduction sont réservés, y compris pour les documents iconographiques et photographiques.</p>
+  <p>Toute reproduction, représentation, modification, publication, adaptation de tout ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est formellement interdite sans l'autorisation écrite préalable de l'éditeur.</p>
+
+  <h2>5. Données personnelles et cookies</h2>
+  <p>Les informations recueillies via les éventuels formulaires de contact ou bulles de discussion sont destinées exclusivement à un usage interne par l'agence USM Football dans le cadre de la gestion des candidatures et demandes. Elles ne sont ni vendues, ni cédées à des tiers.</p>
+  <p>Conformément à la loi « Informatique et Libertés » et au Règlement Général sur la Protection des Données (RGPD), vous disposez d'un droit d'accès, de rectification et de suppression des données vous concernant. Vous pouvez exercer ce droit en nous contactant à l'adresse email mentionnée ci-dessus.</p>
+  <p>Lors de la navigation sur le site, des cookies techniques strictement nécessaires au bon fonctionnement de l'application peuvent être déposés sur votre terminal, notamment pour sauvegarder les préférences de langue, sécuriser l'accès Firebase App Check et améliorer le chargement des contenus.</p>
+</main>

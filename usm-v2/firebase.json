@@ -5,6 +5,11 @@
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "cleanUrls": true,
     "trailingSlash": false,
+    "rewrites": [
+      { "source": "/api/sendContactEmail", "function": { "functionId": "sendContactEmail", "region": "europe-west1" } },
+      { "source": "/api/refreshSocialStatsNow", "function": { "functionId": "refreshSocialStatsNow", "region": "europe-west1" } },
+      { "source": "/favicon.ico", "destination": "/Assets/favicon.png" }
+    ],
     "headers": [
       {
         "source": "**",

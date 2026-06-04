@@ -1,0 +1,51 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import ServicePage from "@/components/pages/ServicePage.astro";
+import { loadSiteContent, serviceSlugMap } from "@/lib/content";
+import { LOCALES, DEFAULT_LOCALE, localizedField, type Locale } from "@/lib/i18n";
+import { localizedPath, abs, serviceJsonLd } from "@/lib/seo";
+import type { Service } from "@/lib/types";
+
+export async function getStaticPaths() {
+  const content = await loadSiteContent();
+  const map = serviceSlugMap(content.services);
+  const langs = LOCALES.filter((l) => l !== DEFAULT_LOCALE);
+  const paths: Array<{ params: { lang: string; slug: string }; props: { service: Service } }> = [];
+  for (const lang of langs) {
+    for (const [slug, service] of map.entries()) {
+      paths.push({ params: { lang, slug }, props: { service } });
+    }
+  }
+  return paths;
+}
+
+const locale = Astro.params.lang as Locale;
+const { slug } = Astro.params;
+const { service } = Astro.props as { service: Service };
+const content = await loadSiteContent();
+
+const title = localizedField(service, "title", locale);
+const desc = localizedField(service, "desc", locale);
+const path = `/services/${slug}`;
+
+const jsonLd = [
+  serviceJsonLd({
+    name: title,
+    description: desc,
+    url: abs(localizedPath(locale, path)),
+    image: service.image_url,
+  }),
+];
+---
+
+<SiteLayout
+  locale={locale}
+  path={path}
+  title={`${title} | USM Football`}
+  general={content.general}
+  social={content.social}
+  jsonLd={jsonLd}
+  ogImage={service.image_url}
+>
+  <ServicePage locale={locale} content={content} service={service} />
+</SiteLayout>

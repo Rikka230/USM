@@ -1,0 +1,20 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import Mentions from "@/components/pages/Mentions.astro";
+import { loadSiteContent } from "@/lib/content";
+
+const locale = "fr" as const;
+const content = await loadSiteContent();
+const title = "Mentions Légales | USM Football";
+---
+
+<SiteLayout
+  locale={locale}
+  path="/mentions"
+  title={title}
+  description="Mentions légales de l'agence USM Football."
+  general={content.general}
+  social={content.social}
+>
+  <Mentions locale={locale} content={content} />
+</SiteLayout>

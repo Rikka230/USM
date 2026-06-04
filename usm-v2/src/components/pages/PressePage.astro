@@ -1,0 +1,468 @@
+---
+import type { Locale } from "@/lib/i18n";
+import type { SiteContent } from "@/lib/types";
+
+interface Props {
+  locale: Locale;
+  content: SiteContent;
+}
+
+const { locale, content } = Astro.props;
+const { presseVideos, presseArticles } = content;
+
+// Extrait l'ID YouTube d'une URL (reprend getYouTubeId de main.js).
+function getYouTubeId(url: string | undefined): string | null {
+  if (!url) return null;
+  const m = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);
+  return m && m[2].length === 11 ? m[2] : null;
+}
+
+// Données passées au client pour les mini-sliders de la lightbox (TV + articles).
+// Le feed YouTube est, lui, rempli côté client puis stocké dans window.__usmPresse.yt.
+const presseData = {
+  videos: presseVideos.map((v) => ({ url: v.url, title: v.title || "", description: v.description || "" })),
+  articles: presseArticles.map((a) => ({
+    image_url: a.image_url || "",
+    title: a.title || "",
+    description: a.description || "",
+    link: a.link || "",
+  })),
+};
+---
+
+<main>
+  <section class="presse-hero">
+    <h1 class="pink-accent">Presse & Médias</h1>
+    <p class="usmx-presse-sub">L'actualité de l'agence USM Football dans les médias.</p>
+  </section>
+
+  {/* ===== Passages TV (statique depuis content.presseVideos) ===== */}
+  <section class="video-slider-wrapper">
+    <div class="usmx-section-head">
+      <h2 class="usmx-section-title-md">Passages TV</h2>
+      <div class="slider-controls">
+        <button class="slider-btn" id="btn-vid-prev">❮</button>
+        <button class="slider-btn" id="btn-vid-next">❯</button>
+      </div>
+    </div>
+
+    <div class="video-slider" id="presse-video-container">
+      {presseVideos.length === 0 ? (
+        <p style="color:#888; margin-left:20px;">Aucune vidéo pour le moment.</p>
+      ) : (
+        presseVideos.map((v, index) => {
+          const ytId = getYouTubeId(v.url);
+          const thumbUrl = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : "";
+          return (
+            <div
+              class="video-card presse-trigger"
+              style="cursor:pointer;"
+              data-type="video"
+              data-url={v.url}
+              data-title={encodeURIComponent(v.title || "")}
+              data-desc={encodeURIComponent(v.description || "")}
+              data-link=""
+              data-source="tv"
+              data-index={index}
+            >
+              <div class="video-container">
+                <img src={thumbUrl} loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;" />
+                <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
+                  <div style="width:50px; height:50px; background:var(--usm-pink); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; padding-left:4px;">▶</div>
+                </div>
+              </div>
+              <div class="video-title">{v.title || ""}</div>
+            </div>
+          );
+        })
+      )}
+    </div>
+  </section>
+
+  {/* ===== Dernières Vidéos YouTube (rempli côté client) ===== */}
+  <section class="video-slider-wrapper">
+    <div class="usmx-section-head">
+      <h2 class="usmx-section-title-md">Dernières Vidéos YouTube</h2>
+      <div class="slider-controls">
+        <button class="slider-btn" id="btn-yt-prev">❮</button>
+        <button class="slider-btn" id="btn-yt-next">❯</button>
+      </div>
+    </div>
+
+    <div class="video-slider" id="youtube-feed-container">
+      <div class="loader-spinner usmx-loader-center"></div>
+    </div>
+  </section>
+
+  {/* ===== Instagram (embed Elfsight) ===== */}
+  <section class="video-slider-wrapper usmx-mb-80">
+    <div class="usmx-section-head">
+      <h2 class="usmx-section-title-md">Instagram <span class="usmx-pink">@usmgroup</span></h2>
+    </div>
+
+    <div id="instagram-feed" class="usmx-ig-placeholder">
+      <script async src="https://elfsightcdn.com/platform.js"></script>
+      <div class="elfsight-app-6e984936-c485-48bb-ba82-37750d9553f4" data-elfsight-app-lazy></div>
+    </div>
+  </section>
+
+  {/* ===== Articles & Parutions (statique + pagination client) ===== */}
+  <section class="mosaic-wrapper">
+    <div class="usmx-section-head">
+      <h2 class="usmx-section-title-md">Articles & Parutions</h2>
+      <div class="slider-controls usmx-flex-gap15">
+        <button class="slider-btn" id="btn-art-prev">❮</button>
+        <span id="art-page-info" class="usmx-slider-count"></span>
+        <button class="slider-btn" id="btn-art-next">❯</button>
+      </div>
+    </div>
+    <div class="mosaic-grid" id="presse-mosaic-container">
+      {presseArticles.length === 0 && (
+        <p style="color:#888; grid-column: 1/-1;">Aucun article pour le moment.</p>
+      )}
+    </div>
+  </section>
+</main>
+
+{/* ===== Lightbox (reprise de presse.html) ===== */}
+<div id="presse-lightbox" class="lightbox">
+  <button class="lightbox-close" id="lightbox-close-btn" type="button" aria-label="Fermer">×</button>
+  <div class="lightbox-container">
+    <div class="lightbox-left-col">
+      <div id="lightbox-media" class="lightbox-media"></div>
+
+      <div class="lightbox-slider-wrapper">
+        <button class="lightbox-slider-btn" id="lightbox-slider-prev" type="button" aria-label="Précédent">❮</button>
+        <div id="lightbox-mini-slider" class="lightbox-mini-slider"></div>
+        <button class="lightbox-slider-btn" id="lightbox-slider-next" type="button" aria-label="Suivant">❯</button>
+      </div>
+    </div>
+
+    <div class="lightbox-sidebar">
+      <h3 id="lightbox-title" class="usmx-lightbox-title"></h3>
+      <p id="lightbox-desc" class="usmx-lightbox-desc"></p>
+      <div id="lightbox-link-container"></div>
+    </div>
+  </div>
+</div>
+
+{/* Données pour les mini-sliders de la lightbox (TV + articles) */}
+<script id="presse-data" type="application/json" set:html={JSON.stringify(presseData)}></script>
+
+<script>
+  // ===== Page Presse : feed YouTube, lightbox, mini-sliders, pagination articles =====
+  // Repris de la section 9 de main.js, adapté au rendu statique Astro
+  // (TV + articles déjà dans le DOM ; YouTube fetché côté client).
+  // Idempotent via dataset + délégation de clics CSP-safe sur document.
+
+  interface PresseVideo { url: string; title: string; description: string; }
+  interface PresseArticle { image_url: string; title: string; description: string; link: string; }
+  interface YtItem { link: string; title: string; thumbnail?: string; }
+
+  // État partagé (sur window) pour la lightbox et la pagination.
+  declare global {
+    interface Window {
+      __usmPresse?: { videos: PresseVideo[]; articles: PresseArticle[]; yt: YtItem[] };
+      __usmPresseArtPage?: number;
+    }
+  }
+
+  function getYouTubeId(url: string | undefined | null): string | null {
+    if (!url) return null;
+    const m = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);
+    return m && m[2].length === 11 ? m[2] : null;
+  }
+
+  const ART_PER_PAGE = 16;
+
+  function readPresseData(): { videos: PresseVideo[]; articles: PresseArticle[] } {
+    const el = document.getElementById("presse-data");
+    if (!el || !el.textContent) return { videos: [], articles: [] };
+    try { return JSON.parse(el.textContent); } catch { return { videos: [], articles: [] }; }
+  }
+
+  // ---- Lightbox ----
+  function openPresseLightbox(
+    type: string, mediaUrl: string, title: string, desc: string,
+    linkUrl: string, source: string, currentIndex: number,
+  ) {
+    const lb = document.getElementById("presse-lightbox");
+    const mediaContainer = document.getElementById("lightbox-media");
+    const titleEl = document.getElementById("lightbox-title");
+    const descEl = document.getElementById("lightbox-desc");
+    const linkContainer = document.getElementById("lightbox-link-container");
+    const miniSlider = document.getElementById("lightbox-mini-slider");
+    if (!lb || !mediaContainer) return;
+
+    if (type === "video") {
+      let embedUrl = mediaUrl;
+      if (embedUrl.includes("watch?v=")) {
+        embedUrl = embedUrl.replace("watch?v=", "embed/");
+        const amp = embedUrl.indexOf("&");
+        if (amp !== -1) embedUrl = embedUrl.substring(0, amp);
+      }
+      mediaContainer.innerHTML = `<iframe src="${embedUrl}?autoplay=1" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+    } else {
+      mediaContainer.innerHTML = `<img src="${mediaUrl}" alt="Presse">`;
+    }
+
+    if (titleEl) titleEl.textContent = title;
+    if (descEl) descEl.textContent = desc || "";
+    if (linkContainer) {
+      if (linkUrl && linkUrl.length > 5) {
+        linkContainer.innerHTML = `<a href="${linkUrl}" target="_blank" rel="noopener" class="btn-premium" style="display:inline-block; margin-top:20px; text-decoration:none; text-align:center; width:100%;">Lire l'article complet ➔</a>`;
+      } else {
+        linkContainer.innerHTML = "";
+      }
+    }
+
+    const store = window.__usmPresse || { videos: [], articles: [], yt: [] };
+    if (miniSlider && source && source !== "null") {
+      if (miniSlider.getAttribute("data-current-source") !== source) {
+        let items: any[] = [];
+        if (source === "tv") items = store.videos;
+        if (source === "yt") items = store.yt;
+        if (source === "articles") items = store.articles;
+
+        miniSlider.innerHTML = items
+          .map((item: any, i: number) => {
+            let thumb = "", itemType = "video", itemUrl = "", itemTitle = "", itemDesc = "", itemLink = "", extraClass = "";
+            if (source === "tv") {
+              const ytId = getYouTubeId(item.url);
+              thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : "";
+              itemUrl = item.url; itemTitle = item.title; itemDesc = item.description;
+            } else if (source === "yt") {
+              const ytId = getYouTubeId(item.link);
+              thumb = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : item.thumbnail;
+              itemUrl = item.link; itemTitle = item.title;
+            } else if (source === "articles") {
+              itemType = "image"; thumb = item.image_url; itemUrl = item.image_url;
+              itemTitle = item.title; itemDesc = item.description; itemLink = item.link; extraClass = "is-article";
+            }
+            return `
+            <div class="mini-slider-item ${extraClass} presse-trigger"
+                 id="mini-item-${i}"
+                 data-type="${itemType}" data-url="${itemUrl}"
+                 data-title="${encodeURIComponent(itemTitle || "")}"
+                 data-desc="${encodeURIComponent(itemDesc || "")}"
+                 data-link="${encodeURIComponent(itemLink || "")}"
+                 data-source="${source}" data-index="${i}">
+                <img src="${thumb}">
+            </div>`;
+          })
+          .join("");
+        miniSlider.setAttribute("data-current-source", source);
+      }
+
+      document.querySelectorAll(".mini-slider-item").forEach((el) => el.classList.remove("active"));
+      const activeItem = document.getElementById(`mini-item-${currentIndex}`);
+      if (activeItem) {
+        activeItem.classList.add("active");
+        setTimeout(() => {
+          const scrollPos = activeItem.offsetLeft - miniSlider.clientWidth / 2 + activeItem.clientWidth / 2;
+          miniSlider.scrollTo({ left: scrollPos, behavior: "smooth" });
+        }, 50);
+      }
+    } else if (miniSlider) {
+      miniSlider.innerHTML = "";
+      miniSlider.removeAttribute("data-current-source");
+    }
+
+    lb.classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeLightbox() {
+    const lb = document.getElementById("presse-lightbox");
+    if (!lb) return;
+    lb.classList.remove("active");
+    document.body.style.overflow = "";
+    const media = document.getElementById("lightbox-media");
+    if (media) media.innerHTML = "";
+  }
+
+  // ---- Délégation de clics (CSP-safe), liée une seule fois au document ----
+  function bindPresseDelegation() {
+    if (document.body.dataset.presseBound) return;
+    document.body.dataset.presseBound = "1";
+
+    document.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+
+      if (target.id === "presse-lightbox") { closeLightbox(); return; }
+      if (target.closest("#lightbox-close-btn")) { closeLightbox(); return; }
+
+      const sliderBtn = target.closest("#lightbox-slider-prev, #lightbox-slider-next") as HTMLElement | null;
+      if (sliderBtn) {
+        const slider = document.getElementById("lightbox-mini-slider");
+        if (slider) {
+          const dir = sliderBtn.id === "lightbox-slider-prev" ? -150 : 150;
+          slider.scrollBy({ left: dir, behavior: "smooth" });
+        }
+        return;
+      }
+
+      const trigger = target.closest(".presse-trigger") as HTMLElement | null;
+      if (trigger) {
+        const safeDecode = (s: string | null) => { try { return decodeURIComponent(s || ""); } catch { return s || ""; } };
+        const decodeHTML = (html: string) => { const txt = document.createElement("textarea"); txt.innerHTML = html; return txt.value; };
+        const type = trigger.getAttribute("data-type") || "";
+        const url = trigger.getAttribute("data-url") || "";
+        const title = decodeHTML(safeDecode(trigger.getAttribute("data-title")));
+        const desc = decodeHTML(safeDecode(trigger.getAttribute("data-desc")));
+        const link = safeDecode(trigger.getAttribute("data-link"));
+        const source = trigger.getAttribute("data-source") || "";
+        const index = parseInt(trigger.getAttribute("data-index") || "0", 10);
+        openPresseLightbox(type, url, title, desc, link, source, index);
+      }
+    });
+
+    // Fermeture clavier (Echap)
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeLightbox();
+    });
+  }
+
+  // ---- Pagination articles ----
+  function renderArticlesPage() {
+    const mosContainer = document.getElementById("presse-mosaic-container");
+    if (!mosContainer) return;
+    const articles = window.__usmPresse?.articles || [];
+    const pageInfo = document.getElementById("art-page-info");
+
+    if (articles.length === 0) {
+      mosContainer.innerHTML = '<p style="color:#888; grid-column: 1/-1;">Aucun article pour le moment.</p>';
+      if (pageInfo) pageInfo.textContent = "0 / 0";
+      return;
+    }
+
+    const totalPages = Math.ceil(articles.length / ART_PER_PAGE);
+    let page = window.__usmPresseArtPage || 1;
+    if (page > totalPages) page = totalPages;
+    if (page < 1) page = 1;
+    window.__usmPresseArtPage = page;
+
+    const start = (page - 1) * ART_PER_PAGE;
+    const pageItems = articles.slice(start, start + ART_PER_PAGE);
+
+    mosContainer.innerHTML = pageItems
+      .map((a, i) => {
+        const globalIndex = start + i;
+        return `
+        <div class="mosaic-item presse-trigger" data-type="image" data-url="${a.image_url}" data-title="${encodeURIComponent(a.title || "")}" data-desc="${encodeURIComponent(a.description || "")}" data-link="${encodeURIComponent(a.link || "")}" data-source="articles" data-index="${globalIndex}">
+            <img src="${a.image_url}" loading="lazy" decoding="async" alt="Presse">
+        </div>`;
+      })
+      .join("");
+
+    if (pageInfo) pageInfo.textContent = `${page} / ${totalPages}`;
+  }
+
+  // ---- Feed YouTube (rss2json, timeout 6 s) ----
+  async function loadYouTubeFeed() {
+    const ytContainer = document.getElementById("youtube-feed-container");
+    if (!ytContainer || ytContainer.dataset.loaded) return;
+    ytContainer.dataset.loaded = "1";
+
+    const CHANNEL_ID = "UCuaiYfKTeTWvQyz4tJXMlug";
+    const rssUrl = encodeURIComponent(`https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`);
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
+
+    let ytItems: YtItem[] = [];
+    try {
+      const ctrl = new AbortController();
+      const timeoutId = setTimeout(() => ctrl.abort(), 6000);
+      let data: any;
+      try {
+        const response = await fetch(apiUrl, { signal: ctrl.signal });
+        data = await response.json();
+      } finally {
+        clearTimeout(timeoutId);
+      }
+      if (data && data.status === "ok" && data.items && data.items.length > 0) {
+        ytItems = data.items;
+      }
+    } catch (e) {
+      console.error("Erreur YouTube:", e);
+    }
+
+    if (window.__usmPresse) window.__usmPresse.yt = ytItems;
+
+    if (ytItems.length > 0) {
+      ytContainer.innerHTML = ytItems
+        .map((item, index) => {
+          const ytId = getYouTubeId(item.link);
+          const thumbUrl = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : item.thumbnail || "";
+          const safeTitle = encodeURIComponent(item.title);
+          return `
+          <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${item.link}" data-title="${safeTitle}" data-desc="" data-link="" data-source="yt" data-index="${index}">
+              <div class="video-container">
+                  <img src="${thumbUrl}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
+                  <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
+                      <div style="width:50px; height:50px; background:#ff0000; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; padding-left:4px; box-shadow: 0 4px 15px rgba(255,0,0,0.4);">▶</div>
+                  </div>
+              </div>
+              <div class="video-title">${item.title}</div>
+          </div>`;
+        })
+        .join("");
+    } else {
+      ytContainer.innerHTML = '<p style="color:#888; margin-left:20px;">Aucune vidéo récente (ou limite de connexion API atteinte).</p>';
+    }
+  }
+
+  // ---- Boutons de slider (scrollBy) ----
+  function bindSlider(prevId: string, nextId: string, containerId: string, amount: number) {
+    const prev = document.getElementById(prevId);
+    const next = document.getElementById(nextId);
+    const container = document.getElementById(containerId);
+    if (prev && next && container && !prev.dataset.bound) {
+      prev.dataset.bound = "1";
+      prev.addEventListener("click", () => container.scrollBy({ left: -amount, behavior: "smooth" }));
+      next.addEventListener("click", () => container.scrollBy({ left: amount, behavior: "smooth" }));
+    }
+  }
+
+  function initPresse() {
+    if (!document.getElementById("presse-video-container")) return;
+
+    const data = readPresseData();
+    window.__usmPresse = { videos: data.videos, articles: data.articles, yt: window.__usmPresse?.yt || [] };
+    window.__usmPresseArtPage = 1;
+
+    bindPresseDelegation();
+    renderArticlesPage();
+    loadYouTubeFeed();
+
+    // Sliders vidéos / YouTube : scrollBy 400 ; articles : pagination (pas de scroll)
+    bindSlider("btn-vid-prev", "btn-vid-next", "presse-video-container", 400);
+    bindSlider("btn-yt-prev", "btn-yt-next", "youtube-feed-container", 400);
+
+    // Pagination articles
+    const btnArtPrev = document.getElementById("btn-art-prev");
+    const btnArtNext = document.getElementById("btn-art-next");
+    if (btnArtPrev && !btnArtPrev.dataset.bound) {
+      btnArtPrev.dataset.bound = "1";
+      btnArtPrev.addEventListener("click", () => {
+        if ((window.__usmPresseArtPage || 1) > 1) {
+          window.__usmPresseArtPage = (window.__usmPresseArtPage || 1) - 1;
+          renderArticlesPage();
+        }
+      });
+    }
+    if (btnArtNext && !btnArtNext.dataset.bound) {
+      btnArtNext.dataset.bound = "1";
+      btnArtNext.addEventListener("click", () => {
+        const articles = window.__usmPresse?.articles || [];
+        const maxP = Math.ceil(articles.length / ART_PER_PAGE);
+        if ((window.__usmPresseArtPage || 1) < maxP) {
+          window.__usmPresseArtPage = (window.__usmPresseArtPage || 1) + 1;
+          renderArticlesPage();
+        }
+      });
+    }
+  }
+
+  initPresse();
+  document.addEventListener("astro:page-load", initPresse);
+</script>
