@@ -1,0 +1,13 @@
+{
+  "name": "usm-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Site vitrine USM Football — build de minification (esbuild)",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}

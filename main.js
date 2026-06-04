@@ -2058,6 +2058,13 @@ function renderCategorySlider() {
         requestAnimationFrame(updateState);
         setTimeout(updateState, 360);
         scroller.addEventListener('scroll', updateState, { passive: true });
+        // Anti-fuite : le scroller est recréé à chaque rendu/navigation PJAX, mais
+        // le listener resize sur window persisterait. On retire le précédent avant
+        // d'ajouter le nouveau pour n'en garder qu'un seul à la fois.
+        if (window.__usmRosterResizeHandler) {
+            window.removeEventListener('resize', window.__usmRosterResizeHandler);
+        }
+        window.__usmRosterResizeHandler = updateState;
         window.addEventListener('resize', updateState, { passive: true });
     }
 }
@@ -2294,7 +2301,7 @@ async function loadPresseData() {
             return `
             <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${v.url}" data-title="${encodeURIComponent(v.title || '')}" data-desc="${encodeURIComponent(v.description || '')}" data-link="" data-source="tv" data-index="${index}">
                 <div class="video-container">
-                    <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
+                    <img src="${thumbUrl}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
                     <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
                         <div style="width:50px; height:50px; background:var(--usm-pink); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; padding-left:4px;">▶</div>
                     </div>
@@ -2315,12 +2322,20 @@ async function loadPresseData() {
             const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
 
             try {
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-                
-                if(data.status === 'ok' && data.items && data.items.length > 0) {
+                // Timeout 6 s : l'API tierce rss2json peut pendre indéfiniment sinon.
+                const ctrl = new AbortController();
+                const timeoutId = setTimeout(() => ctrl.abort(), 6000);
+                let data;
+                try {
+                    const response = await fetch(apiUrl, { signal: ctrl.signal });
+                    data = await response.json();
+                } finally {
+                    clearTimeout(timeoutId);
+                }
+
+                if(data && data.status === 'ok' && data.items && data.items.length > 0) {
                     ytItems = data.items;
-                    Cache.set('usm_yt_feed', ytItems); 
+                    Cache.set('usm_yt_feed', ytItems);
                 }
             } catch(e) { console.error("Erreur YouTube:", e); }
         }
@@ -2336,7 +2351,7 @@ async function loadPresseData() {
                 return `
                 <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${item.link}" data-title="${safeTitle}" data-desc="" data-link="" data-source="yt" data-index="${index}">
                     <div class="video-container">
-                        <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
+                        <img src="${thumbUrl}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
                         <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
                             <div style="width:50px; height:50px; background:#ff0000; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; padding-left:4px; box-shadow: 0 4px 15px rgba(255,0,0,0.4);">▶</div>
                         </div>

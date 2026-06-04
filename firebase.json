@@ -111,15 +111,6 @@
           },
           {
             "key": "Content-Security-Policy",
-            "value": "default-src 'self'; script-src 'self' https://www.gstatic.com https://www.google.com https://www.recaptcha.net https://www.googletagmanager.com https://www.google-analytics.com https://elfsightcdn.com https://*.elfsight.com https://vercel.live https://*.vercel.live https://www.youtube.com https://www.youtube-nocookie.com; style-src 'self' https://www.gstatic.com https://www.google.com https://www.recaptcha.net https://elfsightcdn.com https://*.elfsight.com https://vercel.live https://*.vercel.live; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: https://www.google.com https://www.recaptcha.net https://www.gstatic.com https://api.rss2json.com https://*.googleapis.com https://*.firebaseio.com https://*.firebaseapp.com https://*.firebasestorage.app https://*.google-analytics.com https://www.google-analytics.com https://*.elfsight.com https://vercel.live https://*.vercel.live; frame-src 'self' https://www.google.com https://www.recaptcha.net https://www.youtube.com https://www.youtube-nocookie.com https://*.elfsight.com https://vercel.live https://*.vercel.live; media-src 'self' https: blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
-          }
-        ]
-      },
-      {
-        "source": "/presse.html",
-        "headers": [
-          {
-            "key": "Content-Security-Policy",
             "value": "default-src 'self'; script-src 'self' https://www.gstatic.com https://www.google.com https://www.recaptcha.net https://www.googletagmanager.com https://www.google-analytics.com https://elfsightcdn.com https://*.elfsight.com https://vercel.live https://*.vercel.live https://www.youtube.com https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.google.com https://www.recaptcha.net https://elfsightcdn.com https://*.elfsight.com https://vercel.live https://*.vercel.live; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' data: https://www.google.com https://www.recaptcha.net https://www.gstatic.com https://api.rss2json.com https://*.googleapis.com https://*.firebaseio.com https://*.firebaseapp.com https://*.firebasestorage.app https://*.google-analytics.com https://www.google-analytics.com https://*.elfsight.com https://vercel.live https://*.vercel.live; frame-src 'self' https://www.google.com https://www.recaptcha.net https://www.youtube.com https://www.youtube-nocookie.com https://*.elfsight.com https://vercel.live https://*.vercel.live; media-src 'self' https: blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
           }
         ]
@@ -147,7 +138,7 @@
         "headers": [
           {
             "key": "Link",
-            "value": "<https://www.usmfootball.com/>; rel=canonical, </style.css?v=main-post-audit-10>; rel=preload; as=style, </main.js?v=main-post-audit-9>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin, <https://www.google.com>; rel=preconnect; crossorigin"
+            "value": "<https://www.usmfootball.com/>; rel=canonical, </style.min.css?v=min-1>; rel=preload; as=style, </main.min.js?v=min-1>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin, <https://www.google.com>; rel=preconnect; crossorigin"
           }
         ]
       },
@@ -156,7 +147,7 @@
         "headers": [
           {
             "key": "Link",
-            "value": "<https://www.usmfootball.com/>; rel=canonical, </style.css?v=main-post-audit-10>; rel=preload; as=style, </main.js?v=main-post-audit-9>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin, <https://www.google.com>; rel=preconnect; crossorigin"
+            "value": "<https://www.usmfootball.com/>; rel=canonical, </style.min.css?v=min-1>; rel=preload; as=style, </main.min.js?v=min-1>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin, <https://www.google.com>; rel=preconnect; crossorigin"
           }
         ]
       },
@@ -165,7 +156,7 @@
         "headers": [
           {
             "key": "Link",
-            "value": "<https://www.usmfootball.com/contact.html>; rel=canonical, </style.css?v=main-post-audit-10>; rel=preload; as=style, </main.js?v=main-post-audit-9>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin, <https://www.google.com>; rel=preconnect; crossorigin"
+            "value": "<https://www.usmfootball.com/contact.html>; rel=canonical, </style.min.css?v=min-1>; rel=preload; as=style, </main.min.js?v=min-1>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin, <https://www.google.com>; rel=preconnect; crossorigin"
           }
         ]
       },
@@ -174,7 +165,7 @@
         "headers": [
           {
             "key": "Link",
-            "value": "<https://www.usmfootball.com/presse.html>; rel=canonical, </style.css?v=main-post-audit-10>; rel=preload; as=style, </main.js?v=main-post-audit-9>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin, <https://www.google.com>; rel=preconnect; crossorigin"
+            "value": "<https://www.usmfootball.com/presse.html>; rel=canonical, </style.min.css?v=min-1>; rel=preload; as=style, </main.min.js?v=min-1>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin, <https://www.google.com>; rel=preconnect; crossorigin"
           }
         ]
       },
@@ -183,7 +174,7 @@
         "headers": [
           {
             "key": "Link",
-            "value": "<https://www.usmfootball.com/mentions.html>; rel=canonical, </style.css?v=main-post-audit-10>; rel=preload; as=style, </main.js?v=main-post-audit-9>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin, <https://www.google.com>; rel=preconnect; crossorigin"
+            "value": "<https://www.usmfootball.com/mentions.html>; rel=canonical, </style.min.css?v=min-1>; rel=preload; as=style, </main.min.js?v=min-1>; rel=modulepreload, <https://www.gstatic.com>; rel=preconnect; crossorigin, <https://firestore.googleapis.com>; rel=preconnect; crossorigin, <https://firebasestorage.googleapis.com>; rel=preconnect; crossorigin, <https://www.google.com>; rel=preconnect; crossorigin"
           }
         ]
       },
