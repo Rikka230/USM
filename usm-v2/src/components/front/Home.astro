@@ -70,7 +70,8 @@ const agencyData = {
     data-founder-quote={founder.quote} data-agency-quote={agencyData.quote}
     data-founder-desc={founder.desc} data-agency-desc={agencyData.desc}>
     <div class="vip-photo-wrapper">
-      <img src={founder.img} alt="Christophe Mongai" id="vip-img-display" class="lazy-load" decoding="async" />
+      <img src={founder.img} alt="Christophe Mongai" id="vip-img-display" class="vip-layer-founder" decoding="async" />
+      <img src={agencyData.img} alt="L'Agence USM Football" id="vip-agency-img-display" decoding="async" aria-hidden="true" />
     </div>
     <div class="vip-content">
       <div class="vip-tabs">
@@ -171,24 +172,62 @@ const agencyData = {
     const tabA = document.getElementById("tab-agency");
     if (section && tabF && tabA && !section.dataset.bound) {
       section.dataset.bound = "1";
-      const img = document.getElementById("vip-img-display") as HTMLImageElement | null;
+      const agencyImg = document.getElementById("vip-agency-img-display");
       const title = document.getElementById("vip-title-display");
       const quote = document.getElementById("vip-quote-display");
       const desc = document.getElementById("vip-desc-display");
       const d = section.dataset;
-      const show = (who: "founder" | "agency") => {
-        if (img) img.src = (who === "founder" ? d.founderImg : d.agencyImg) || "";
-        if (title) title.innerHTML = who === "founder"
-          ? "Christophe<br><span>Mongai</span>"
-          : "L'Agence<br><span>USM Football</span>";
-        if (quote) quote.textContent = (who === "founder" ? d.founderQuote : d.agencyQuote) || "";
-        if (desc) desc.textContent = (who === "founder" ? d.founderDesc : d.agencyDesc) || "";
-        tabF.classList.toggle("active", who === "founder");
-        tabA.classList.toggle("active", who === "agency");
+      const panels = [title, quote, desc];
+      let current = "founder";
+
+      // État des boutons via styles inline (comme la prod : pas de règle .active dédiée)
+      const setTabs = (isFounder: boolean) => {
+        tabF.classList.toggle("active", isFounder);
+        tabA.classList.toggle("active", !isFounder);
+        tabF.style.background = isFounder ? "var(--usm-pink)" : "rgba(255,255,255,0.1)";
+        tabF.style.color = isFounder ? "#fff" : "#aaa";
+        tabA.style.background = !isFounder ? "var(--usm-pink)" : "rgba(255,255,255,0.1)";
+        tabA.style.color = !isFounder ? "#fff" : "#aaa";
       };
-      tabF.addEventListener("click", () => show("founder"));
-      tabA.addEventListener("click", () => show("agency"));
+
+      const switchTo = (who: "founder" | "agency") => {
+        if (who === current) return;
+        current = who;
+        const isFounder = who === "founder";
+        setTabs(isFounder);
+        agencyImg?.classList.toggle("is-active", !isFounder); // crossfade des calques
+        panels.forEach((el) => el?.classList.add("vip-panel-switching"));
+        setTimeout(() => {
+          if (title) title.innerHTML = isFounder
+            ? "Christophe<br><span>Mongai</span>"
+            : "L'Agence<br><span>USM Football</span>";
+          if (quote) quote.textContent = (isFounder ? d.founderQuote : d.agencyQuote) || "";
+          if (desc) desc.textContent = (isFounder ? d.founderDesc : d.agencyDesc) || "";
+          panels.forEach((el) => el?.classList.remove("vip-panel-switching"));
+        }, 280);
+      };
+
+      setTabs(true);
+      tabF.addEventListener("click", () => switchTo("founder"));
+      tabA.addEventListener("click", () => switchTo("agency"));
     }
+
+    // Roster : révèle les images au chargement (stoppe le shimmer infini ::before)
+    document.querySelectorAll<HTMLElement>(".player-img-container").forEach((holder) => {
+      if (holder.dataset.rosterReady) return;
+      holder.dataset.rosterReady = "1";
+      const img = holder.querySelector("img");
+      const done = () => {
+        img?.classList.add("roster-img-ready");
+        holder.classList.add("roster-holder-ready");
+      };
+      if (!img) { holder.classList.add("roster-holder-ready"); return; }
+      if (img.complete && img.naturalWidth > 0) done();
+      else {
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", () => holder.classList.add("roster-holder-ready"), { once: true });
+      }
+    });
 
     // Onglets roster (catégories)
     const tabs = document.getElementById("roster-tabs");
