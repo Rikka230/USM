@@ -39,8 +39,9 @@ function Particles({ count, reduced, pointer }: {
       return;
     }
     const t = state.clock.elapsedTime;
-    g.rotation.y = t * 0.035 + pointer.current.x * 0.3;
-    g.rotation.x = THREE.MathUtils.lerp(g.rotation.x, pointer.current.y * 0.18, 0.05);
+    // Mouvement lent et discret (direction sobre)
+    g.rotation.y = t * 0.016 + pointer.current.x * 0.12;
+    g.rotation.x = THREE.MathUtils.lerp(g.rotation.x, pointer.current.y * 0.08, 0.04);
   });
 
   return (
@@ -50,11 +51,11 @@ function Particles({ count, reduced, pointer }: {
         <bufferAttribute attach="attributes-color" args={[colors, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        size={0.035}
+        size={0.028}
         sizeAttenuation
         vertexColors
         transparent
-        opacity={0.9}
+        opacity={0.55}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
       />
@@ -73,7 +74,7 @@ export default function HeroBackground() {
       const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
       setReduced(mq.matches);
       const mobile = window.innerWidth < 768;
-      setCount(mobile ? 1400 : 3800);
+      setCount(mobile ? 700 : 1800);
       // Détection WebGL minimale
       const c = document.createElement("canvas");
       if (!c.getContext("webgl") && !c.getContext("experimental-webgl")) setOk(false);

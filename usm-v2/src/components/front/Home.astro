@@ -46,6 +46,21 @@ const agencyData = {
   .hero-massive .massive-eagle-wrapper,
   .hero-massive .usmx-hero-since,
   .hero-massive > h1 { position: relative; z-index: 1; }
+
+  /* Cartes services — tilt 3D au survol (JS pose le transform inline) */
+  .services-grid { perspective: 1200px; }
+  .bento-service-card { transform-style: preserve-3d; will-change: transform; }
+
+  /* Marquee — ruban en perspective (discret) */
+  #marquee-section { perspective: 1400px; }
+  #marquee-section .marquee-track { transform: rotateX(11deg) scale(1.04); transform-origin: center; }
+
+  @media (prefers-reduced-motion: reduce) {
+    #marquee-section .marquee-track { transform: none; }
+  }
+  @media (max-width: 768px) {
+    #marquee-section .marquee-track { transform: rotateX(6deg); }
+  }
 </style>
 
 <div class="giant-bg-text text-1">PERFORMANCE</div>
@@ -296,6 +311,23 @@ const agencyData = {
       }
     };
     bindSlider("btn-srv-prev", "btn-srv-next", "#services-container");
+
+    // Tilt 3D des cartes services (desktop pointeur fin, hors reduced-motion)
+    const canHover = window.matchMedia("(hover: hover)").matches;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (canHover && !reduceMotion) {
+      document.querySelectorAll<HTMLElement>(".bento-service-card").forEach((card) => {
+        if (card.dataset.tiltBound) return;
+        card.dataset.tiltBound = "1";
+        card.addEventListener("pointermove", (e) => {
+          const r = card.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width - 0.5;
+          const py = (e.clientY - r.top) / r.height - 0.5;
+          card.style.transform = `perspective(1200px) rotateY(${px * 9}deg) rotateX(${-py * 9}deg) translateY(-6px)`;
+        });
+        card.addEventListener("pointerleave", () => { card.style.transform = ""; });
+      });
+    }
 
     // Reveal au scroll
     const els = document.querySelectorAll(".reveal:not(.visible)");
