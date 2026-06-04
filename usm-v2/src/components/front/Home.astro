@@ -4,6 +4,7 @@ import { localizedPath } from "@/lib/seo";
 import {
   playersByCategory, PLAYER_CATEGORIES, serviceSlug, rosterHue,
 } from "@/lib/content";
+import HeroBackground from "@/components/webgl/HeroBackground";
 import type { SiteContent } from "@/lib/types";
 
 interface Props {
@@ -39,10 +40,19 @@ const agencyData = {
 };
 ---
 
+<style is:global>
+  .hero-massive { position: relative; }
+  .hero-webgl-canvas { position: absolute !important; inset: 0; z-index: 0; pointer-events: none; }
+  .hero-massive .massive-eagle-wrapper,
+  .hero-massive .usmx-hero-since,
+  .hero-massive > h1 { position: relative; z-index: 1; }
+</style>
+
 <div class="giant-bg-text text-1">PERFORMANCE</div>
 <div class="giant-bg-text text-2">EXCELLENCE</div>
 
 <section class="hero-massive">
+  <HeroBackground client:idle />
   <h1 class="sr-only">USM Football — Agence de gestion de carrière sportive des footballeurs professionnels</h1>
   <div class="massive-eagle-wrapper reveal">
     {general.logoHero && (
