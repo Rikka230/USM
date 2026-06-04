@@ -1652,6 +1652,9 @@ async function loadSingleServicePage(options = {}) {
             // 🪄 SEO DYNAMIQUE : Mise à jour du Titre de l'onglet
             document.title = `${titleText} | USM Football`;
 
+            // 🪄 SEO DYNAMIQUE : canonical + données structurées Service
+            updateServiceSeo(srvId, titleText, descText, srv.image_url);
+
             // 🪄 SEO DYNAMIQUE : Mise à jour de la Meta Description
             if (descText) {
                 let metaDesc = document.querySelector('meta[name="description"]');
@@ -1773,6 +1776,46 @@ function escapeHTML(value = '') {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+}
+
+// SEO dynamique des pages de service : canonical absolu + JSON-LD schema.org/Service
+function updateServiceSeo(srvId, titleText, descText, imageUrl) {
+    try {
+        const canonicalHref = `https://www.usmfootball.com/page-dynamique.html?id=${encodeURIComponent(srvId)}`;
+        let canonical = document.head.querySelector('link[rel="canonical"]');
+        if (!canonical) {
+            canonical = document.createElement('link');
+            canonical.rel = 'canonical';
+            document.head.appendChild(canonical);
+        }
+        canonical.href = canonicalHref;
+
+        const shortDesc = String(descText || '').replace(/\s+/g, ' ').trim().slice(0, 300);
+        const jsonLd = {
+            "@context": "https://schema.org",
+            "@type": "Service",
+            "name": titleText || "Service",
+            "serviceType": titleText || undefined,
+            "description": shortDesc || undefined,
+            "url": canonicalHref,
+            "image": imageUrl || undefined,
+            "provider": {
+                "@type": "Organization",
+                "name": "USM Football",
+                "url": "https://www.usmfootball.com/"
+            }
+        };
+        let ldEl = document.getElementById('srv-jsonld');
+        if (!ldEl) {
+            ldEl = document.createElement('script');
+            ldEl.type = 'application/ld+json';
+            ldEl.id = 'srv-jsonld';
+            document.head.appendChild(ldEl);
+        }
+        ldEl.textContent = JSON.stringify(jsonLd);
+    } catch (e) {
+        console.warn('updateServiceSeo échec:', e);
+    }
 }
 
 function prepareRosterImages(scope = document) {

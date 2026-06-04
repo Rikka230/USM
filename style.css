@@ -5,10 +5,25 @@
 /* ================= 1. VARIABLES & RESET ================= */
 @font-face {
     font-family: 'Moglan';
-    src: url('Assets/Moglan.ttf') format('ttf'), 
-         url('Assets/Moglan.woff') format('woff');
+    src: url('Assets/Moglan.woff2') format('woff2'),
+         url('Assets/Moglan.woff') format('woff'),
+         url('Assets/Moglan.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
+    font-display: swap;
+}
+
+/* Accessibilité / SEO : contenu lisible par les lecteurs d'écran et crawlers, masqué visuellement */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 :root {
     --bg-dark: #050507; 
