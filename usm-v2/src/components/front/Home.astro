@@ -351,7 +351,7 @@ const agencyData = {
           const r = card.getBoundingClientRect();
           const px = (e.clientX - r.left) / r.width - 0.5;
           const py = (e.clientY - r.top) / r.height - 0.5;
-          card.style.transform = `perspective(1200px) rotateY(${px * 9}deg) rotateX(${-py * 9}deg) translateY(-6px)`;
+          card.style.transform = `perspective(850px) rotateY(${px * 13}deg) rotateX(${-py * 13}deg) translateY(-6px)`;
           // Parallaxe : le texte et le bouton flottent au-dessus de l'image
           if (content) content.style.transform = `translate3d(${px * 16}px, ${py * 16}px, 28px)`;
           if (arrow) arrow.style.transform = `translate3d(${px * 24}px, ${py * 24}px, 46px)`;
@@ -371,7 +371,7 @@ const agencyData = {
           const r = card.getBoundingClientRect();
           const px = (e.clientX - r.left) / r.width - 0.5;
           const py = (e.clientY - r.top) / r.height - 0.5;
-          card.style.transform = `perspective(900px) rotateY(${px * 9}deg) rotateX(${-py * 9}deg) translateY(-10px)`;
+          card.style.transform = `perspective(750px) rotateY(${px * 14}deg) rotateX(${-py * 14}deg) translateY(-10px)`;
           const mx = (px + 0.5) * 100, my = (py + 0.5) * 100;
           card.style.setProperty("--mx", `${mx}%`);
           card.style.setProperty("--my", `${my}%`);
