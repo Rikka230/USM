@@ -2236,6 +2236,21 @@ document.addEventListener('click', (e) => {
         return;
     }
 
+    // Délégation CSP-safe : remplace les anciens onclick inline de la lightbox presse
+    if (e.target.closest('#lightbox-close-btn')) {
+        closeLightbox();
+        return;
+    }
+    const sliderBtn = e.target.closest('#lightbox-slider-prev, #lightbox-slider-next');
+    if (sliderBtn) {
+        const slider = document.getElementById('lightbox-mini-slider');
+        if (slider) {
+            const dir = sliderBtn.id === 'lightbox-slider-prev' ? -150 : 150;
+            slider.scrollBy({ left: dir, behavior: 'smooth' });
+        }
+        return;
+    }
+
     const trigger = e.target.closest('.presse-trigger');
     if (trigger) {
         const type = trigger.getAttribute('data-type');

@@ -189,16 +189,16 @@
     </nav>
     </footer>
 <div id="presse-lightbox" class="lightbox">
-        <button class="lightbox-close" onclick="closeLightbox()">×</button>
+        <button class="lightbox-close" id="lightbox-close-btn" type="button" aria-label="Fermer">×</button>
         <div class="lightbox-container">
             
             <div class="lightbox-left-col">
                 <div id="lightbox-media" class="lightbox-media"></div>
                 
                 <div class="lightbox-slider-wrapper">
-                    <button class="lightbox-slider-btn" onclick="document.getElementById('lightbox-mini-slider').scrollBy({left: -150, behavior: 'smooth'})">❮</button>
+                    <button class="lightbox-slider-btn" id="lightbox-slider-prev" type="button" aria-label="Précédent">❮</button>
                     <div id="lightbox-mini-slider" class="lightbox-mini-slider"></div>
-                    <button class="lightbox-slider-btn" onclick="document.getElementById('lightbox-mini-slider').scrollBy({left: 150, behavior: 'smooth'})">❯</button>
+                    <button class="lightbox-slider-btn" id="lightbox-slider-next" type="button" aria-label="Suivant">❯</button>
                 </div>
             </div>
 
