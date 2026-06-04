@@ -4,7 +4,27 @@ import { auth } from "@/lib/firebase-client";
 import { ToastProvider, useToast } from "@/components/ui/toast";
 import { Button, Input, Field, Card, Spinner } from "@/components/ui/kit";
 import PlayersModule from "./modules/PlayersModule";
+import ServicesModule from "./modules/ServicesModule";
+import PresseModule from "./modules/PresseModule";
+import SettingsModule from "./modules/SettingsModule";
+import MarqueeModule from "./modules/MarqueeModule";
 import { Users, Briefcase, Newspaper, Settings, Images, LogOut, Menu, X, Rocket } from "lucide-react";
+
+function Brand({ size = "md" }: { size?: "md" | "lg" }) {
+  const tile = size === "lg" ? "h-12 w-12 rounded-2xl" : "h-9 w-9 rounded-xl";
+  const main = size === "lg" ? "text-2xl" : "text-lg";
+  return (
+    <div className="flex items-center gap-3">
+      <span className={`grid ${tile} place-items-center bg-gradient-to-br from-primary to-[#6d0030] shadow-lg shadow-primary/30 ring-1 ring-white/10`}>
+        <img src="/Assets/favicon.png" alt="" className={size === "lg" ? "h-6 w-6" : "h-5 w-5"} draggable={false} />
+      </span>
+      <span className="leading-none">
+        <span className={`block font-display ${main} font-black tracking-tight`}>USM</span>
+        <span className="mt-1 block text-[10px] font-semibold uppercase tracking-[0.34em] text-muted-foreground">Admin</span>
+      </span>
+    </div>
+  );
+}
 
 function Stub(label: string): ComponentType {
   return function StubModule() {
@@ -19,10 +39,10 @@ function Stub(label: string): ComponentType {
 
 const MODULES: { key: string; label: string; icon: any; comp: ComponentType }[] = [
   { key: "players", label: "Joueurs", icon: Users, comp: PlayersModule },
-  { key: "services", label: "Services", icon: Briefcase, comp: Stub("Services") },
-  { key: "presse", label: "Presse", icon: Newspaper, comp: Stub("Presse") },
-  { key: "settings", label: "Réglages", icon: Settings, comp: Stub("Réglages") },
-  { key: "marquee", label: "Galerie", icon: Images, comp: Stub("Galerie (Marquee)") },
+  { key: "services", label: "Services", icon: Briefcase, comp: ServicesModule },
+  { key: "presse", label: "Presse", icon: Newspaper, comp: PresseModule },
+  { key: "settings", label: "Réglages", icon: Settings, comp: SettingsModule },
+  { key: "marquee", label: "Galerie", icon: Images, comp: MarqueeModule },
 ];
 
 const ERR: Record<string, string> = {
@@ -49,8 +69,10 @@ function LoginScreen() {
   return (
     <div className="flex min-h-dvh items-center justify-center p-4">
       <Card className="w-full max-w-sm">
-        <h1 className="mb-1 text-center font-display text-2xl font-black uppercase">USM <span className="text-primary">Admin</span></h1>
-        <p className="mb-6 text-center text-sm text-muted-foreground">Espace d'administration</p>
+        <div className="mb-6 flex flex-col items-center gap-3">
+          <Brand size="lg" />
+          <p className="text-sm text-muted-foreground">Espace d'administration</p>
+        </div>
         <form onSubmit={submit}>
           <Field label="Email"><Input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></Field>
           <Field label="Mot de passe"><Input type="password" autoComplete="current-password" value={pwd} onChange={(e) => setPwd(e.target.value)} required /></Field>
@@ -88,14 +110,14 @@ function Dashboard({ user }: { user: User }) {
       {/* Top bar (mobile) */}
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-card/80 px-4 py-3 backdrop-blur lg:hidden">
         <button onClick={() => setNavOpen(true)} aria-label="Menu"><Menu /></button>
-        <span className="font-display font-black uppercase">USM <span className="text-primary">Admin</span></span>
+        <Brand />
         <Button size="sm" variant="ghost" onClick={() => signOut(auth)} aria-label="Déconnexion"><LogOut size={18} /></Button>
       </header>
 
       <div className="flex">
         {/* Sidebar desktop */}
         <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-border bg-card p-4 lg:flex">
-          <div className="mb-6 font-display text-xl font-black uppercase">USM <span className="text-primary">Admin</span></div>
+          <div className="mb-7 px-1 pt-1"><Brand /></div>
           {NavList}
           <div className="mt-auto flex flex-col gap-2 pt-4">
             <Button variant="outline" onClick={() => toast("Publication : à venir (Jalon 6)", "info")}><Rocket size={16} /> Publier</Button>
