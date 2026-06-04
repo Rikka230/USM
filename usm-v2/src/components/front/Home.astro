@@ -50,11 +50,32 @@ const agencyData = {
   .hero-massive > h1 { position: relative; z-index: 1; }
 
   /* Cartes services — tilt 3D au survol (JS pose le transform inline) */
-  .services-grid { perspective: 1200px; }
+  /* Cartes services : perspective portée par CHAQUE carte (inline) pour isoler
+     le rendu 3D et éviter que bouger une carte fasse trembler les voisines. */
   .bento-service-card { transform-style: preserve-3d; will-change: transform; }
   /* Parallaxe du texte/bouton par-dessus l'image (flottent en profondeur) */
   #services-container .srv-card-content { transition: transform 0.15s ease-out; will-change: transform; }
   #services-container .srv-card-arrow { transition: transform 0.15s ease-out, color 0.3s ease; will-change: transform; }
+
+  /* Cartes joueurs : tilt 3D + reflet holographique (style TCG) */
+  .player-card { position: relative; transform-style: preserve-3d; will-change: transform; }
+  .player-card .card-shine {
+    position: absolute; inset: 0; border-radius: 24px; pointer-events: none; z-index: 6;
+    opacity: 0; transition: opacity 0.3s ease;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%),
+      rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.12) 18%, transparent 45%);
+    mix-blend-mode: soft-light;
+  }
+  .player-card .card-shine::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    background: linear-gradient(115deg, transparent 25%, rgba(216, 0, 86, 0.55) 40%,
+      rgba(130, 80, 255, 0.5) 50%, rgba(0, 200, 255, 0.5) 60%, transparent 75%);
+    background-size: 250% 250%;
+    background-position: var(--gx, 50%) var(--gy, 50%);
+    mix-blend-mode: color-dodge; opacity: 0.5;
+  }
+  .player-card:hover .card-shine { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { .player-card .card-shine { display: none; } }
 
   /* Marquee — légère perspective (sans scale -> pas de débordement) */
   #marquee-section { perspective: 1400px; overflow: hidden; }
@@ -169,6 +190,7 @@ const agencyData = {
                     </div>
                   </div>
                   <div class="player-stat-wrap"><div class="player-stat">{p.stat}</div></div>
+                  <span class="card-shine" aria-hidden="true"></span>
                 </div>
               ))}
             </div>
@@ -339,6 +361,24 @@ const agencyData = {
           if (content) content.style.transform = "";
           if (arrow) arrow.style.transform = "";
         });
+      });
+
+      // Cartes joueurs : tilt 3D + reflet holographique (style TCG) suivant le curseur
+      document.querySelectorAll<HTMLElement>(".player-card").forEach((card) => {
+        if (card.dataset.tiltBound) return;
+        card.dataset.tiltBound = "1";
+        card.addEventListener("pointermove", (e) => {
+          const r = card.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width - 0.5;
+          const py = (e.clientY - r.top) / r.height - 0.5;
+          card.style.transform = `perspective(900px) rotateY(${px * 9}deg) rotateX(${-py * 9}deg) translateY(-10px)`;
+          const mx = (px + 0.5) * 100, my = (py + 0.5) * 100;
+          card.style.setProperty("--mx", `${mx}%`);
+          card.style.setProperty("--my", `${my}%`);
+          card.style.setProperty("--gx", `${mx}%`);
+          card.style.setProperty("--gy", `${my}%`);
+        });
+        card.addEventListener("pointerleave", () => { card.style.transform = ""; });
       });
     }
 
