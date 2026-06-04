@@ -25,6 +25,109 @@
     white-space: nowrap;
     border: 0;
 }
+
+/* ==========================================================================
+   MIGRATION DES STYLES INLINE (durcissement CSP style-src — pages publiques)
+   Remplace les attributs style="" du front pour permettre le retrait de
+   'unsafe-inline'. Préfixe .usmx- pour éviter toute collision.
+   ========================================================================== */
+/* --- Coquille nav / footer partagée --- */
+.usmx-logo-link { text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px; }
+#mobile-menu-btn { background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; display: none; }
+#close-menu-btn { background: none; border: none; color: #fff; font-size: 2.5rem; position: absolute; top: 20px; right: 30px; cursor: pointer; display: none; }
+select.lang-switcher { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 4px; cursor: pointer; }
+select.lang-switcher option { color: #000; }
+.usmx-no-underline { text-decoration: none; }
+.usmx-footer-brand { display: flex; align-items: center; gap: 12px; font-family: 'Moglan', sans-serif; font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 20px; }
+.usmx-footer-brand-logo { height: 38px; width: auto; transform: translateY(-5px); }
+.usmx-pink { color: var(--usm-pink); }
+.usmx-muted { color: #aaa; line-height: 1.6; }
+
+/* --- index --- */
+.usmx-hero-since { margin-top: -48px; font-size: 1.2rem; letter-spacing: 4px; text-transform: uppercase; color: #888; }
+.vip-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+#tab-founder { border: none; cursor: pointer; transition: 0.3s; }
+#tab-agency { border: none; cursor: pointer; background: rgba(255,255,255,0.1); color: #aaa; transition: 0.3s; }
+.usmx-services-section { max-width: 1400px; margin: 0 auto 80px; padding: 0 var(--spacing-main); }
+.usmx-section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.usmx-section-title-lg { font-size: 2.5rem; text-transform: uppercase; margin: 0; }
+.usmx-section-title-md { font-size: 1.8rem; text-transform: uppercase; }
+.usmx-center-mb { text-align: center; margin-bottom: 20px; }
+#front-search { padding: 12px 20px; width: 100%; max-width: 400px; border-radius: 30px; border: 1px solid #333; background: #1e1e1e; color: #fff; }
+
+/* --- presse --- */
+.usmx-presse-sub { color: #aaa; font-size: 1.1rem; margin-top: 10px; }
+.usmx-loader-center { margin: 50px auto; }
+.usmx-loader-center-full { margin: 50px auto; grid-column: 1 / -1; }
+.usmx-mb-80 { margin-bottom: 80px; }
+.usmx-ig-placeholder { width: 100%; min-height: 250px; background: var(--surface); border-radius: 16px; border: 1px solid var(--surface-border); display: flex; align-items: center; justify-content: center; text-align: center; padding: 40px; }
+.usmx-flex-gap15 { display: flex; align-items: center; gap: 15px; }
+.usmx-slider-count { color: #aaa; font-weight: bold; font-size: 1.1rem; min-width: 50px; text-align: center; }
+.usmx-lightbox-title { color: var(--usm-pink); margin-bottom: 15px; font-size: 1.5rem; text-transform: uppercase; }
+.usmx-lightbox-desc { color: #ccc; line-height: 1.6; font-size: 1rem; }
+
+/* --- contact --- */
+.usmx-contact-hero { min-height: 40vh; padding-top: 150px; padding-bottom: 20px; }
+.usmx-contact-h1 { font-size: clamp(2rem, 5vw, 4rem); }
+.usmx-mb-20 { margin-bottom: 20px; }
+.usmx-form-field-lg { width: 100%; padding: 15px; font-size: 1.1rem; border-radius: 8px; }
+
+/* --- page-dynamique (service) --- */
+.usmx-srv-sub { font-size: 1.5rem; margin-top: 10px; }
+.usmx-srv-label { margin-bottom: 20px; font-size: 1.2rem; text-transform: uppercase; color: var(--usm-pink); letter-spacing: 1px; }
+
+/* --- 404 --- */
+.usmx-404-main { min-height: 100vh; padding: 120px 20px; }
+.usmx-404-card { max-width: 760px; width: 100%; min-height: auto; margin: 0 auto; }
+.usmx-404-h1 { font-size: clamp(2.4rem, 7vw, 5rem); text-transform: uppercase; margin: 20px 0; line-height: 0.95; }
+.usmx-404-desc { height: auto; max-width: 560px; margin-bottom: 30px; display: block; overflow: visible; }
+
+/* --- mentions légales (ex-bloc <style> inline) --- */
+.legal-container {
+    max-width: 900px;
+    margin: 150px auto 100px;
+    padding: 50px;
+    background: var(--surface);
+    border: 1px solid rgba(216, 0, 86, 0.2);
+    border-radius: var(--card-radius);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    position: relative;
+    z-index: 10;
+}
+.legal-container h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: #fff;
+    text-align: center;
+    margin-bottom: 50px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+.legal-container h2 {
+    color: var(--usm-pink);
+    font-size: 1.5rem;
+    margin-top: 40px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(216, 0, 86, 0.2);
+    padding-bottom: 10px;
+}
+.legal-container p, .legal-container ul {
+    color: #ccc;
+    line-height: 1.8;
+    font-size: 1.05rem;
+    margin-bottom: 15px;
+}
+.legal-container ul { padding-left: 20px; }
+.legal-container li { margin-bottom: 8px; }
+.legal-container a {
+    color: var(--usm-pink);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+.legal-container a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
 :root {
     --bg-dark: #050507; 
     --usm-pink: #d80056;
