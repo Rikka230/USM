@@ -70,6 +70,13 @@ const allJsonLd = [organizationJsonLd(), ...jsonLd];
     <slot />
     <Footer locale={locale} social={social} />
 
+    <style is:global>
+      /* En prod, les icônes sociales étaient masquées (display:none) tant que le JS
+         Firebase ne validait pas les liens. En v2 les liens sont injectés au build
+         (déjà valides) -> on les affiche directement. */
+      .sticky-social-bar .sticky-icon { display: inline-flex; }
+    </style>
+
     <script>
       // Interactions globales (re-jouées à chaque navigation View Transitions).
       function initShell() {

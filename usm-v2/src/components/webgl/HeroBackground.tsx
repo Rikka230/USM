@@ -51,11 +51,11 @@ function Particles({ count, reduced, pointer }: {
         <bufferAttribute attach="attributes-color" args={[colors, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        size={0.024}
+        size={0.011}
         sizeAttenuation
         vertexColors
         transparent
-        opacity={0.38}
+        opacity={0.22}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
       />
@@ -74,7 +74,7 @@ export default function HeroBackground() {
       const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
       setReduced(mq.matches);
       const mobile = window.innerWidth < 768;
-      setCount(mobile ? 450 : 1100);
+      setCount(mobile ? 280 : 600);
       // Détection WebGL minimale
       const c = document.createElement("canvas");
       if (!c.getContext("webgl") && !c.getContext("experimental-webgl")) setOk(false);
