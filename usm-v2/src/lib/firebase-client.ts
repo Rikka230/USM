@@ -7,8 +7,8 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  // Clé API dédiée à la v2 (admin) — autorisée pour le domaine staging.
-  apiKey: "AIzaSyAZUE1WQRb2LKA2b1hhyt1k6_CuWb6ikRA",
+  // Clé API d'origine (autorisée sur les domaines de prod usmfootball.com).
+  apiKey: "AIzaSyDd7OvBbX35PaQPlm6saccOGTQyvI3UEoU",
   authDomain: "usm-football-b56ba.firebaseapp.com",
   projectId: "usm-football-b56ba",
   storageBucket: "usm-football-b56ba.firebasestorage.app",

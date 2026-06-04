@@ -5,8 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  // URL du site de staging (mise à jour après création du site Hosting).
-  site: 'https://usm-v2-staging.web.app',
+  // URL du site de prod (sert au sitemap + URLs absolues).
+  site: 'https://www.usmfootball.com',
   output: 'static',
   // format 'file' -> /presse.html (servi proprement à /presse par cleanUrls Firebase)
   build: { format: 'file' },

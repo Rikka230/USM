@@ -5,7 +5,8 @@
   "targets": {
     "usm-football-b56ba": {
       "hosting": {
-        "staging": ["usm-v2-staging"]
+        "staging": ["usm-v2-staging"],
+        "live": ["usm-football-b56ba"]
       }
     }
   }

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Espace d'administration : ne pas indexer
+Disallow: /admin
+
+Sitemap: https://www.usmfootball.com/sitemap-index.xml

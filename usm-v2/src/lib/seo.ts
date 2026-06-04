@@ -1,7 +1,7 @@
 import { LOCALES, localePrefix, type Locale } from "./i18n";
 
-// URL du site. Staging pour l'instant ; à basculer sur la prod au cutover.
-export const SITE_URL = "https://usm-v2-staging.web.app";
+// URL du site (prod).
+export const SITE_URL = "https://www.usmfootball.com";
 
 export function abs(path: string): string {
   return new URL(path, SITE_URL).href;
