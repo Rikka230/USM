@@ -11,11 +11,12 @@
     <meta property="og:url" content="https://www.usmfootball.com/presse.html">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    
+    <link rel="canonical" href="https://www.usmfootball.com/presse.html">
+
     <link rel="icon" type="image/png" sizes="32x32" href="Assets/favicon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="Assets/favicon-16.png">
     <link rel="apple-touch-icon" href="Assets/apple-touch-icon.png">
-    <link rel="stylesheet" href="style.css?v=main-post-audit-7">
+    <link rel="stylesheet" href="style.min.css?v=min-1">
 </head>
 <body>
 
@@ -29,30 +30,30 @@
 
     <header class="navbar">
         <div class="logo-nav">
-            <a href="index.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px;">
+            <a href="index.html" class="usmx-logo-link">
                 <img src="" alt="USM Logo" class="nav-logo-dyn" id="nav-logo-dyn">
                 <div>USM F<span>OO</span>TBALL</div>
             </a>
         </div>
         
-        <button class="mobile-menu-btn" id="mobile-menu-btn" style="background:none; border:none; color:white; font-size:2rem; cursor:pointer; display:none;">☰</button>
+        <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
         
         <nav class="nav-links" id="nav-links">
-            <button class="close-menu-btn" id="close-menu-btn" style="background:none; border:none; color:white; font-size:2.5rem; position:absolute; top:20px; right:30px; cursor:pointer; display:none;">×</button>
+            <button class="close-menu-btn" id="close-menu-btn">×</button>
             
             <a href="index.html#agence" data-i18n="nav_agency">L'Agence</a>
             <a href="index.html#services" data-i18n="nav_services">Services</a>
             <a href="index.html#joueurs" data-i18n="nav_talents">Les Talents</a>
             <a href="presse.html" data-i18n="nav_press">Presse</a>
             
-            <select id="lang-select" class="lang-switcher" style="background:transparent; color:white; border:1px solid rgba(255,255,255,0.2); border-radius:4px; padding:4px; cursor:pointer;">
-                <option value="fr" style="color:black;">FR</option>
-                <option value="en" style="color:black;">EN</option>
-                <option value="es" style="color:black;">ES</option>
-                <option value="pt" style="color:black;">PT</option>
+            <select id="lang-select" class="lang-switcher">
+                <option value="fr">FR</option>
+                <option value="en">EN</option>
+                <option value="es">ES</option>
+                <option value="pt">PT</option>
             </select>
             
-            <a href="contact.html" style="text-decoration: none;">
+            <a href="contact.html" class="usmx-no-underline">
                 <button class="btn-premium" data-i18n="nav_button">Contact</button>
             </a>
         </nav>
@@ -61,12 +62,12 @@
     <main>
         <section class="presse-hero">
             <h1 class="pink-accent">Presse & Médias</h1>
-            <p style="color: #aaa; font-size: 1.1rem; margin-top: 10px;">L'actualité de l'agence USM Football dans les médias.</p>
+            <p class="usmx-presse-sub">L'actualité de l'agence USM Football dans les médias.</p>
         </section>
 
         <section class="video-slider-wrapper">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="font-size: 1.8rem; text-transform: uppercase;">Passages TV</h2>
+            <div class="usmx-section-head">
+                <h2 class="usmx-section-title-md">Passages TV</h2>
                 <div class="slider-controls">
                     <button class="slider-btn" id="btn-vid-prev">❮</button>
                     <button class="slider-btn" id="btn-vid-next">❯</button>
@@ -74,13 +75,13 @@
             </div>
             
             <div class="video-slider" id="presse-video-container">
-                <div class="loader-spinner" style="margin: 50px auto;"></div>
+                <div class="loader-spinner usmx-loader-center"></div>
             </div>
         </section>
 
         <section class="video-slider-wrapper">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="font-size: 1.8rem; text-transform: uppercase;">Dernières Vidéos YouTube</h2>
+            <div class="usmx-section-head">
+                <h2 class="usmx-section-title-md">Dernières Vidéos YouTube</h2>
                 <div class="slider-controls">
                     <button class="slider-btn" id="btn-yt-prev">❮</button>
                     <button class="slider-btn" id="btn-yt-next">❯</button>
@@ -88,17 +89,17 @@
             </div>
             
             <div class="video-slider" id="youtube-feed-container">
-                <div class="loader-spinner" style="margin: 50px auto;"></div>
+                <div class="loader-spinner usmx-loader-center"></div>
             </div>
         </section>
 
-        <section class="video-slider-wrapper" style="margin-bottom: 80px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="font-size: 1.8rem; text-transform: uppercase;">Instagram <span style="color:var(--usm-pink)">@usmgroup</span></h2>
+        <section class="video-slider-wrapper usmx-mb-80">
+            <div class="usmx-section-head">
+                <h2 class="usmx-section-title-md">Instagram <span class="usmx-pink">@usmgroup</span></h2>
             </div>
             
-            <div id="instagram-feed" style="width: 100%; min-height: 250px; background: var(--surface); border-radius: 16px; border: 1px solid var(--surface-border); display: flex; align-items: center; justify-content: center; text-align: center; padding: 40px;">
-                <p style="color:#aaa; line-height: 1.6;">
+            <div id="instagram-feed" class="usmx-ig-placeholder">
+                <p class="usmx-muted">
                     <em>
                         <script src="https://elfsightcdn.com/platform.js" async></script>
                         <div class="elfsight-app-6e984936-c485-48bb-ba82-37750d9553f4" data-elfsight-app-lazy></div></em>
@@ -107,16 +108,16 @@
         </section>
 
         <section class="mosaic-wrapper">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="font-size: 1.8rem; text-transform: uppercase;">Articles & Parutions</h2>
-                <div class="slider-controls" style="display: flex; align-items: center; gap: 15px;">
+            <div class="usmx-section-head">
+                <h2 class="usmx-section-title-md">Articles & Parutions</h2>
+                <div class="slider-controls usmx-flex-gap15">
                     <button class="slider-btn" id="btn-art-prev">❮</button>
-                    <span id="art-page-info" style="color: #aaa; font-weight: bold; font-size: 1.1rem; min-width: 50px; text-align: center;"></span>
+                    <span id="art-page-info" class="usmx-slider-count"></span>
                     <button class="slider-btn" id="btn-art-next">❯</button>
                 </div>
             </div>
             <div class="mosaic-grid" id="presse-mosaic-container">
-                <div class="loader-spinner" style="margin: 50px auto; grid-column: 1 / -1;"></div>
+                <div class="loader-spinner usmx-loader-center-full"></div>
             </div>
         </section>
     </main>
@@ -124,9 +125,9 @@
         <div class="footer-container">
             
             <div class="footer-col footer-info">
-                <div style="display: flex; align-items: center; gap: 12px; font-family: 'Moglan', sans-serif; font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 20px;">
-                    <img src="" alt="USM Logo" id="footer-logo-dyn" style="height: 38px; width: auto; transform: translateY(-5px);">
-                    <div>USM F<span style="color: var(--usm-pink);">OO</span>TBALL</div>
+                <div class="usmx-footer-brand">
+                    <img src="" alt="USM Logo" id="footer-logo-dyn" class="usmx-footer-brand-logo">
+                    <div>USM F<span class="usmx-pink">OO</span>TBALL</div>
                 </div>
                 <p class="footer-tagline">L'excellence au service du football mondial.</p>
                 
@@ -188,29 +189,29 @@
     </nav>
     </footer>
 <div id="presse-lightbox" class="lightbox">
-        <button class="lightbox-close" onclick="closeLightbox()">×</button>
+        <button class="lightbox-close" id="lightbox-close-btn" type="button" aria-label="Fermer">×</button>
         <div class="lightbox-container">
             
             <div class="lightbox-left-col">
                 <div id="lightbox-media" class="lightbox-media"></div>
                 
                 <div class="lightbox-slider-wrapper">
-                    <button class="lightbox-slider-btn" onclick="document.getElementById('lightbox-mini-slider').scrollBy({left: -150, behavior: 'smooth'})">❮</button>
+                    <button class="lightbox-slider-btn" id="lightbox-slider-prev" type="button" aria-label="Précédent">❮</button>
                     <div id="lightbox-mini-slider" class="lightbox-mini-slider"></div>
-                    <button class="lightbox-slider-btn" onclick="document.getElementById('lightbox-mini-slider').scrollBy({left: 150, behavior: 'smooth'})">❯</button>
+                    <button class="lightbox-slider-btn" id="lightbox-slider-next" type="button" aria-label="Suivant">❯</button>
                 </div>
             </div>
 
             <div class="lightbox-sidebar">
-                <h3 id="lightbox-title" style="color:var(--usm-pink); margin-bottom:15px; font-size:1.5rem; text-transform:uppercase;"></h3>
-                <p id="lightbox-desc" style="color:#ccc; line-height:1.6; font-size:1rem;"></p>
+                <h3 id="lightbox-title" class="usmx-lightbox-title"></h3>
+                <p id="lightbox-desc" class="usmx-lightbox-desc"></p>
                 <div id="lightbox-link-container"></div>
             </div>
 
         </div>
     </div>
-    <script type="module" src="main.js?v=main-post-audit-7"></script>
-    <script src="contact-brevo.js?v=main-post-audit-7"></script>
-    <script src="pjax.js?v=pjax-front-10-audit-2"></script>
+    <script type="module" src="main.min.js?v=min-1"></script>
+    <script src="contact-brevo.min.js?v=min-1"></script>
+    <script src="pjax.min.js?v=min-1"></script>
 </body>
 </html>

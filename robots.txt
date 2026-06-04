@@ -10,5 +10,8 @@ Disallow: /docs/
 Disallow: /.gitignore
 Disallow: /README.md
 
+# Page template de service (rendue dynamiquement, ne pas indexer la coquille vide)
+Disallow: /page-dynamique.html
+
 # Plan du site
 Sitemap: https://www.usmfootball.com/sitemap.xml

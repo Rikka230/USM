@@ -1652,6 +1652,9 @@ async function loadSingleServicePage(options = {}) {
             // 🪄 SEO DYNAMIQUE : Mise à jour du Titre de l'onglet
             document.title = `${titleText} | USM Football`;
 
+            // 🪄 SEO DYNAMIQUE : canonical + données structurées Service
+            updateServiceSeo(srvId, titleText, descText, srv.image_url);
+
             // 🪄 SEO DYNAMIQUE : Mise à jour de la Meta Description
             if (descText) {
                 let metaDesc = document.querySelector('meta[name="description"]');
@@ -1773,6 +1776,46 @@ function escapeHTML(value = '') {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+}
+
+// SEO dynamique des pages de service : canonical absolu + JSON-LD schema.org/Service
+function updateServiceSeo(srvId, titleText, descText, imageUrl) {
+    try {
+        const canonicalHref = `https://www.usmfootball.com/page-dynamique.html?id=${encodeURIComponent(srvId)}`;
+        let canonical = document.head.querySelector('link[rel="canonical"]');
+        if (!canonical) {
+            canonical = document.createElement('link');
+            canonical.rel = 'canonical';
+            document.head.appendChild(canonical);
+        }
+        canonical.href = canonicalHref;
+
+        const shortDesc = String(descText || '').replace(/\s+/g, ' ').trim().slice(0, 300);
+        const jsonLd = {
+            "@context": "https://schema.org",
+            "@type": "Service",
+            "name": titleText || "Service",
+            "serviceType": titleText || undefined,
+            "description": shortDesc || undefined,
+            "url": canonicalHref,
+            "image": imageUrl || undefined,
+            "provider": {
+                "@type": "Organization",
+                "name": "USM Football",
+                "url": "https://www.usmfootball.com/"
+            }
+        };
+        let ldEl = document.getElementById('srv-jsonld');
+        if (!ldEl) {
+            ldEl = document.createElement('script');
+            ldEl.type = 'application/ld+json';
+            ldEl.id = 'srv-jsonld';
+            document.head.appendChild(ldEl);
+        }
+        ldEl.textContent = JSON.stringify(jsonLd);
+    } catch (e) {
+        console.warn('updateServiceSeo échec:', e);
+    }
 }
 
 function prepareRosterImages(scope = document) {
@@ -2015,6 +2058,13 @@ function renderCategorySlider() {
         requestAnimationFrame(updateState);
         setTimeout(updateState, 360);
         scroller.addEventListener('scroll', updateState, { passive: true });
+        // Anti-fuite : le scroller est recréé à chaque rendu/navigation PJAX, mais
+        // le listener resize sur window persisterait. On retire le précédent avant
+        // d'ajouter le nouveau pour n'en garder qu'un seul à la fois.
+        if (window.__usmRosterResizeHandler) {
+            window.removeEventListener('resize', window.__usmRosterResizeHandler);
+        }
+        window.__usmRosterResizeHandler = updateState;
         window.addEventListener('resize', updateState, { passive: true });
     }
 }
@@ -2193,6 +2243,21 @@ document.addEventListener('click', (e) => {
         return;
     }
 
+    // Délégation CSP-safe : remplace les anciens onclick inline de la lightbox presse
+    if (e.target.closest('#lightbox-close-btn')) {
+        closeLightbox();
+        return;
+    }
+    const sliderBtn = e.target.closest('#lightbox-slider-prev, #lightbox-slider-next');
+    if (sliderBtn) {
+        const slider = document.getElementById('lightbox-mini-slider');
+        if (slider) {
+            const dir = sliderBtn.id === 'lightbox-slider-prev' ? -150 : 150;
+            slider.scrollBy({ left: dir, behavior: 'smooth' });
+        }
+        return;
+    }
+
     const trigger = e.target.closest('.presse-trigger');
     if (trigger) {
         const type = trigger.getAttribute('data-type');
@@ -2236,7 +2301,7 @@ async function loadPresseData() {
             return `
             <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${v.url}" data-title="${encodeURIComponent(v.title || '')}" data-desc="${encodeURIComponent(v.description || '')}" data-link="" data-source="tv" data-index="${index}">
                 <div class="video-container">
-                    <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
+                    <img src="${thumbUrl}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
                     <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
                         <div style="width:50px; height:50px; background:var(--usm-pink); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; padding-left:4px;">▶</div>
                     </div>
@@ -2257,12 +2322,20 @@ async function loadPresseData() {
             const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
 
             try {
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-                
-                if(data.status === 'ok' && data.items && data.items.length > 0) {
+                // Timeout 6 s : l'API tierce rss2json peut pendre indéfiniment sinon.
+                const ctrl = new AbortController();
+                const timeoutId = setTimeout(() => ctrl.abort(), 6000);
+                let data;
+                try {
+                    const response = await fetch(apiUrl, { signal: ctrl.signal });
+                    data = await response.json();
+                } finally {
+                    clearTimeout(timeoutId);
+                }
+
+                if(data && data.status === 'ok' && data.items && data.items.length > 0) {
                     ytItems = data.items;
-                    Cache.set('usm_yt_feed', ytItems); 
+                    Cache.set('usm_yt_feed', ytItems);
                 }
             } catch(e) { console.error("Erreur YouTube:", e); }
         }
@@ -2278,7 +2351,7 @@ async function loadPresseData() {
                 return `
                 <div class="video-card presse-trigger" style="cursor:pointer;" data-type="video" data-url="${item.link}" data-title="${safeTitle}" data-desc="" data-link="" data-source="yt" data-index="${index}">
                     <div class="video-container">
-                        <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
+                        <img src="${thumbUrl}" loading="lazy" decoding="async" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0;">
                         <div style="position:absolute; inset:0; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">
                             <div style="width:50px; height:50px; background:#ff0000; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; padding-left:4px; box-shadow: 0 4px 15px rgba(255,0,0,0.4);">▶</div>
                         </div>

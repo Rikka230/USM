@@ -12,12 +12,35 @@
     <meta property="og:type" content="website">
     
     <meta name="twitter:card" content="summary_large_image">
-    
+    <link rel="canonical" href="https://www.usmfootball.com/">
+
     <link rel="icon" type="image/png" sizes="32x32" href="Assets/favicon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="Assets/favicon-16.png">
     <link rel="apple-touch-icon" href="Assets/apple-touch-icon.png">
-    
-    <link rel="stylesheet" href="style.css?v=main-post-audit-10">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "USM Football",
+      "alternateName": "Agence USM Football",
+      "url": "https://www.usmfootball.com/",
+      "logo": "https://www.usmfootball.com/Assets/apple-touch-icon.png",
+      "description": "Agence de gestion de carrière sportive accompagnant les footballeurs professionnels depuis 1998.",
+      "foundingDate": "1998",
+      "email": "contact@usmfootball.com",
+      "telephone": "+33668603001",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+33668603001",
+        "email": "contact@usmfootball.com",
+        "contactType": "customer service",
+        "availableLanguage": ["French", "English", "Spanish", "Portuguese"]
+      }
+    }
+    </script>
+
+    <link rel="stylesheet" href="style.min.css?v=min-1">
 </head>
 <body>
 
@@ -34,40 +57,41 @@
 
     <header class="navbar">
         <div class="logo-nav">
-            <a href="index.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px;">
+            <a href="index.html" class="usmx-logo-link">
                 <img src="" alt="USM Logo" class="nav-logo-dyn" id="nav-logo-dyn">
                 <div>USM F<span>OO</span>TBALL</div>
             </a>
         </div>
         
-        <button class="mobile-menu-btn" id="mobile-menu-btn" style="background:none; border:none; color:white; font-size:2rem; cursor:pointer; display:none;">☰</button>
+        <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
         
         <nav class="nav-links" id="nav-links">
-            <button class="close-menu-btn" id="close-menu-btn" style="background:none; border:none; color:white; font-size:2.5rem; position:absolute; top:20px; right:30px; cursor:pointer; display:none;">×</button>
+            <button class="close-menu-btn" id="close-menu-btn">×</button>
             
             <a href="#agence" data-i18n="nav_agency">L'Agence</a>
             <a href="#services" data-i18n="nav_services">Services</a>
             <a href="#joueurs" data-i18n="nav_talents">Les Talents</a>
             <a href="presse.html" data-i18n="nav_press">Presse</a>
             
-            <select id="lang-select" class="lang-switcher" style="background:transparent; color:white; border:1px solid rgba(255,255,255,0.2); border-radius:4px; padding:4px; cursor:pointer;">
-                <option value="fr" style="color:black;">FR</option>
-                <option value="en" style="color:black;">EN</option>
-                <option value="es" style="color:black;">ES</option>
-                <option value="pt" style="color:black;">PT</option>
+            <select id="lang-select" class="lang-switcher">
+                <option value="fr">FR</option>
+                <option value="en">EN</option>
+                <option value="es">ES</option>
+                <option value="pt">PT</option>
             </select>
             
-            <a href="contact.html" style="text-decoration: none;">
+            <a href="contact.html" class="usmx-no-underline">
                 <button class="btn-premium" data-i18n="nav_button">Contact</button>
             </a>
         </nav>
     </header>
 
     <section class="hero-massive">
+        <h1 class="sr-only">USM Football — Agence de gestion de carrière sportive des footballeurs professionnels</h1>
         <div class="massive-eagle-wrapper reveal is-hero-logo-loading">
             <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" data-no-smooth="true" decoding="async" fetchpriority="high" draggable="false">
         </div>
-        <p class="reveal" style="margin-top: -48px; font-size: 1.2rem; letter-spacing: 4px; text-transform: uppercase; color: #888;">Since 1998</p>
+        <p class="reveal usmx-hero-since">Since 1998</p>
     </section>
 
    <main>
@@ -103,9 +127,9 @@
             </div>
             <div class="vip-content">
                 
-                <div class="vip-tabs" style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <button id="tab-founder" class="vip-badge active" style="border: none; cursor: pointer; transition: 0.3s;" data-i18n="vip_badge">Fondateur & CEO</button>
-                    <button id="tab-agency" class="vip-badge" style="border: none; cursor: pointer; background: rgba(255,255,255,0.1); color: #aaa; transition: 0.3s;" data-i18n="agency_badge">L'Agence USM</button>
+                <div class="vip-tabs">
+                    <button id="tab-founder" class="vip-badge active" data-i18n="vip_badge">Fondateur & CEO</button>
+                    <button id="tab-agency" class="vip-badge" data-i18n="agency_badge">L'Agence USM</button>
                 </div>
                 
                 <h2 class="vip-name" id="vip-title-display">Christophe<br><span>Mongai</span></h2>
@@ -117,9 +141,9 @@
             </div>
         </section>
 
-        <section id="services" class="reveal" style="max-width: 1400px; margin: 0 auto 80px; padding: 0 var(--spacing-main);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="font-size: 2.5rem; text-transform: uppercase; margin: 0;" data-i18n="nav_services">Nos Services</h2>
+        <section id="services" class="reveal usmx-services-section">
+            <div class="usmx-section-head">
+                <h2 class="usmx-section-title-lg" data-i18n="nav_services">Nos Services</h2>
                 <div class="slider-controls">
                     <button class="slider-btn" id="btn-srv-prev">❮</button>
                     <button class="slider-btn" id="btn-srv-next">❯</button>
@@ -130,8 +154,8 @@
 
         <section class="players-section reveal" id="joueurs">
             <h2 data-i18n="roster_title">USM FAMILY</h2>
-            <div style="text-align: center; margin-bottom: 20px;">
-                <input type="text" id="front-search" placeholder="🔍 Rechercher un joueur..." style="padding: 12px 20px; width: 100%; max-width: 400px; border-radius: 30px; border: 1px solid #333; background: #1e1e1e; color: white;">
+            <div class="usmx-center-mb">
+                <input type="text" id="front-search" placeholder="🔍 Rechercher un joueur...">
             </div>
             
             <div class="player-filters" id="roster-tabs">
@@ -159,9 +183,9 @@
         <div class="footer-container">
             
             <div class="footer-col footer-info">
-                <div style="display: flex; align-items: center; gap: 12px; font-family: 'Moglan', sans-serif; font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 20px;">
-                    <img src="" alt="USM Logo" id="footer-logo-dyn" style="height: 38px; width: auto; transform: translateY(-5px);">
-                    <div>USM F<span style="color: var(--usm-pink);">OO</span>TBALL</div>
+                <div class="usmx-footer-brand">
+                    <img src="" alt="USM Logo" id="footer-logo-dyn" class="usmx-footer-brand-logo">
+                    <div>USM F<span class="usmx-pink">OO</span>TBALL</div>
                 </div>
                 <p class="footer-tagline">L'excellence au service du football mondial.</p>
                 
@@ -223,9 +247,9 @@
     </nav>
     </footer>
 
-    <script type="module" src="main.js?v=main-post-audit-9"></script>
-    <script src="contact-brevo.js?v=main-post-audit-9"></script>
-    <script src="pjax.js?v=pjax-front-10-audit-2"></script>
+    <script type="module" src="main.min.js?v=min-1"></script>
+    <script src="contact-brevo.min.js?v=min-1"></script>
+    <script src="pjax.min.js?v=min-1"></script>
 
 
 

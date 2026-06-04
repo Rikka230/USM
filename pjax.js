@@ -128,6 +128,13 @@
       canonical.href = nextCanonical.href;
     }
 
+    // Retirer le JSON-LD Service de la page précédente : il sera recréé par
+    // updateServiceSeo() uniquement si la nouvelle page est une page de service.
+    const staleServiceLd = document.getElementById("srv-jsonld");
+    if (staleServiceLd && !nextDoc.getElementById("srv-jsonld")) {
+      staleServiceLd.remove();
+    }
+
     const ogUrl = document.head.querySelector('meta[property="og:url"]');
     if (ogUrl && !nextDoc.head.querySelector('meta[property="og:url"]')) {
       ogUrl.content = url.href;

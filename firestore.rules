@@ -1,0 +1,48 @@
+rules_version = '2';
+
+// Règles Firestore — site vitrine USM Football
+// Principe : lecture publique des collections affichées sur le site,
+// écriture réservée aux utilisateurs authentifiés (back-office admin).
+//
+// Durcissement recommandé (TODO) : remplacer isAdmin() par une vérification
+// de claim personnalisé (request.auth.token.admin == true), à définir via
+// l'Admin SDK dans une Cloud Function. Tel quel, tout compte authentifié peut
+// écrire — acceptable car seuls les administrateurs disposent d'un compte.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /services/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /players/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /presse_videos/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /presse_articles/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /marquee_images/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Refus par défaut pour toute collection non déclarée ci-dessus.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
