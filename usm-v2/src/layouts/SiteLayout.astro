@@ -1,0 +1,101 @@
+---
+import { ClientRouter } from "astro:transitions";
+import Navbar from "@/components/front/Navbar.astro";
+import Footer from "@/components/front/Footer.astro";
+import StickySocial from "@/components/front/StickySocial.astro";
+import { abs, localizedPath, hreflangAlternates, organizationJsonLd } from "@/lib/seo";
+import type { Locale } from "@/lib/i18n";
+import type { SettingsGeneral, SettingsSocial } from "@/lib/types";
+
+interface Props {
+  title: string;
+  description?: string;
+  locale: Locale;
+  path: string; // chemin logique sans préfixe de langue
+  general: SettingsGeneral;
+  social: SettingsSocial;
+  jsonLd?: object[];
+  ogImage?: string;
+}
+const {
+  title,
+  description = "L'agence USM Football propulse la carrière des footballeurs professionnels.",
+  locale,
+  path,
+  general,
+  social,
+  jsonLd = [],
+  ogImage = abs("/Assets/apple-touch-icon.png"),
+} = Astro.props;
+
+const canonical = abs(localizedPath(locale, path));
+const alternates = hreflangAlternates(path);
+const allJsonLd = [organizationJsonLd(), ...jsonLd];
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="canonical" href={canonical} />
+    {alternates.map((a) => (
+      <link rel="alternate" hreflang={a.lang} href={a.href} />
+    ))}
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/Assets/favicon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/Assets/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/Assets/apple-touch-icon.png" />
+
+    <link rel="stylesheet" href="/site.css" />
+    {allJsonLd.map((obj) => (
+      <script type="application/ld+json" set:html={JSON.stringify(obj)} />
+    ))}
+
+    <ClientRouter />
+  </head>
+  <body>
+    <StickySocial social={social} />
+    <Navbar locale={locale} path={path} general={general} />
+    <slot />
+    <Footer locale={locale} social={social} />
+
+    <script>
+      // Interactions globales (re-jouées à chaque navigation View Transitions).
+      function initShell() {
+        const menuBtn = document.getElementById("mobile-menu-btn");
+        const closeBtn = document.getElementById("close-menu-btn");
+        const navLinks = document.getElementById("nav-links");
+        if (menuBtn && navLinks && !menuBtn.dataset.bound) {
+          menuBtn.dataset.bound = "1";
+          menuBtn.addEventListener("click", () => navLinks.classList.add("active"));
+          closeBtn?.addEventListener("click", () => navLinks.classList.remove("active"));
+          navLinks.querySelectorAll("a").forEach((a) =>
+            a.addEventListener("click", () => navLinks.classList.remove("active"))
+          );
+        }
+        const langSelect = document.getElementById("lang-select") as HTMLSelectElement | null;
+        if (langSelect && !langSelect.dataset.bound) {
+          langSelect.dataset.bound = "1";
+          langSelect.addEventListener("change", () => {
+            const opt = langSelect.selectedOptions[0];
+            const href = opt?.getAttribute("data-href");
+            if (href) window.location.href = href;
+          });
+        }
+      }
+      initShell();
+      document.addEventListener("astro:page-load", initShell);
+    </script>
+  </body>
+</html>

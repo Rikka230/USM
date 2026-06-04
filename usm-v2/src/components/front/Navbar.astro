@@ -1,0 +1,48 @@
+---
+import { t, LOCALES, type Locale } from "@/lib/i18n";
+import { localizedPath } from "@/lib/seo";
+import type { SettingsGeneral } from "@/lib/types";
+
+interface Props {
+  locale: Locale;
+  path: string; // chemin logique sans préfixe de langue (ex: "/", "/presse")
+  general: SettingsGeneral;
+}
+const { locale, path, general } = Astro.props;
+const home = localizedPath(locale, "/");
+const langNames: Record<Locale, string> = { fr: "FR", en: "EN", es: "ES", pt: "PT" };
+---
+
+<header class="navbar">
+  <div class="logo-nav">
+    <a href={home} class="usmx-logo-link">
+      {general.logoNav && (
+        <img src={general.logoNav} alt="USM Logo" class="nav-logo-dyn" id="nav-logo-dyn" decoding="async" />
+      )}
+      <div>USM F<span>OO</span>TBALL</div>
+    </a>
+  </div>
+
+  <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">☰</button>
+
+  <nav class="nav-links" id="nav-links">
+    <button class="close-menu-btn" id="close-menu-btn" aria-label="Fermer">×</button>
+
+    <a href={`${home}#agence`} data-i18n="nav_agency">{t(locale, "nav_agency")}</a>
+    <a href={`${home}#services`} data-i18n="nav_services">{t(locale, "nav_services")}</a>
+    <a href={`${home}#joueurs`} data-i18n="nav_talents">{t(locale, "nav_talents")}</a>
+    <a href={localizedPath(locale, "/presse")} data-i18n="nav_press">{t(locale, "nav_press")}</a>
+
+    <select id="lang-select" class="lang-switcher" aria-label="Langue">
+      {LOCALES.map((l) => (
+        <option value={l} selected={l === locale} data-href={localizedPath(l, path)}>
+          {langNames[l]}
+        </option>
+      ))}
+    </select>
+
+    <a href={localizedPath(locale, "/contact")} class="usmx-no-underline">
+      <button class="btn-premium" data-i18n="nav_button">{t(locale, "nav_button")}</button>
+    </a>
+  </nav>
+</header>

@@ -62,6 +62,13 @@ export function slugify(input: string): string {
     .slice(0, 60);
 }
 
+/** Teinte du gradient placeholder joueur — identique à main.js (rosterHue). */
+export function rosterHue(seed = "USM"): number {
+  let hash = 0;
+  for (const ch of seed) hash = ((hash << 5) - hash) + ch.charCodeAt(0);
+  return Math.abs(hash) % 360;
+}
+
 export function serviceSlug(s: Service): string {
   return slugify(localizedField(s, "title", "fr")) || s.id;
 }

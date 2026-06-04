@@ -1,0 +1,23 @@
+---
+import Icon from "./Icon.astro";
+import { activeSocials } from "@/lib/social";
+import type { SettingsSocial } from "@/lib/types";
+
+interface Props {
+  social: SettingsSocial;
+}
+const { social } = Astro.props;
+const order = ["instagram", "linkedin", "tiktok", "facebook", "youtube"];
+const links = activeSocials(social, order);
+const titles: Record<string, string> = {
+  instagram: "Instagram", linkedin: "LinkedIn", tiktok: "TikTok", facebook: "Facebook", youtube: "YouTube",
+};
+---
+
+<aside class="sticky-social-bar">
+  {links.map((s) => (
+    <a href={s.url} target="_blank" rel="noopener" class="sticky-icon" title={titles[s.key]}>
+      <Icon name={s.key} />
+    </a>
+  ))}
+</aside>

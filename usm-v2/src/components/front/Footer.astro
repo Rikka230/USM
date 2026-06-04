@@ -1,0 +1,82 @@
+---
+import Icon from "./Icon.astro";
+import { activeSocials } from "@/lib/social";
+import { localizedPath } from "@/lib/seo";
+import { t, type Locale } from "@/lib/i18n";
+import type { SettingsSocial } from "@/lib/types";
+
+interface Props {
+  locale: Locale;
+  social: SettingsSocial;
+}
+const { locale, social } = Astro.props;
+const footerOrder = ["tiktok", "linkedin", "instagram", "facebook", "youtube"];
+const links = activeSocials(social, footerOrder);
+const titles: Record<string, string> = {
+  instagram: "Instagram", linkedin: "LinkedIn", tiktok: "TikTok", facebook: "Facebook", youtube: "YouTube",
+};
+const home = localizedPath(locale, "/");
+---
+
+<footer class="usm-universal-footer">
+  <div class="footer-container">
+    <div class="footer-col footer-info">
+      <div class="usmx-footer-brand">
+        {/* logo dynamique optionnel */}
+        <div>USM F<span class="usmx-pink">OO</span>TBALL</div>
+      </div>
+      <p class="footer-tagline">L'excellence au service du football mondial.</p>
+      <div class="contact-hardcoded">
+        <div class="contact-item">
+          <Icon name="mail" />
+          <a href="mailto:contact@usmfootball.com">contact@usmfootball.com</a>
+        </div>
+        <div class="contact-item">
+          <Icon name="phone" />
+          <a href="tel:+33668603001">+33668603001</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-col footer-nav">
+      <h3>Plan du Site</h3>
+      <ul>
+        <li><a href={home}>{t(locale, "nav_agency")}</a></li>
+        <li><a href={localizedPath(locale, "/presse")}>{t(locale, "nav_press")}</a></li>
+        <li><a href={localizedPath(locale, "/contact")}>{t(locale, "nav_button")}</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col footer-social">
+      <h3>Suivez-nous</h3>
+      <div class="social-links-container" id="footer-social-links">
+        {links.map((s) => (
+          <a href={s.url} target="_blank" rel="noopener" class="social-icon" title={titles[s.key]}>
+            <Icon name={s.key} />
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>
+      &copy; 2026 USM Football. Tous droits réservés.
+      <span class="footer-separator">•</span>
+      <a href={localizedPath(locale, "/mentions")}>{t(locale, "legal_mentions")}</a>
+      <span class="footer-separator">•</span>
+      <a href="/admin" class="admin-secret-link">Powered by NOCX WEB</a>
+    </p>
+  </div>
+
+  <nav class="mobile-bottom-bar">
+    <a href="tel:+33668603001" class="mobile-bar-icon" title="Appeler"><Icon name="phone" size={22} /></a>
+    <a href={`${localizedPath(locale, "/contact")}#contact-form`} class="mobile-bar-icon" title="Contact"><Icon name="mail" size={22} /></a>
+    <div class="mobile-bar-separator"></div>
+    {links.slice(0, 3).map((s) => (
+      <a href={s.url} target="_blank" rel="noopener" class="mobile-bar-icon dyn-social" title={titles[s.key]}>
+        <Icon name={s.key} size={22} />
+      </a>
+    ))}
+  </nav>
+</footer>

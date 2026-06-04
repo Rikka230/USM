@@ -1,0 +1,30 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import Home from "@/components/front/Home.astro";
+import { loadSiteContent } from "@/lib/content";
+import { LOCALES, DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
+
+export function getStaticPaths() {
+  return LOCALES.filter((l) => l !== DEFAULT_LOCALE).map((l) => ({ params: { lang: l } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const content = await loadSiteContent();
+
+const titles: Record<Locale, string> = {
+  fr: "USM Football | Agence de Gestion de Carrière Sportive",
+  en: "USM Football | Sports Career Management Agency",
+  es: "USM Football | Agencia de Gestión de Carrera Deportiva",
+  pt: "USM Football | Agência de Gestão de Carreira Esportiva",
+};
+---
+
+<SiteLayout
+  locale={locale}
+  path="/"
+  title={titles[locale]}
+  general={content.general}
+  social={content.social}
+>
+  <Home locale={locale} content={content} />
+</SiteLayout>

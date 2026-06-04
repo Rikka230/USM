@@ -1,0 +1,266 @@
+---
+import { t, localizedField, type Locale } from "@/lib/i18n";
+import { localizedPath } from "@/lib/seo";
+import {
+  playersByCategory, PLAYER_CATEGORIES, serviceSlug, rosterHue,
+} from "@/lib/content";
+import type { SiteContent } from "@/lib/types";
+
+interface Props {
+  locale: Locale;
+  content: SiteContent;
+}
+const { locale, content } = Astro.props;
+const { general, agency, services, players, marquee } = content;
+
+const byCat = playersByCategory(players);
+const catLabels: Record<string, string> = {
+  gardien: "Gardiens", defenseur: "Défenseurs", milieu: "Milieux",
+  attaquant: "Attaquants", feminine: "Féminines", coach: "Coachs & Staff",
+};
+
+const bento = [
+  { label: t(locale, "stat_1_label"), value: general.stat1, desc: t(locale, "stat_1_desc"), id: "stat-1", highlight: false, sub: false },
+  { label: t(locale, "stat_4_label"), value: general.stat4, desc: t(locale, "stat_4_desc"), id: "stat-4", highlight: true, sub: false },
+  { label: t(locale, "stat_2_label"), value: general.stat2, desc: t(locale, "stat_2_desc"), id: "stat-2", highlight: false, sub: false },
+  { label: t(locale, "stat_3_label"), value: general.stat3, desc: t(locale, "stat_3_sub"), id: "stat-3", highlight: false, sub: true },
+];
+
+// Données fondateur / agence pour le switch d'onglets (côté client)
+const founder = {
+  img: general.founderImg || "",
+  quote: localizedField(general, "founderQuote", locale),
+  desc: localizedField(general, "founderDesc", locale),
+};
+const agencyData = {
+  img: agency.image || "",
+  quote: localizedField(agency, "quote", locale),
+  desc: localizedField(agency, "desc", locale),
+};
+---
+
+<div class="giant-bg-text text-1">PERFORMANCE</div>
+<div class="giant-bg-text text-2">EXCELLENCE</div>
+
+<section class="hero-massive">
+  <h1 class="sr-only">USM Football — Agence de gestion de carrière sportive des footballeurs professionnels</h1>
+  <div class="massive-eagle-wrapper reveal">
+    {general.logoHero && (
+      <img src={general.logoHero} alt="USM Football" decoding="async" fetchpriority="high" draggable="false" />
+    )}
+  </div>
+  <p class="reveal usmx-hero-since">Since 1998</p>
+</section>
+
+<main>
+  <div class="bento-grid">
+    {bento.map((c) => (
+      <div class={`bento-card reveal${c.highlight ? " highlight-card" : ""}`}>
+        <div class="data-label" set:html={(c.label || "").replace(/\n/g, "<br>")} />
+        <div class="data-huge" id={c.id}>{c.value ?? "-"}</div>
+        {c.sub
+          ? <div class="data-label text-white">{c.desc}</div>
+          : <div class="data-desc">{c.desc}</div>}
+      </div>
+    ))}
+  </div>
+
+  <section class="founder-vip-section reveal" id="agence"
+    data-founder-img={founder.img} data-agency-img={agencyData.img}
+    data-founder-quote={founder.quote} data-agency-quote={agencyData.quote}
+    data-founder-desc={founder.desc} data-agency-desc={agencyData.desc}>
+    <div class="vip-photo-wrapper">
+      <img src={founder.img} alt="Christophe Mongai" id="vip-img-display" class="lazy-load" decoding="async" />
+    </div>
+    <div class="vip-content">
+      <div class="vip-tabs">
+        <button id="tab-founder" class="vip-badge active">{t(locale, "vip_badge")}</button>
+        <button id="tab-agency" class="vip-badge">{t(locale, "agency_badge")}</button>
+      </div>
+      <h2 class="vip-name" id="vip-title-display">Christophe<br><span>Mongai</span></h2>
+      <div class="vip-quote" id="vip-quote-display">{founder.quote}</div>
+      <p class="vip-desc" id="vip-desc-display">{founder.desc}</p>
+      <div class="licenses-wrapper" id="vip-licenses-display"></div>
+    </div>
+  </section>
+
+  <section id="services" class="reveal usmx-services-section">
+    <div class="usmx-section-head">
+      <h2 class="usmx-section-title-lg">{t(locale, "services_title")}</h2>
+      <div class="slider-controls">
+        <button class="slider-btn" id="btn-srv-prev">❮</button>
+        <button class="slider-btn" id="btn-srv-next">❯</button>
+      </div>
+    </div>
+    <div class="services-grid" id="services-container">
+      {services.map((s) => {
+        const cc = s.card_crop || { x: 0, y: 0, zoom: 1 };
+        const bg = s.image_url ? `url('${s.image_url}')` : "none";
+        const style = `--srv-bg-image:${bg};--srv-card-img-x:${cc.x}%;--srv-card-img-y:${cc.y}%;--srv-card-img-zoom:${cc.zoom};`;
+        return (
+          <a href={localizedPath(locale, `/services/${serviceSlug(s)}`)} class="bento-service-card" style={style}>
+            <div class="srv-card-content">
+              <h3>{localizedField(s, "title", locale)}</h3>
+              <p>{localizedField(s, "subtitle", locale)}</p>
+            </div>
+            <div class="srv-card-arrow">En savoir plus ➔</div>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+  <section class="players-section reveal" id="joueurs">
+    <h2>{t(locale, "roster_title")}</h2>
+    <div class="usmx-center-mb">
+      <input type="text" id="front-search" placeholder="🔍 Rechercher un joueur..." />
+    </div>
+    <div class="player-filters" id="roster-tabs">
+      {PLAYER_CATEGORIES.map((cat, i) => (
+        <button class={`filter-btn${i === 0 ? " active" : ""}`} data-tab={cat}>{catLabels[cat]}</button>
+      ))}
+    </div>
+    <div id="roster-categories-container">
+      {PLAYER_CATEGORIES.map((cat, i) => (
+        <div class="category-block" data-category={cat} style={i === 0 ? "" : "display:none;"}>
+          <div class="slider-container">
+            <div class="horizontal-scroller">
+              {(byCat[cat] || []).map((p) => (
+                <div class="player-card" data-name={(p.name || "").toLowerCase()}>
+                  <div class="player-img-container roster-gradient-holder" style={`--roster-hue:${rosterHue(p.name || p.image_url || "USM")};`}>
+                    {p.image_url && <img src={p.image_url} alt={p.name} decoding="async" loading="lazy" />}
+                  </div>
+                  <div class="player-info">
+                    <div>
+                      <h3>{p.name}</h3>
+                      {p.transfermarkt && (
+                        <a href={p.transfermarkt} target="_blank" rel="noopener" class="player-transfer-link">🔗 Transfermarkt</a>
+                      )}
+                    </div>
+                  </div>
+                  <div class="player-stat-wrap"><div class="player-stat">{p.stat}</div></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="marquee-wrapper" id="marquee-section">
+    <div class="marquee-track" id="marquee-track">
+      {[...marquee, ...marquee].map((m) => {
+        const c = m.crop || { x: 0, y: 0, zoom: 1 };
+        return (
+          <div class="marquee-item" style={`--marquee-x:${c.x}%;--marquee-y:${c.y}%;--marquee-zoom:${c.zoom};`}>
+            <img src={m.image_url} loading="lazy" decoding="async" alt="Gallery" />
+          </div>
+        );
+      })}
+    </div>
+  </section>
+</main>
+
+<script>
+  // Interactions spécifiques à l'accueil (rejouées à chaque navigation).
+  function initHome() {
+    // Onglets fondateur / agence
+    const section = document.getElementById("agence");
+    const tabF = document.getElementById("tab-founder");
+    const tabA = document.getElementById("tab-agency");
+    if (section && tabF && tabA && !section.dataset.bound) {
+      section.dataset.bound = "1";
+      const img = document.getElementById("vip-img-display") as HTMLImageElement | null;
+      const title = document.getElementById("vip-title-display");
+      const quote = document.getElementById("vip-quote-display");
+      const desc = document.getElementById("vip-desc-display");
+      const d = section.dataset;
+      const show = (who: "founder" | "agency") => {
+        if (img) img.src = (who === "founder" ? d.founderImg : d.agencyImg) || "";
+        if (title) title.innerHTML = who === "founder"
+          ? "Christophe<br><span>Mongai</span>"
+          : "L'Agence<br><span>USM Football</span>";
+        if (quote) quote.textContent = (who === "founder" ? d.founderQuote : d.agencyQuote) || "";
+        if (desc) desc.textContent = (who === "founder" ? d.founderDesc : d.agencyDesc) || "";
+        tabF.classList.toggle("active", who === "founder");
+        tabA.classList.toggle("active", who === "agency");
+      };
+      tabF.addEventListener("click", () => show("founder"));
+      tabA.addEventListener("click", () => show("agency"));
+    }
+
+    // Onglets roster (catégories)
+    const tabs = document.getElementById("roster-tabs");
+    if (tabs && !tabs.dataset.bound) {
+      tabs.dataset.bound = "1";
+      const blocks = document.querySelectorAll<HTMLElement>("#roster-categories-container .category-block");
+      tabs.querySelectorAll<HTMLButtonElement>(".filter-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          tabs.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          const cat = btn.getAttribute("data-tab");
+          const search = document.getElementById("front-search") as HTMLInputElement | null;
+          if (search) search.value = "";
+          blocks.forEach((b) => {
+            b.style.display = b.getAttribute("data-category") === cat ? "" : "none";
+            b.querySelectorAll<HTMLElement>(".player-card").forEach((c) => (c.style.display = ""));
+          });
+        });
+      });
+    }
+
+    // Recherche joueur (filtre toutes catégories)
+    const search = document.getElementById("front-search") as HTMLInputElement | null;
+    if (search && !search.dataset.bound) {
+      search.dataset.bound = "1";
+      search.addEventListener("input", () => {
+        const q = search.value.trim().toLowerCase();
+        const blocks = document.querySelectorAll<HTMLElement>("#roster-categories-container .category-block");
+        if (!q) {
+          const active = document.querySelector("#roster-tabs .filter-btn.active")?.getAttribute("data-tab");
+          blocks.forEach((b) => (b.style.display = b.getAttribute("data-category") === active ? "" : "none"));
+          document.querySelectorAll<HTMLElement>(".player-card").forEach((c) => (c.style.display = ""));
+          return;
+        }
+        blocks.forEach((b) => {
+          let any = false;
+          b.querySelectorAll<HTMLElement>(".player-card").forEach((c) => {
+            const match = (c.getAttribute("data-name") || "").includes(q);
+            c.style.display = match ? "" : "none";
+            if (match) any = true;
+          });
+          b.style.display = any ? "" : "none";
+        });
+      });
+    }
+
+    // Boutons de slider (services + roster)
+    const bindSlider = (prevId: string, nextId: string, scrollerSel: string) => {
+      const prev = document.getElementById(prevId);
+      const next = document.getElementById(nextId);
+      const scroller = document.querySelector<HTMLElement>(scrollerSel);
+      if (prev && next && scroller && !prev.dataset.bound) {
+        prev.dataset.bound = "1";
+        prev.addEventListener("click", () => scroller.scrollBy({ left: -scroller.clientWidth * 0.8, behavior: "smooth" }));
+        next.addEventListener("click", () => scroller.scrollBy({ left: scroller.clientWidth * 0.8, behavior: "smooth" }));
+      }
+    };
+    bindSlider("btn-srv-prev", "btn-srv-next", "#services-container");
+
+    // Reveal au scroll
+    const els = document.querySelectorAll(".reveal:not(.visible)");
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) { e.target.classList.add("visible"); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.1 });
+      els.forEach((el) => io.observe(el));
+    } else {
+      els.forEach((el) => el.classList.add("visible"));
+    }
+  }
+  initHome();
+  document.addEventListener("astro:page-load", initHome);
+</script>
