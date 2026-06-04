@@ -70,30 +70,6 @@ const allJsonLd = [organizationJsonLd(), ...jsonLd];
     <slot />
     <Footer locale={locale} social={social} />
 
-    <style is:global>
-      /* Fond animé global discret : lueurs roses qui dérivent lentement,
-         peintes au-dessus du fond du body et sous le contenu (z-index:-1). */
-      body { position: relative; }
-      body::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        pointer-events: none;
-        background:
-          radial-gradient(45% 45% at 28% 22%, rgba(216, 0, 86, 0.10), transparent 70%),
-          radial-gradient(40% 40% at 78% 80%, rgba(216, 0, 86, 0.06), transparent 70%);
-        animation: usmBgDrift 32s ease-in-out infinite alternate;
-      }
-      @keyframes usmBgDrift {
-        0% { transform: translate3d(-2%, -1%, 0) scale(1); }
-        100% { transform: translate3d(2%, 2%, 0) scale(1.06); }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        body::after { animation: none; }
-      }
-    </style>
-
     <script>
       // Interactions globales (re-jouées à chaque navigation View Transitions).
       function initShell() {

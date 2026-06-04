@@ -41,8 +41,10 @@ const agencyData = {
 ---
 
 <style is:global>
-  .hero-massive { position: relative; }
-  .hero-webgl-canvas { position: absolute !important; inset: 0; z-index: 0; pointer-events: none; }
+  /* Hero : canvas STRICTEMENT confiné derrière le contenu, jamais bloquant le scroll */
+  .hero-massive { position: relative; overflow: hidden; }
+  .hero-webgl-canvas { position: absolute !important; inset: 0; z-index: 0; }
+  .hero-webgl-canvas, .hero-webgl-canvas canvas { pointer-events: none !important; }
   .hero-massive .massive-eagle-wrapper,
   .hero-massive .usmx-hero-since,
   .hero-massive > h1 { position: relative; z-index: 1; }
@@ -51,15 +53,14 @@ const agencyData = {
   .services-grid { perspective: 1200px; }
   .bento-service-card { transform-style: preserve-3d; will-change: transform; }
 
-  /* Marquee — ruban en perspective (discret) */
-  #marquee-section { perspective: 1400px; }
-  #marquee-section .marquee-track { transform: rotateX(11deg) scale(1.04); transform-origin: center; }
-
+  /* Marquee — légère perspective (sans scale -> pas de débordement) */
+  #marquee-section { perspective: 1400px; overflow: hidden; }
+  #marquee-section .marquee-track { transform: rotateX(8deg); transform-origin: center; }
   @media (prefers-reduced-motion: reduce) {
     #marquee-section .marquee-track { transform: none; }
   }
   @media (max-width: 768px) {
-    #marquee-section .marquee-track { transform: rotateX(6deg); }
+    #marquee-section .marquee-track { transform: rotateX(5deg); }
   }
 </style>
 
