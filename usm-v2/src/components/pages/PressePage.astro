@@ -495,4 +495,9 @@ const presseData = {
     background: linear-gradient(to top, var(--bg-dark, #050507), transparent);
     pointer-events: none;
   }
+  /* Sur mobile, la grille Elfsight passe en colonnes : un max-height fixe couperait
+     une ligne en plein milieu. On enlève le plafond -> seules le badge est rognée. */
+  @media (max-width: 768px) {
+    .usmx-ig-crop { max-height: none; }
+  }
 </style>
