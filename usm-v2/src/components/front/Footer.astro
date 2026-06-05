@@ -51,7 +51,8 @@ const home = localizedPath(locale, "/");
       <h3>Suivez-nous</h3>
       <div class="social-links-container" id="footer-social-links">
         {links.map((s) => (
-          <a href={s.url} target="_blank" rel="noopener" class="social-icon" title={titles[s.key]}>
+          <a href={s.url} target="_blank" rel="noopener" class="social-icon" title={titles[s.key]}
+            data-social-platform={s.key} data-social-title={titles[s.key]} data-social-choices={JSON.stringify(s.choices)}>
             <Icon name={s.key} />
           </a>
         ))}
@@ -74,7 +75,8 @@ const home = localizedPath(locale, "/");
     <a href={`${localizedPath(locale, "/contact")}#contact-form`} class="mobile-bar-icon" title="Contact"><Icon name="mail" size={22} /></a>
     <div class="mobile-bar-separator"></div>
     {links.slice(0, 3).map((s) => (
-      <a href={s.url} target="_blank" rel="noopener" class="mobile-bar-icon dyn-social" title={titles[s.key]}>
+      <a href={s.url} target="_blank" rel="noopener" class="mobile-bar-icon dyn-social" title={titles[s.key]}
+        data-social-platform={s.key} data-social-title={titles[s.key]} data-social-choices={JSON.stringify(s.choices)}>
         <Icon name={s.key} size={22} />
       </a>
     ))}

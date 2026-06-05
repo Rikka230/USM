@@ -104,5 +104,80 @@ const allJsonLd = [organizationJsonLd(), ...jsonLd];
       initShell();
       document.addEventListener("astro:page-load", initShell);
     </script>
+
+    <script>
+      // Sélecteur de compte social (USM / Christophe) : popover au clic quand 2 comptes
+      // sont définis ; sinon le lien direct s'ouvre normalement. Lié une seule fois
+      // (le listener sur document survit aux navigations View Transitions).
+      (function () {
+        const w = window as any;
+        if (w.__usmSocialPicker) return;
+        w.__usmSocialPicker = true;
+
+        function closePicker() {
+          document.querySelector(".social-choice-popover")?.remove();
+        }
+
+        function showPicker(anchor: HTMLElement, title: string, choices: { label: string; url: string }[]) {
+          closePicker();
+          const picker = document.createElement("div");
+          picker.className = "social-choice-popover";
+          picker.setAttribute("role", "dialog");
+          picker.setAttribute("aria-label", title + " — choisir un compte");
+
+          const titleEl = document.createElement("div");
+          titleEl.className = "social-choice-title";
+          titleEl.textContent = title;
+          picker.appendChild(titleEl);
+
+          const actions = document.createElement("div");
+          actions.className = "social-choice-actions";
+          choices.forEach((c) => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "social-choice-btn";
+            btn.textContent = c.label;
+            btn.addEventListener("click", () => {
+              closePicker();
+              if (c.url) window.open(c.url, "_blank", "noopener,noreferrer");
+            });
+            actions.appendChild(btn);
+          });
+          picker.appendChild(actions);
+          document.body.appendChild(picker);
+
+          const rect = anchor.getBoundingClientRect();
+          const pr = picker.getBoundingClientRect();
+          const pad = 12;
+          const left = Math.min(
+            Math.max(pad, rect.left + rect.width / 2 - pr.width / 2),
+            window.innerWidth - pr.width - pad
+          );
+          const above = rect.top - pr.height - 12;
+          const top = above > pad ? above : Math.min(rect.bottom + 12, window.innerHeight - pr.height - pad);
+          picker.style.left = left + "px";
+          picker.style.top = Math.max(pad, top) + "px";
+        }
+
+        document.addEventListener("click", (e) => {
+          const target = e.target as HTMLElement;
+          const link = target.closest("a[data-social-platform]") as HTMLAnchorElement | null;
+          if (!link) {
+            if (!target.closest(".social-choice-popover")) closePicker();
+            return;
+          }
+          let choices: { label: string; url: string }[] = [];
+          try { choices = JSON.parse(link.dataset.socialChoices || "[]"); } catch (_) { /* ignore */ }
+          if (choices.length <= 1) return; // un seul compte -> lien direct normal
+          e.preventDefault();
+          showPicker(link, link.dataset.socialTitle || "", choices);
+        });
+
+        document.addEventListener("keydown", (e) => { if (e.key === "Escape") closePicker(); });
+        window.addEventListener("scroll", closePicker, true);
+        window.addEventListener("resize", closePicker);
+        document.addEventListener("astro:before-swap", closePicker);
+      })();
+    </script>
   </body>
 </html>
