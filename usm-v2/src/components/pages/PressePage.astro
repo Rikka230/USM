@@ -100,7 +100,7 @@ const presseData = {
       <h2 class="usmx-section-title-md">Instagram <span class="usmx-pink">@usmgroup</span></h2>
     </div>
 
-    <div id="instagram-feed" class="usmx-ig-placeholder">
+    <div class="usmx-ig-crop">
       <script async src="https://elfsightcdn.com/platform.js"></script>
       <div class="elfsight-app-6e984936-c485-48bb-ba82-37750d9553f4" data-elfsight-app-lazy></div>
     </div>
@@ -466,3 +466,33 @@ const presseData = {
   initPresse();
   document.addEventListener("astro:page-load", initPresse);
 </script>
+
+<style>
+  /* Bloc Instagram (widget Elfsight) — recadrage propre indépendant de la hauteur.
+     On n'utilise plus l'id #instagram-feed (règles fragiles de site.css) : tout
+     est piloté ici. La marge négative basse rogne le badge « Powered by Elfsight »,
+     toujours le dernier élément du widget, quelle que soit sa hauteur. */
+  .usmx-ig-crop {
+    position: relative;
+    width: 100%;
+    max-height: 820px;        /* fenêtre compacte (au lieu d'un widget géant) */
+    overflow: hidden;
+    border-radius: 16px;
+  }
+  .usmx-ig-crop :global([class*="elfsight-app"]) {
+    display: block;
+    width: 100%;
+    margin-bottom: -58px;     /* coupe la bande du badge en bas */
+  }
+  /* Léger voile en bas pour adoucir la coupe. */
+  .usmx-ig-crop::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 40px;
+    background: linear-gradient(to top, var(--bg-dark, #050507), transparent);
+    pointer-events: none;
+  }
+</style>
