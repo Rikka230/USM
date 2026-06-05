@@ -496,8 +496,11 @@ const presseData = {
     pointer-events: none;
   }
   /* Sur mobile, la grille Elfsight passe en colonnes : un max-height fixe couperait
-     une ligne en plein milieu. On enlève le plafond -> seules le badge est rognée. */
+     une ligne en plein milieu. On enlève le plafond -> lignes entières. Et on réduit
+     la coupe basse (le badge mobile est plus petit) pour ne pas rogner les images. */
   @media (max-width: 768px) {
     .usmx-ig-crop { max-height: none; }
+    .usmx-ig-crop :global([class*="elfsight-app"]) { margin-bottom: -34px; }
+    .usmx-ig-crop::after { height: 22px; }
   }
 </style>

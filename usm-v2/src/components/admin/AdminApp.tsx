@@ -8,7 +8,9 @@ import ServicesModule from "./modules/ServicesModule";
 import PresseModule from "./modules/PresseModule";
 import SettingsModule from "./modules/SettingsModule";
 import MarqueeModule from "./modules/MarqueeModule";
-import { Users, Briefcase, Newspaper, Settings, Images, LogOut, Menu, X, Rocket } from "lucide-react";
+import { Users, Briefcase, Newspaper, Settings, Images, LogOut, Menu, X, Rocket, ExternalLink } from "lucide-react";
+
+const SITE_URL = "/"; // site public (ouvert dans un nouvel onglet)
 
 function Brand({ size = "md" }: { size?: "md" | "lg" }) {
   const tile = size === "lg" ? "h-12 w-12 rounded-2xl" : "h-9 w-9 rounded-xl";
@@ -136,7 +138,11 @@ function Dashboard({ user }: { user: User }) {
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-card/80 px-4 py-3 backdrop-blur lg:hidden">
         <button onClick={() => setNavOpen(true)} aria-label="Menu"><Menu /></button>
         <Brand />
-        <Button size="sm" variant="ghost" onClick={() => signOut(auth)} aria-label="Déconnexion"><LogOut size={18} /></Button>
+        <div className="flex items-center gap-1">
+          <a href={SITE_URL} target="_blank" rel="noopener" aria-label="Voir le site"
+            className="grid h-9 w-9 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"><ExternalLink size={18} /></a>
+          <Button size="sm" variant="ghost" onClick={() => signOut(auth)} aria-label="Déconnexion"><LogOut size={18} /></Button>
+        </div>
       </header>
 
       <div className="flex">
@@ -146,6 +152,7 @@ function Dashboard({ user }: { user: User }) {
           {NavList}
           <div className="mt-auto flex flex-col gap-2 pt-4">
             <Button variant="outline" onClick={publish} disabled={publishing}>{publishing ? <Spinner /> : <Rocket size={16} />} {publishing ? "Publication…" : "Publier"}</Button>
+            <a href={SITE_URL} target="_blank" rel="noopener" className="inline-flex h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"><ExternalLink size={16} /> Voir le site</a>
             <Button variant="ghost" onClick={() => signOut(auth)}><LogOut size={16} /> Déconnexion</Button>
             <p className="truncate px-1 text-xs text-muted-foreground">{user.email}</p>
           </div>
@@ -161,7 +168,10 @@ function Dashboard({ user }: { user: User }) {
                 <button onClick={() => setNavOpen(false)} aria-label="Fermer"><X /></button>
               </div>
               {NavList}
-              <div className="mt-6"><Button variant="outline" className="w-full" onClick={publish} disabled={publishing}>{publishing ? <Spinner /> : <Rocket size={16} />} {publishing ? "Publication…" : "Publier"}</Button></div>
+              <div className="mt-6 flex flex-col gap-2">
+                <Button variant="outline" className="w-full" onClick={publish} disabled={publishing}>{publishing ? <Spinner /> : <Rocket size={16} />} {publishing ? "Publication…" : "Publier"}</Button>
+                <a href={SITE_URL} target="_blank" rel="noopener" className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-border px-4 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"><ExternalLink size={16} /> Voir le site</a>
+              </div>
             </div>
           </div>
         )}
