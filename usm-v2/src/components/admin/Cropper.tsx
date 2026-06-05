@@ -1,18 +1,22 @@
 import { useEffect, useRef } from "react";
 import { coverBaseScale, type CropBox } from "@/lib/admin/image";
 
-const OUT_W = 600;
-const OUT_H = 800;
-const PREV = 0.4; // aperçu 240×320, cohérent avec la sortie 600×800
-
+/** Recadrage canvas pan/zoom. Sortie paramétrable (défaut 600×800 = 3:4, joueurs).
+ *  L'image n'est PAS uploadée ici : le parent appelle bakeCropToWebP au moment du save. */
 export function Cropper({
   img,
   value,
   onChange,
+  outW = 600,
+  outH = 800,
+  prev = 0.4,
 }: {
   img: HTMLImageElement | null;
   value: CropBox;
   onChange: (c: CropBox) => void;
+  outW?: number;
+  outH?: number;
+  prev?: number;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drag = useRef<{ x: number; y: number } | null>(null);
@@ -21,33 +25,33 @@ export function Cropper({
     const c = canvasRef.current;
     if (!c) return;
     const ctx = c.getContext("2d")!;
-    ctx.setTransform(PREV, 0, 0, PREV, 0, 0);
-    ctx.clearRect(0, 0, OUT_W, OUT_H);
+    ctx.setTransform(prev, 0, 0, prev, 0, 0);
+    ctx.clearRect(0, 0, outW, outH);
     ctx.fillStyle = "#111";
-    ctx.fillRect(0, 0, OUT_W, OUT_H);
+    ctx.fillRect(0, 0, outW, outH);
     if (img) {
-      const scale = coverBaseScale(img, OUT_W, OUT_H) * (value.zoom || 1);
+      const scale = coverBaseScale(img, outW, outH) * (value.zoom || 1);
       const dw = img.naturalWidth * scale;
       const dh = img.naturalHeight * scale;
-      ctx.drawImage(img, (OUT_W - dw) / 2 + value.x, (OUT_H - dh) / 2 + value.y, dw, dh);
+      ctx.drawImage(img, (outW - dw) / 2 + value.x, (outH - dh) / 2 + value.y, dw, dh);
     }
-  }, [img, value]);
+  }, [img, value, outW, outH, prev]);
 
   return (
     <div>
       <canvas
         ref={canvasRef}
-        width={OUT_W * PREV}
-        height={OUT_H * PREV}
-        className="mx-auto block cursor-move touch-none rounded-lg border border-border bg-secondary"
+        width={outW * prev}
+        height={outH * prev}
+        className="mx-auto block cursor-grab touch-none rounded-lg border border-border bg-secondary active:cursor-grabbing"
         onPointerDown={(e) => {
           drag.current = { x: e.clientX, y: e.clientY };
           (e.target as Element).setPointerCapture(e.pointerId);
         }}
         onPointerMove={(e) => {
           if (!drag.current) return;
-          const dx = (e.clientX - drag.current.x) / PREV;
-          const dy = (e.clientY - drag.current.y) / PREV;
+          const dx = (e.clientX - drag.current.x) / prev;
+          const dy = (e.clientY - drag.current.y) / prev;
           drag.current = { x: e.clientX, y: e.clientY };
           onChange({ ...value, x: value.x + dx, y: value.y + dy });
         }}
