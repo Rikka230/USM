@@ -57,7 +57,7 @@ const allJsonLd = [organizationJsonLd(), ...jsonLd];
     <link rel="icon" type="image/png" sizes="16x16" href="/Assets/favicon-16.png" />
     <link rel="apple-touch-icon" href="/Assets/apple-touch-icon.png" />
 
-    <link rel="stylesheet" href="/site.css" />
+    <link rel="stylesheet" href="/site.css?v=3" />
     {allJsonLd.map((obj) => (
       <script type="application/ld+json" set:html={JSON.stringify(obj)} />
     ))}
