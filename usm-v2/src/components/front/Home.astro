@@ -176,10 +176,14 @@ const agencyData = {
         <div class="category-block" data-category={cat} style={i === 0 ? "" : "display:none;"}>
           <div class="slider-container">
             <div class="horizontal-scroller">
-              {(byCat[cat] || []).map((p) => (
+              {(byCat[cat] || []).map((p) => {
+                // alt SEO : nom du joueur + marque + agent (référencement Google Images)
+                const playerAlt = [p.name?.trim(), "USM Football", "Christophe Mongai"]
+                  .filter(Boolean).join(" — ");
+                return (
                 <div class="player-card" data-name={(p.name || "").toLowerCase()}>
                   <div class="player-img-container roster-gradient-holder" style={`--roster-hue:${rosterHue(p.name || p.image_url || "USM")};`}>
-                    {p.image_url && <img src={p.image_url} alt={p.name} decoding="async" loading="lazy" />}
+                    {p.image_url && <img src={p.image_url} alt={playerAlt} decoding="async" loading="lazy" />}
                   </div>
                   <div class="player-info">
                     <div>
@@ -192,7 +196,8 @@ const agencyData = {
                   <div class="player-stat-wrap"><div class="player-stat">{p.stat}</div></div>
                   <span class="card-shine" aria-hidden="true"></span>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
