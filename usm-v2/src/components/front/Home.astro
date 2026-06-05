@@ -202,11 +202,15 @@ const agencyData = {
 
   <section class="marquee-wrapper" id="marquee-section">
     <div class="marquee-track" id="marquee-track">
-      {[...marquee, ...marquee].map((m) => {
+      {[...marquee, ...marquee].map((m, i) => {
         const c = m.crop || { x: 0, y: 0, zoom: 1 };
+        // La 2e moitié est un doublon visuel (défilement) -> masqué aux moteurs
+        // pour ne pas dupliquer l'image/alt dans l'index.
+        const isClone = i >= marquee.length;
+        const altText = (m.alt || "").trim() || "USM Football";
         return (
-          <div class="marquee-item" style={`--marquee-x:${c.x}%;--marquee-y:${c.y}%;--marquee-zoom:${c.zoom};`}>
-            <img src={m.image_url} loading="lazy" decoding="async" alt="Gallery" />
+          <div class="marquee-item" style={`--marquee-x:${c.x}%;--marquee-y:${c.y}%;--marquee-zoom:${c.zoom};`} aria-hidden={isClone ? "true" : undefined}>
+            <img src={m.image_url} loading="lazy" decoding="async" alt={isClone ? "" : altText} />
           </div>
         );
       })}

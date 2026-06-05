@@ -56,6 +56,8 @@ export interface MarqueeImage {
   id: string;
   image_url: string;
   crop?: Crop;
+  /** Texte alternatif / nom SEO de l'image (indexation Google Images). */
+  alt?: string;
   timestamp?: number;
 }
 
