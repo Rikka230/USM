@@ -1,0 +1,55 @@
+name: USM v2 — Publish (LIVE)
+
+# Déclenché par le bouton « Publier » de l'admin via la Cloud Function
+# triggerSitePublish (repository_dispatch). Rebuild Astro (lecture Firestore
+# fraîche) + déploiement sur la cible Hosting `live` (usmfootball.com).
+on:
+  repository_dispatch:
+    types: [usm-v2-publish]
+  # Permet aussi un déclenchement manuel depuis l'onglet Actions.
+  workflow_dispatch: {}
+
+# Évite deux publications concurrentes (la dernière demande l'emporte).
+concurrency:
+  group: usm-v2-publish-live
+  cancel-in-progress: false
+
+jobs:
+  build-deploy-live:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: usm-v2
+    env:
+      HAS_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_USM != '' }}
+    steps:
+      # repository_dispatch exécute ce workflow depuis la branche par défaut (main),
+      # mais le code de la v2 vit sur la branche `usm-v2` : on la checkout explicitement.
+      - uses: actions/checkout@v4
+        with:
+          ref: usm-v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: usm-v2/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_USM }}
+        run: npm run build
+
+      - name: Deploy to LIVE (production)
+        if: env.HAS_SA == 'true'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_USM }}
+          projectId: usm-football-b56ba
+          target: live
+          channelId: live
+          entryPoint: usm-v2
