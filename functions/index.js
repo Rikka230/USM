@@ -8,7 +8,15 @@ const { getAuth: getAdminAuth } = require("firebase-admin/auth");
 
 const BREVO_API_KEY = defineSecret("BREVO_API_KEY");
 const YOUTUBE_API_KEY = defineSecret("YOUTUBE_API_KEY");
+const GITHUB_DISPATCH_TOKEN = defineSecret("GITHUB_DISPATCH_TOKEN");
 const BREVO_CONTACT_LIST_ID = defineString("BREVO_CONTACT_LIST_ID", { default: "" });
+
+// Publication du site v2 : déclenche le workflow GitHub Actions (rebuild + deploy LIVE).
+const PUBLISH_REPO = "Rikka230/USM";
+const PUBLISH_EVENT_TYPE = "usm-v2-publish";
+const PUBLISH_COOLDOWN_MS = 60 * 1000; // anti double-clic / spam de rebuilds
+const PUBLISH_TIMEOUT_MS = 10000;
+let lastPublishAt = 0;
 
 const CONTACT_RECIPIENT_EMAIL = "contact@usmfootball.com";
 const CONTACT_RECIPIENT_NAME = "USM Football";
@@ -739,6 +747,104 @@ exports.refreshSocialStatsNow = onRequest(
       const status = error.status || 500;
       logger.error("Manual social stats refresh failed", { message: error.message, status });
       res.status(status).json({ ok: false, message: error.message || "Erreur synchronisation réseaux sociaux." });
+    }
+  }
+);
+
+exports.triggerSitePublish = onRequest(
+  {
+    region: "europe-west1",
+    secrets: [GITHUB_DISPATCH_TOKEN],
+    timeoutSeconds: 30,
+    memory: "256MiB"
+  },
+  async (req, res) => {
+    setCorsHeaders(req, res);
+    res.set("Cache-Control", "no-store");
+    res.set("X-Content-Type-Options", "nosniff");
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    if (req.method !== "POST") {
+      res.status(405).json({ ok: false, message: "Méthode non autorisée." });
+      return;
+    }
+
+    if (!isAllowedOrigin(req)) {
+      logger.warn("Blocked site publish from unauthorized origin", { origin: req.get("origin") || "unknown" });
+      res.status(403).json({ ok: false, message: "Origine non autorisée." });
+      return;
+    }
+
+    let decodedToken;
+    try {
+      decodedToken = await verifyAdminRequest(req);
+    } catch (error) {
+      res.status(error.status || 401).json({ ok: false, message: error.message || "Authentification requise." });
+      return;
+    }
+
+    const now = Date.now();
+    const sinceLast = now - lastPublishAt;
+    if (lastPublishAt && sinceLast < PUBLISH_COOLDOWN_MS) {
+      const wait = Math.ceil((PUBLISH_COOLDOWN_MS - sinceLast) / 1000);
+      res.status(429).json({
+        ok: false,
+        message: `Une publication vient d’être lancée. Merci de patienter ${wait}s avant de relancer.`
+      });
+      return;
+    }
+
+    const token = normalizeString(GITHUB_DISPATCH_TOKEN.value(), 300);
+    if (!token) {
+      logger.error("Site publish failed: GITHUB_DISPATCH_TOKEN not configured");
+      res.status(500).json({ ok: false, message: "Publication non configurée (token GitHub manquant)." });
+      return;
+    }
+
+    const { controller, timeoutId } = createAbortSignal(PUBLISH_TIMEOUT_MS);
+    try {
+      const ghResponse = await fetch(`https://api.github.com/repos/${PUBLISH_REPO}/dispatches`, {
+        method: "POST",
+        headers: {
+          accept: "application/vnd.github+json",
+          authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+          "user-agent": "usm-admin-publish",
+          "x-github-api-version": "2022-11-28"
+        },
+        body: JSON.stringify({
+          event_type: PUBLISH_EVENT_TYPE,
+          client_payload: {
+            requestedBy: decodedToken.email || decodedToken.uid,
+            at: new Date().toISOString()
+          }
+        }),
+        signal: controller.signal
+      });
+
+      if (ghResponse.status !== 204) {
+        const text = await ghResponse.text();
+        logger.error("GitHub repository_dispatch failed", { status: ghResponse.status, body: text.slice(0, 500) });
+        res.status(502).json({ ok: false, message: "Le déclenchement de la publication a échoué. Réessayez dans un instant." });
+        return;
+      }
+
+      lastPublishAt = now;
+      logger.info("Site publish triggered", { requestedBy: decodedToken.email || decodedToken.uid });
+      res.status(200).json({
+        ok: true,
+        message: "Publication lancée. Le site public sera à jour dans 1 à 2 minutes.",
+        requestedBy: decodedToken.email || decodedToken.uid
+      });
+    } catch (error) {
+      logger.error("Unexpected site publish error", { message: error.message });
+      res.status(500).json({ ok: false, message: "Erreur technique lors de la publication. Réessayez dans un instant." });
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 );

@@ -27,7 +27,7 @@ function CropStudio({ src, value, onChange }: { src: string; value: Crop; onChan
     <div>
       <div
         ref={frameRef}
-        className="mx-auto aspect-square w-full max-w-xs cursor-move touch-none overflow-hidden rounded-lg border border-border bg-secondary"
+        className="mx-auto aspect-[280/380] w-full max-w-[280px] cursor-move touch-none overflow-hidden rounded-lg border border-border bg-secondary"
         onPointerDown={(e) => {
           drag.current = { x: e.clientX, y: e.clientY };
           (e.target as Element).setPointerCapture(e.pointerId);
@@ -200,7 +200,7 @@ export default function MarqueeModule() {
             const c = m.crop || emptyCrop;
             return (
               <Card key={m.id} className="p-3">
-                <div className="aspect-square overflow-hidden rounded-md bg-secondary">
+                <div className="aspect-[280/380] overflow-hidden rounded-md bg-secondary">
                   <img
                     src={m.image_url}
                     alt="Bandeau"
@@ -243,7 +243,7 @@ export default function MarqueeModule() {
         ) : previewUrl ? (
           <CropStudio src={previewUrl} value={crop} onChange={setCrop} />
         ) : (
-          <div className="mx-auto flex aspect-square w-full max-w-xs items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">
+          <div className="mx-auto flex aspect-[280/380] w-full max-w-[280px] items-center justify-center rounded-lg border border-dashed border-border text-xs text-muted-foreground">
             Sélectionnez une image
           </div>
         )}

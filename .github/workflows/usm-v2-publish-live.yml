@@ -1,28 +1,33 @@
-name: USM v2 — Build & Deploy (staging)
+name: USM v2 — Publish (LIVE)
 
+# Déclenché par le bouton « Publier » de l'admin via la Cloud Function
+# triggerSitePublish (repository_dispatch). Rebuild Astro (lecture Firestore
+# fraîche) + déploiement sur la cible Hosting `live` (usmfootball.com).
 on:
-  push:
-    branches: [usm-v2]
-    paths:
-      - "usm-v2/**"
-      - ".github/workflows/usm-v2-staging.yml"
+  repository_dispatch:
+    types: [usm-v2-publish]
+  # Permet aussi un déclenchement manuel depuis l'onglet Actions.
   workflow_dispatch: {}
-  # Note : le bouton « Publier » de l'admin déploie en LIVE (cf. usm-v2-publish-live.yml).
-  # Le staging se met à jour automatiquement à chaque push sur la branche usm-v2.
+
+# Évite deux publications concurrentes (la dernière demande l'emporte).
+concurrency:
+  group: usm-v2-publish-live
+  cancel-in-progress: false
 
 jobs:
-  build-deploy:
+  build-deploy-live:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: usm-v2
-    # Secret service-account requis pour : lecture Firestore au build (Jalon 2)
-    # ET déploiement Hosting. Tant qu'il est absent, le build tourne mais le
-    # déploiement est sauté (pas d'échec dur).
     env:
       HAS_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_USM != '' }}
     steps:
+      # repository_dispatch exécute ce workflow depuis la branche par défaut (main),
+      # mais le code de la v2 vit sur la branche `usm-v2` : on la checkout explicitement.
       - uses: actions/checkout@v4
+        with:
+          ref: usm-v2
 
       - uses: actions/setup-node@v4
         with:
@@ -35,17 +40,16 @@ jobs:
 
       - name: Build
         env:
-          # Lu par lib/firebase-build.ts (Admin SDK) pour pré-générer les pages.
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_USM }}
         run: npm run build
 
-      - name: Deploy to staging
+      - name: Deploy to LIVE (production)
         if: env.HAS_SA == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_USM }}
           projectId: usm-football-b56ba
-          target: staging
+          target: live
           channelId: live
           entryPoint: usm-v2

@@ -88,7 +88,32 @@ function Dashboard({ user }: { user: User }) {
   const toast = useToast();
   const [active, setActive] = useState("players");
   const [navOpen, setNavOpen] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const ActiveComp = MODULES.find((m) => m.key === active)!.comp;
+
+  async function publish() {
+    if (publishing) return;
+    if (!confirm("Publier les modifications en ligne ?\n\nLe site public sera reconstruit puis mis à jour (1 à 2 minutes).")) return;
+    setPublishing(true);
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch("/api/triggerSitePublish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) {
+        toast(data.message || "Publication lancée. Mise à jour dans 1 à 2 minutes.", "success");
+        setNavOpen(false);
+      } else {
+        toast(data.message || "Échec de la publication.", "error");
+      }
+    } catch {
+      toast("Publication impossible (réseau). Réessayez.", "error");
+    } finally {
+      setPublishing(false);
+    }
+  }
 
   const NavList = (
     <nav className="flex flex-col gap-1">
@@ -120,7 +145,7 @@ function Dashboard({ user }: { user: User }) {
           <div className="mb-7 px-1 pt-1"><Brand /></div>
           {NavList}
           <div className="mt-auto flex flex-col gap-2 pt-4">
-            <Button variant="outline" onClick={() => toast("Publication : à venir (Jalon 6)", "info")}><Rocket size={16} /> Publier</Button>
+            <Button variant="outline" onClick={publish} disabled={publishing}>{publishing ? <Spinner /> : <Rocket size={16} />} {publishing ? "Publication…" : "Publier"}</Button>
             <Button variant="ghost" onClick={() => signOut(auth)}><LogOut size={16} /> Déconnexion</Button>
             <p className="truncate px-1 text-xs text-muted-foreground">{user.email}</p>
           </div>
@@ -136,7 +161,7 @@ function Dashboard({ user }: { user: User }) {
                 <button onClick={() => setNavOpen(false)} aria-label="Fermer"><X /></button>
               </div>
               {NavList}
-              <div className="mt-6"><Button variant="outline" className="w-full" onClick={() => toast("Publication : à venir (Jalon 6)", "info")}><Rocket size={16} /> Publier</Button></div>
+              <div className="mt-6"><Button variant="outline" className="w-full" onClick={publish} disabled={publishing}>{publishing ? <Spinner /> : <Rocket size={16} />} {publishing ? "Publication…" : "Publier"}</Button></div>
             </div>
           </div>
         )}

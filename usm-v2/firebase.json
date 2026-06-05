@@ -16,6 +16,7 @@
       "rewrites": [
         { "source": "/api/sendContactEmail", "function": { "functionId": "sendContactEmail", "region": "europe-west1" } },
         { "source": "/api/refreshSocialStatsNow", "function": { "functionId": "refreshSocialStatsNow", "region": "europe-west1" } },
+        { "source": "/api/triggerSitePublish", "function": { "functionId": "triggerSitePublish", "region": "europe-west1" } },
         { "source": "/favicon.ico", "destination": "/Assets/favicon.png" }
       ],
       "headers": [
@@ -53,6 +54,7 @@
       "rewrites": [
         { "source": "/api/sendContactEmail", "function": { "functionId": "sendContactEmail", "region": "europe-west1" } },
         { "source": "/api/refreshSocialStatsNow", "function": { "functionId": "refreshSocialStatsNow", "region": "europe-west1" } },
+        { "source": "/api/triggerSitePublish", "function": { "functionId": "triggerSitePublish", "region": "europe-west1" } },
         { "source": "/favicon.ico", "destination": "/Assets/favicon.png" }
       ],
       "headers": [
