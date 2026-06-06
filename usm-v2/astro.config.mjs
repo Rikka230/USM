@@ -18,7 +18,13 @@ export default defineConfig({
       prefixDefaultLocale: false,
     },
   },
-  integrations: [react(), sitemap()],
+  integrations: [
+    react(),
+    sitemap({
+      // Ne pas lister l'espace d'admin (cohérent avec robots.txt Disallow: /admin)
+      filter: (page) => !page.includes('/admin'),
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },
