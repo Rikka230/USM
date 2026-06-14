@@ -11,7 +11,16 @@
         { "source": "/contact.html", "destination": "/contact", "type": 301 },
         { "source": "/presse.html", "destination": "/presse", "type": 301 },
         { "source": "/mentions.html", "destination": "/mentions", "type": 301 },
-        { "source": "/page-dynamique.html", "destination": "/", "type": 301 }
+        { "source": "/page-dynamique.html", "destination": "/", "type": 301 },
+
+        { "source": "/mention-legales", "destination": "/mentions", "type": 301 },
+        { "source": "/:lang/mention-legales", "destination": "/:lang/mentions", "type": 301 },
+        { "source": "/politique-de-confidentialite", "destination": "/mentions", "type": 301 },
+        { "source": "/:lang/politique-de-confidentialite", "destination": "/:lang/mentions", "type": 301 },
+        { "source": "/a-propos", "destination": "/#agence", "type": 301 },
+        { "source": "/:lang/a-propos", "destination": "/:lang#agence", "type": 301 },
+        { "source": "/services", "destination": "/#services", "type": 301 },
+        { "source": "/:lang/services", "destination": "/:lang#services", "type": 301 }
       ],
       "rewrites": [
         { "source": "/api/sendContactEmail", "function": { "functionId": "sendContactEmail", "region": "europe-west1" } },
@@ -52,7 +61,16 @@
         { "source": "/contact.html", "destination": "/contact", "type": 301 },
         { "source": "/presse.html", "destination": "/presse", "type": 301 },
         { "source": "/mentions.html", "destination": "/mentions", "type": 301 },
-        { "source": "/page-dynamique.html", "destination": "/", "type": 301 }
+        { "source": "/page-dynamique.html", "destination": "/", "type": 301 },
+
+        { "source": "/mention-legales", "destination": "/mentions", "type": 301 },
+        { "source": "/:lang/mention-legales", "destination": "/:lang/mentions", "type": 301 },
+        { "source": "/politique-de-confidentialite", "destination": "/mentions", "type": 301 },
+        { "source": "/:lang/politique-de-confidentialite", "destination": "/:lang/mentions", "type": 301 },
+        { "source": "/a-propos", "destination": "/#agence", "type": 301 },
+        { "source": "/:lang/a-propos", "destination": "/:lang#agence", "type": 301 },
+        { "source": "/services", "destination": "/#services", "type": 301 },
+        { "source": "/:lang/services", "destination": "/:lang#services", "type": 301 }
       ],
       "rewrites": [
         { "source": "/api/sendContactEmail", "function": { "functionId": "sendContactEmail", "region": "europe-west1" } },
