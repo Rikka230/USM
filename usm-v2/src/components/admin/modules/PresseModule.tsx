@@ -181,7 +181,10 @@ export default function PresseModule() {
         await updateDoc(doc(db, "presse_articles", editAId), payload);
         toast("Article mis à jour", "success");
       } else {
-        payload.order = articles.length + 1;
+        // Nouvel article : ordre le plus petit -> apparaît en premier (admin + site public).
+        payload.order = articles.length
+          ? Math.min(...articles.map((a) => a.order ?? 0)) - 1
+          : 1;
         payload.timestamp = serverTimestamp();
         await addDoc(collection(db, "presse_articles"), payload);
         toast("Article ajouté", "success");
