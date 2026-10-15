@@ -1,14 +1,16 @@
 rules_version = '2';
 
 // Règles Storage — site vitrine USM Football
-// Lecture publique (images affichées sur le site), écriture réservée aux
-// utilisateurs authentifiés, limitée aux images de moins de 10 Mo.
+// 15/10/2026 : lecture réservée aux comptes authentifiés (plus de parcours ni de
+// lecture anonyme du bucket). Les images du site restent affichées : leurs
+// adresses portent un jeton de téléchargement, qui ne dépend pas de ces règles.
+// Écriture réservée aux comptes authentifiés, images de moins de 10 Mo.
 // Chemins utilisés par l'admin : services/, site/, presse/, marquee/, et
 // les images de joueurs à la racine.
 service firebase.storage {
   match /b/{bucket}/o {
     match /{allPaths=**} {
-      allow read: if true;
+      allow read: if request.auth != null;
       allow write: if request.auth != null
                    && request.resource.size < 10 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
