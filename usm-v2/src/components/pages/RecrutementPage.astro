@@ -1,0 +1,71 @@
+---
+import { t, type Locale } from "@/lib/i18n";
+
+interface Props {
+  locale: Locale;
+}
+
+// Page recrutement (15/10/2026) : aucun poste ouvert, une ligne pour les
+// candidatures spontanées. Pas d'offre, donc pas de JobPosting.
+const { locale } = Astro.props;
+const mail = "contact@usmfootball.com";
+const mailto = `mailto:${mail}?subject=${encodeURIComponent("Candidature spontanée")}`;
+---
+
+<section class="hero-massive usmx-contact-hero usmx-jobs-hero">
+  <h1 class="reveal usmx-contact-h1">{t(locale, "jobs_title")}</h1>
+  <p class="reveal pink-accent usmx-jobs-status">{t(locale, "jobs_none")}</p>
+  <p class="reveal usmx-jobs-line">
+    {t(locale, "jobs_spontaneous")} <a href={mailto}>{mail}</a>.
+  </p>
+</section>
+
+<style>
+  .usmx-jobs-hero {
+    min-height: 55vh;
+    padding-bottom: 80px;
+  }
+  .usmx-jobs-status {
+    font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+    margin-bottom: 18px;
+  }
+  .usmx-jobs-line {
+    color: rgba(255, 255, 255, 0.82);
+    font-size: clamp(0.98rem, 1.8vw, 1.1rem);
+    line-height: 1.6;
+    max-width: 640px;
+    overflow-wrap: anywhere;
+  }
+  .usmx-jobs-line a {
+    color: #fff;
+    font-weight: 800;
+    text-decoration: none;
+    border-bottom: 1px solid var(--usm-pink);
+    transition: color 0.25s ease, text-shadow 0.25s ease;
+  }
+  .usmx-jobs-line a:hover {
+    color: var(--usm-pink);
+    text-shadow: 0 0 18px rgba(216, 0, 86, 0.35);
+  }
+</style>
+
+<script>
+  function initJobsReveal(): void {
+    const els = document.querySelectorAll<HTMLElement>(".usmx-jobs-hero .reveal:not(.visible)");
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            io.unobserve(entry.target);
+          }
+        });
+      });
+      els.forEach((el) => io.observe(el));
+    } else {
+      els.forEach((el) => el.classList.add("visible"));
+    }
+  }
+  initJobsReveal();
+  document.addEventListener("astro:page-load", initJobsReveal);
+</script>

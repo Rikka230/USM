@@ -23,6 +23,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     contact_opt_player: "Je suis un joueur", contact_opt_club: "Je représente un club", contact_opt_coach: "Je suis coach", contact_opt_staff: "Je suis membre du staff", contact_opt_other: "Autre demande",
     contact_ph_msg: "Votre message...", contact_privacy_consent: "J’accepte que mes informations soient utilisées par USM Football pour répondre à ma demande.", contact_sms_consent: "J’accepte aussi que mon numéro de téléphone soit utilisé par USM Football pour me recontacter par téléphone ou SMS au sujet de ma demande.", contact_rgpd_note: "Vos données sont transmises à USM Football et enregistrées dans Brevo Contacts afin de traiter votre demande. Si vous cochez l’option téléphone/SMS, votre numéro pourra aussi être enregistré dans Brevo pour permettre un recontact lié à votre demande. Vos données ne sont pas vendues.", contact_btn_send: "Envoyer le message",
     back_services: "❮ Retour à l'accueil", other_services: "Naviguer",
+    jobs_nav: "Recrutement", jobs_title: "Recrutement", jobs_none: "Aucun poste n'est ouvert pour le moment.", jobs_spontaneous: "Pour une candidature spontanée, écrivez à", jobs_description: "Recrutement USM Football : aucun poste n'est ouvert pour le moment. Candidatures spontanées : contact@usmfootball.com.",
   },
   en: {
     nav_agency: "The Agency", nav_services: "Services", nav_talents: "Talents", nav_press: "Press", nav_button: "Contact",
@@ -43,6 +44,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     contact_opt_player: "I am a player", contact_opt_club: "I represent a club", contact_opt_coach: "I am a coach", contact_opt_staff: "I am a staff member", contact_opt_other: "Other request",
     contact_ph_msg: "Your message...", contact_privacy_consent: "I agree that my information may be used by USM Football to respond to my request.", contact_sms_consent: "I also agree that my phone number may be used by USM Football to contact me by phone or SMS about my request.", contact_rgpd_note: "Your data is sent to USM Football and saved in Brevo Contacts to process your request. If you tick the phone/SMS option, your number may also be saved in Brevo to allow follow-up related to your request. Your data is not sold.", contact_btn_send: "Send message",
     back_services: "❮ Back to Home", other_services: "Navigate",
+    jobs_nav: "Careers", jobs_title: "Careers", jobs_none: "There are no open positions at the moment.", jobs_spontaneous: "To send a speculative application, write to", jobs_description: "Careers at USM Football: there are no open positions at the moment. Speculative applications: contact@usmfootball.com.",
   },
   es: {
     nav_agency: "La Agencia", nav_services: "Servicios", nav_talents: "Los Talentos", nav_press: "Prensa", nav_button: "Contacto",
@@ -63,6 +65,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     contact_opt_player: "Soy jugador", contact_opt_club: "Represento a un club", contact_opt_coach: "Soy entrenador", contact_opt_staff: "Soy miembro del staff", contact_opt_other: "Otra consulta",
     contact_ph_msg: "Tu mensaje...", contact_privacy_consent: "Acepto que USM Football utilice mi información para responder a mi solicitud.", contact_sms_consent: "También acepto que USM Football use mi número para contactarme por teléfono o SMS sobre mi solicitud.", contact_rgpd_note: "Tus datos se transmiten a USM Football y se guardan en Brevo Contacts para tratar tu solicitud. Si marcas la opción teléfono/SMS, tu número también podrá guardarse en Brevo para un seguimiento relacionado con tu solicitud. Tus datos no se venden.", contact_btn_send: "Enviar mensaje",
     back_services: "❮ Volver al inicio", other_services: "Navegar",
+    jobs_nav: "Empleo", jobs_title: "Empleo", jobs_none: "No hay ningún puesto vacante por el momento.", jobs_spontaneous: "Para una candidatura espontánea, escribe a", jobs_description: "Empleo en USM Football: no hay ningún puesto vacante por el momento. Candidaturas espontáneas: contact@usmfootball.com.",
   },
   pt: {
     nav_agency: "A Agência", nav_services: "Serviços", nav_talents: "Os Talentos", nav_press: "Imprensa", nav_button: "Contato",
@@ -83,6 +86,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     contact_opt_player: "Sou jogador", contact_opt_club: "Represento um clube", contact_opt_coach: "Sou treinador", contact_opt_staff: "Sou membro da equipa", contact_opt_other: "Outro pedido",
     contact_ph_msg: "Sua mensagem...", contact_privacy_consent: "Aceito que as minhas informações sejam usadas pela USM Football para responder ao meu pedido.", contact_sms_consent: "Também aceito que a USM Football use o meu número para me contactar por telefone ou SMS sobre o meu pedido.", contact_rgpd_note: "Os seus dados são transmitidos à USM Football e guardados no Brevo Contacts para tratar o seu pedido. Se marcar a opção telefone/SMS, o seu número também poderá ser guardado no Brevo para permitir um acompanhamento relacionado com o seu pedido. Os seus dados não são vendidos.", contact_btn_send: "Enviar mensagem",
     back_services: "❮ Voltar ao Início", other_services: "Navegar",
+    jobs_nav: "Recrutamento", jobs_title: "Recrutamento", jobs_none: "De momento, não há nenhuma vaga aberta.", jobs_spontaneous: "Para uma candidatura espontânea, escreva para", jobs_description: "Recrutamento na USM Football: de momento, não há nenhuma vaga aberta. Candidaturas espontâneas: contact@usmfootball.com.",
   },
 };
 
